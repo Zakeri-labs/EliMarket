@@ -1,0 +1,52 @@
+import { z } from "zod";
+
+const envSchema = z.object({
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+});
+
+export type AppEnv = z.infer<typeof envSchema>;
+
+function parseEnv(): AppEnv {
+  const parsed = envSchema.safeParse({
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    NODE_ENV: process.env.NODE_ENV,
+  });
+
+  if (!parsed.success) {
+    throw new Error(
+      `Invalid environment:\n${parsed.error.issues
+        .map((i) => `- ${i.path.join(".")}: ${i.message}`)
+        .join("\n")}`,
+    );
+  }
+
+  return parsed.data;
+}
+
+let cached: AppEnv | null = null;
+
+export function env(): AppEnv {
+  cached ??= parseEnv();
+  return cached;
+}
+
+export const publicEnv = {
+  get supabaseUrl() {
+    return env().NEXT_PUBLIC_SUPABASE_URL;
+  },
+  get supabaseAnonKey() {
+    return env().NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  },
+  get appUrl() {
+    return env().NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  },
+};
