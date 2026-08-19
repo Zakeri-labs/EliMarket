@@ -20,6 +20,11 @@ export default function AdminDashboardPage() {
       desc: t("admin.dashboard.categoriesDesc"),
     },
     {
+      href: "/dashboard/brands",
+      label: t("admin.dashboard.brandsCard"),
+      desc: t("admin.dashboard.brandsDesc"),
+    },
+    {
       href: "/dashboard/banners",
       label: t("admin.dashboard.bannersCard"),
       desc: t("admin.dashboard.bannersDesc"),

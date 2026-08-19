@@ -46,14 +46,25 @@ export type Messages = {
     outOfStock: string;
     description: string;
     noDescription: string;
+    brand: string;
+    features: string;
+    noFeatures: string;
     addToCart: string;
+    addToCartSimple: string;
     fallbackName: string;
+    vatIncluded: string;
+    quantity: string;
+    share: string;
+    wishlist: string;
   };
   cart: {
     title: string;
+    titleWithCount: string;
     empty: string;
     backToStore: string;
+    clear: string;
     freeDeliveryProgress: string;
+    freeDeliveryUnlocked: string;
     freeDeliveryHighlight: string;
     subtotal: string;
     deliveryFee: string;
@@ -155,6 +166,9 @@ export type Messages = {
     categoryUpdated: string;
     categoryCreated: string;
     categoryDeleted: string;
+    brandCreated: string;
+    brandUpdated: string;
+    brandDeleted: string;
     heroUpdated: string;
   };
   errors: {
@@ -196,6 +210,10 @@ export type Messages = {
     categoryCreateFailed: string;
     categoryUpdateFailed: string;
     categoryDeleteFailed: string;
+    brandCreateFailed: string;
+    brandUpdateFailed: string;
+    brandDeleteFailed: string;
+    brandsLoadFailed: string;
     heroUpdateFailed: string;
     addressesLoadFailed: string;
     addressSaveFailed: string;
@@ -220,6 +238,7 @@ export type Messages = {
       dashboard: string;
       products: string;
       categories: string;
+      brands: string;
       banners: string;
       orders: string;
       reports: string;
@@ -246,6 +265,8 @@ export type Messages = {
       coverageDesc: string;
       categoriesCard: string;
       categoriesDesc: string;
+      brandsCard: string;
+      brandsDesc: string;
       bannersCard: string;
       bannersDesc: string;
     };
@@ -257,9 +278,21 @@ export type Messages = {
       namePlaceholder: string;
       slugPlaceholder: string;
       descriptionPlaceholder: string;
+      descriptionSection: string;
+      descriptionFa: string;
+      descriptionAr: string;
+      descriptionEn: string;
+      aiDescriptionAll: string;
       priceLabel: string;
       stockLabel: string;
       noCategory: string;
+      brandLabel: string;
+      noBrand: string;
+      featuresSection: string;
+      featureLabelPlaceholder: string;
+      featureValuePlaceholder: string;
+      addFeature: string;
+      removeFeature: string;
       imageUrlPlaceholder: string;
       showInStore: string;
       save: string;
@@ -288,6 +321,25 @@ export type Messages = {
       aiStubDescription: string;
       aiStubCategorySuffix: string;
     };
+    brands: {
+      title: string;
+      subtitle: string;
+      newBrand: string;
+      editBrand: string;
+      namePlaceholder: string;
+      slugPlaceholder: string;
+      logoUrlPlaceholder: string;
+      sortOrderLabel: string;
+      save: string;
+      create: string;
+      cancel: string;
+      edit: string;
+      delete: string;
+      loading: string;
+      empty: string;
+      validationName: string;
+      validationSlug: string;
+    };
     categories: {
       title: string;
       subtitle: string;
@@ -296,6 +348,9 @@ export type Messages = {
       namePlaceholder: string;
       slugPlaceholder: string;
       sortOrderLabel: string;
+      imageUrlPlaceholder: string;
+      uploadImage: string;
+      removeImage: string;
       save: string;
       create: string;
       cancel: string;
@@ -462,25 +517,36 @@ const fa: Messages = {
     fallbackBakery: "نانوایی",
   },
   product: {
-    inStock: "✓ موجود",
+    inStock: "موجود",
     outOfStock: "ناموجود",
     description: "توضیحات",
     noDescription: "توضیحاتی برای این محصول ثبت نشده است.",
+    brand: "برند",
+    features: "ویژگی‌ها",
+    noFeatures: "ویژگی‌ای ثبت نشده است.",
     addToCart: "افزودن به سبد — {price}",
+    addToCartSimple: "افزودن به سبد",
     fallbackName: "محصول",
+    vatIncluded: "شامل مالیات",
+    quantity: "تعداد",
+    share: "اشتراک‌گذاری",
+    wishlist: "علاقه‌مندی",
   },
   cart: {
     title: "سبد خرید من",
+    titleWithCount: "سبد خرید من ({count})",
     empty: "سبد خرید شما خالی است",
     backToStore: "بازگشت به فروشگاه",
+    clear: "خالی کردن",
     freeDeliveryProgress: "{amount} تا {highlight}",
+    freeDeliveryUnlocked: "ارسال رایگان فعال شد",
     freeDeliveryHighlight: "ارسال رایگان",
     subtotal: "جمع جزء",
     deliveryFee: "هزینه ارسال",
     free: "رایگان",
     vat: "مالیات ({percent}٪)",
     total: "جمع کل",
-    continueCheckout: "ادامه تسویه",
+    continueCheckout: "تسویه",
   },
   checkout: {
     emptyCart: "سبد خرید خالی است",
@@ -608,6 +674,9 @@ const fa: Messages = {
     categoryUpdated: "دسته به‌روز شد",
     categoryCreated: "دسته ایجاد شد",
     categoryDeleted: "دسته حذف شد",
+    brandCreated: "برند ایجاد شد",
+    brandUpdated: "برند به‌روزرسانی شد",
+    brandDeleted: "برند حذف شد",
     heroUpdated: "بنر ذخیره شد",
   },
   errors: {
@@ -649,6 +718,10 @@ const fa: Messages = {
     categoryCreateFailed: "ایجاد دسته ناموفق بود",
     categoryUpdateFailed: "ویرایش دسته ناموفق بود",
     categoryDeleteFailed: "حذف دسته ناموفق بود",
+    brandCreateFailed: "ایجاد برند ناموفق بود",
+    brandUpdateFailed: "به‌روزرسانی برند ناموفق بود",
+    brandDeleteFailed: "حذف برند ناموفق بود",
+    brandsLoadFailed: "بارگذاری برندها ناموفق بود",
     heroUpdateFailed: "ذخیره بنر ناموفق بود",
     addressesLoadFailed: "بارگذاری آدرس‌ها ناموفق بود",
     addressSaveFailed: "ثبت آدرس ناموفق بود",
@@ -673,6 +746,7 @@ const fa: Messages = {
       dashboard: "داشبورد",
       products: "محصولات",
       categories: "دسته‌بندی‌ها",
+      brands: "برندها",
       banners: "بنر صفحه اصلی",
       orders: "سفارش‌ها",
       reports: "گزارشات مالی",
@@ -699,6 +773,8 @@ const fa: Messages = {
       coverageDesc: "نقشه تحویل",
       categoriesCard: "دسته‌بندی‌ها",
       categoriesDesc: "افزودن و ویرایش دسته محصولات",
+      brandsCard: "برندها",
+      brandsDesc: "تعریف و مدیریت برند محصولات",
       bannersCard: "بنر صفحه اصلی",
       bannersDesc: "متن و تصویر بنر Hero",
     },
@@ -710,9 +786,21 @@ const fa: Messages = {
       namePlaceholder: "نام محصول",
       slugPlaceholder: "slug-en",
       descriptionPlaceholder: "توضیحات",
+      descriptionSection: "توضیحات محصول (سه زبان)",
+      descriptionFa: "فارسی",
+      descriptionAr: "عربی",
+      descriptionEn: "انگلیسی",
+      aiDescriptionAll: "تولید توضیحات با AI",
       priceLabel: "قیمت (تومان)",
       stockLabel: "موجودی",
       noCategory: "بدون دسته",
+      brandLabel: "برند",
+      noBrand: "بدون برند",
+      featuresSection: "ویژگی‌های محصول",
+      featureLabelPlaceholder: "نام ویژگی (مثلاً وزن)",
+      featureValuePlaceholder: "مقدار (مثلاً ۱ کیلوگرم)",
+      addFeature: "افزودن ویژگی",
+      removeFeature: "حذف",
       imageUrlPlaceholder: "URL تصویر (یا آپلود کنید)",
       showInStore: "نمایش در فروشگاه",
       save: "ذخیره",
@@ -741,6 +829,25 @@ const fa: Messages = {
       aiStubDescription: "{name} — محصول تازه و باکیفیت{category}.",
       aiStubCategorySuffix: " در دسته {category}",
     },
+    brands: {
+      title: "مدیریت برندها",
+      subtitle: "تعریف برندهای محصولات فروشگاه",
+      newBrand: "برند جدید",
+      editBrand: "ویرایش برند",
+      namePlaceholder: "نام برند",
+      slugPlaceholder: "brand-slug",
+      logoUrlPlaceholder: "URL لوگو (اختیاری)",
+      sortOrderLabel: "ترتیب نمایش",
+      save: "ذخیره",
+      create: "ایجاد برند",
+      cancel: "انصراف",
+      edit: "ویرایش",
+      delete: "حذف",
+      loading: "در حال بارگذاری…",
+      empty: "برندی ثبت نشده است.",
+      validationName: "نام برند الزامی است",
+      validationSlug: "اسلاگ برند الزامی است",
+    },
     categories: {
       title: "دسته‌بندی محصولات",
       subtitle: "مدیریت دسته‌های فروشگاه",
@@ -749,6 +856,9 @@ const fa: Messages = {
       namePlaceholder: "نام دسته",
       slugPlaceholder: "slug-دسته",
       sortOrderLabel: "ترتیب نمایش",
+      imageUrlPlaceholder: "آدرس تصویر دسته",
+      uploadImage: "آپلود تصویر",
+      removeImage: "حذف تصویر",
       save: "ذخیره",
       create: "ایجاد",
       cancel: "انصراف",
@@ -924,25 +1034,36 @@ const ar: Messages = {
     fallbackBakery: "مخبوزات",
   },
   product: {
-    inStock: "✓ متوفر",
+    inStock: "متوفر",
     outOfStock: "غير متوفر",
     description: "الوصف",
     noDescription: "لا يوجد وصف لهذا المنتج.",
+    brand: "العلامة التجارية",
+    features: "المواصفات",
+    noFeatures: "لا توجد مواصفات.",
     addToCart: "أضف إلى السلة — {price}",
+    addToCartSimple: "أضف إلى السلة",
     fallbackName: "منتج",
+    vatIncluded: "شامل ضريبة القيمة المضافة",
+    quantity: "الكمية",
+    share: "مشاركة",
+    wishlist: "المفضلة",
   },
   cart: {
     title: "سلة التسوق",
+    titleWithCount: "سلة التسوق ({count})",
     empty: "سلة التسوق فارغة",
     backToStore: "العودة إلى المتجر",
+    clear: "إفراغ",
     freeDeliveryProgress: "{amount} حتى {highlight}",
+    freeDeliveryUnlocked: "تم تفعيل التوصيل المجاني",
     freeDeliveryHighlight: "توصيل مجاني",
     subtotal: "المجموع الفرعي",
     deliveryFee: "رسوم التوصيل",
     free: "مجاني",
     vat: "الضريبة ({percent}٪)",
     total: "الإجمالي",
-    continueCheckout: "متابعة الدفع",
+    continueCheckout: "الدفع",
   },
   checkout: {
     emptyCart: "سلة التسوق فارغة",
@@ -1070,6 +1191,9 @@ const ar: Messages = {
     categoryUpdated: "تم تحديث الفئة",
     categoryCreated: "تم إنشاء الفئة",
     categoryDeleted: "تم حذف الفئة",
+    brandCreated: "تم إنشاء العلامة",
+    brandUpdated: "تم تحديث العلامة",
+    brandDeleted: "تم حذف العلامة",
     heroUpdated: "تم حفظ البانر",
   },
   errors: {
@@ -1111,6 +1235,10 @@ const ar: Messages = {
     categoryCreateFailed: "فشل إنشاء الفئة",
     categoryUpdateFailed: "فشل تحديث الفئة",
     categoryDeleteFailed: "فشل حذف الفئة",
+    brandCreateFailed: "فشل إنشاء العلامة",
+    brandUpdateFailed: "فشل تحديث العلامة",
+    brandDeleteFailed: "فشل حذف العلامة",
+    brandsLoadFailed: "فشل تحميل العلامات",
     heroUpdateFailed: "فشل حفظ البانر",
     addressesLoadFailed: "فشل تحميل العناوين",
     addressSaveFailed: "فشل حفظ العنوان",
@@ -1135,6 +1263,7 @@ const ar: Messages = {
       dashboard: "لوحة التحكم",
       products: "المنتجات",
       categories: "الفئات",
+      brands: "العلامات التجارية",
       banners: "بانر الصفحة الرئيسية",
       orders: "الطلبات",
       reports: "التقارير المالية",
@@ -1161,6 +1290,8 @@ const ar: Messages = {
       coverageDesc: "خريطة التوصيل",
       categoriesCard: "الفئات",
       categoriesDesc: "إضافة وتعديل فئات المنتجات",
+      brandsCard: "العلامات التجارية",
+      brandsDesc: "تعريف وإدارة علامات المنتجات",
       bannersCard: "بانر الصفحة الرئيسية",
       bannersDesc: "نص وصورة بانر Hero",
     },
@@ -1172,9 +1303,21 @@ const ar: Messages = {
       namePlaceholder: "اسم المنتج",
       slugPlaceholder: "slug-en",
       descriptionPlaceholder: "الوصف",
+      descriptionSection: "وصف المنتج (ثلاث لغات)",
+      descriptionFa: "فارسی",
+      descriptionAr: "العربية",
+      descriptionEn: "English",
+      aiDescriptionAll: "إنشاء الوصف بالذكاء الاصطناعي",
       priceLabel: "السعر (تومان)",
       stockLabel: "المخزون",
       noCategory: "بدون فئة",
+      brandLabel: "العلامة التجارية",
+      noBrand: "بدون علامة",
+      featuresSection: "مواصفات المنتج",
+      featureLabelPlaceholder: "اسم المواصفة (مثل الوزن)",
+      featureValuePlaceholder: "القيمة (مثل 1 كجم)",
+      addFeature: "إضافة مواصفة",
+      removeFeature: "حذف",
       imageUrlPlaceholder: "رابط الصورة (أو ارفع ملفاً)",
       showInStore: "عرض في المتجر",
       save: "حفظ",
@@ -1203,6 +1346,25 @@ const ar: Messages = {
       aiStubDescription: "{name} — منتج طازج وعالي الجودة{category}.",
       aiStubCategorySuffix: " في فئة {category}",
     },
+    brands: {
+      title: "إدارة العلامات التجارية",
+      subtitle: "تعريف علامات منتجات المتجر",
+      newBrand: "علامة جديدة",
+      editBrand: "تعديل العلامة",
+      namePlaceholder: "اسم العلامة",
+      slugPlaceholder: "brand-slug",
+      logoUrlPlaceholder: "رابط الشعار (اختياري)",
+      sortOrderLabel: "ترتيب العرض",
+      save: "حفظ",
+      create: "إنشاء علامة",
+      cancel: "إلغاء",
+      edit: "تعديل",
+      delete: "حذف",
+      loading: "جاري التحميل…",
+      empty: "لا توجد علامات مسجلة.",
+      validationName: "اسم العلامة مطلوب",
+      validationSlug: "الرابط التعريفي مطلوب",
+    },
     categories: {
       title: "فئات المنتجات",
       subtitle: "إدارة فئات المتجر",
@@ -1211,6 +1373,9 @@ const ar: Messages = {
       namePlaceholder: "اسم الفئة",
       slugPlaceholder: "slug-الفئة",
       sortOrderLabel: "ترتيب العرض",
+      imageUrlPlaceholder: "رابط صورة الفئة",
+      uploadImage: "رفع صورة",
+      removeImage: "إزالة الصورة",
       save: "حفظ",
       create: "إنشاء",
       cancel: "إلغاء",
@@ -1386,25 +1551,36 @@ const en: Messages = {
     fallbackBakery: "Bakery",
   },
   product: {
-    inStock: "✓ In stock",
+    inStock: "In stock",
     outOfStock: "Out of stock",
     description: "Description",
     noDescription: "No description available for this product.",
+    brand: "Brand",
+    features: "Specifications",
+    noFeatures: "No specifications listed.",
     addToCart: "Add to cart — {price}",
+    addToCartSimple: "Add to cart",
     fallbackName: "Product",
+    vatIncluded: "Inclusive of VAT",
+    quantity: "Quantity",
+    share: "Share",
+    wishlist: "Wishlist",
   },
   cart: {
     title: "My cart",
+    titleWithCount: "My Cart ({count})",
     empty: "Your cart is empty",
     backToStore: "Back to store",
-    freeDeliveryProgress: "{amount} until {highlight}",
-    freeDeliveryHighlight: "free delivery",
+    clear: "Clear",
+    freeDeliveryProgress: "You're {amount} away from {highlight}",
+    freeDeliveryUnlocked: "You've unlocked FREE delivery",
+    freeDeliveryHighlight: "FREE delivery",
     subtotal: "Subtotal",
     deliveryFee: "Delivery fee",
     free: "Free",
     vat: "VAT ({percent}%)",
     total: "Total",
-    continueCheckout: "Continue to checkout",
+    continueCheckout: "Checkout",
   },
   checkout: {
     emptyCart: "Your cart is empty",
@@ -1532,6 +1708,9 @@ const en: Messages = {
     categoryUpdated: "Category updated",
     categoryCreated: "Category created",
     categoryDeleted: "Category deleted",
+    brandCreated: "Brand created",
+    brandUpdated: "Brand updated",
+    brandDeleted: "Brand deleted",
     heroUpdated: "Banner saved",
   },
   errors: {
@@ -1573,6 +1752,10 @@ const en: Messages = {
     categoryCreateFailed: "Failed to create category",
     categoryUpdateFailed: "Failed to update category",
     categoryDeleteFailed: "Failed to delete category",
+    brandCreateFailed: "Failed to create brand",
+    brandUpdateFailed: "Failed to update brand",
+    brandDeleteFailed: "Failed to delete brand",
+    brandsLoadFailed: "Failed to load brands",
     heroUpdateFailed: "Failed to save banner",
     addressesLoadFailed: "Failed to load addresses",
     addressSaveFailed: "Failed to save address",
@@ -1597,6 +1780,7 @@ const en: Messages = {
       dashboard: "Dashboard",
       products: "Products",
       categories: "Categories",
+      brands: "Brands",
       banners: "Homepage banner",
       orders: "Orders",
       reports: "Financial reports",
@@ -1623,6 +1807,8 @@ const en: Messages = {
       coverageDesc: "Delivery map",
       categoriesCard: "Categories",
       categoriesDesc: "Add and edit product categories",
+      brandsCard: "Brands",
+      brandsDesc: "Define and manage product brands",
       bannersCard: "Homepage banner",
       bannersDesc: "Hero section text and image",
     },
@@ -1634,9 +1820,21 @@ const en: Messages = {
       namePlaceholder: "Product name",
       slugPlaceholder: "slug-en",
       descriptionPlaceholder: "Description",
+      descriptionSection: "Product description (3 languages)",
+      descriptionFa: "Persian",
+      descriptionAr: "Arabic",
+      descriptionEn: "English",
+      aiDescriptionAll: "Generate descriptions with AI",
       priceLabel: "Price (Toman)",
       stockLabel: "Stock",
       noCategory: "No category",
+      brandLabel: "Brand",
+      noBrand: "No brand",
+      featuresSection: "Product specifications",
+      featureLabelPlaceholder: "Spec name (e.g. Weight)",
+      featureValuePlaceholder: "Value (e.g. 1 kg)",
+      addFeature: "Add specification",
+      removeFeature: "Remove",
       imageUrlPlaceholder: "Image URL (or upload)",
       showInStore: "Show in store",
       save: "Save",
@@ -1665,6 +1863,25 @@ const en: Messages = {
       aiStubDescription: "{name} — fresh, high-quality product{category}.",
       aiStubCategorySuffix: " in {category} category",
     },
+    brands: {
+      title: "Brand management",
+      subtitle: "Define store product brands",
+      newBrand: "New brand",
+      editBrand: "Edit brand",
+      namePlaceholder: "Brand name",
+      slugPlaceholder: "brand-slug",
+      logoUrlPlaceholder: "Logo URL (optional)",
+      sortOrderLabel: "Sort order",
+      save: "Save",
+      create: "Create brand",
+      cancel: "Cancel",
+      edit: "Edit",
+      delete: "Delete",
+      loading: "Loading…",
+      empty: "No brands yet.",
+      validationName: "Brand name is required",
+      validationSlug: "Brand slug is required",
+    },
     categories: {
       title: "Product categories",
       subtitle: "Manage store categories",
@@ -1673,6 +1890,9 @@ const en: Messages = {
       namePlaceholder: "Category name",
       slugPlaceholder: "category-slug",
       sortOrderLabel: "Sort order",
+      imageUrlPlaceholder: "Category image URL",
+      uploadImage: "Upload image",
+      removeImage: "Remove image",
       save: "Save",
       create: "Create",
       cancel: "Cancel",

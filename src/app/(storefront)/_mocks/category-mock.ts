@@ -56,6 +56,8 @@ export function mockCategories(locale: Locale): Category[] {
     name,
     slug: CATEGORY_SLUGS[index] ?? `category-${index}`,
     sort_order: index,
+    image_url: null,
+    blur_hash: null,
     created_at: MOCK_TIMESTAMP,
   }));
 }

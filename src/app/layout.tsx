@@ -57,12 +57,12 @@ export default async function RootLayout({
       lang={locale}
       dir={getDirection(locale)}
       suppressHydrationWarning
-      className={`${vazirmatn.variable} h-full antialiased`}
+      className={`${vazirmatn.variable} flex h-full flex-col antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="flex min-h-0 flex-1 flex-col bg-background text-foreground">
         <QueryProvider>
           <LocaleProvider>
-            {children}
+            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
             <Notifications />
           </LocaleProvider>
         </QueryProvider>

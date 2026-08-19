@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lock, Menu, Search, ShoppingCart } from "lucide-react";
+import { Menu, Search, ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/app/_store/cart-store";
-import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { cn } from "@/app/utils/cn";
 import { STOREFRONT_CONTAINER } from "@/config/layout";
 import { LanguageTabs } from "@/components/i18n/LanguageTabs";
@@ -13,9 +12,10 @@ import { useTranslations } from "@/i18n/use-translations";
 
 export function StorefrontHeader() {
   const pathname = usePathname();
-  const cartCount = useCartStore((s) => s.totalItems());
+  const cartCount = useCartStore((s) =>
+    s.items.reduce((sum, item) => sum + item.quantity, 0),
+  );
   const { t, messages } = useTranslations();
-  const { showPrices } = useStoreSettings();
 
   const NAV_LINKS = [
     { href: "/", label: t("nav.home"), exact: true },
@@ -42,24 +42,21 @@ export function StorefrontHeader() {
               {messages.brand.nameLocal}
             </p>
           </Link>
-          {showPrices ? (
-            <Link
-              href="/cart"
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-black"
-              aria-label={t("nav.cart")}
-            >
-              <AppIcon icon={ShoppingCart} size="md" />
-              {cartCount > 0 && (
-                <span className="absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-accent">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          ) : (
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface text-muted">
-              <AppIcon icon={Lock} size="md" />
-            </span>
-          )}
+          <Link
+            href="/cart"
+            className={cn(
+              "relative flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-black",
+              pathname === "/cart" && "ring-2 ring-accent/40 ring-offset-2 ring-offset-background",
+            )}
+            aria-label={t("nav.cart")}
+          >
+            <AppIcon icon={ShoppingCart} size="md" />
+            {cartCount > 0 && (
+              <span className="absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-accent">
+                {cartCount}
+              </span>
+            )}
+          </Link>
         </div>
 
         {/* Desktop */}
@@ -99,28 +96,21 @@ export function StorefrontHeader() {
               <AppIcon icon={Search} size="sm" />
               {t("nav.searchShortcut")}
             </Link>
-            {showPrices ? (
-              <Link
-                href="/cart"
-                className="relative flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
-              >
-                <AppIcon icon={ShoppingCart} size="sm" />
-                {t("nav.cart")}
-                {cartCount > 0 && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-accent">
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
-            ) : (
-              <span
-                className="flex cursor-not-allowed items-center gap-2 rounded-xl border border-border bg-surface-elevated px-4 py-2 text-sm text-muted"
-                title={t("store.cartClosedDesc")}
-              >
-                <AppIcon icon={Lock} size="sm" />
-                {t("store.pricesHidden")}
-              </span>
-            )}
+            <Link
+              href="/cart"
+              className={cn(
+                "relative flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90",
+                pathname === "/cart" && "ring-2 ring-accent/40 ring-offset-2 ring-offset-background",
+              )}
+            >
+              <AppIcon icon={ShoppingCart} size="sm" />
+              {t("nav.cart")}
+              {cartCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-accent">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </div>

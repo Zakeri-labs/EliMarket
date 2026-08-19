@@ -1,6 +1,8 @@
 import { BRAND_NAME } from "@/config/brand";
 import type { Category, Product } from "@/app/_types/database.types";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo/site-url";
+import { resolveProductDescription } from "@/lib/i18n/product-description";
+import type { Locale } from "@/i18n/config";
 
 export function websiteJsonLd() {
   const siteUrl = getSiteUrl();
@@ -33,7 +35,7 @@ export function websiteJsonLd() {
   };
 }
 
-export function productJsonLd(product: Product) {
+export function productJsonLd(product: Product, locale: Locale = "fa") {
   const availability =
     product.stock > 0
       ? "https://schema.org/InStock"
@@ -43,7 +45,7 @@ export function productJsonLd(product: Product) {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.description ?? undefined,
+    description: resolveProductDescription(product, locale) ?? undefined,
     image: product.image_url ? [product.image_url] : undefined,
     sku: product.id,
     offers: {

@@ -16,15 +16,20 @@ export async function createCategoryAction(input: {
   name: string;
   slug: string;
   sort_order?: number;
+  image_url?: string | null;
+  blur_hash?: string | null;
 }) {
   try {
     const { supabase } = await requireAdmin();
+    const imageUrl = input.image_url?.trim() || null;
     const { data, error } = await supabase
       .from("categories")
       .insert({
         name: input.name.trim(),
         slug: input.slug.trim(),
         sort_order: input.sort_order ?? 0,
+        image_url: imageUrl,
+        blur_hash: imageUrl ? input.blur_hash?.trim() || null : null,
       })
       .select("*")
       .single();
@@ -42,14 +47,31 @@ export async function createCategoryAction(input: {
 
 export async function updateCategoryAction(
   id: string,
-  input: Partial<{ name: string; slug: string; sort_order: number }>,
+  input: Partial<{
+    name: string;
+    slug: string;
+    sort_order: number;
+    image_url: string | null;
+    blur_hash: string | null;
+  }>,
 ) {
   try {
     const { supabase } = await requireAdmin();
-    const payload: Record<string, string | number> = {};
+    const payload: Record<string, string | number | null> = {};
     if (input.name !== undefined) payload.name = input.name.trim();
     if (input.slug !== undefined) payload.slug = input.slug.trim();
     if (input.sort_order !== undefined) payload.sort_order = input.sort_order;
+    if (input.image_url !== undefined) {
+      const imageUrl = input.image_url?.trim() || null;
+      payload.image_url = imageUrl;
+      if (input.blur_hash !== undefined) {
+        payload.blur_hash = imageUrl ? input.blur_hash?.trim() || null : null;
+      } else if (!imageUrl) {
+        payload.blur_hash = null;
+      }
+    } else if (input.blur_hash !== undefined) {
+      payload.blur_hash = input.blur_hash?.trim() || null;
+    }
 
     const { data, error } = await supabase
       .from("categories")

@@ -13,6 +13,7 @@ import {
   updateProductAction,
   updateProductStockAction,
 } from "@/app/_actions/product-actions";
+import { getAdminBrandsAction } from "@/app/_actions/brand-actions";
 import {
   editProductImageWithAiAction,
   generateProductDescriptionAction,
@@ -32,15 +33,30 @@ import { DataTable } from "@/components/table";
 import { formatPrice } from "@/config/brand";
 import { mockAdminTableProducts } from "@/app/(admin)/dashboard/_mocks/product-table-mock";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
-import type { Category, Product } from "@/app/_types/database.types";
+import type { Brand, Category, Product } from "@/app/_types/database.types";
+
+type FeatureDraft = { label: string; value: string };
+
+const EMPTY_FEATURE: FeatureDraft = { label: "", value: "" };
+
+type DescriptionLocale = "fa" | "ar" | "en";
+
+const DESCRIPTION_TABS: { key: DescriptionLocale; labelKey: "descriptionFa" | "descriptionAr" | "descriptionEn"; dir: "rtl" | "ltr" }[] = [
+  { key: "fa", labelKey: "descriptionFa", dir: "rtl" },
+  { key: "ar", labelKey: "descriptionAr", dir: "rtl" },
+  { key: "en", labelKey: "descriptionEn", dir: "ltr" },
+];
 
 type FormValues = {
   name: string;
   slug: string;
-  description?: string;
+  description_fa?: string;
+  description_ar?: string;
+  description_en?: string;
   price: number;
   stock: number;
   category_id?: string;
+  brand_id?: string;
   image_url?: string;
   blur_hash?: string;
   is_active: boolean;
@@ -53,18 +69,24 @@ export default function AdminProductsPage() {
   const { t } = useTranslations();
   const formatLocalizedPrice = useFormatPrice();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [editing, setEditing] = useState<Product | null>(null);
   const [stockDrafts, setStockDrafts] = useState<Record<string, string>>({});
+  const [descriptionTab, setDescriptionTab] = useState<DescriptionLocale>("fa");
+  const [features, setFeatures] = useState<FeatureDraft[]>([{ ...EMPTY_FEATURE }]);
 
   const schema = useMemo(
     () =>
       z.object({
         name: z.string().min(1, t("admin.products.validationName")),
         slug: z.string().min(1, t("admin.products.validationSlug")),
-        description: z.string().optional(),
+        description_fa: z.string().optional(),
+        description_ar: z.string().optional(),
+        description_en: z.string().optional(),
         price: z.number().min(0),
         stock: z.number().int().min(0),
         category_id: z.string().optional(),
+        brand_id: z.string().optional(),
         image_url: z.string().optional(),
         blur_hash: z.string().optional(),
         is_active: z.boolean(),
@@ -77,10 +99,13 @@ export default function AdminProductsPage() {
     defaultValues: {
       name: "",
       slug: "",
-      description: "",
+      description_fa: "",
+      description_ar: "",
+      description_en: "",
       price: 0,
       stock: 0,
       category_id: "",
+      brand_id: "",
       image_url: "",
       blur_hash: "",
       is_active: true,
@@ -93,6 +118,9 @@ export default function AdminProductsPage() {
     getCategoriesAction().then((r) => {
       if (r.success && r.data) setCategories(r.data);
     });
+    getAdminBrandsAction().then((r) => {
+      if (r.success && r.data) setBrands(r.data);
+    });
   }, []);
 
   useEffect(() => {
@@ -100,14 +128,25 @@ export default function AdminProductsPage() {
       form.reset({
         name: editing.name,
         slug: editing.slug,
-        description: editing.description ?? "",
+        description_fa: editing.description_fa ?? editing.description ?? "",
+        description_ar: editing.description_ar ?? "",
+        description_en: editing.description_en ?? "",
         price: Number(editing.price),
         stock: editing.stock,
         category_id: editing.category_id ?? "",
+        brand_id: editing.brand_id ?? "",
         image_url: editing.image_url ?? "",
         blur_hash: editing.blur_hash ?? "",
         is_active: editing.is_active,
       });
+      setFeatures(
+        editing.features?.length
+          ? editing.features.map((feature) => ({
+              label: feature.label,
+              value: feature.value,
+            }))
+          : [{ ...EMPTY_FEATURE }],
+      );
     }
   }, [editing, form]);
 
@@ -123,9 +162,18 @@ export default function AdminProductsPage() {
     const payload = {
       ...values,
       category_id: values.category_id || null,
-      description: values.description || undefined,
+      brand_id: values.brand_id || null,
+      description_fa: values.description_fa?.trim() || null,
+      description_ar: values.description_ar?.trim() || null,
+      description_en: values.description_en?.trim() || null,
       image_url: values.image_url || null,
       blur_hash: values.image_url ? values.blur_hash || null : null,
+      features: features
+        .map((feature) => ({
+          label: feature.label.trim(),
+          value: feature.value.trim(),
+        }))
+        .filter((feature) => feature.label && feature.value),
     };
 
     if (editing) {
@@ -134,6 +182,7 @@ export default function AdminProductsPage() {
         onSuccess: () => {
           setEditing(null);
           form.reset();
+          setFeatures([{ ...EMPTY_FEATURE }]);
           refetch();
         },
       });
@@ -142,6 +191,7 @@ export default function AdminProductsPage() {
         successMessage: t("notifications.productCreated"),
         onSuccess: () => {
           form.reset();
+          setFeatures([{ ...EMPTY_FEATURE }]);
           refetch();
         },
       });
@@ -332,12 +382,72 @@ export default function AdminProductsPage() {
             className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
             dir="ltr"
           />
-          <textarea
-            {...form.register("description")}
-            placeholder={t("admin.products.descriptionPlaceholder")}
-            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
-            rows={3}
-          />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-medium text-[#71717a]">
+                {t("admin.products.descriptionSection")}
+              </p>
+              <Button
+                type="button"
+                variant="secondary"
+                className="text-xs"
+                disabled={isActionPending}
+                onClick={() => {
+                  const name = form.getValues("name").trim();
+                  if (!name) {
+                    notifyFormError(t("admin.products.validationName"), {
+                      title: t("notifications.errorTitle"),
+                    });
+                    return;
+                  }
+                  const cat = categories.find((c) => c.id === form.getValues("category_id"));
+                  runAction(
+                    () => generateProductDescriptionAction({ name, category: cat?.name }),
+                    {
+                      onSuccess: (data) => {
+                        if (!data) return;
+                        form.setValue("description_fa", data.description_fa);
+                        form.setValue("description_ar", data.description_ar);
+                        form.setValue("description_en", data.description_en);
+                      },
+                    },
+                  );
+                }}
+              >
+                {t("admin.products.aiDescriptionAll")}
+              </Button>
+            </div>
+            <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+              {DESCRIPTION_TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
+                    descriptionTab === tab.key
+                      ? "bg-white text-[#18181b] shadow-sm"
+                      : "text-[#71717a] hover:text-[#18181b]"
+                  }`}
+                  onClick={() => setDescriptionTab(tab.key)}
+                >
+                  {t(`admin.products.${tab.labelKey}`)}
+                </button>
+              ))}
+            </div>
+            <textarea
+              key={descriptionTab}
+              {...form.register(
+                descriptionTab === "fa"
+                  ? "description_fa"
+                  : descriptionTab === "ar"
+                    ? "description_ar"
+                    : "description_en",
+              )}
+              placeholder={t("admin.products.descriptionPlaceholder")}
+              className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+              rows={4}
+              dir={DESCRIPTION_TABS.find((tab) => tab.key === descriptionTab)?.dir ?? "rtl"}
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
@@ -374,6 +484,81 @@ export default function AdminProductsPage() {
             ))}
           </select>
 
+          <select
+            {...form.register("brand_id")}
+            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+          >
+            <option value="">{t("admin.products.noBrand")}</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.id}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
+
+          <div className="space-y-2 rounded-xl border border-[#e4e4e7] p-3">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-medium text-[#71717a]">
+                {t("admin.products.featuresSection")}
+              </p>
+              <Button
+                type="button"
+                variant="secondary"
+                className="text-xs"
+                onClick={() => setFeatures((current) => [...current, { ...EMPTY_FEATURE }])}
+              >
+                {t("admin.products.addFeature")}
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {features.map((feature, index) => (
+                <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                  <input
+                    value={feature.label}
+                    onChange={(event) =>
+                      setFeatures((current) =>
+                        current.map((item, itemIndex) =>
+                          itemIndex === index
+                            ? { ...item, label: event.target.value }
+                            : item,
+                        ),
+                      )
+                    }
+                    placeholder={t("admin.products.featureLabelPlaceholder")}
+                    className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2 text-sm"
+                  />
+                  <input
+                    value={feature.value}
+                    onChange={(event) =>
+                      setFeatures((current) =>
+                        current.map((item, itemIndex) =>
+                          itemIndex === index
+                            ? { ...item, value: event.target.value }
+                            : item,
+                        ),
+                      )
+                    }
+                    placeholder={t("admin.products.featureValuePlaceholder")}
+                    className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2 text-sm"
+                  />
+                  <button
+                    type="button"
+                    className="rounded-xl border border-[#e4e4e7] px-3 py-2 text-xs text-red-600"
+                    onClick={() =>
+                      setFeatures((current) =>
+                        current.length <= 1
+                          ? [{ ...EMPTY_FEATURE }]
+                          : current.filter((_, itemIndex) => itemIndex !== index),
+                      )
+                    }
+                  >
+                    {t("admin.products.removeFeature")}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <input type="hidden" {...form.register("blur_hash")} />
 
           <input
@@ -393,25 +578,17 @@ export default function AdminProductsPage() {
               {editing ? t("admin.products.save") : t("admin.products.create")}
             </Button>
             {editing && (
-              <Button type="button" variant="secondary" onClick={() => setEditing(null)}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setEditing(null);
+                  setFeatures([{ ...EMPTY_FEATURE }]);
+                }}
+              >
                 {t("admin.products.cancel")}
               </Button>
             )}
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                const name = form.getValues("name");
-                const cat = categories.find((c) => c.id === form.getValues("category_id"));
-                runAction(() => generateProductDescriptionAction({ name, category: cat?.name }), {
-                  onSuccess: (data) => {
-                    if (data?.description) form.setValue("description", data.description);
-                  },
-                });
-              }}
-            >
-              {t("admin.products.aiDescription")}
-            </Button>
             <label className="cursor-pointer">
               <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
                 <AppIcon icon={Upload} size="sm" />

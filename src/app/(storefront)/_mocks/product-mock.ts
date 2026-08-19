@@ -9,6 +9,8 @@ const CATEGORY_BY_LOCALE: Record<Locale, Category> = {
     name: "لبنیات و صبحانه",
     slug: "dairy-breakfast",
     sort_order: 1,
+    image_url: null,
+    blur_hash: null,
     created_at: MOCK_TIMESTAMP,
   },
   ar: {
@@ -16,6 +18,8 @@ const CATEGORY_BY_LOCALE: Record<Locale, Category> = {
     name: "منتجات الألبان والإفطار",
     slug: "dairy-breakfast",
     sort_order: 1,
+    image_url: null,
+    blur_hash: null,
     created_at: MOCK_TIMESTAMP,
   },
   en: {
@@ -23,6 +27,8 @@ const CATEGORY_BY_LOCALE: Record<Locale, Category> = {
     name: "Dairy and breakfast",
     slug: "dairy-breakfast",
     sort_order: 1,
+    image_url: null,
+    blur_hash: null,
     created_at: MOCK_TIMESTAMP,
   },
 };
@@ -96,9 +102,13 @@ function buildMockProduct(
   return {
     id: `mock-product-${index}`,
     category_id: category.id,
+    brand_id: null,
     name,
     slug: `${copy.slug}-${index}`,
     description: copy.description,
+    description_fa: PRODUCT_COPY.fa.description,
+    description_ar: PRODUCT_COPY.ar.description,
+    description_en: PRODUCT_COPY.en.description,
     price: 125_000 + index * 15_000,
     currency: "IRR",
     stock: 24,

@@ -11,6 +11,7 @@ import {
 } from "@/lib/seo/site-url";
 import { getMessages } from "@/i18n/messages";
 import { getRequestLocale } from "@/i18n/server";
+import { resolveProductDescription } from "@/lib/i18n/product-description";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const product = result.data;
-  const description = trimDescription(product.description);
+  const description = trimDescription(resolveProductDescription(product, locale));
   const path = `/products/${slug}`;
   const images = product.image_url
     ? [{ url: product.image_url, alt: product.name }]
@@ -50,12 +51,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
+  const locale = await getRequestLocale();
   const result = await getProductBySlugAction(slug);
   if (!result.success || !result.data) notFound();
 
   return (
     <>
-      <JsonLd data={productJsonLd(result.data)} />
+      <JsonLd data={productJsonLd(result.data, locale)} />
       <ProductDetailPageClient slug={slug} initialProduct={result.data} />
     </>
   );

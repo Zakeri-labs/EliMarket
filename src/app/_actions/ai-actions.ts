@@ -3,7 +3,10 @@
 import { publicEnv } from "@/config/env";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
-import { serverT } from "@/i18n/server";
+import {
+  buildProductDescriptionStub,
+  type ProductDescriptionsI18n,
+} from "@/lib/ai/product-description-stub";
 
 async function callEdgeFunction(
   name: string,
@@ -22,7 +25,31 @@ async function callEdgeFunction(
   return res.json();
 }
 
-/** Stub: returns original image URL until edge function is deployed */
+function normalizeAiDescriptions(
+  result: Record<string, unknown>,
+  fallback: ProductDescriptionsI18n,
+): ProductDescriptionsI18n | null {
+  const fa =
+    (typeof result.description_fa === "string" && result.description_fa) ||
+    (typeof result.description === "string" && result.description) ||
+    fallback.description_fa;
+  const ar =
+    (typeof result.description_ar === "string" && result.description_ar) ||
+    fallback.description_ar;
+  const en =
+    (typeof result.description_en === "string" && result.description_en) ||
+    fallback.description_en;
+
+  if (!fa && !ar && !en) return null;
+
+  return {
+    description_fa: fa,
+    description_ar: ar,
+    description_en: en,
+  };
+}
+
+/** Stub: returns placeholder descriptions until edge function is deployed */
 export async function editProductImageWithAiAction(imageUrl: string) {
   try {
     await requireAdmin();
@@ -43,36 +70,29 @@ export async function editProductImageWithAiAction(imageUrl: string) {
   }
 }
 
-/** Stub: returns placeholder description until edge function is deployed */
+/** Generate product descriptions in FA, AR, and EN */
 export async function generateProductDescriptionAction(input: {
   name: string;
   category?: string;
 }) {
   try {
     await requireAdmin();
+    const fallback = buildProductDescriptionStub(input);
+
     try {
-      const result = (await callEdgeFunction("generate-product-description", input)) as {
-        description?: string;
-      };
-      if (result?.description) {
-        return { success: true as const, data: { description: result.description } };
+      const result = (await callEdgeFunction("generate-product-description", input)) as Record<
+        string,
+        unknown
+      >;
+      const normalized = normalizeAiDescriptions(result, fallback);
+      if (normalized) {
+        return { success: true as const, data: normalized };
       }
     } catch {
       // fall through to stub
     }
-    return {
-      success: true as const,
-      data: {
-        description: await serverT("admin.products.aiStubDescription", {
-          name: input.name,
-          category: input.category
-            ? await serverT("admin.products.aiStubCategorySuffix", {
-                category: input.category,
-              })
-            : "",
-        }),
-      },
-    };
+
+    return { success: true as const, data: fallback };
   } catch (err) {
     return {
       success: false as const,

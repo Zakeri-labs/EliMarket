@@ -7,6 +7,8 @@ const MOCK_CATEGORY = {
   name: "Dairy and breakfast",
   slug: "dairy-breakfast",
   sort_order: 1,
+  image_url: null,
+  blur_hash: null,
   created_at: MOCK_TIMESTAMP,
 };
 
@@ -55,10 +57,16 @@ export function mockAdminTableProducts(): Product[] {
   return ROWS.map((row, index) => ({
     id: `mock-admin-product-${index}`,
     category_id: MOCK_CATEGORY.id,
+    brand_id: null,
     name: row.name,
     slug: row.slug,
     description:
       "Sample admin table description with realistic paragraph length for stable row height during skeleton loading.",
+    description_fa:
+      "توضیحات نمونه برای نمایش اسکلتون جدول محصولات در پنل ادمین.",
+    description_ar: "وصف تجريبي لعرض هيكل جدول المنتجات في لوحة الإدارة.",
+    description_en:
+      "Sample description for the admin product table skeleton loading state.",
     price: row.price,
     currency: "IRR",
     stock: row.stock,

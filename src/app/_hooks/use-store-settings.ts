@@ -25,6 +25,7 @@ export function useStoreSettings() {
       return result.data ?? FALLBACK_SETTINGS;
     },
     staleTime: 15_000,
+    placeholderData: FALLBACK_SETTINGS,
   });
 
   return {

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
 import { ProductCard } from "@/app/(storefront)/_components/ProductCard";
 import { useTranslations } from "@/i18n/use-translations";
+import { productDescriptionSearchText } from "@/lib/i18n/product-description";
 
 export function SearchContent() {
   const searchParams = useSearchParams();
@@ -23,7 +24,7 @@ export function SearchContent() {
       (p) =>
         !q.trim() ||
         p.name.includes(q) ||
-        p.description?.includes(q) ||
+        productDescriptionSearchText(p).includes(q) ||
         p.category?.name.includes(q),
     ) ?? [];
 

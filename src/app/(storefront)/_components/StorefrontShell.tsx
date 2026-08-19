@@ -9,12 +9,19 @@ import { STOREFRONT_CONTAINER } from "@/config/layout";
 export function StorefrontShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isProductDetail = pathname.startsWith("/products/");
+  const isCart = pathname === "/cart";
   const isCheckout = pathname === "/checkout";
-  const hideMobileNav = isProductDetail || isCheckout;
+  const hideMobileNav = isProductDetail || isCheckout || isCart;
   const hideHeader = isProductDetail;
+  const mobileFullHeight = isProductDetail || isCart;
 
   return (
-    <div className="flex min-h-full w-full flex-1 flex-col bg-background">
+    <div
+      className={cn(
+        "flex min-h-full w-full flex-1 flex-col bg-background",
+        mobileFullHeight && "max-md:h-[100dvh] max-md:max-h-[100dvh] max-md:overflow-hidden",
+      )}
+    >
       {!hideHeader ? (
         <StorefrontHeader />
       ) : (
@@ -25,11 +32,21 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           "flex-1",
-          /* bottom padding only on mobile where bottom nav shows */
+          isProductDetail && "max-md:flex max-md:min-h-0 max-md:flex-col max-md:overflow-hidden",
+          isCart && "max-md:flex max-md:min-h-0 max-md:flex-col max-md:overflow-hidden",
           !hideMobileNav && "pb-24 md:pb-0",
         )}
       >
-        <div className={cn(STOREFRONT_CONTAINER, "min-h-full")}>{children}</div>
+        <div
+          className={cn(
+            STOREFRONT_CONTAINER,
+            "min-h-full",
+            isProductDetail && "max-md:flex max-md:min-h-0 max-md:flex-1 max-md:flex-col",
+            isCart && "max-md:flex max-md:min-h-0 max-md:flex-1 max-md:flex-col max-md:px-0",
+          )}
+        >
+          {children}
+        </div>
       </div>
       {!hideMobileNav && <BottomNav />}
     </div>
