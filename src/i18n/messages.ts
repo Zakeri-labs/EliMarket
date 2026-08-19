@@ -502,7 +502,7 @@ const fa: Messages = {
       forbidden: "حساب شما دسترسی ادمین ندارد.",
       username: "نام کاربری",
       password: "رمز عبور",
-      usernameHint: "بدون @ → username@{domain}",
+      usernameHint: "",
       submit: "ورود",
     },
     dashboard: {
@@ -850,7 +850,7 @@ const ar: Messages = {
       forbidden: "حسابك لا يملك صلاحية الإدارة.",
       username: "اسم المستخدم",
       password: "كلمة المرور",
-      usernameHint: "بدون @ → username@{domain}",
+      usernameHint: "",
       submit: "دخول",
     },
     dashboard: {
@@ -1198,7 +1198,7 @@ const en: Messages = {
       forbidden: "Your account does not have admin access.",
       username: "Username",
       password: "Password",
-      usernameHint: "Without @ → username@{domain}",
+      usernameHint: "",
       submit: "Sign in",
     },
     dashboard: {
