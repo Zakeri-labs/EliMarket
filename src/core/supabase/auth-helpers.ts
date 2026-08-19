@@ -30,10 +30,12 @@ export function mapProfileToSession(
   userId: string,
   profile: Profile | null,
   phone?: string | null,
+  email?: string | null,
 ): ClientSession {
   return {
     id: userId,
     phone: profile?.phone ?? phone ?? undefined,
+    email: email ?? undefined,
     fullName: profile?.full_name ?? undefined,
     role: profile?.role,
   };

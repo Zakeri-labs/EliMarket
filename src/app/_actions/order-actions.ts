@@ -2,6 +2,7 @@
 
 import { createClient } from "@/core/supabase/server";
 import { requireAdmin, requireAuth } from "@/core/supabase/auth-helpers";
+import { getStoreSettingsAction } from "@/app/_actions/settings-actions";
 import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
 import type { Order, PaymentMethod } from "@/app/_types/database.types";
 
@@ -60,6 +61,12 @@ export async function createOrderAction(payload: {
 }) {
   try {
     const { supabase, user } = await requireAuth();
+
+    const settingsResult = await getStoreSettingsAction();
+    if (!settingsResult.data?.show_prices) {
+      throw new Error("ثبت سفارش در حالت مخفی بودن قیمت غیرفعال است");
+    }
+
     if (!payload.items.length) throw new Error("سبد خرید خالی است");
 
     const productIds = payload.items.map((i) => i.productId);

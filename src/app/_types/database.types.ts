@@ -48,6 +48,12 @@ export type Store = {
   created_at: string;
 };
 
+export type StoreSettings = {
+  id: string;
+  show_prices: boolean;
+  updated_at: string;
+};
+
 export type Address = {
   id: string;
   user_id: string;

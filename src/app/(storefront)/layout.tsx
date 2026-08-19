@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { StorefrontHeader } from "@/app/(storefront)/_components/StorefrontHeader";
+import { StorefrontShell } from "@/app/(storefront)/_components/StorefrontShell";
+import { BRAND_NAME_FA } from "@/config/brand";
 
 export const metadata: Metadata = {
   title: "فروشگاه",
-  description: "خرید آنلاین از سوپرمارکت",
+  description: `خرید آنلاین — ${BRAND_NAME_FA}`,
   openGraph: {
-    title: "سوپرمارکت",
+    title: BRAND_NAME_FA,
     description: "خرید آنلاین با ارسال سریع",
     type: "website",
   },
@@ -14,10 +15,5 @@ export const metadata: Metadata = {
 export default function StorefrontLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <StorefrontHeader />
-      {children}
-    </div>
-  );
+  return <StorefrontShell>{children}</StorefrontShell>;
 }

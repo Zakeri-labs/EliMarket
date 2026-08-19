@@ -160,6 +160,10 @@ export async function deleteProductAction(id: string) {
   }
 }
 
+export async function updateProductStockAction(id: string, stock: number) {
+  return updateProductAction(id, { stock: Math.max(0, Math.floor(stock)) });
+}
+
 export async function uploadProductImageAction(formData: FormData) {
   try {
     const { supabase } = await requireAdmin();

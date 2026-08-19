@@ -12,3 +12,4 @@ export type AuthStatus = "authenticated" | "unauthenticated" | "loading";
 
 export type SendOtpModel = { phone: string };
 export type VerifyOtpModel = { phone: string; token: string };
+export type AdminSignInModel = { username: string; password: string };

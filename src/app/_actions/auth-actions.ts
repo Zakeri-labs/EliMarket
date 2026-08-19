@@ -9,10 +9,13 @@ import {
 } from "@/core/supabase/auth-helpers";
 import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
 import type {
+  AdminSignInModel,
   ClientSession,
   SendOtpModel,
   VerifyOtpModel,
 } from "@/app/_types/auth.types";
+import type { Profile } from "@/app/_types/database.types";
+import { resolveAdminEmail } from "@/config/admin-auth";
 
 export async function sendOtpAction(model: SendOtpModel) {
   try {
@@ -46,6 +49,7 @@ export async function verifyOtpAction(model: VerifyOtpModel) {
       data.user.id,
       profile,
       data.user.phone,
+      data.user.email,
     );
 
     return { success: true as const, data: session };
@@ -53,6 +57,50 @@ export async function verifyOtpAction(model: VerifyOtpModel) {
     return {
       success: false as const,
       error: extractActionErrorMessage(err, "کد تأیید نامعتبر است"),
+    };
+  }
+}
+
+export async function adminSignInAction(model: AdminSignInModel) {
+  try {
+    const supabase = await createClient();
+    const email = resolveAdminEmail(model.username);
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: model.password,
+    });
+    if (error) throw error;
+    if (!data.user) throw new Error("ورود ناموفق بود");
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (profile?.role !== "admin") {
+      await supabase.auth.signOut();
+      throw new Error("این حساب دسترسی ادمین ندارد");
+    }
+
+    const session = mapProfileToSession(
+      data.user.id,
+      profile as Profile,
+      data.user.phone,
+      data.user.email,
+    );
+
+    return { success: true as const, data: session };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: extractActionErrorMessage(
+        err,
+        "نام کاربری یا رمز عبور اشتباه است",
+      ),
     };
   }
 }
@@ -80,7 +128,7 @@ export async function getSessionAction() {
     const profile = await getCurrentProfile();
     return {
       success: true as const,
-      data: mapProfileToSession(user.id, profile, user.phone),
+      data: mapProfileToSession(user.id, profile, user.phone, user.email),
     };
   } catch {
     return { success: true as const, data: null as ClientSession | null };

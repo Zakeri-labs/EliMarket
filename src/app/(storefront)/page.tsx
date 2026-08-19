@@ -1,15 +1,36 @@
+import {
+  CategoryGrid,
+} from "@/app/(storefront)/_components/CategoryGrid";
+import { FlashDeals } from "@/app/(storefront)/_components/FlashDeals";
+import {
+  HeroBanner,
+  LocationBar,
+  SearchBar,
+} from "@/app/(storefront)/_components/HomeSections";
 import { ProductGrid } from "@/app/(storefront)/_components/ProductGrid";
+import { CartDisabledNotice } from "@/app/(storefront)/_components/CartGate";
 
 export default function StorefrontHomePage() {
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-      <section className="mb-10 rounded-2xl bg-gradient-to-l from-emerald-600 to-emerald-500 p-8 text-white">
-        <h1 className="text-3xl font-bold">خرید آنلاین از سوپرمارکت</h1>
-        <p className="mt-2 max-w-xl text-emerald-50">
-          تازه‌ترین محصولات با ارسال سریع — امروز سفارش بده، فردا تحویل بگیر.
-        </p>
-      </section>
-      <ProductGrid />
+    <main className="space-y-6 py-4 md:space-y-8 md:py-6 lg:py-8">
+      <CartDisabledNotice />
+      {/* Top bar: location + search — side by side on desktop */}
+      <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+        <LocationBar />
+        <SearchBar />
+      </div>
+
+      {/* Hero full width on mobile, left column on large screens */}
+      <div className="grid gap-6 lg:grid-cols-12 lg:gap-8">
+        <div className="space-y-6 lg:col-span-8 lg:space-y-8">
+          <HeroBanner />
+          <FlashDeals />
+          <ProductGrid />
+        </div>
+        <aside className="space-y-6 lg:col-span-4 lg:space-y-8">
+          <CategoryGrid />
+        </aside>
+      </div>
     </main>
   );
 }

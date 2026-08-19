@@ -12,12 +12,18 @@ const envSchema = z.object({
 
 export type AppEnv = z.infer<typeof envSchema>;
 
+function emptyToUndefined(value: string | undefined) {
+  return value?.trim() ? value : undefined;
+}
+
 function parseEnv(): AppEnv {
   const parsed = envSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    NEXT_PUBLIC_APP_URL: emptyToUndefined(process.env.NEXT_PUBLIC_APP_URL),
+    SUPABASE_SERVICE_ROLE_KEY: emptyToUndefined(
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    ),
     NODE_ENV: process.env.NODE_ENV,
   });
 
