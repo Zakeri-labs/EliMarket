@@ -18,18 +18,26 @@ export function notifyFormSuccess(message: string, duration?: number) {
   pushNotification("success", message, duration);
 }
 
-export function notifyFormWarning(message: unknown, duration?: number) {
+export function notifyFormWarning(
+  message: unknown,
+  duration?: number,
+  fallback = "Warning",
+) {
   pushNotification(
     "warning",
-    extractActionErrorMessage(message, "Warning"),
+    extractActionErrorMessage(message, fallback),
     duration ?? 7000,
   );
 }
 
-export function notifyFormError(message: unknown, duration?: number) {
+export function notifyFormError(
+  message: unknown,
+  duration?: number,
+  fallback = "Operation failed",
+) {
   pushNotification(
     "error",
-    extractActionErrorMessage(message, "Operation failed"),
+    extractActionErrorMessage(message, fallback),
     duration,
   );
 }

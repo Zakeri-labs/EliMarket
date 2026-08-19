@@ -3,7 +3,8 @@
 import { createClient } from "@/core/supabase/server";
 import { requireAdmin, requireAuth } from "@/core/supabase/auth-helpers";
 import { getStoreSettingsAction } from "@/app/_actions/settings-actions";
-import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
+import { actionErrorMessage } from "@/i18n/action-error";
+import { serverT } from "@/i18n/server";
 import type { Order, PaymentMethod } from "@/app/_types/database.types";
 
 export async function getOrdersAction() {
@@ -24,7 +25,7 @@ export async function getOrdersAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "بارگذاری سفارش‌ها ناموفق بود"),
+      error: await actionErrorMessage("errors.ordersLoadFailed", err),
     };
   }
 }
@@ -32,23 +33,22 @@ export async function getOrdersAction() {
 export async function getOrderByIdAction(id: string) {
   try {
     const { supabase, user, profile } = await requireAuth();
-    let query = supabase
+    const { data, error } = await supabase
       .from("orders")
       .select("*, order_items(*, product:products(*)), address:addresses(*)")
       .eq("id", id)
       .maybeSingle();
 
-    const { data, error } = await query;
     if (error) throw error;
-    if (!data) throw new Error("سفارش یافت نشد");
+    if (!data) throw new Error(await serverT("errors.orderNotFound"));
     if (profile?.role !== "admin" && data.user_id !== user.id) {
-      throw new Error("دسترسی مجاز نیست");
+      throw new Error(await serverT("errors.accessDenied"));
     }
     return { success: true as const, data: data as Order };
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "سفارش یافت نشد"),
+      error: await actionErrorMessage("errors.orderNotFound", err),
     };
   }
 }
@@ -64,10 +64,10 @@ export async function createOrderAction(payload: {
 
     const settingsResult = await getStoreSettingsAction();
     if (!settingsResult.data?.show_prices) {
-      throw new Error("ثبت سفارش در حالت مخفی بودن قیمت غیرفعال است");
+      throw new Error(await serverT("errors.cartDisabled"));
     }
 
-    if (!payload.items.length) throw new Error("سبد خرید خالی است");
+    if (!payload.items.length) throw new Error(await serverT("errors.emptyCart"));
 
     const productIds = payload.items.map((i) => i.productId);
     const { data: products, error: productsError } = await supabase
@@ -82,8 +82,10 @@ export async function createOrderAction(payload: {
 
     for (const item of payload.items) {
       const product = productMap.get(item.productId);
-      if (!product?.is_active) throw new Error("محصول نامعتبر است");
-      if (product.stock < item.quantity) throw new Error("موجودی کافی نیست");
+      if (!product?.is_active) throw new Error(await serverT("errors.invalidProduct"));
+      if (product.stock < item.quantity) {
+        throw new Error(await serverT("errors.insufficientStock"));
+      }
       total += Number(product.price) * item.quantity;
       currency = product.currency ?? "IRR";
     }
@@ -130,7 +132,7 @@ export async function createOrderAction(payload: {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "ثبت سفارش ناموفق بود"),
+      error: await actionErrorMessage("errors.orderCreateFailed", err),
     };
   }
 }
@@ -149,7 +151,7 @@ export async function assignRiderAction(orderId: string, riderId: string) {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "تخصیص پیک ناموفق بود"),
+      error: await actionErrorMessage("errors.riderAssignFailed", err),
     };
   }
 }
@@ -167,7 +169,7 @@ export async function getRidersAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "بارگذاری پیک‌ها ناموفق بود"),
+      error: await actionErrorMessage("errors.ridersLoadFailed", err),
     };
   }
 }
@@ -189,7 +191,7 @@ export async function updateOrderStatusAction(
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "به‌روزرسانی وضعیت ناموفق بود"),
+      error: await actionErrorMessage("errors.statusUpdateFailed", err),
     };
   }
 }

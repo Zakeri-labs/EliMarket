@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/core/supabase/auth-helpers";
-import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
+import { actionErrorMessage } from "@/i18n/action-error";
 import type { Store } from "@/app/_types/database.types";
 
 export async function getStoreAction() {
@@ -31,7 +31,7 @@ export async function getStoreAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "بارگذاری فروشگاه ناموفق بود"),
+      error: await actionErrorMessage("errors.storeLoadFailed", err),
     };
   }
 }
@@ -58,7 +58,7 @@ export async function updateStoreCoverageAction(input: {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "ذخیره محدوده پوشش ناموفق بود"),
+      error: await actionErrorMessage("errors.coverageSaveFailed", err),
     };
   }
 }

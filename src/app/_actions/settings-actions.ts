@@ -2,7 +2,7 @@
 
 import { createClient } from "@/core/supabase/server";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
-import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
+import { actionErrorMessage } from "@/i18n/action-error";
 import type { StoreSettings } from "@/app/_types/database.types";
 
 const SETTINGS_ID = "default";
@@ -28,7 +28,7 @@ export async function getStoreSettingsAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "بارگذاری تنظیمات ناموفق بود"),
+      error: await actionErrorMessage("errors.settingsLoadFailed", err),
       data: { id: SETTINGS_ID, show_prices: true, updated_at: new Date().toISOString() } as StoreSettings,
     };
   }
@@ -52,7 +52,7 @@ export async function setShowPricesAction(showPrices: boolean) {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "به‌روزرسانی تنظیمات ناموفق بود"),
+      error: await actionErrorMessage("errors.settingsUpdateFailed", err),
     };
   }
 }
@@ -65,7 +65,7 @@ export async function toggleShowPricesAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "تغییر وضعیت قیمت ناموفق بود"),
+      error: await actionErrorMessage("errors.priceToggleFailed", err),
     };
   }
 }

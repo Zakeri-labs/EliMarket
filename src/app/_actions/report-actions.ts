@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/core/supabase/auth-helpers";
-import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
+import { actionErrorMessage } from "@/i18n/action-error";
 import type { Order, Product } from "@/app/_types/database.types";
 
 export type FinancialReport = {
@@ -93,7 +93,7 @@ export async function getFinancialReportAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "بارگذاری گزارش مالی ناموفق بود"),
+      error: await actionErrorMessage("errors.reportLoadFailed", err),
     };
   }
 }

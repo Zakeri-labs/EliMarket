@@ -2,6 +2,7 @@
 
 import { LOCALES, LOCALE_SHORT, type Locale } from "@/i18n/config";
 import { useLocaleStore } from "@/app/_store/locale-store";
+import { useTranslations } from "@/i18n/use-translations";
 import { cn } from "@/app/utils/cn";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 export function LanguageTabs({ className, compact = false }: Props) {
   const locale = useLocaleStore((s) => s.locale);
   const setLocale = useLocaleStore((s) => s.setLocale);
+  const { t } = useTranslations();
 
   return (
     <div
@@ -21,7 +23,7 @@ export function LanguageTabs({ className, compact = false }: Props) {
         className,
       )}
       role="tablist"
-      aria-label="Language"
+      aria-label={t("common.language")}
     >
       {LOCALES.map((code) => {
         const active = locale === code;

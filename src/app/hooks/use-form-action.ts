@@ -3,6 +3,7 @@
 import { useCallback, useTransition } from "react";
 import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
 import { notifyFormError, notifyFormSuccess } from "@/app/utils/form-notify";
+import { useTranslations } from "@/i18n/use-translations";
 
 export type ActionResult<T = unknown> = {
   success: boolean;
@@ -21,18 +22,19 @@ type RunActionOptions<T> = {
 /** Shared form pattern: startTransition + loading + notification */
 export function useFormAction() {
   const [isPending, startTransition] = useTransition();
+  const { t } = useTranslations();
 
   const notifyError = useCallback((message: unknown) => {
-    notifyFormError(message);
-  }, []);
+    notifyFormError(message, undefined, t("errors.operationFailed"));
+  }, [t]);
 
   const notifySuccess = useCallback((message: unknown) => {
     notifyFormSuccess(
       typeof message === "string"
         ? message
-        : extractActionErrorMessage(message, "Done"),
+        : extractActionErrorMessage(message, t("errors.done")),
     );
-  }, []);
+  }, [t]);
 
   const runAction = useCallback(
     <T,>(
@@ -48,13 +50,14 @@ export function useFormAction() {
           } else {
             const msg = extractActionErrorMessage(
               result.error,
-              options?.errorMessage || "Operation failed",
+              options?.errorMessage || t("errors.operationFailed"),
             );
             notifyError(msg);
             options?.onError?.(msg);
           }
         } catch (err) {
-          const msg = err instanceof Error ? err.message : "Unexpected error";
+          const msg =
+            err instanceof Error ? err.message : t("errors.unexpectedError");
           notifyError(msg);
           options?.onError?.(msg);
         } finally {
@@ -62,7 +65,7 @@ export function useFormAction() {
         }
       });
     },
-    [notifyError, notifySuccess],
+    [notifyError, notifySuccess, t],
   );
 
   return {

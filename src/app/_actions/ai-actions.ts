@@ -2,7 +2,8 @@
 
 import { publicEnv } from "@/config/env";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
-import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
+import { actionErrorMessage } from "@/i18n/action-error";
+import { serverT } from "@/i18n/server";
 
 async function callEdgeFunction(
   name: string,
@@ -37,7 +38,7 @@ export async function editProductImageWithAiAction(imageUrl: string) {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "ویرایش تصویر با AI ناموفق بود"),
+      error: await actionErrorMessage("errors.aiImageFailed", err),
     };
   }
 }
@@ -62,13 +63,20 @@ export async function generateProductDescriptionAction(input: {
     return {
       success: true as const,
       data: {
-        description: `${input.name} — محصول تازه و باکیفیت${input.category ? ` در دسته ${input.category}` : ""}.`,
+        description: await serverT("admin.products.aiStubDescription", {
+          name: input.name,
+          category: input.category
+            ? await serverT("admin.products.aiStubCategorySuffix", {
+                category: input.category,
+              })
+            : "",
+        }),
       },
     };
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "تولید توضیحات ناموفق بود"),
+      error: await actionErrorMessage("errors.aiDescriptionFailed", err),
     };
   }
 }

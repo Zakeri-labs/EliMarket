@@ -7,7 +7,6 @@ import {
   mapProfileToSession,
   normalizePhone,
 } from "@/core/supabase/auth-helpers";
-import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
 import type {
   AdminSignInModel,
   ClientSession,
@@ -16,6 +15,8 @@ import type {
 } from "@/app/_types/auth.types";
 import type { Profile } from "@/app/_types/database.types";
 import { resolveAdminEmail } from "@/config/admin-auth";
+import { actionErrorMessage } from "@/i18n/action-error";
+import { serverT } from "@/i18n/server";
 
 export async function sendOtpAction(model: SendOtpModel) {
   try {
@@ -27,7 +28,7 @@ export async function sendOtpAction(model: SendOtpModel) {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "ارسال کد تأیید ناموفق بود"),
+      error: await actionErrorMessage("errors.otpSendFailed", err),
     };
   }
 }
@@ -42,7 +43,7 @@ export async function verifyOtpAction(model: VerifyOtpModel) {
       type: "sms",
     });
     if (error) throw error;
-    if (!data.user) throw new Error("ورود ناموفق بود");
+    if (!data.user) throw new Error(await serverT("errors.loginFailed"));
 
     const profile = await getCurrentProfile();
     const session = mapProfileToSession(
@@ -56,7 +57,7 @@ export async function verifyOtpAction(model: VerifyOtpModel) {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "کد تأیید نامعتبر است"),
+      error: await actionErrorMessage("errors.invalidOtp", err),
     };
   }
 }
@@ -69,7 +70,7 @@ export async function verifyAdminAccessAction() {
       error: userError,
     } = await supabase.auth.getUser();
     if (userError) throw userError;
-    if (!user) throw new Error("ورود ناموفق بود");
+    if (!user) throw new Error(await serverT("errors.loginFailed"));
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
@@ -81,7 +82,7 @@ export async function verifyAdminAccessAction() {
 
     if (profile?.role !== "admin") {
       await supabase.auth.signOut();
-      throw new Error("این حساب دسترسی ادمین ندارد");
+      throw new Error(await serverT("errors.adminForbidden"));
     }
 
     const session = mapProfileToSession(
@@ -95,10 +96,7 @@ export async function verifyAdminAccessAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(
-        err,
-        "نام کاربری یا رمز عبور اشتباه است",
-      ),
+      error: await actionErrorMessage("errors.invalidCredentials", err),
     };
   }
 }
@@ -113,7 +111,7 @@ export async function adminSignInAction(model: AdminSignInModel) {
       password: model.password,
     });
     if (error) throw error;
-    if (!data.user) throw new Error("ورود ناموفق بود");
+    if (!data.user) throw new Error(await serverT("errors.loginFailed"));
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
@@ -125,7 +123,7 @@ export async function adminSignInAction(model: AdminSignInModel) {
 
     if (profile?.role !== "admin") {
       await supabase.auth.signOut();
-      throw new Error("این حساب دسترسی ادمین ندارد");
+      throw new Error(await serverT("errors.adminForbidden"));
     }
 
     const session = mapProfileToSession(
@@ -139,10 +137,7 @@ export async function adminSignInAction(model: AdminSignInModel) {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(
-        err,
-        "نام کاربری یا رمز عبور اشتباه است",
-      ),
+      error: await actionErrorMessage("errors.invalidCredentials", err),
     };
   }
 }
@@ -156,7 +151,7 @@ export async function signOutAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "خروج ناموفق بود"),
+      error: await actionErrorMessage("errors.signOutFailed", err),
     };
   }
 }

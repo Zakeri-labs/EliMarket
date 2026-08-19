@@ -121,6 +121,7 @@ export type Messages = {
     back: string;
     free: string;
     error: string;
+    language: string;
   };
   notifications: {
     otpSent: string;
@@ -255,6 +256,8 @@ export type Messages = {
       entityName: string;
       validationName: string;
       validationSlug: string;
+      aiStubDescription: string;
+      aiStubCategorySuffix: string;
     };
     orders: {
       title: string;
@@ -502,6 +505,7 @@ const fa: Messages = {
     back: "بازگشت",
     free: "رایگان",
     error: "خطا",
+    language: "زبان",
   },
   notifications: {
     otpSent: "کد ارسال شد",
@@ -636,6 +640,8 @@ const fa: Messages = {
       entityName: "محصولات",
       validationName: "نام الزامی است",
       validationSlug: "اسلاگ الزامی است",
+      aiStubDescription: "{name} — محصول تازه و باکیفیت{category}.",
+      aiStubCategorySuffix: " در دسته {category}",
     },
     orders: {
       title: "سفارش‌ها",
@@ -830,7 +836,7 @@ const ar: Messages = {
     noResults: "لا توجد نتائج",
     hintPrefix: "أو ابدأ من",
     hintCategories: "الفئات",
-    hintSuffix: "",
+    hintSuffix: "للبدء",
   },
   categories: {
     title: "الفئات",
@@ -892,6 +898,7 @@ const ar: Messages = {
     back: "رجوع",
     free: "مجاني",
     error: "خطأ",
+    language: "اللغة",
   },
   notifications: {
     otpSent: "تم إرسال الرمز",
@@ -1026,6 +1033,8 @@ const ar: Messages = {
       entityName: "المنتجات",
       validationName: "الاسم مطلوب",
       validationSlug: "الرابط التعريفي مطلوب",
+      aiStubDescription: "{name} — منتج طازج وعالي الجودة{category}.",
+      aiStubCategorySuffix: " في فئة {category}",
     },
     orders: {
       title: "الطلبات",
@@ -1122,7 +1131,7 @@ const ar: Messages = {
   },
   validation: { required: "هذا الحقل مطلوب" },
   meta: {
-    siteDescription: "تسوق إلكتروني — EliMarket",
+    siteDescription: "تسوق إلكتروني — إلي ماركت",
     storefrontTitle: "المتجر",
     productFallback: "منتج",
   },
@@ -1282,6 +1291,7 @@ const en: Messages = {
     back: "Back",
     free: "Free",
     error: "Error",
+    language: "Language",
   },
   notifications: {
     otpSent: "Code sent",
@@ -1366,7 +1376,7 @@ const en: Messages = {
       forbidden: "Your account does not have admin access.",
       username: "Username",
       password: "Password",
-      usernameHint: "",
+      usernameHint: "e.g. admin or admin@{domain}",
       submit: "Sign in",
     },
     dashboard: {
@@ -1416,6 +1426,8 @@ const en: Messages = {
       entityName: "Products",
       validationName: "Name is required",
       validationSlug: "Slug is required",
+      aiStubDescription: "{name} — fresh, high-quality product{category}.",
+      aiStubCategorySuffix: " in {category} category",
     },
     orders: {
       title: "Orders",

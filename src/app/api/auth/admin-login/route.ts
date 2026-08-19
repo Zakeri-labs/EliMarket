@@ -3,6 +3,7 @@ import { createClient } from "@/core/supabase/server";
 import { resolveAdminEmail } from "@/config/admin-auth";
 import type { Profile } from "@/app/_types/database.types";
 import { mapProfileToSession } from "@/core/supabase/auth-helpers";
+import { serverT } from "@/i18n/server";
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +16,10 @@ export async function POST(request: Request) {
     const password = body.password ?? "";
     if (!username || !password) {
       return NextResponse.json(
-        { success: false, error: "Username and password are required" },
+        {
+          success: false,
+          error: await serverT("validation.required"),
+        },
         { status: 400 },
       );
     }
@@ -32,13 +36,12 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: error.message,
+          error:
+            error.message === "Invalid login credentials"
+              ? await serverT("errors.invalidCredentials")
+              : error.message,
           code: error.code,
           email,
-          hint:
-            error.message === "Invalid login credentials"
-              ? "Check password in Supabase Dashboard, confirm email is verified, and run: npm run setup-admin"
-              : undefined,
         },
         { status: 401 },
       );
@@ -46,7 +49,11 @@ export async function POST(request: Request) {
 
     if (!data.user) {
       return NextResponse.json(
-        { success: false, error: "Login failed", email },
+        {
+          success: false,
+          error: await serverT("errors.loginFailed"),
+          email,
+        },
         { status: 401 },
       );
     }
@@ -69,7 +76,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: "This account does not have admin access",
+          error: await serverT("errors.adminForbidden"),
           email,
         },
         { status: 403 },
@@ -89,7 +96,10 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: false,
-        error: err instanceof Error ? err.message : "Login failed",
+        error:
+          err instanceof Error
+            ? err.message
+            : await serverT("errors.loginFailed"),
       },
       { status: 500 },
     );

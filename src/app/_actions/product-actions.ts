@@ -2,7 +2,8 @@
 
 import { createClient } from "@/core/supabase/server";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
-import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
+import { actionErrorMessage } from "@/i18n/action-error";
+import { serverT } from "@/i18n/server";
 import type { Category, Product } from "@/app/_types/database.types";
 
 export async function getProductsAction() {
@@ -18,7 +19,7 @@ export async function getProductsAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "بارگذاری محصولات ناموفق بود"),
+      error: await actionErrorMessage("errors.productsLoadFailed", err),
     };
   }
 }
@@ -35,7 +36,7 @@ export async function getCategoriesAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "بارگذاری دسته‌بندی‌ها ناموفق بود"),
+      error: await actionErrorMessage("errors.categoriesLoadFailed", err),
     };
   }
 }
@@ -50,12 +51,12 @@ export async function getProductBySlugAction(slug: string) {
       .eq("is_active", true)
       .maybeSingle();
     if (error) throw error;
-    if (!data) throw new Error("محصول یافت نشد");
+    if (!data) throw new Error(await serverT("errors.productNotFound"));
     return { success: true as const, data: data as Product };
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "محصول یافت نشد"),
+      error: await actionErrorMessage("errors.productNotFound", err),
     };
   }
 }
@@ -72,7 +73,7 @@ export async function getAdminProductsAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "بارگذاری محصولات ادمین ناموفق بود"),
+      error: await actionErrorMessage("errors.adminProductsLoadFailed", err),
     };
   }
 }
@@ -110,7 +111,7 @@ export async function createProductAction(input: {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "ایجاد محصول ناموفق بود"),
+      error: await actionErrorMessage("errors.productCreateFailed", err),
     };
   }
 }
@@ -141,7 +142,7 @@ export async function updateProductAction(
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "ویرایش محصول ناموفق بود"),
+      error: await actionErrorMessage("errors.productUpdateFailed", err),
     };
   }
 }
@@ -155,7 +156,7 @@ export async function deleteProductAction(id: string) {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "حذف محصول ناموفق بود"),
+      error: await actionErrorMessage("errors.productDeleteFailed", err),
     };
   }
 }
@@ -168,7 +169,7 @@ export async function uploadProductImageAction(formData: FormData) {
   try {
     const { supabase } = await requireAdmin();
     const file = formData.get("file") as File | null;
-    if (!file) throw new Error("فایلی انتخاب نشده است");
+    if (!file) throw new Error(await serverT("errors.noFileSelected"));
 
     const ext = file.name.split(".").pop() ?? "jpg";
     const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -183,7 +184,7 @@ export async function uploadProductImageAction(formData: FormData) {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "آپلود تصویر ناموفق بود"),
+      error: await actionErrorMessage("errors.imageUploadFailed", err),
     };
   }
 }

@@ -61,7 +61,7 @@ function AdminLoginForm() {
                   .join(" — ");
                 return {
                   success: false as const,
-                  error: message || "Login failed",
+                  error: message || t("errors.loginFailed"),
                 };
               }
 

@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAuth } from "@/core/supabase/auth-helpers";
-import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
+import { actionErrorMessage } from "@/i18n/action-error";
 import type { Address } from "@/app/_types/database.types";
 
 export async function getAddressesAction() {
@@ -17,7 +17,7 @@ export async function getAddressesAction() {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "بارگذاری آدرس‌ها ناموفق بود"),
+      error: await actionErrorMessage("errors.addressesLoadFailed", err),
     };
   }
 }
@@ -56,7 +56,7 @@ export async function createAddressAction(input: {
   } catch (err) {
     return {
       success: false as const,
-      error: extractActionErrorMessage(err, "ثبت آدرس ناموفق بود"),
+      error: await actionErrorMessage("errors.addressSaveFailed", err),
     };
   }
 }
