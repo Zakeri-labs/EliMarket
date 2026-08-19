@@ -30,6 +30,7 @@ import { saveAs } from "file-saver";
 import { useLocaleStore } from "@/app/_store/locale-store";
 import { cn } from "@/app/utils/cn";
 import { getDirection } from "@/i18n/config";
+import { useTranslations } from "@/i18n/use-translations";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { Button } from "@/components/ui/Button";
 import { ColumnFilter } from "@/components/table/ColumnFilter";
@@ -70,10 +71,11 @@ function DefaultTextColumnFilter({
   onFilterChange: (value: unknown) => void;
   placeholder?: string;
 }) {
+  const { t } = useTranslations();
   return (
     <TableInput
       autoFocus
-      placeholder={placeholder ?? "جستجو…"}
+      placeholder={placeholder ?? t("table.searchDefault")}
       value={typeof value === "string" || typeof value === "number" ? String(value) : ""}
       onChange={(e) => onFilterChange(e.target.value)}
     />
@@ -159,7 +161,7 @@ function partitionCellsForMobile<T>(cells: Cell<T, unknown>[]) {
 export function DataTable<T>({
   data,
   columns,
-  entityName = "داده",
+  entityName,
   isLoading = false,
   onRefresh,
   onExport,
@@ -178,8 +180,10 @@ export function DataTable<T>({
   manualPagination = false,
   totalItems: totalItemsProp,
 }: DataTableProps<T>) {
+  const { t } = useTranslations();
   const locale = useLocaleStore((s) => s.locale);
   const tableDir = getDirection(locale);
+  const resolvedEntityName = entityName ?? t("table.defaultEntity");
 
   const desktopScrollRef = React.useRef<HTMLDivElement>(null);
   const mobileScrollRef = React.useRef<HTMLDivElement>(null);
@@ -358,7 +362,9 @@ export function DataTable<T>({
       <DefaultTextColumnFilter
         value={filterValue}
         onFilterChange={(v) => handleColumnFilterChange(columnId, v)}
-        placeholder={`فیلتر ${String(header.column.columnDef.header ?? columnId)}`}
+        placeholder={t("table.filterDefault", {
+          column: String(header.column.columnDef.header ?? columnId),
+        })}
       />
     );
   };
@@ -369,11 +375,11 @@ export function DataTable<T>({
       : (data as Record<string, unknown>[]);
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, entityName);
+    XLSX.utils.book_append_sheet(wb, ws, resolvedEntityName);
     const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     saveAs(
       new Blob([buffer]),
-      `${entityName}-${new Date().toISOString().slice(0, 10)}.xlsx`,
+      `${resolvedEntityName}-${new Date().toISOString().slice(0, 10)}.xlsx`,
     );
   };
 
@@ -391,7 +397,7 @@ export function DataTable<T>({
     <div className="min-w-0 w-full max-w-full space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <TableInput
-          placeholder={`جستجو در ${entityName}…`}
+          placeholder={t("table.searchIn", { entity: resolvedEntityName })}
           value={resolvedGlobalFilter}
           onChange={(e) => {
             const value = e.target.value;
@@ -411,7 +417,7 @@ export function DataTable<T>({
               onClick={onRefresh}
             >
               <AppIcon icon={RefreshCw} size="xs" className="me-1.5" />
-              بروزرسانی
+              {t("table.refresh")}
             </Button>
           )}
 
@@ -424,7 +430,7 @@ export function DataTable<T>({
               onClick={() => void handleExport()}
             >
               <AppIcon icon={Download} size="xs" className="me-1.5" />
-              اکسپورت
+              {t("table.export")}
             </Button>
           )}
 
@@ -436,12 +442,12 @@ export function DataTable<T>({
               className="border-[#e4e4e7] text-[#71717a]"
               onClick={() => setColumnPanelOpen((p) => !p)}
             >
-              ستون‌ها
+              {t("table.columns")}
             </Button>
 
             {columnPanelOpen && (
               <div className="fixed inset-x-3 bottom-4 z-50 max-h-[min(24rem,70vh)] space-y-3 overflow-auto rounded-xl border border-[#e4e4e7] bg-white p-3 shadow-lg sm:absolute sm:inset-x-auto sm:bottom-auto sm:end-0 sm:top-full sm:mt-2 sm:max-h-64 sm:w-64">
-                <div className="text-xs text-[#71717a]">مدیریت ستون‌ها</div>
+                <div className="text-xs text-[#71717a]">{t("table.columnManagement")}</div>
                 <div className="max-h-64 space-y-2 overflow-auto">
                   {table.getAllLeafColumns().map((column) => {
                     if (!column.getCanHide() || column.id === "id") return null;
@@ -472,7 +478,7 @@ export function DataTable<T>({
               onClick={onCreateClick}
             >
               <AppIcon icon={Plus} size="xs" className="me-1.5" />
-              ایجاد
+              {t("table.create")}
             </Button>
           )}
         </div>
@@ -486,7 +492,7 @@ export function DataTable<T>({
 
       {mobileFilterableHeaders.length > 0 && (
         <div className="space-y-3 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-3 md:hidden">
-          <div className="text-xs font-semibold text-[#18181b]">فیلتر ستون‌ها</div>
+          <div className="text-xs font-semibold text-[#18181b]">{t("table.columnFilters")}</div>
           {mobileFilterableHeaders.map((header) => {
             const columnId = header.column.id;
             const filterValue = getColumnFilterValue(columnId);
@@ -507,7 +513,7 @@ export function DataTable<T>({
                       className="!h-8 !px-2 text-xs"
                       onClick={() => handleColumnFilterChange(columnId, null)}
                     >
-                      پاک کردن
+                      {t("table.clear")}
                     </Button>
                   )}
                 </div>
@@ -594,7 +600,11 @@ export function DataTable<T>({
                             <ColumnFilter
                               isActive={isFilterActive(filterValue)}
                               onClear={() => handleColumnFilterChange(columnId, null)}
-                              title={`فیلتر ${String(header.column.columnDef.header ?? header.column.id)}`}
+                              title={t("table.filterDefault", {
+                                column: String(
+                                  header.column.columnDef.header ?? header.column.id,
+                                ),
+                              })}
                             >
                               {renderColumnFilter(columnId, header)}
                             </ColumnFilter>
@@ -604,7 +614,9 @@ export function DataTable<T>({
                         {canResize && (
                           <button
                             type="button"
-                            aria-label={`تغییر عرض ستون ${String(header.column.columnDef.header ?? columnId)}`}
+                            aria-label={t("table.resizeColumn", {
+                              column: String(header.column.columnDef.header ?? columnId),
+                            })}
                             onMouseDown={header.getResizeHandler()}
                             onTouchStart={header.getResizeHandler()}
                             onDoubleClick={() => header.column.resetSize()}
@@ -625,13 +637,13 @@ export function DataTable<T>({
               {isLoading ? (
                 <tr>
                   <td colSpan={columns.length} className="h-48 text-center text-[#71717a]">
-                    در حال بارگذاری…
+                    {t("table.loading")}
                   </td>
                 </tr>
               ) : table.getRowModel().rows.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length} className="h-48 text-center text-[#71717a]">
-                    داده‌ای یافت نشد
+                    {t("table.noData")}
                   </td>
                 </tr>
               ) : (
@@ -671,11 +683,11 @@ export function DataTable<T>({
       >
         {isLoading ? (
           <div className="flex min-h-48 items-center justify-center rounded-xl border border-[#e4e4e7] bg-white p-3 text-sm text-[#71717a]">
-            در حال بارگذاری…
+            {t("table.loading")}
           </div>
         ) : table.getRowModel().rows.length === 0 ? (
           <div className="flex min-h-48 items-center justify-center rounded-xl border border-[#e4e4e7] bg-white p-3 text-sm text-[#71717a]">
-            داده‌ای یافت نشد
+            {t("table.noData")}
           </div>
         ) : (
           table.getRowModel().rows.map((row) => {
@@ -723,7 +735,9 @@ export function DataTable<T>({
                         icon={expanded ? ChevronUp : ChevronDown}
                         size="xs"
                       />
-                      {expanded ? "بستن جزئیات" : `نمایش ${hidden.length} مورد دیگر`}
+                      {expanded
+                        ? t("table.closeDetails")
+                        : t("table.showMore", { count: hidden.length })}
                     </button>
                     {expanded && (
                       <div className="mt-3 divide-y divide-[#e4e4e7]/80 border-t border-[#e4e4e7] pt-1">
@@ -741,13 +755,14 @@ export function DataTable<T>({
       <div className="flex flex-col gap-3 text-sm text-[#71717a] sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-4">
           <div className="text-center sm:text-start">
-            نمایش{" "}
-            {totalItems === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1} تا{" "}
-            {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems)} از{" "}
-            {totalItems}
+            {t("table.showing")}{" "}
+            {totalItems === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1}{" "}
+            {t("table.to")}{" "}
+            {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems)}{" "}
+            {t("table.of")} {totalItems}
           </div>
           <div className="flex items-center gap-2">
-            <span className="whitespace-nowrap">تعداد در صفحه</span>
+            <span className="whitespace-nowrap">{t("table.pageSize")}</span>
             <select
               value={String(pagination.pageSize)}
               onChange={(e) => {
@@ -759,7 +774,7 @@ export function DataTable<T>({
                 }));
               }}
               className="h-8 rounded-lg border border-[#e4e4e7] bg-white px-2 text-sm"
-              aria-label="تعداد ردیف در صفحه"
+              aria-label={t("table.pageSize")}
             >
               {(pageSizeOptions.includes(pagination.pageSize)
                 ? pageSizeOptions
@@ -784,7 +799,7 @@ export function DataTable<T>({
             }
             disabled={pagination.pageIndex === 0}
           >
-            قبلی
+            {t("table.prev")}
           </Button>
           <Button
             type="button"
@@ -796,7 +811,7 @@ export function DataTable<T>({
             }
             disabled={pagination.pageIndex >= pageCount - 1}
           >
-            بعدی
+            {t("table.next")}
           </Button>
         </div>
       </div>

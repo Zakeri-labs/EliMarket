@@ -1,21 +1,44 @@
+"use client";
+
 import Link from "next/link";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { PriceVisibilityToggle } from "@/app/(admin)/_components/PriceVisibilityToggle";
+import { useTranslations } from "@/i18n/use-translations";
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslations();
+
+  const cards = [
+    {
+      href: "/dashboard/products",
+      label: t("admin.dashboard.productsCard"),
+      desc: t("admin.dashboard.productsDesc"),
+    },
+    {
+      href: "/dashboard/orders",
+      label: t("admin.dashboard.ordersCard"),
+      desc: t("admin.dashboard.ordersDesc"),
+    },
+    {
+      href: "/dashboard/reports",
+      label: t("admin.dashboard.reportsCard"),
+      desc: t("admin.dashboard.reportsDesc"),
+    },
+    {
+      href: "/dashboard/coverage-area",
+      label: t("admin.dashboard.coverageCard"),
+      desc: t("admin.dashboard.coverageDesc"),
+    },
+  ];
+
   return (
-    <AdminShell title="داشبورد">
+    <AdminShell title={t("admin.dashboard.title")}>
       <div className="mb-8 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
         <PriceVisibilityToggle />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[
-          { href: "/dashboard/products", label: "مدیریت محصولات", desc: "افزودن، تصویر، موجودی" },
-          { href: "/dashboard/orders", label: "مدیریت سفارش‌ها", desc: "وضعیت و پیک" },
-          { href: "/dashboard/reports", label: "گزارشات مالی", desc: "درآمد و موجودی کم" },
-          { href: "/dashboard/coverage-area", label: "محدوده پوشش", desc: "نقشه تحویل" },
-        ].map((item) => (
+        {cards.map((item) => (
           <Link
             key={item.href}
             href={item.href}

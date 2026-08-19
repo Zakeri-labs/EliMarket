@@ -13,14 +13,15 @@ import { PriceVisibilityToggle } from "@/app/(admin)/_components/PriceVisibility
 import { AppIcon } from "@/components/icons/AppIcon";
 import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { Button } from "@/components/ui/Button";
+import { useTranslations } from "@/i18n/use-translations";
 
-const NAV = [
-  { href: "/dashboard", label: "داشبورد" },
-  { href: "/dashboard/products", label: "محصولات" },
-  { href: "/dashboard/orders", label: "سفارش‌ها" },
-  { href: "/dashboard/reports", label: "گزارشات مالی" },
-  { href: "/dashboard/coverage-area", label: "محدوده پوشش" },
-];
+const NAV_KEYS = [
+  { href: "/dashboard", key: "admin.nav.dashboard" },
+  { href: "/dashboard/products", key: "admin.nav.products" },
+  { href: "/dashboard/orders", key: "admin.nav.orders" },
+  { href: "/dashboard/reports", key: "admin.nav.reports" },
+  { href: "/dashboard/coverage-area", key: "admin.nav.coverage" },
+] as const;
 
 export function AdminShell({
   title,
@@ -38,6 +39,7 @@ export function AdminShell({
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
   const clearSession = useAuthStore((s) => s.clearSession);
   const { runAction, isPending } = useFormAction();
+  const { t } = useTranslations();
 
   useEffect(() => {
     setMobileOpen(false);
@@ -50,7 +52,7 @@ export function AdminShell({
       {mobileOpen && (
         <button
           type="button"
-          aria-label="بستن منو"
+          aria-label={t("admin.closeMenu")}
           className="fixed inset-0 z-30 bg-black/40 md:hidden"
           onClick={closeMobile}
         />
@@ -65,20 +67,20 @@ export function AdminShell({
       >
         <div className="mb-6 flex items-start justify-between gap-2">
           <div>
-            <p className="text-xs text-[#6b8f71]">پنل مدیریت</p>
-            <p className="text-lg font-bold text-[#527559]">EliMarket Admin</p>
+            <p className="text-xs text-[#6b8f71]">{t("admin.panelLabel")}</p>
+            <p className="text-lg font-bold text-[#527559]">{t("admin.brandAdmin")}</p>
           </div>
           <button
             type="button"
             className="rounded-lg p-1.5 text-[#71717a] hover:bg-[#f4f4f5] md:hidden"
             onClick={closeMobile}
-            aria-label="بستن منو"
+            aria-label={t("admin.closeMenu")}
           >
             <AppIcon icon={X} size="md" />
           </button>
         </div>
         <nav className="space-y-1">
-          {NAV.map((item) => (
+          {NAV_KEYS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -90,7 +92,7 @@ export function AdminShell({
                   : "text-[#71717a] hover:bg-[#f4f4f5]",
               )}
             >
-              {item.label}
+              {t(item.key)}
             </Link>
           ))}
         </nav>
@@ -110,7 +112,7 @@ export function AdminShell({
             })
           }
         >
-          خروج
+          {t("admin.signOut")}
         </Button>
       </aside>
 
@@ -118,7 +120,7 @@ export function AdminShell({
         <header className="border-b border-[#e4e4e7] bg-white px-4 py-4 md:px-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <button type="button" className="md:hidden" onClick={toggleMobile} aria-label="Menu">
+              <button type="button" className="md:hidden" onClick={toggleMobile} aria-label={t("admin.menu")}>
                 <AppIcon icon={Menu} size="md" />
               </button>
               <div>

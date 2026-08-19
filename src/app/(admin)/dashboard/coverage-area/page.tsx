@@ -6,16 +6,23 @@ import { getStoreAction, updateStoreCoverageAction } from "@/app/_actions/store-
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
+import { useTranslations } from "@/i18n/use-translations";
 import "leaflet/dist/leaflet.css";
+
+function MapLoader() {
+  const { t } = useTranslations();
+  return <p>{t("admin.coverage.loadingMap")}</p>;
+}
 
 const CoverageMap = dynamic(
   () => import("@/app/(admin)/dashboard/coverage-area/_components/CoverageMap"),
-  { ssr: false, loading: () => <p>بارگذاری نقشه…</p> },
+  { ssr: false, loading: () => <MapLoader /> },
 );
 
 export default function CoverageAreaPage() {
   const { runAction, isPending } = useFormAction();
-  const [storeName, setStoreName] = useState("فروشگاه مرکزی");
+  const { t } = useTranslations();
+  const [storeName, setStoreName] = useState("");
   const [storeId, setStoreId] = useState<string | undefined>();
   const [polygon, setPolygon] = useState<[number, number][]>([
     [35.70, 51.38],
@@ -23,6 +30,10 @@ export default function CoverageAreaPage() {
     [35.66, 51.42],
     [35.66, 51.38],
   ]);
+
+  useEffect(() => {
+    setStoreName(t("admin.coverage.defaultStoreName"));
+  }, [t]);
 
   useEffect(() => {
     getStoreAction().then((r) => {
@@ -45,15 +56,13 @@ export default function CoverageAreaPage() {
   }, []);
 
   return (
-    <AdminShell title="محدوده پوشش">
-      <p className="mb-4 text-sm text-zinc-600">
-        روی نقشه کلیک کنید تا رئوس چندضلعی را اضافه کنید. حداقل ۳ نقطه لازم است.
-      </p>
+    <AdminShell title={t("admin.coverage.title")}>
+      <p className="mb-4 text-sm text-zinc-600">{t("admin.coverage.hint")}</p>
       <input
         className="mb-4 w-full max-w-md rounded border px-3 py-2"
         value={storeName}
         onChange={(e) => setStoreName(e.target.value)}
-        placeholder="نام فروشگاه"
+        placeholder={t("admin.coverage.storeNamePlaceholder")}
       />
       <CoverageMap points={polygon} onChange={setPolygon} />
       <div className="mt-4 flex gap-2">
@@ -72,7 +81,7 @@ export default function CoverageAreaPage() {
                   },
                 }),
               {
-                successMessage: "محدوده ذخیره شد",
+                successMessage: t("notifications.coverageSaved"),
                 onSuccess: (store) => {
                   if (store?.id) setStoreId(store.id);
                 },
@@ -80,10 +89,10 @@ export default function CoverageAreaPage() {
             )
           }
         >
-          ذخیره محدوده
+          {t("admin.coverage.save")}
         </Button>
         <Button type="button" variant="secondary" onClick={() => setPolygon([])}>
-          پاک کردن
+          {t("admin.coverage.clear")}
         </Button>
       </div>
     </AdminShell>

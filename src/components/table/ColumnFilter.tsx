@@ -5,6 +5,7 @@ import { Filter, X } from "lucide-react";
 import { cn } from "@/app/utils/cn";
 import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { useTranslations } from "@/i18n/use-translations";
 
 type ColumnFilterProps = {
   children: React.ReactNode;
@@ -17,8 +18,10 @@ export function ColumnFilter({
   children,
   isActive,
   onClear,
-  title = "فیلتر ستون",
+  title,
 }: ColumnFilterProps) {
+  const { t } = useTranslations();
+  const resolvedTitle = title ?? t("table.columnFilter");
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +47,7 @@ export function ColumnFilter({
           isActive && "!text-[#527559]",
         )}
         onClick={() => setOpen((v) => !v)}
-        aria-label={title}
+        aria-label={resolvedTitle}
       >
         <AppIcon icon={Filter} size="xs" />
       </Button>
@@ -52,7 +55,7 @@ export function ColumnFilter({
       {open && (
         <div className="absolute start-0 top-full z-50 mt-2 w-72 rounded-xl border border-[#e4e4e7] bg-white p-4 shadow-lg">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h4 className="text-sm font-semibold text-[#18181b]">{title}</h4>
+            <h4 className="text-sm font-semibold text-[#18181b]">{resolvedTitle}</h4>
             {isActive && (
               <Button
                 type="button"
@@ -65,7 +68,7 @@ export function ColumnFilter({
                 }}
               >
                 <AppIcon icon={X} size="xs" />
-                پاک کردن
+                {t("table.clear")}
               </Button>
             )}
           </div>
@@ -78,7 +81,7 @@ export function ColumnFilter({
               className="border-[#e4e4e7]"
               onClick={() => setOpen(false)}
             >
-              بستن
+              {t("table.close")}
             </Button>
           </div>
         </div>

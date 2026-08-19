@@ -11,6 +11,7 @@ import { AppIcon } from "@/components/icons/AppIcon";
 import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { BRAND_NAME } from "@/config/brand";
 import { ADMIN_EMAIL_DOMAIN } from "@/config/admin-auth";
+import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
   "w-full rounded-xl border border-[#e4e4e7] px-4 py-3 text-sm outline-none focus:border-[#6b8f71]";
@@ -20,6 +21,7 @@ function AdminLoginForm() {
   const searchParams = useSearchParams();
   const updateSession = useAuthStore((s) => s.updateSession);
   const { isPending, runAction } = useFormAction();
+  const { t } = useTranslations();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -29,7 +31,7 @@ function AdminLoginForm() {
     <>
       {forbidden && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          حساب شما دسترسی ادمین ندارد.
+          {t("admin.login.forbidden")}
         </p>
       )}
 
@@ -39,7 +41,7 @@ function AdminLoginForm() {
           onSubmit={(e) => {
             e.preventDefault();
             runAction(() => adminSignInAction({ username, password }), {
-              successMessage: "ورود موفق",
+              successMessage: t("notifications.adminLoginSuccess"),
               onSuccess: async () => {
                 await updateSession();
                 router.push("/dashboard");
@@ -51,7 +53,7 @@ function AdminLoginForm() {
           <div>
             <label className="mb-1.5 flex items-center gap-2 text-xs text-[#71717a]">
               <AppIcon icon={User} size="xs" />
-              نام کاربری
+              {t("admin.login.username")}
             </label>
             <input
               className={inputClass}
@@ -63,14 +65,14 @@ function AdminLoginForm() {
               required
             />
             <p className="mt-1 text-[10px] text-[#71717a]">
-              بدون @ → {`username@${ADMIN_EMAIL_DOMAIN}`}
+              {t("admin.login.usernameHint", { domain: ADMIN_EMAIL_DOMAIN })}
             </p>
           </div>
 
           <div>
             <label className="mb-1.5 flex items-center gap-2 text-xs text-[#71717a]">
               <AppIcon icon={Lock} size="xs" />
-              رمز عبور
+              {t("admin.login.password")}
             </label>
             <input
               type="password"
@@ -90,7 +92,7 @@ function AdminLoginForm() {
             disabled={isPending}
             className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
           >
-            ورود
+            {t("admin.login.submit")}
           </Button>
         </form>
       </div>
@@ -99,6 +101,8 @@ function AdminLoginForm() {
 }
 
 export default function AdminLoginPage() {
+  const { t } = useTranslations();
+
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
       <div className="flex justify-center">
@@ -107,7 +111,7 @@ export default function AdminLoginPage() {
 
       <div className="text-center">
         <h1 className="text-2xl font-bold text-[#527559]">{BRAND_NAME}</h1>
-        <p className="mt-2 text-sm text-[#71717a]">ورود پنل مدیریت</p>
+        <p className="mt-2 text-sm text-[#71717a]">{t("admin.login.title")}</p>
       </div>
 
       <Suspense fallback={<div className="h-48 rounded-2xl bg-white/50" />}>

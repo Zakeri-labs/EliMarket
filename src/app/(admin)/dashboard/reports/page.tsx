@@ -7,16 +7,18 @@ import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
 import { DataTable } from "@/components/table";
 import { formatPrice } from "@/config/brand";
-import type { Order } from "@/app/_types/database.types";
+import { getNumberLocale } from "@/i18n/config";
+import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import type { Order, OrderStatus } from "@/app/_types/database.types";
 
-const STATUS_LABELS: Record<string, string> = {
-  pending: "در انتظار",
-  confirmed: "تأیید شده",
-  preparing: "آماده‌سازی",
-  out_for_delivery: "در مسیر",
-  delivered: "تحویل شده",
-  cancelled: "لغو شده",
-};
+const STATUS_KEYS: OrderStatus[] = [
+  "pending",
+  "confirmed",
+  "preparing",
+  "out_for_delivery",
+  "delivered",
+  "cancelled",
+];
 
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -30,12 +32,14 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 
 export default function AdminReportsPage() {
   const { data: report, isLoading, error, refetch } = useFinancialReport();
+  const { t, locale } = useTranslations();
+  const formatLocalizedPrice = useFormatPrice();
 
   const orderColumns = useMemo<ColumnDef<Order>[]>(
     () => [
       {
         accessorKey: "id",
-        header: "شناسه",
+        header: t("admin.reports.colId"),
         cell: ({ getValue }) => (
           <span className="font-mono text-xs" dir="ltr">
             {String(getValue()).slice(0, 8)}
@@ -44,14 +48,14 @@ export default function AdminReportsPage() {
       },
       {
         accessorKey: "created_at",
-        header: "تاریخ",
+        header: t("admin.reports.colDate"),
         cell: ({ getValue }) =>
-          new Date(String(getValue())).toLocaleDateString("fa-IR"),
+          new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale)),
       },
       {
         accessorKey: "status",
-        header: "وضعیت",
-        cell: ({ getValue }) => STATUS_LABELS[String(getValue())] ?? String(getValue()),
+        header: t("admin.reports.colStatus"),
+        cell: ({ getValue }) => t(`admin.status.${String(getValue())}`),
         filterFn: (row, _id, value) =>
           !value || String(row.original.status) === String(value),
         meta: {
@@ -61,10 +65,10 @@ export default function AdminReportsPage() {
               value={typeof value === "string" ? value : ""}
               onChange={(e) => onFilterChange(e.target.value || null)}
             >
-              <option value="">همه</option>
-              {Object.entries(STATUS_LABELS).map(([k, v]) => (
+              <option value="">{t("admin.products.filterAll")}</option>
+              {STATUS_KEYS.map((k) => (
                 <option key={k} value={k}>
-                  {v}
+                  {t(`admin.status.${k}`)}
                 </option>
               ))}
             </select>
@@ -73,61 +77,63 @@ export default function AdminReportsPage() {
       },
       {
         accessorKey: "payment_method",
-        header: "پرداخت",
+        header: t("admin.reports.colPayment"),
         cell: ({ getValue }) =>
-          getValue() === "cash" ? "نقدی" : "آنلاین",
+          getValue() === "cash" ? t("admin.payment.cash") : t("admin.payment.online"),
       },
       {
         accessorKey: "total",
-        header: "مبلغ",
+        header: t("admin.reports.colAmount"),
         cell: ({ getValue }) => (
-          <span className="font-medium">{formatPrice(Number(getValue()))}</span>
+          <span className="font-medium">{formatLocalizedPrice(Number(getValue()))}</span>
         ),
       },
     ],
-    [],
+    [t, locale, formatLocalizedPrice],
   );
 
   return (
-    <AdminShell title="گزارشات مالی" subtitle="درآمد، سفارش‌ها و موجودی">
-      {isLoading && <p className="text-[#71717a]">بارگذاری گزارش…</p>}
+    <AdminShell title={t("admin.reports.title")} subtitle={t("admin.reports.subtitle")}>
+      {isLoading && <p className="text-[#71717a]">{t("admin.reports.loading")}</p>}
       {error && <p className="text-red-600">{error.message}</p>}
 
       {report && (
         <div className="space-y-8">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
-              label="درآمد تحویل‌شده"
-              value={formatPrice(report.deliveredRevenue)}
-              sub={`${report.deliveredCount} سفارش`}
+              label={t("admin.reports.deliveredRevenue")}
+              value={formatPrice(report.deliveredRevenue, "IRR", locale)}
+              sub={t("admin.reports.ordersCount", { count: report.deliveredCount })}
             />
             <StatCard
-              label="درآمد در انتظار"
-              value={formatPrice(report.pendingRevenue)}
-              sub={`${report.pendingCount} سفارش فعال`}
+              label={t("admin.reports.pendingRevenue")}
+              value={formatPrice(report.pendingRevenue, "IRR", locale)}
+              sub={t("admin.reports.activeOrders", { count: report.pendingCount })}
             />
             <StatCard
-              label="پرداخت نقدی"
-              value={formatPrice(report.cashRevenue)}
+              label={t("admin.reports.cashPayment")}
+              value={formatPrice(report.cashRevenue, "IRR", locale)}
             />
             <StatCard
-              label="پرداخت آنلاین"
-              value={formatPrice(report.onlineRevenue)}
+              label={t("admin.reports.onlinePayment")}
+              value={formatPrice(report.onlineRevenue, "IRR", locale)}
             />
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
             <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
-              <h2 className="mb-4 font-semibold">درآمد ۱۴ روز اخیر</h2>
+              <h2 className="mb-4 font-semibold">{t("admin.reports.revenue14Days")}</h2>
               {report.revenueByDay.length === 0 ? (
-                <p className="text-sm text-[#71717a]">داده‌ای موجود نیست</p>
+                <p className="text-sm text-[#71717a]">{t("admin.reports.noData")}</p>
               ) : (
                 <ul className="space-y-2">
                   {report.revenueByDay.map((day) => (
                     <li key={day.date} className="flex justify-between text-sm">
                       <span className="text-[#71717a]">{day.date}</span>
-                      <span className="font-medium">{formatPrice(day.total)}</span>
-                      <span className="text-[#71717a]">{day.count} سفارش</span>
+                      <span className="font-medium">{formatPrice(day.total, "IRR", locale)}</span>
+                      <span className="text-[#71717a]">
+                        {t("admin.reports.ordersCount", { count: day.count })}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -136,20 +142,20 @@ export default function AdminReportsPage() {
 
             <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-semibold">موجودی کم</h2>
+                <h2 className="font-semibold">{t("admin.reports.lowStock")}</h2>
                 <Link href="/dashboard/products" className="text-xs text-[#527559]">
-                  مدیریت محصولات
+                  {t("admin.reports.manageProducts")}
                 </Link>
               </div>
               {report.lowStockProducts.length === 0 ? (
-                <p className="text-sm text-[#71717a]">همه محصولات موجودی کافی دارند</p>
+                <p className="text-sm text-[#71717a]">{t("admin.reports.allStockOk")}</p>
               ) : (
                 <ul className="space-y-2">
                   {report.lowStockProducts.map((p) => (
                     <li key={p.id} className="flex justify-between rounded-xl bg-[#f4f4f5] px-3 py-2 text-sm">
                       <span>{p.name}</span>
                       <span className={p.stock === 0 ? "text-red-600 font-medium" : "text-amber-700"}>
-                        {p.stock} عدد
+                        {p.stock} {t("admin.reports.units")}
                       </span>
                     </li>
                   ))}
@@ -159,22 +165,25 @@ export default function AdminReportsPage() {
           </div>
 
           <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
-            <h2 className="mb-4 font-semibold">آخرین سفارش‌ها</h2>
+            <h2 className="mb-4 font-semibold">{t("admin.reports.recentOrders")}</h2>
             <DataTable
               data={report.recentOrders}
               columns={orderColumns}
-              entityName="سفارش‌ها"
+              entityName={t("admin.reports.entityName")}
               isLoading={isLoading}
               onRefresh={() => void refetch()}
               columnSizingStorageKey="admin-recent-orders"
               enableColumnResizing={false}
               onExport={async () =>
                 report.recentOrders.map((order) => ({
-                  شناسه: order.id.slice(0, 8),
-                  تاریخ: new Date(order.created_at).toLocaleDateString("fa-IR"),
-                  وضعیت: STATUS_LABELS[order.status] ?? order.status,
-                  پرداخت: order.payment_method === "cash" ? "نقدی" : "آنلاین",
-                  مبلغ: order.total,
+                  id: order.id.slice(0, 8),
+                  date: new Date(order.created_at).toLocaleDateString(getNumberLocale(locale)),
+                  status: t(`admin.status.${order.status}`),
+                  payment:
+                    order.payment_method === "cash"
+                      ? t("admin.payment.cash")
+                      : t("admin.payment.online"),
+                  total: order.total,
                 }))
               }
             />

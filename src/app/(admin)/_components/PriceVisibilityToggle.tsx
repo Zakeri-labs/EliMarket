@@ -6,6 +6,7 @@ import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { cn } from "@/app/utils/cn";
 import { Button } from "@/components/ui/Button";
+import { useTranslations } from "@/i18n/use-translations";
 
 type Props = {
   className?: string;
@@ -16,10 +17,13 @@ export function PriceVisibilityToggle({ className, compact }: Props) {
   const { showPrices, isLoading } = useStoreSettings();
   const { runAction, isPending } = useFormAction();
   const queryClient = useQueryClient();
+  const { t } = useTranslations();
 
   const toggle = () => {
     runAction(() => setShowPricesAction(!showPrices), {
-      successMessage: showPrices ? "نمایش قیمت غیرفعال شد" : "نمایش قیمت فعال شد",
+      successMessage: showPrices
+        ? t("notifications.priceDisabled")
+        : t("notifications.priceEnabled"),
       onSuccess: () => {
         void queryClient.invalidateQueries({ queryKey: ["store-settings"] });
       },
@@ -30,11 +34,9 @@ export function PriceVisibilityToggle({ className, compact }: Props) {
     <div className={cn("flex items-center gap-3", className)}>
       {!compact && (
         <div className="text-sm">
-          <p className="font-medium text-[#18181b]">نمایش قیمت در فروشگاه</p>
+          <p className="font-medium text-[#18181b]">{t("admin.priceToggle.title")}</p>
           <p className="text-xs text-[#71717a]">
-            {showPrices
-              ? "قیمت‌ها و سبد خرید برای مشتریان فعال است"
-              : "قیمت‌ها مخفی و سبد خرید غیرفعال است"}
+            {showPrices ? t("admin.priceToggle.onDesc") : t("admin.priceToggle.offDesc")}
           </p>
         </div>
       )}
@@ -49,7 +51,11 @@ export function PriceVisibilityToggle({ className, compact }: Props) {
           showPrices && "border-[#e4e4e7]",
         )}
       >
-        {isLoading ? "…" : showPrices ? "قیمت: روشن" : "قیمت: خاموش"}
+        {isLoading
+          ? "…"
+          : showPrices
+            ? t("admin.priceToggle.on")
+            : t("admin.priceToggle.off")}
       </Button>
     </div>
   );
