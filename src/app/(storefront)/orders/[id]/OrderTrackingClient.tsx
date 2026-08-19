@@ -66,7 +66,8 @@ export default function OrderTrackingClient({ orderId }: { orderId: string }) {
 
         { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${orderId}` },
 
-        (payload) => setOrder((prev) => (prev ? { ...prev, ...(payload.new as Order) } : prev)),
+        (payload: { new: Partial<Order> }) =>
+          setOrder((prev) => (prev ? { ...prev, ...payload.new } : prev)),
 
       )
 
