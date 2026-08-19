@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useLocaleStore } from "@/app/_store/locale-store";
 import { getDirection, getNumberLocale } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
-import { interpolate } from "@/i18n/translate";
+import { resolveMessage } from "@/i18n/resolve-message";
 
 export function useTranslations() {
   const locale = useLocaleStore((s) => s.locale);
@@ -15,15 +15,7 @@ export function useTranslations() {
   const t = useMemo(
     () =>
       (path: string, params?: Record<string, string | number>): string => {
-        const value = path.split(".").reduce<unknown>((obj, key) => {
-          if (obj && typeof obj === "object" && key in obj) {
-            return (obj as Record<string, unknown>)[key];
-          }
-          return undefined;
-        }, m as unknown);
-
-        if (typeof value === "string") return interpolate(value, params);
-        return path;
+        return resolveMessage(m, path, params) ?? path;
       },
     [m],
   );

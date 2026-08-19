@@ -138,6 +138,48 @@ export type Messages = {
     priceDisabled: string;
     riderAssigned: string;
   };
+  errors: {
+    operationFailed: string;
+    unexpectedError: string;
+    done: string;
+    warning: string;
+    otpSendFailed: string;
+    loginFailed: string;
+    invalidOtp: string;
+    adminForbidden: string;
+    invalidCredentials: string;
+    signOutFailed: string;
+    productsLoadFailed: string;
+    categoriesLoadFailed: string;
+    productNotFound: string;
+    adminProductsLoadFailed: string;
+    productCreateFailed: string;
+    productUpdateFailed: string;
+    productDeleteFailed: string;
+    noFileSelected: string;
+    imageUploadFailed: string;
+    ordersLoadFailed: string;
+    orderNotFound: string;
+    accessDenied: string;
+    cartDisabled: string;
+    emptyCart: string;
+    invalidProduct: string;
+    insufficientStock: string;
+    orderCreateFailed: string;
+    riderAssignFailed: string;
+    ridersLoadFailed: string;
+    statusUpdateFailed: string;
+    reportLoadFailed: string;
+    settingsLoadFailed: string;
+    settingsUpdateFailed: string;
+    priceToggleFailed: string;
+    addressesLoadFailed: string;
+    addressSaveFailed: string;
+    aiImageFailed: string;
+    aiDescriptionFailed: string;
+    storeLoadFailed: string;
+    coverageSaveFailed: string;
+  };
   store: {
     cartDisabled: string;
     cartClosedTitle: string;
@@ -477,6 +519,48 @@ const fa: Messages = {
     priceDisabled: "نمایش قیمت غیرفعال شد",
     riderAssigned: "پیک تخصیص یافت",
   },
+  errors: {
+    operationFailed: "عملیات ناموفق بود",
+    unexpectedError: "خطای غیرمنتظره",
+    done: "انجام شد",
+    warning: "هشدار",
+    otpSendFailed: "ارسال کد تأیید ناموفق بود",
+    loginFailed: "ورود ناموفق بود",
+    invalidOtp: "کد تأیید نامعتبر است",
+    adminForbidden: "این حساب دسترسی ادمین ندارد",
+    invalidCredentials: "نام کاربری یا رمز عبور اشتباه است",
+    signOutFailed: "خروج ناموفق بود",
+    productsLoadFailed: "بارگذاری محصولات ناموفق بود",
+    categoriesLoadFailed: "بارگذاری دسته‌بندی‌ها ناموفق بود",
+    productNotFound: "محصول یافت نشد",
+    adminProductsLoadFailed: "بارگذاری محصولات ادمین ناموفق بود",
+    productCreateFailed: "ایجاد محصول ناموفق بود",
+    productUpdateFailed: "ویرایش محصول ناموفق بود",
+    productDeleteFailed: "حذف محصول ناموفق بود",
+    noFileSelected: "فایلی انتخاب نشده است",
+    imageUploadFailed: "آپلود تصویر ناموفق بود",
+    ordersLoadFailed: "بارگذاری سفارش‌ها ناموفق بود",
+    orderNotFound: "سفارش یافت نشد",
+    accessDenied: "دسترسی مجاز نیست",
+    cartDisabled: "ثبت سفارش در حالت مخفی بودن قیمت غیرفعال است",
+    emptyCart: "سبد خرید خالی است",
+    invalidProduct: "محصول نامعتبر است",
+    insufficientStock: "موجودی کافی نیست",
+    orderCreateFailed: "ثبت سفارش ناموفق بود",
+    riderAssignFailed: "تخصیص پیک ناموفق بود",
+    ridersLoadFailed: "بارگذاری پیک‌ها ناموفق بود",
+    statusUpdateFailed: "به‌روزرسانی وضعیت ناموفق بود",
+    reportLoadFailed: "بارگذاری گزارش مالی ناموفق بود",
+    settingsLoadFailed: "بارگذاری تنظیمات ناموفق بود",
+    settingsUpdateFailed: "به‌روزرسانی تنظیمات ناموفق بود",
+    priceToggleFailed: "تغییر وضعیت قیمت ناموفق بود",
+    addressesLoadFailed: "بارگذاری آدرس‌ها ناموفق بود",
+    addressSaveFailed: "ثبت آدرس ناموفق بود",
+    aiImageFailed: "ویرایش تصویر با AI ناموفق بود",
+    aiDescriptionFailed: "تولید توضیحات ناموفق بود",
+    storeLoadFailed: "بارگذاری فروشگاه ناموفق بود",
+    coverageSaveFailed: "ذخیره محدوده پوشش ناموفق بود",
+  },
   store: {
     cartDisabled: "سبد خرید در حال حاضر غیرفعال است — نمایش قیمت توسط فروشگاه خاموش شده است.",
     cartClosedTitle: "سبد خرید بسته است",
@@ -502,7 +586,7 @@ const fa: Messages = {
       forbidden: "حساب شما دسترسی ادمین ندارد.",
       username: "نام کاربری",
       password: "رمز عبور",
-      usernameHint: "",
+      usernameHint: "مثال: admin یا admin@{domain}",
       submit: "ورود",
     },
     dashboard: {
@@ -655,7 +739,7 @@ const fa: Messages = {
 };
 
 const ar: Messages = {
-  brand: { name: "EliMarket", nameLocal: "EliMarket", currency: "تومان" },
+  brand: { name: "EliMarket", nameLocal: "إلي ماركت", currency: "تومان" },
   nav: {
     home: "الرئيسية",
     categories: "الفئات",
@@ -825,6 +909,48 @@ const ar: Messages = {
     priceDisabled: "تم إيقاف عرض الأسعار",
     riderAssigned: "تم تعيين السائق",
   },
+  errors: {
+    operationFailed: "فشلت العملية",
+    unexpectedError: "خطأ غير متوقع",
+    done: "تم",
+    warning: "تحذير",
+    otpSendFailed: "فشل إرسال رمز التحقق",
+    loginFailed: "فشل تسجيل الدخول",
+    invalidOtp: "رمز التحقق غير صالح",
+    adminForbidden: "هذا الحساب لا يملك صلاحية الإدارة",
+    invalidCredentials: "اسم المستخدم أو كلمة المرور غير صحيحة",
+    signOutFailed: "فشل تسجيل الخروج",
+    productsLoadFailed: "فشل تحميل المنتجات",
+    categoriesLoadFailed: "فشل تحميل الفئات",
+    productNotFound: "المنتج غير موجود",
+    adminProductsLoadFailed: "فشل تحميل منتجات لوحة الإدارة",
+    productCreateFailed: "فشل إنشاء المنتج",
+    productUpdateFailed: "فشل تحديث المنتج",
+    productDeleteFailed: "فشل حذف المنتج",
+    noFileSelected: "لم يتم اختيار ملف",
+    imageUploadFailed: "فشل رفع الصورة",
+    ordersLoadFailed: "فشل تحميل الطلبات",
+    orderNotFound: "الطلب غير موجود",
+    accessDenied: "غير مسموح بالوصول",
+    cartDisabled: "تقديم الطلبات معطّل أثناء إخفاء الأسعار",
+    emptyCart: "سلة التسوق فارغة",
+    invalidProduct: "منتج غير صالح",
+    insufficientStock: "المخزون غير كافٍ",
+    orderCreateFailed: "فشل تسجيل الطلب",
+    riderAssignFailed: "فشل تعيين السائق",
+    ridersLoadFailed: "فشل تحميل السائقين",
+    statusUpdateFailed: "فشل تحديث الحالة",
+    reportLoadFailed: "فشل تحميل التقرير المالي",
+    settingsLoadFailed: "فشل تحميل الإعدادات",
+    settingsUpdateFailed: "فشل تحديث الإعدادات",
+    priceToggleFailed: "فشل تغيير حالة الأسعار",
+    addressesLoadFailed: "فشل تحميل العناوين",
+    addressSaveFailed: "فشل حفظ العنوان",
+    aiImageFailed: "فشل تعديل الصورة بالذكاء الاصطناعي",
+    aiDescriptionFailed: "فشل إنشاء الوصف",
+    storeLoadFailed: "فشل تحميل المتجر",
+    coverageSaveFailed: "فشل حفظ نطاق التغطية",
+  },
   store: {
     cartDisabled: "سلة التسوق معطلة حالياً — تم إيقاف عرض الأسعار.",
     cartClosedTitle: "سلة التسوق مغلقة",
@@ -850,7 +976,7 @@ const ar: Messages = {
       forbidden: "حسابك لا يملك صلاحية الإدارة.",
       username: "اسم المستخدم",
       password: "كلمة المرور",
-      usernameHint: "",
+      usernameHint: "مثال: admin أو admin@{domain}",
       submit: "دخول",
     },
     dashboard: {
@@ -899,7 +1025,7 @@ const ar: Messages = {
       filterInactive: "غير نشط",
       entityName: "المنتجات",
       validationName: "الاسم مطلوب",
-      validationSlug: "الاسلاگ مطلوب",
+      validationSlug: "الرابط التعريفي مطلوب",
     },
     orders: {
       title: "الطلبات",
@@ -1172,6 +1298,48 @@ const en: Messages = {
     priceEnabled: "Price display enabled",
     priceDisabled: "Price display disabled",
     riderAssigned: "Rider assigned",
+  },
+  errors: {
+    operationFailed: "Operation failed",
+    unexpectedError: "Unexpected error",
+    done: "Done",
+    warning: "Warning",
+    otpSendFailed: "Failed to send verification code",
+    loginFailed: "Sign-in failed",
+    invalidOtp: "Invalid verification code",
+    adminForbidden: "This account does not have admin access",
+    invalidCredentials: "Invalid username or password",
+    signOutFailed: "Sign-out failed",
+    productsLoadFailed: "Failed to load products",
+    categoriesLoadFailed: "Failed to load categories",
+    productNotFound: "Product not found",
+    adminProductsLoadFailed: "Failed to load admin products",
+    productCreateFailed: "Failed to create product",
+    productUpdateFailed: "Failed to update product",
+    productDeleteFailed: "Failed to delete product",
+    noFileSelected: "No file selected",
+    imageUploadFailed: "Image upload failed",
+    ordersLoadFailed: "Failed to load orders",
+    orderNotFound: "Order not found",
+    accessDenied: "Access denied",
+    cartDisabled: "Ordering is disabled while prices are hidden",
+    emptyCart: "Cart is empty",
+    invalidProduct: "Invalid product",
+    insufficientStock: "Insufficient stock",
+    orderCreateFailed: "Failed to place order",
+    riderAssignFailed: "Failed to assign rider",
+    ridersLoadFailed: "Failed to load riders",
+    statusUpdateFailed: "Failed to update status",
+    reportLoadFailed: "Failed to load financial report",
+    settingsLoadFailed: "Failed to load settings",
+    settingsUpdateFailed: "Failed to update settings",
+    priceToggleFailed: "Failed to toggle price display",
+    addressesLoadFailed: "Failed to load addresses",
+    addressSaveFailed: "Failed to save address",
+    aiImageFailed: "AI image edit failed",
+    aiDescriptionFailed: "Failed to generate description",
+    storeLoadFailed: "Failed to load store",
+    coverageSaveFailed: "Failed to save coverage area",
   },
   store: {
     cartDisabled: "Cart is currently disabled — price display has been turned off.",

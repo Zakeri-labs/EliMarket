@@ -6,15 +6,23 @@ import {
   type Locale,
 } from "@/i18n/config";
 
+const LOCALE_COOKIE = "elimarket-locale";
+
 type LocaleState = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
 };
 
+function syncLocaleCookie(locale: Locale) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${LOCALE_COOKIE}=${locale};path=/;max-age=31536000;SameSite=Lax`;
+}
+
 function applyDocumentLocale(locale: Locale) {
   if (typeof document === "undefined") return;
   document.documentElement.lang = locale;
   document.documentElement.dir = getDirection(locale);
+  syncLocaleCookie(locale);
 }
 
 export const useLocaleStore = create<LocaleState>()(
