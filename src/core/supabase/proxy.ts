@@ -13,7 +13,7 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, cacheHeaders) {
           cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value);
           });
@@ -21,32 +21,37 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value, options }) => {
             supabaseResponse.cookies.set(name, value, options);
           });
+          if (cacheHeaders) {
+            Object.entries(cacheHeaders).forEach(([key, value]) => {
+              supabaseResponse.headers.set(key, value);
+            });
+          }
         },
       },
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Refresh session via JWT claims (recommended for Next.js proxy).
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const userId = claimsData?.claims?.sub ?? null;
 
   const pathname = request.nextUrl.pathname;
   const isAdminRoute =
     pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
   const isLoginPage = pathname === "/login";
 
-  if (isAdminRoute && !user) {
+  if (isAdminRoute && !userId) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 
-  if (isLoginPage && user) {
+  if (isLoginPage && userId) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle();
 
     if (profile?.role === "admin") {
@@ -56,11 +61,11 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  if (isAdminRoute && user) {
+  if (isAdminRoute && userId) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle();
 
     if (profile?.role !== "admin") {

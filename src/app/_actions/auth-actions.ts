@@ -61,6 +61,48 @@ export async function verifyOtpAction(model: VerifyOtpModel) {
   }
 }
 
+export async function verifyAdminAccessAction() {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError) throw userError;
+    if (!user) throw new Error("ورود ناموفق بود");
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (profile?.role !== "admin") {
+      await supabase.auth.signOut();
+      throw new Error("این حساب دسترسی ادمین ندارد");
+    }
+
+    const session = mapProfileToSession(
+      user.id,
+      profile as Profile,
+      user.phone,
+      user.email,
+    );
+
+    return { success: true as const, data: session };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: extractActionErrorMessage(
+        err,
+        "نام کاربری یا رمز عبور اشتباه است",
+      ),
+    };
+  }
+}
+
 export async function adminSignInAction(model: AdminSignInModel) {
   try {
     const supabase = await createClient();
