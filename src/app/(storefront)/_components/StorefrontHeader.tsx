@@ -12,8 +12,8 @@ import { useTranslations } from "@/i18n/use-translations";
 
 export function StorefrontHeader() {
   const pathname = usePathname();
-  const cartCount = useCartStore((s) =>
-    s.items.reduce((sum, item) => sum + item.quantity, 0),
+  const cartCount = useCartStore(
+    (s) => s.items.reduce((sum, item) => sum + item.quantity, 0),
   );
   const { t, messages } = useTranslations();
 
