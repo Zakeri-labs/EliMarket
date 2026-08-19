@@ -44,7 +44,7 @@ export default function CheckoutPage() {
 
 function CheckoutPageContent() {
   const router = useRouter();
-  const { items, totalPrice, clearCart } = useCartStore();
+  const { items, totalPrice, clearCart, setSyncing } = useCartStore();
   const { status, updateSession } = useAuthStore();
   const { isPending, runAction } = useFormAction();
   const { t, messages, locale } = useTranslations();
@@ -237,7 +237,8 @@ function CheckoutPageContent() {
         fullWidth
         size="lg"
         disabled={!addressId || isPending}
-        onClick={() =>
+        onClick={() => {
+          setSyncing(true);
           runAction(
             () =>
               createOrderAction({
@@ -252,9 +253,11 @@ function CheckoutPageContent() {
                 clearCart();
                 if (order?.id) router.push(`/orders/${order.id}`);
               },
+              onError: () => setSyncing(false),
+              onSettled: () => setSyncing(false),
             },
-          )
-        }
+          );
+        }}
       >
         {t("checkout.submitOrder", { price: formatPrice(total) })}
       </Button>

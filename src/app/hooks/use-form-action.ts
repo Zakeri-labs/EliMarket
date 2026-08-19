@@ -25,7 +25,10 @@ export function useFormAction() {
   const { t } = useTranslations();
 
   const notifyError = useCallback((message: unknown) => {
-    notifyFormError(message, undefined, t("errors.operationFailed"));
+    notifyFormError(message, {
+      fallback: t("errors.operationFailed"),
+      title: t("notifications.errorTitle"),
+    });
   }, [t]);
 
   const notifySuccess = useCallback((message: unknown) => {
@@ -33,6 +36,7 @@ export function useFormAction() {
       typeof message === "string"
         ? message
         : extractActionErrorMessage(message, t("errors.done")),
+      { title: t("notifications.successTitle") },
     );
   }, [t]);
 

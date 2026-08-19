@@ -7,17 +7,20 @@ import { CartGate } from "@/app/(storefront)/_components/CartGate";
 import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
+import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import {
   DELIVERY_FEE,
   FREE_DELIVERY_THRESHOLD,
   VAT_RATE,
 } from "@/config/brand";
+import { cn } from "@/app/utils/cn";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 
 function CartPageContent() {
-  const { items, updateQuantity, removeItem, totalPrice } = useCartStore();
+  const { items, updateQuantity, removeItem, totalPrice, isSyncing } = useCartStore();
   const { t } = useTranslations();
   const formatPrice = useFormatPrice();
+  const isSkeleton = isSyncing;
 
   const subtotal = totalPrice();
   const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
@@ -64,12 +67,23 @@ function CartPageContent() {
                 {items.map((item) => (
                   <li
                     key={item.productId}
-                    className="flex gap-3 rounded-2xl border border-border bg-surface p-3"
+                    className={cn(
+                      "flex gap-3 rounded-2xl border border-border bg-surface p-3",
+                      isSkeleton && "skeleton pointer-events-none",
+                    )}
+                    aria-busy={isSkeleton}
                   >
-                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-elevated">
+                    <div className="target relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-elevated">
                       {item.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
+                        <StorefrontImage
+                          src={item.imageUrl}
+                          blurHash={item.blurHash}
+                          alt=""
+                          fill
+                          sizes="64px"
+                          withBlur={!isSkeleton}
+                          className="object-cover"
+                        />
                       ) : (
                         <ProductPlaceholder size="md" />
                       )}
@@ -80,16 +94,24 @@ function CartPageContent() {
                       <div className="mt-2 flex items-center gap-2">
                         <button
                           type="button"
+                          disabled={isSkeleton}
                           className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-elevated"
-                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                          onClick={() => {
+                            if (isSkeleton) return;
+                            updateQuantity(item.productId, item.quantity - 1);
+                          }}
                         >
                           <AppIcon icon={Minus} size="xs" />
                         </button>
                         <span className="text-sm">{item.quantity}</span>
                         <button
                           type="button"
+                          disabled={isSkeleton}
                           className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-elevated"
-                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                          onClick={() => {
+                            if (isSkeleton) return;
+                            updateQuantity(item.productId, item.quantity + 1);
+                          }}
                         >
                           <AppIcon icon={Plus} size="xs" />
                         </button>
@@ -97,8 +119,12 @@ function CartPageContent() {
                     </div>
                     <button
                       type="button"
+                      disabled={isSkeleton}
                       className="text-muted hover:text-danger"
-                      onClick={() => removeItem(item.productId)}
+                      onClick={() => {
+                        if (isSkeleton) return;
+                        removeItem(item.productId);
+                      }}
                     >
                       <AppIcon icon={Trash2} size="sm" />
                     </button>

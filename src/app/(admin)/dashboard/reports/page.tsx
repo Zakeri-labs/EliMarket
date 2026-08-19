@@ -31,7 +31,8 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 }
 
 export default function AdminReportsPage() {
-  const { data: report, isLoading, error, refetch } = useFinancialReport();
+  const { data: report, isPending, error, refetch } = useFinancialReport();
+  const isSkeleton = isPending;
   const { t, locale } = useTranslations();
   const formatLocalizedPrice = useFormatPrice();
 
@@ -94,7 +95,7 @@ export default function AdminReportsPage() {
 
   return (
     <AdminShell title={t("admin.reports.title")} subtitle={t("admin.reports.subtitle")}>
-      {isLoading && <p className="text-[#71717a]">{t("admin.reports.loading")}</p>}
+      {isSkeleton && <p className="text-[#71717a]">{t("admin.reports.loading")}</p>}
       {error && <p className="text-red-600">{error.message}</p>}
 
       {report && (
@@ -170,7 +171,7 @@ export default function AdminReportsPage() {
               data={report.recentOrders}
               columns={orderColumns}
               entityName={t("admin.reports.entityName")}
-              isLoading={isLoading}
+              isSkeleton={isSkeleton}
               onRefresh={() => void refetch()}
               columnSizingStorageKey="admin-recent-orders"
               enableColumnResizing={false}

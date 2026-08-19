@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/app/utils/cn";
 import { STOREFRONT_CONTAINER } from "@/config/layout";
-import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
 
@@ -31,9 +30,6 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/95 backdrop-blur-md md:hidden">
-      <div className="border-b border-border px-4 py-2">
-        <LanguageTabs className="w-full justify-center" />
-      </div>
       <div
         className={cn(
           STOREFRONT_CONTAINER,

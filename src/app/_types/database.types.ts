@@ -36,6 +36,7 @@ export type Product = {
   currency: string;
   stock: number;
   image_url: string | null;
+  blur_hash: string | null;
   is_active: boolean;
   created_at: string;
   category?: Category | null;
@@ -52,6 +53,13 @@ export type StoreSettings = {
   id: string;
   show_prices: boolean;
   updated_at: string;
+  hero_badge: string | null;
+  hero_title: string | null;
+  hero_subtitle: string | null;
+  hero_cta_label: string | null;
+  hero_cta_href: string | null;
+  hero_image_url: string | null;
+  hero_blur_hash: string | null;
 };
 
 export type Address = {
@@ -97,5 +105,6 @@ export type CartItem = {
   price: number;
   currency: string;
   imageUrl?: string | null;
+  blurHash?: string | null;
   quantity: number;
 };

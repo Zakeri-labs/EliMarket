@@ -1,21 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, Search } from "lucide-react";
-import { getCategoriesAction, getProductsAction } from "@/app/_actions/product-actions";
-import { ProductCard } from "@/app/(storefront)/_components/ProductCard";
+import { getCategoriesAction } from "@/app/_actions/product-actions";
+import { CategoryProductList } from "@/app/(storefront)/_components/CategoryProductList";
+import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { getCategoryIcon } from "@/config/category-icons";
+import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { useTranslations } from "@/i18n/use-translations";
 
 export default function CategoriesContent() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
-  const { data: categories } = useQuery({
+  const { data: categories, isPending } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
       const r = await getCategoriesAction();
@@ -24,20 +27,14 @@ export default function CategoriesContent() {
     },
   });
 
-  const { data: products } = useQuery({
-    queryKey: ["products", slug],
-    queryFn: async () => {
-      const r = await getProductsAction();
-      if (!r.success) throw new Error(r.error);
-      const all = r.data;
-      if (!slug) return all;
-      return all.filter((p) => p.category?.slug === slug);
-    },
-  });
-
+  const isSkeleton = isPending;
   const selected = categories?.find((c) => c.slug === slug);
+  const listCategories = useMemo(
+    () => (isSkeleton ? mockCategories(locale) : (categories ?? [])),
+    [categories, isSkeleton, locale],
+  );
 
-  if (slug && products) {
+  if (slug) {
     return (
       <main className="py-4 md:py-6">
         <div className="mb-4 flex items-center gap-2">
@@ -47,11 +44,7 @@ export default function CategoriesContent() {
           </Link>
           <h1 className="font-bold">{selected?.name ?? slug}</h1>
         </div>
-        <div className="space-y-2">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} compact />
-          ))}
-        </div>
+        <CategoryProductList slug={slug} />
       </main>
     );
   }
@@ -64,14 +57,23 @@ export default function CategoriesContent() {
         {t("categories.searchInCategories")}
       </div>
       <ul className="space-y-2">
-        {categories?.map((cat) => (
+        {listCategories.map((cat) => (
           <li key={cat.id}>
             <Link
-              href={`/categories?slug=${cat.slug}`}
-              className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3"
+              href={isSkeleton ? "#" : `/categories/${cat.slug}`}
+              className={cn(
+                "flex items-center gap-3 rounded-2xl border border-border bg-surface p-3",
+                isSkeleton && "skeleton pointer-events-none",
+              )}
+              onClick={(e) => {
+                if (isSkeleton) e.preventDefault();
+              }}
+              aria-busy={isSkeleton}
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface-elevated">
-                <AppIcon icon={getCategoryIcon(cat.slug)} size="lg" className="text-accent" />
+              <span className="target flex h-12 w-12 items-center justify-center rounded-xl bg-surface-elevated">
+                {!isSkeleton && (
+                  <AppIcon icon={getCategoryIcon(cat.slug)} size="lg" className="text-accent" />
+                )}
               </span>
               <span className="flex-1 font-medium">{cat.name}</span>
               <AppIcon icon={ChevronLeft} size="sm" className="text-muted rtl:rotate-180" />

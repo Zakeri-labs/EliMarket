@@ -1,43 +1,52 @@
 import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
-import { useNotificationStore } from "@/app/_store/notification.store";
+import { pushAppNotification } from "@/app/_store/notification.store";
 import type { NotificationType } from "@/types/notification.interface";
 
 function pushNotification(
   type: NotificationType,
   message: string,
-  duration?: number,
+  options?: { title?: string; duration?: number },
 ) {
-  useNotificationStore.getState().showNotification({
+  pushAppNotification({
     type,
     message,
-    duration: duration ?? (type === "error" ? 6000 : 5000),
+    title: options?.title,
+    duration: options?.duration ?? (type === "error" ? 6000 : 5000),
   });
 }
 
-export function notifyFormSuccess(message: string, duration?: number) {
-  pushNotification("success", message, duration);
+export function notifyFormSuccess(
+  message: string,
+  options?: { title?: string; duration?: number },
+) {
+  pushNotification("success", message, options);
 }
 
 export function notifyFormWarning(
   message: unknown,
-  duration?: number,
-  fallback = "Warning",
+  options?: { title?: string; duration?: number; fallback?: string },
 ) {
   pushNotification(
     "warning",
-    extractActionErrorMessage(message, fallback),
-    duration ?? 7000,
+    extractActionErrorMessage(message, options?.fallback ?? "Warning"),
+    { title: options?.title, duration: options?.duration ?? 7000 },
   );
 }
 
 export function notifyFormError(
   message: unknown,
-  duration?: number,
-  fallback = "Operation failed",
+  options?: { title?: string; duration?: number; fallback?: string },
 ) {
   pushNotification(
     "error",
-    extractActionErrorMessage(message, fallback),
-    duration,
+    extractActionErrorMessage(message, options?.fallback ?? "Operation failed"),
+    options,
   );
+}
+
+export function notifyFormInfo(
+  message: string,
+  options?: { title?: string; duration?: number },
+) {
+  pushNotification("info", message, options);
 }

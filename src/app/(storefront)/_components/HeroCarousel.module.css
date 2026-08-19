@@ -1,0 +1,123 @@
+.frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 1rem;
+  height: 280px;
+  min-height: 280px;
+}
+
+.viewport {
+  height: 100%;
+  overflow: hidden;
+}
+
+.track {
+  display: flex;
+  height: 100%;
+  transition: transform 500ms ease-out;
+}
+
+.slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.mediaLayer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 1rem 1.25rem 1.25rem;
+  text-align: start;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.dotButton {
+  display: flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+}
+
+.dot {
+  display: block;
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+  background-color: rgb(255 255 255 / 0.45);
+  transition: all 200ms ease;
+}
+
+.dotActive {
+  width: 1.5rem;
+  background-color: #fff;
+}
+
+.dotButton:hover .dot:not(.dotActive) {
+  background-color: rgb(255 255 255 / 0.75);
+}
+
+@media (min-width: 640px) {
+  .frame {
+    height: 300px;
+    min-height: 300px;
+  }
+
+  .content {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .frame {
+    height: 320px;
+    min-height: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .frame {
+    height: 340px;
+    min-height: 340px;
+  }
+
+  .content {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .frame {
+    height: 360px;
+    min-height: 360px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    transition: none;
+  }
+}

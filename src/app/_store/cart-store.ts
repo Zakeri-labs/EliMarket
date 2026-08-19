@@ -4,6 +4,8 @@ import type { CartItem } from "@/app/_types/database.types";
 
 type CartState = {
   items: CartItem[];
+  isSyncing: boolean;
+  setSyncing: (syncing: boolean) => void;
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -16,6 +18,8 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      isSyncing: false,
+      setSyncing: (syncing) => set({ isSyncing: syncing }),
       addItem: (item, quantity = 1) => {
         set((state) => {
           const existing = state.items.find((i) => i.productId === item.productId);
@@ -23,7 +27,11 @@ export const useCartStore = create<CartState>()(
             return {
               items: state.items.map((i) =>
                 i.productId === item.productId
-                  ? { ...i, quantity: i.quantity + quantity }
+                  ? {
+                      ...i,
+                      quantity: i.quantity + quantity,
+                      blurHash: i.blurHash ?? item.blurHash,
+                    }
                   : i,
               ),
             };

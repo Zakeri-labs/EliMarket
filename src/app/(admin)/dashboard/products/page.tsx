@@ -12,7 +12,6 @@ import {
   getCategoriesAction,
   updateProductAction,
   updateProductStockAction,
-  uploadProductImageAction,
 } from "@/app/_actions/product-actions";
 import {
   editProductImageWithAiAction,
@@ -20,12 +19,18 @@ import {
 } from "@/app/_actions/ai-actions";
 import { useAdminProducts } from "@/app/(admin)/dashboard/_hooks/use-admin-products";
 import { useFormAction } from "@/app/hooks/use-form-action";
+import {
+  MAX_IMAGE_UPLOAD_BYTES,
+  useAdminImageUpload,
+} from "@/app/hooks/use-admin-image-upload";
+import { notifyFormError } from "@/app/utils/form-notify";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { DataTable } from "@/components/table";
 import { formatPrice } from "@/config/brand";
+import { mockAdminTableProducts } from "@/app/(admin)/dashboard/_mocks/product-table-mock";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import type { Category, Product } from "@/app/_types/database.types";
 
@@ -37,12 +42,14 @@ type FormValues = {
   stock: number;
   category_id?: string;
   image_url?: string;
+  blur_hash?: string;
   is_active: boolean;
 };
 
 export default function AdminProductsPage() {
-  const { data: products, refetch, isLoading } = useAdminProducts();
-  const { runAction, isPending } = useFormAction();
+  const { data: products, refetch, isPending: isProductsPending } = useAdminProducts();
+  const { runAction, isPending: isActionPending } = useFormAction();
+  const { uploadImage, isPending: isUploadPending } = useAdminImageUpload();
   const { t } = useTranslations();
   const formatLocalizedPrice = useFormatPrice();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -59,6 +66,7 @@ export default function AdminProductsPage() {
         stock: z.number().int().min(0),
         category_id: z.string().optional(),
         image_url: z.string().optional(),
+        blur_hash: z.string().optional(),
         is_active: z.boolean(),
       }),
     [t],
@@ -74,6 +82,7 @@ export default function AdminProductsPage() {
       stock: 0,
       category_id: "",
       image_url: "",
+      blur_hash: "",
       is_active: true,
     },
   });
@@ -96,6 +105,7 @@ export default function AdminProductsPage() {
         stock: editing.stock,
         category_id: editing.category_id ?? "",
         image_url: editing.image_url ?? "",
+        blur_hash: editing.blur_hash ?? "",
         is_active: editing.is_active,
       });
     }
@@ -115,6 +125,7 @@ export default function AdminProductsPage() {
       category_id: values.category_id || null,
       description: values.description || undefined,
       image_url: values.image_url || null,
+      blur_hash: values.image_url ? values.blur_hash || null : null,
     };
 
     if (editing) {
@@ -145,6 +156,9 @@ export default function AdminProductsPage() {
       onSuccess: () => refetch(),
     });
   };
+
+  const isSkeleton = isProductsPending;
+  const tableData = isSkeleton ? mockAdminTableProducts() : (products ?? []);
 
   const columns = useMemo<ColumnDef<Product>[]>(
     () => [
@@ -360,6 +374,8 @@ export default function AdminProductsPage() {
             ))}
           </select>
 
+          <input type="hidden" {...form.register("blur_hash")} />
+
           <input
             {...form.register("image_url")}
             placeholder={t("admin.products.imageUrlPlaceholder")}
@@ -373,7 +389,7 @@ export default function AdminProductsPage() {
           </label>
 
           <div className="flex flex-wrap gap-2">
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isActionPending || isUploadPending}>
               {editing ? t("admin.products.save") : t("admin.products.create")}
             </Button>
             {editing && (
@@ -408,14 +424,23 @@ export default function AdminProductsPage() {
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
-                  const fd = new FormData();
-                  fd.set("file", file);
-                  runAction(() => uploadProductImageAction(fd), {
+                  if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
+                    notifyFormError(t("errors.fileTooLarge"), {
+                      title: t("notifications.errorTitle"),
+                    });
+                    e.target.value = "";
+                    return;
+                  }
+                  uploadImage(file, "products", {
                     successMessage: t("notifications.imageUploaded"),
                     onSuccess: (data) => {
                       if (data?.url) form.setValue("image_url", data.url);
+                      if (data?.blurHash) {
+                        form.setValue("blur_hash", data.blurHash);
+                      }
                     },
                   });
+                  e.target.value = "";
                 }}
               />
             </label>
@@ -440,10 +465,10 @@ export default function AdminProductsPage() {
 
         <div className="xl:col-span-3">
           <DataTable
-            data={products ?? []}
+            data={tableData}
             columns={columns}
             entityName={t("admin.products.entityName")}
-            isLoading={isLoading}
+            isSkeleton={isSkeleton}
             onRefresh={() => void refetch()}
             columnSizingStorageKey="admin-products"
             onExport={async () =>

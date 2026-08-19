@@ -5,6 +5,7 @@ import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
 import type { Category, Product } from "@/app/_types/database.types";
+import { generateBlurHashFromFile } from "@/lib/images/generate-blur-hash";
 
 export async function getProductsAction() {
   try {
@@ -87,6 +88,7 @@ export async function createProductAction(input: {
   stock: number;
   category_id?: string | null;
   image_url?: string | null;
+  blur_hash?: string | null;
   is_active?: boolean;
 }) {
   try {
@@ -102,6 +104,7 @@ export async function createProductAction(input: {
         stock: input.stock,
         category_id: input.category_id ?? null,
         image_url: input.image_url ?? null,
+        blur_hash: input.blur_hash ?? null,
         is_active: input.is_active ?? true,
       })
       .select("*")
@@ -126,6 +129,7 @@ export async function updateProductAction(
     stock: number;
     category_id: string | null;
     image_url: string | null;
+    blur_hash: string | null;
     is_active: boolean;
   }>,
 ) {
@@ -173,6 +177,7 @@ export async function uploadProductImageAction(formData: FormData) {
 
     const ext = file.name.split(".").pop() ?? "jpg";
     const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const blurHash = await generateBlurHashFromFile(file);
 
     const { error: uploadError } = await supabase.storage
       .from("product-images")
@@ -180,7 +185,10 @@ export async function uploadProductImageAction(formData: FormData) {
     if (uploadError) throw uploadError;
 
     const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-    return { success: true as const, data: { url: data.publicUrl } };
+    return {
+      success: true as const,
+      data: { url: data.publicUrl, blurHash },
+    };
   } catch (err) {
     return {
       success: false as const,

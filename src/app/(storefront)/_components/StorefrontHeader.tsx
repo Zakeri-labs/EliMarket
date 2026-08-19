@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lock, Search, ShoppingCart } from "lucide-react";
+import { Lock, Menu, Search, ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/app/_store/cart-store";
 import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { cn } from "@/app/utils/cn";
@@ -27,64 +27,101 @@ export function StorefrontHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
-      <div className={cn(STOREFRONT_CONTAINER, "flex items-center justify-between gap-4 py-3 md:py-4")}>
-        <Link href="/" className="shrink-0 text-center md:text-start">
-          <p className="text-sm font-bold tracking-wide md:text-lg">{messages.brand.nameLocal}</p>
-        </Link>
-
-        <nav className="hidden flex-1 items-center justify-center gap-1 md:flex">
-          {NAV_LINKS.map((link) => {
-            const active = link.exact
-              ? pathname === link.href
-              : pathname.startsWith(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "rounded-xl px-4 py-2 text-sm transition-colors",
-                  active
-                    ? "bg-accent/15 font-medium text-accent"
-                    : "text-muted hover:bg-surface-elevated hover:text-foreground",
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="flex items-center gap-2 md:gap-3">
-          <LanguageTabs compact className="hidden sm:inline-flex" />
+      <div className={cn(STOREFRONT_CONTAINER, "py-3 md:py-4")}>
+        {/* Mobile — mockup-style bar */}
+        <div className="flex items-center justify-between gap-3 md:hidden">
           <Link
-            href="/search"
-            className="hidden items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm text-muted hover:text-foreground sm:inline-flex"
+            href="/categories"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface"
+            aria-label={t("nav.categories")}
           >
-            <AppIcon icon={Search} size="sm" />
-            {t("nav.searchShortcut")}
+            <AppIcon icon={Menu} size="md" />
+          </Link>
+          <Link href="/" className="min-w-0 flex-1 text-center">
+            <p className="truncate font-serif text-base font-bold tracking-wide">
+              {messages.brand.nameLocal}
+            </p>
           </Link>
           {showPrices ? (
             <Link
               href="/cart"
-              className="relative flex items-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90 md:px-4"
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-black"
+              aria-label={t("nav.cart")}
             >
-              <AppIcon icon={ShoppingCart} size="sm" />
-              <span className="hidden sm:inline">{t("nav.cart")}</span>
+              <AppIcon icon={ShoppingCart} size="md" />
               {cartCount > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-accent">
+                <span className="absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-accent">
                   {cartCount}
                 </span>
               )}
             </Link>
           ) : (
-            <span
-              className="flex cursor-not-allowed items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm text-muted md:px-4"
-              title={t("store.cartClosedDesc")}
-            >
-              <AppIcon icon={Lock} size="sm" />
-              <span className="hidden sm:inline">{t("store.pricesHidden")}</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface text-muted">
+              <AppIcon icon={Lock} size="md" />
             </span>
           )}
+        </div>
+
+        {/* Desktop */}
+        <div className="hidden items-center justify-between gap-4 md:flex">
+          <Link href="/" className="shrink-0">
+            <p className="font-serif text-lg font-bold tracking-wide">{messages.brand.nameLocal}</p>
+          </Link>
+
+          <nav className="flex flex-1 items-center justify-center gap-1">
+            {NAV_LINKS.map((link) => {
+              const active = link.exact
+                ? pathname === link.href
+                : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "rounded-xl px-4 py-2 text-sm transition-colors",
+                    active
+                      ? "bg-accent/15 font-medium text-accent"
+                      : "text-muted hover:bg-surface-elevated hover:text-foreground",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <LanguageTabs compact className="hidden sm:inline-flex" />
+            <Link
+              href="/search"
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm text-muted hover:text-foreground"
+            >
+              <AppIcon icon={Search} size="sm" />
+              {t("nav.searchShortcut")}
+            </Link>
+            {showPrices ? (
+              <Link
+                href="/cart"
+                className="relative flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90"
+              >
+                <AppIcon icon={ShoppingCart} size="sm" />
+                {t("nav.cart")}
+                {cartCount > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-accent">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            ) : (
+              <span
+                className="flex cursor-not-allowed items-center gap-2 rounded-xl border border-border bg-surface-elevated px-4 py-2 text-sm text-muted"
+                title={t("store.cartClosedDesc")}
+              >
+                <AppIcon icon={Lock} size="sm" />
+                {t("store.pricesHidden")}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </header>

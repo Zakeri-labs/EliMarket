@@ -43,7 +43,7 @@ export type DataTableProps<T> = {
   data: T[];
   columns: ColumnDef<T>[];
   entityName?: string;
-  isLoading?: boolean;
+  isSkeleton?: boolean;
   onRefresh?: () => void;
   onExport?: () => Promise<Record<string, unknown>[]>;
   onCreateClick?: () => void;
@@ -162,7 +162,7 @@ export function DataTable<T>({
   data,
   columns,
   entityName,
-  isLoading = false,
+  isSkeleton = false,
   onRefresh,
   onExport,
   onCreateClick,
@@ -633,14 +633,8 @@ export function DataTable<T>({
               ))}
             </thead>
 
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={columns.length} className="h-48 text-center text-[#71717a]">
-                    {t("table.loading")}
-                  </td>
-                </tr>
-              ) : table.getRowModel().rows.length === 0 ? (
+            <tbody className={cn(isSkeleton && "skeleton")}>
+              {table.getRowModel().rows.length === 0 && !isSkeleton ? (
                 <tr>
                   <td colSpan={columns.length} className="h-48 text-center text-[#71717a]">
                     {t("table.noData")}
@@ -650,7 +644,11 @@ export function DataTable<T>({
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-[#e4e4e7]/80 transition-colors even:bg-[#fafafa] hover:bg-[#6b8f71]/5"
+                    className={cn(
+                      "border-b border-[#e4e4e7]/80 transition-colors even:bg-[#fafafa] hover:bg-[#6b8f71]/5",
+                      isSkeleton && "pointer-events-none",
+                    )}
+                    aria-busy={isSkeleton}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
@@ -681,11 +679,7 @@ export function DataTable<T>({
         className="space-y-3 overflow-y-auto overscroll-contain md:hidden"
         style={{ maxHeight: maxBodyHeight }}
       >
-        {isLoading ? (
-          <div className="flex min-h-48 items-center justify-center rounded-xl border border-[#e4e4e7] bg-white p-3 text-sm text-[#71717a]">
-            {t("table.loading")}
-          </div>
-        ) : table.getRowModel().rows.length === 0 ? (
+        {table.getRowModel().rows.length === 0 && !isSkeleton ? (
           <div className="flex min-h-48 items-center justify-center rounded-xl border border-[#e4e4e7] bg-white p-3 text-sm text-[#71717a]">
             {t("table.noData")}
           </div>
@@ -713,7 +707,11 @@ export function DataTable<T>({
             return (
               <div
                 key={row.id}
-                className="rounded-xl border border-[#e4e4e7] bg-white p-3 shadow-sm"
+                className={cn(
+                  "rounded-xl border border-[#e4e4e7] bg-white p-3 shadow-sm",
+                  isSkeleton && "skeleton pointer-events-none",
+                )}
+                aria-busy={isSkeleton}
               >
                 <div className="divide-y divide-[#e4e4e7]/80">
                   {preview.map((cell) => renderField(cell))}

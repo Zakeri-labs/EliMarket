@@ -19,6 +19,16 @@ export type Messages = {
     heroTitle: string;
     heroSubtitle: string;
     heroCta: string;
+    heroSlide2Badge: string;
+    heroSlide2Title: string;
+    heroSlide2Subtitle: string;
+    heroSlide3Badge: string;
+    heroSlide3Title: string;
+    heroSlide3Subtitle: string;
+    heroCarouselLabel: string;
+    heroPrev: string;
+    heroNext: string;
+    heroGoToSlide: string;
     flashDeals: string;
     flashEnds: string;
     categoriesTitle: string;
@@ -124,6 +134,10 @@ export type Messages = {
     language: string;
   };
   notifications: {
+    successTitle: string;
+    errorTitle: string;
+    infoTitle: string;
+    warningTitle: string;
     otpSent: string;
     loginSuccess: string;
     addressSaved: string;
@@ -138,6 +152,10 @@ export type Messages = {
     priceEnabled: string;
     priceDisabled: string;
     riderAssigned: string;
+    categoryUpdated: string;
+    categoryCreated: string;
+    categoryDeleted: string;
+    heroUpdated: string;
   };
   errors: {
     operationFailed: string;
@@ -159,6 +177,7 @@ export type Messages = {
     productDeleteFailed: string;
     noFileSelected: string;
     imageUploadFailed: string;
+    fileTooLarge: string;
     ordersLoadFailed: string;
     orderNotFound: string;
     accessDenied: string;
@@ -174,6 +193,10 @@ export type Messages = {
     settingsLoadFailed: string;
     settingsUpdateFailed: string;
     priceToggleFailed: string;
+    categoryCreateFailed: string;
+    categoryUpdateFailed: string;
+    categoryDeleteFailed: string;
+    heroUpdateFailed: string;
     addressesLoadFailed: string;
     addressSaveFailed: string;
     aiImageFailed: string;
@@ -196,6 +219,8 @@ export type Messages = {
     nav: {
       dashboard: string;
       products: string;
+      categories: string;
+      banners: string;
       orders: string;
       reports: string;
       coverage: string;
@@ -219,6 +244,10 @@ export type Messages = {
       reportsDesc: string;
       coverageCard: string;
       coverageDesc: string;
+      categoriesCard: string;
+      categoriesDesc: string;
+      bannersCard: string;
+      bannersDesc: string;
     };
     products: {
       title: string;
@@ -258,6 +287,40 @@ export type Messages = {
       validationSlug: string;
       aiStubDescription: string;
       aiStubCategorySuffix: string;
+    };
+    categories: {
+      title: string;
+      subtitle: string;
+      newCategory: string;
+      editCategory: string;
+      namePlaceholder: string;
+      slugPlaceholder: string;
+      sortOrderLabel: string;
+      save: string;
+      create: string;
+      cancel: string;
+      edit: string;
+      delete: string;
+      loading: string;
+      empty: string;
+      validationName: string;
+      validationSlug: string;
+    };
+    banners: {
+      title: string;
+      subtitle: string;
+      formTitle: string;
+      formHint: string;
+      badgePlaceholder: string;
+      titlePlaceholder: string;
+      subtitlePlaceholder: string;
+      ctaLabelPlaceholder: string;
+      ctaHrefPlaceholder: string;
+      imageUrlPlaceholder: string;
+      uploadImage: string;
+      removeImage: string;
+      save: string;
+      previewTitle: string;
     };
     orders: {
       title: string;
@@ -348,6 +411,12 @@ export type Messages = {
     siteDescription: string;
     storefrontTitle: string;
     productFallback: string;
+    homeTitle: string;
+    homeOgDescription: string;
+    categoryDescription: string;
+    notFoundTitle: string;
+    notFoundMessage: string;
+    backToHome: string;
   };
 };
 
@@ -370,6 +439,16 @@ const fa: Messages = {
     heroTitle: "مواد تازه روزانه",
     heroSubtitle: "ارسال سریع تا ۲ ساعت",
     heroCta: "خرید کنید",
+    heroSlide2Badge: "تخفیف ویژه",
+    heroSlide2Title: "لبنیات تازه هر روز",
+    heroSlide2Subtitle: "تا ۲۵٪ تخفیف روی محصولات منتخب",
+    heroSlide3Badge: "ارسال رایگان",
+    heroSlide3Title: "خرید بالای ۵۰۰ هزار تومان",
+    heroSlide3Subtitle: "تحویل سریع در محدوده شهر",
+    heroCarouselLabel: "بنرهای فروشگاه",
+    heroPrev: "اسلاید قبلی",
+    heroNext: "اسلاید بعدی",
+    heroGoToSlide: "رفتن به اسلاید {n}",
     flashDeals: "پیشنهاد لحظه‌ای",
     flashEnds: "پایان: ۰۲:۴۵:۱۸",
     categoriesTitle: "خرید بر اساس دسته",
@@ -508,6 +587,10 @@ const fa: Messages = {
     language: "زبان",
   },
   notifications: {
+    successTitle: "موفق",
+    errorTitle: "خطا",
+    infoTitle: "اطلاعات",
+    warningTitle: "هشدار",
     otpSent: "کد ارسال شد",
     loginSuccess: "ورود موفق",
     addressSaved: "آدرس ثبت شد",
@@ -522,6 +605,10 @@ const fa: Messages = {
     priceEnabled: "نمایش قیمت فعال شد",
     priceDisabled: "نمایش قیمت غیرفعال شد",
     riderAssigned: "پیک تخصیص یافت",
+    categoryUpdated: "دسته به‌روز شد",
+    categoryCreated: "دسته ایجاد شد",
+    categoryDeleted: "دسته حذف شد",
+    heroUpdated: "بنر ذخیره شد",
   },
   errors: {
     operationFailed: "عملیات ناموفق بود",
@@ -543,6 +630,7 @@ const fa: Messages = {
     productDeleteFailed: "حذف محصول ناموفق بود",
     noFileSelected: "فایلی انتخاب نشده است",
     imageUploadFailed: "آپلود تصویر ناموفق بود",
+    fileTooLarge: "حجم تصویر بیش از ۱۵ مگابایت است",
     ordersLoadFailed: "بارگذاری سفارش‌ها ناموفق بود",
     orderNotFound: "سفارش یافت نشد",
     accessDenied: "دسترسی مجاز نیست",
@@ -558,6 +646,10 @@ const fa: Messages = {
     settingsLoadFailed: "بارگذاری تنظیمات ناموفق بود",
     settingsUpdateFailed: "به‌روزرسانی تنظیمات ناموفق بود",
     priceToggleFailed: "تغییر وضعیت قیمت ناموفق بود",
+    categoryCreateFailed: "ایجاد دسته ناموفق بود",
+    categoryUpdateFailed: "ویرایش دسته ناموفق بود",
+    categoryDeleteFailed: "حذف دسته ناموفق بود",
+    heroUpdateFailed: "ذخیره بنر ناموفق بود",
     addressesLoadFailed: "بارگذاری آدرس‌ها ناموفق بود",
     addressSaveFailed: "ثبت آدرس ناموفق بود",
     aiImageFailed: "ویرایش تصویر با AI ناموفق بود",
@@ -580,6 +672,8 @@ const fa: Messages = {
     nav: {
       dashboard: "داشبورد",
       products: "محصولات",
+      categories: "دسته‌بندی‌ها",
+      banners: "بنر صفحه اصلی",
       orders: "سفارش‌ها",
       reports: "گزارشات مالی",
       coverage: "محدوده پوشش",
@@ -603,6 +697,10 @@ const fa: Messages = {
       reportsDesc: "درآمد و موجودی کم",
       coverageCard: "محدوده پوشش",
       coverageDesc: "نقشه تحویل",
+      categoriesCard: "دسته‌بندی‌ها",
+      categoriesDesc: "افزودن و ویرایش دسته محصولات",
+      bannersCard: "بنر صفحه اصلی",
+      bannersDesc: "متن و تصویر بنر Hero",
     },
     products: {
       title: "مدیریت محصولات",
@@ -642,6 +740,40 @@ const fa: Messages = {
       validationSlug: "اسلاگ الزامی است",
       aiStubDescription: "{name} — محصول تازه و باکیفیت{category}.",
       aiStubCategorySuffix: " در دسته {category}",
+    },
+    categories: {
+      title: "دسته‌بندی محصولات",
+      subtitle: "مدیریت دسته‌های فروشگاه",
+      newCategory: "دسته جدید",
+      editCategory: "ویرایش دسته",
+      namePlaceholder: "نام دسته",
+      slugPlaceholder: "slug-دسته",
+      sortOrderLabel: "ترتیب نمایش",
+      save: "ذخیره",
+      create: "ایجاد",
+      cancel: "انصراف",
+      edit: "ویرایش",
+      delete: "حذف",
+      loading: "بارگذاری…",
+      empty: "دسته‌ای ثبت نشده است.",
+      validationName: "نام دسته الزامی است",
+      validationSlug: "شناسه URL الزامی است",
+    },
+    banners: {
+      title: "بنر صفحه اصلی",
+      subtitle: "متن و تصویر بخش Hero در صفحه فروشگاه",
+      formTitle: "تنظیمات بنر",
+      formHint: "فیلدهای خالی از متن پیش‌فرض ترجمه استفاده می‌کنند.",
+      badgePlaceholder: "برچسب (مثلاً پیشنهاد ویژه)",
+      titlePlaceholder: "عنوان بنر",
+      subtitlePlaceholder: "زیرعنوان",
+      ctaLabelPlaceholder: "متن دکمه",
+      ctaHrefPlaceholder: "لینک دکمه (مثلاً /categories)",
+      imageUrlPlaceholder: "آدرس تصویر بنر",
+      uploadImage: "آپلود تصویر",
+      removeImage: "حذف تصویر",
+      save: "ذخیره بنر",
+      previewTitle: "پیش‌نمایش",
     },
     orders: {
       title: "سفارش‌ها",
@@ -741,6 +873,12 @@ const fa: Messages = {
     siteDescription: "خرید آنلاین — EliMarket",
     storefrontTitle: "فروشگاه",
     productFallback: "محصول",
+    homeTitle: "فروشگاه آنلاین",
+    homeOgDescription: "خرید آنلاین با ارسال سریع — EliMarket",
+    categoryDescription: "خرید {name} — EliMarket",
+    notFoundTitle: "صفحه یافت نشد",
+    notFoundMessage: "صفحه‌ای که دنبال آن هستید وجود ندارد یا حذف شده است.",
+    backToHome: "بازگشت به صفحه اصلی",
   },
 };
 
@@ -763,6 +901,16 @@ const ar: Messages = {
     heroTitle: "مواد طازجة يومياً",
     heroSubtitle: "توصيل سريع خلال ساعتين",
     heroCta: "تسوق الآن",
+    heroSlide2Badge: "خصم خاص",
+    heroSlide2Title: "منتجات ألبان طازجة يومياً",
+    heroSlide2Subtitle: "خصم يصل إلى 25٪ على منتجات مختارة",
+    heroSlide3Badge: "توصيل مجاني",
+    heroSlide3Title: "للطلبات فوق الحد الأدنى",
+    heroSlide3Subtitle: "توصيل سريع داخل المدينة",
+    heroCarouselLabel: "بانرات المتجر",
+    heroPrev: "الشريحة السابقة",
+    heroNext: "الشريحة التالية",
+    heroGoToSlide: "الانتقال إلى الشريحة {n}",
     flashDeals: "عروض لحظية",
     flashEnds: "ينتهي: ٠٢:٤٥:١٨",
     categoriesTitle: "تسوق حسب الفئة",
@@ -901,6 +1049,10 @@ const ar: Messages = {
     language: "اللغة",
   },
   notifications: {
+    successTitle: "نجاح",
+    errorTitle: "خطأ",
+    infoTitle: "معلومات",
+    warningTitle: "تحذير",
     otpSent: "تم إرسال الرمز",
     loginSuccess: "تم تسجيل الدخول",
     addressSaved: "تم حفظ العنوان",
@@ -915,6 +1067,10 @@ const ar: Messages = {
     priceEnabled: "تم تفعيل عرض الأسعار",
     priceDisabled: "تم إيقاف عرض الأسعار",
     riderAssigned: "تم تعيين السائق",
+    categoryUpdated: "تم تحديث الفئة",
+    categoryCreated: "تم إنشاء الفئة",
+    categoryDeleted: "تم حذف الفئة",
+    heroUpdated: "تم حفظ البانر",
   },
   errors: {
     operationFailed: "فشلت العملية",
@@ -936,6 +1092,7 @@ const ar: Messages = {
     productDeleteFailed: "فشل حذف المنتج",
     noFileSelected: "لم يتم اختيار ملف",
     imageUploadFailed: "فشل رفع الصورة",
+    fileTooLarge: "حجم الصورة يتجاوز 15 ميغابايت",
     ordersLoadFailed: "فشل تحميل الطلبات",
     orderNotFound: "الطلب غير موجود",
     accessDenied: "غير مسموح بالوصول",
@@ -951,6 +1108,10 @@ const ar: Messages = {
     settingsLoadFailed: "فشل تحميل الإعدادات",
     settingsUpdateFailed: "فشل تحديث الإعدادات",
     priceToggleFailed: "فشل تغيير حالة الأسعار",
+    categoryCreateFailed: "فشل إنشاء الفئة",
+    categoryUpdateFailed: "فشل تحديث الفئة",
+    categoryDeleteFailed: "فشل حذف الفئة",
+    heroUpdateFailed: "فشل حفظ البانر",
     addressesLoadFailed: "فشل تحميل العناوين",
     addressSaveFailed: "فشل حفظ العنوان",
     aiImageFailed: "فشل تعديل الصورة بالذكاء الاصطناعي",
@@ -973,6 +1134,8 @@ const ar: Messages = {
     nav: {
       dashboard: "لوحة التحكم",
       products: "المنتجات",
+      categories: "الفئات",
+      banners: "بانر الصفحة الرئيسية",
       orders: "الطلبات",
       reports: "التقارير المالية",
       coverage: "نطاق التغطية",
@@ -996,6 +1159,10 @@ const ar: Messages = {
       reportsDesc: "الإيرادات والمخزون المنخفض",
       coverageCard: "نطاق التغطية",
       coverageDesc: "خريطة التوصيل",
+      categoriesCard: "الفئات",
+      categoriesDesc: "إضافة وتعديل فئات المنتجات",
+      bannersCard: "بانر الصفحة الرئيسية",
+      bannersDesc: "نص وصورة بانر Hero",
     },
     products: {
       title: "إدارة المنتجات",
@@ -1035,6 +1202,40 @@ const ar: Messages = {
       validationSlug: "الرابط التعريفي مطلوب",
       aiStubDescription: "{name} — منتج طازج وعالي الجودة{category}.",
       aiStubCategorySuffix: " في فئة {category}",
+    },
+    categories: {
+      title: "فئات المنتجات",
+      subtitle: "إدارة فئات المتجر",
+      newCategory: "فئة جديدة",
+      editCategory: "تعديل الفئة",
+      namePlaceholder: "اسم الفئة",
+      slugPlaceholder: "slug-الفئة",
+      sortOrderLabel: "ترتيب العرض",
+      save: "حفظ",
+      create: "إنشاء",
+      cancel: "إلغاء",
+      edit: "تعديل",
+      delete: "حذف",
+      loading: "جاري التحميل…",
+      empty: "لا توجد فئات.",
+      validationName: "اسم الفئة مطلوب",
+      validationSlug: "الرابط التعريفي مطلوب",
+    },
+    banners: {
+      title: "بانر الصفحة الرئيسية",
+      subtitle: "نص وصورة قسم Hero في المتجر",
+      formTitle: "إعدادات البانر",
+      formHint: "الحقول الفارغة تستخدم النص الافتراضي من الترجمة.",
+      badgePlaceholder: "الشارة (مثلاً عرض خاص)",
+      titlePlaceholder: "عنوان البانر",
+      subtitlePlaceholder: "العنوان الفرعي",
+      ctaLabelPlaceholder: "نص الزر",
+      ctaHrefPlaceholder: "رابط الزر (مثلاً /categories)",
+      imageUrlPlaceholder: "رابط صورة البانر",
+      uploadImage: "رفع صورة",
+      removeImage: "إزالة الصورة",
+      save: "حفظ البانر",
+      previewTitle: "معاينة",
     },
     orders: {
       title: "الطلبات",
@@ -1134,6 +1335,12 @@ const ar: Messages = {
     siteDescription: "تسوق إلكتروني — إلي ماركت",
     storefrontTitle: "المتجر",
     productFallback: "منتج",
+    homeTitle: "متجر إلكتروني",
+    homeOgDescription: "تسوق إلكتروني مع توصيل سريع — إلي ماركت",
+    categoryDescription: "تسوق {name} — إلي ماركت",
+    notFoundTitle: "الصفحة غير موجودة",
+    notFoundMessage: "الصفحة التي تبحث عنها غير موجودة أو تمت إزالتها.",
+    backToHome: "العودة إلى الصفحة الرئيسية",
   },
 };
 
@@ -1156,6 +1363,16 @@ const en: Messages = {
     heroTitle: "Fresh daily groceries",
     heroSubtitle: "Fast delivery within 2 hours",
     heroCta: "Shop now",
+    heroSlide2Badge: "Special savings",
+    heroSlide2Title: "Fresh dairy every day",
+    heroSlide2Subtitle: "Up to 25% off selected items",
+    heroSlide3Badge: "Free delivery",
+    heroSlide3Title: "On orders above the threshold",
+    heroSlide3Subtitle: "Fast delivery in your area",
+    heroCarouselLabel: "Store banners",
+    heroPrev: "Previous slide",
+    heroNext: "Next slide",
+    heroGoToSlide: "Go to slide {n}",
     flashDeals: "Flash deals",
     flashEnds: "Ends: 02:45:18",
     categoriesTitle: "Shop by category",
@@ -1294,6 +1511,10 @@ const en: Messages = {
     language: "Language",
   },
   notifications: {
+    successTitle: "Success",
+    errorTitle: "Error",
+    infoTitle: "Info",
+    warningTitle: "Warning",
     otpSent: "Code sent",
     loginSuccess: "Signed in successfully",
     addressSaved: "Address saved",
@@ -1308,6 +1529,10 @@ const en: Messages = {
     priceEnabled: "Price display enabled",
     priceDisabled: "Price display disabled",
     riderAssigned: "Rider assigned",
+    categoryUpdated: "Category updated",
+    categoryCreated: "Category created",
+    categoryDeleted: "Category deleted",
+    heroUpdated: "Banner saved",
   },
   errors: {
     operationFailed: "Operation failed",
@@ -1329,6 +1554,7 @@ const en: Messages = {
     productDeleteFailed: "Failed to delete product",
     noFileSelected: "No file selected",
     imageUploadFailed: "Image upload failed",
+    fileTooLarge: "Image exceeds the 15 MB limit",
     ordersLoadFailed: "Failed to load orders",
     orderNotFound: "Order not found",
     accessDenied: "Access denied",
@@ -1344,6 +1570,10 @@ const en: Messages = {
     settingsLoadFailed: "Failed to load settings",
     settingsUpdateFailed: "Failed to update settings",
     priceToggleFailed: "Failed to toggle price display",
+    categoryCreateFailed: "Failed to create category",
+    categoryUpdateFailed: "Failed to update category",
+    categoryDeleteFailed: "Failed to delete category",
+    heroUpdateFailed: "Failed to save banner",
     addressesLoadFailed: "Failed to load addresses",
     addressSaveFailed: "Failed to save address",
     aiImageFailed: "AI image edit failed",
@@ -1366,6 +1596,8 @@ const en: Messages = {
     nav: {
       dashboard: "Dashboard",
       products: "Products",
+      categories: "Categories",
+      banners: "Homepage banner",
       orders: "Orders",
       reports: "Financial reports",
       coverage: "Coverage area",
@@ -1389,6 +1621,10 @@ const en: Messages = {
       reportsDesc: "Revenue & low stock",
       coverageCard: "Coverage area",
       coverageDesc: "Delivery map",
+      categoriesCard: "Categories",
+      categoriesDesc: "Add and edit product categories",
+      bannersCard: "Homepage banner",
+      bannersDesc: "Hero section text and image",
     },
     products: {
       title: "Product management",
@@ -1428,6 +1664,40 @@ const en: Messages = {
       validationSlug: "Slug is required",
       aiStubDescription: "{name} — fresh, high-quality product{category}.",
       aiStubCategorySuffix: " in {category} category",
+    },
+    categories: {
+      title: "Product categories",
+      subtitle: "Manage store categories",
+      newCategory: "New category",
+      editCategory: "Edit category",
+      namePlaceholder: "Category name",
+      slugPlaceholder: "category-slug",
+      sortOrderLabel: "Sort order",
+      save: "Save",
+      create: "Create",
+      cancel: "Cancel",
+      edit: "Edit",
+      delete: "Delete",
+      loading: "Loading…",
+      empty: "No categories yet.",
+      validationName: "Category name is required",
+      validationSlug: "Slug is required",
+    },
+    banners: {
+      title: "Homepage banner",
+      subtitle: "Hero section text and image on the storefront",
+      formTitle: "Banner settings",
+      formHint: "Empty fields fall back to default translated copy.",
+      badgePlaceholder: "Badge (e.g. Special offer)",
+      titlePlaceholder: "Banner title",
+      subtitlePlaceholder: "Subtitle",
+      ctaLabelPlaceholder: "Button label",
+      ctaHrefPlaceholder: "Button link (e.g. /categories)",
+      imageUrlPlaceholder: "Banner image URL",
+      uploadImage: "Upload image",
+      removeImage: "Remove image",
+      save: "Save banner",
+      previewTitle: "Preview",
     },
     orders: {
       title: "Orders",
@@ -1527,6 +1797,12 @@ const en: Messages = {
     siteDescription: "Online shopping — EliMarket",
     storefrontTitle: "Store",
     productFallback: "Product",
+    homeTitle: "Online Store",
+    homeOgDescription: "Online shopping with fast delivery — EliMarket",
+    categoryDescription: "Shop {name} — EliMarket",
+    notFoundTitle: "Page not found",
+    notFoundMessage: "The page you are looking for does not exist or has been removed.",
+    backToHome: "Back to homepage",
   },
 };
 
