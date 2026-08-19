@@ -3,16 +3,13 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, User } from "lucide-react";
-import { verifyAdminAccessAction } from "@/app/_actions/auth-actions";
 import { useAuthStore } from "@/app/_store/auth-store";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { BRAND_NAME } from "@/config/brand";
-import { ADMIN_EMAIL_DOMAIN, resolveAdminEmail } from "@/config/admin-auth";
-import { createClient } from "@/core/supabase/client";
-import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
+import { ADMIN_EMAIL_DOMAIN } from "@/config/admin-auth";
 import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
@@ -43,27 +40,32 @@ function AdminLoginForm() {
           onSubmit={(e) => {
             e.preventDefault();
             runAction(async () => {
-              const supabase = createClient();
-              const email = resolveAdminEmail(username);
-              const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
+              const response = await fetch("/api/auth/admin-login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ username, password }),
               });
 
-              if (error) {
+              const result = (await response.json()) as {
+                success: boolean;
+                error?: string;
+                hint?: string;
+                email?: string;
+                data?: unknown;
+              };
+
+              if (!result.success) {
+                const message = [result.error, result.hint, result.email]
+                  .filter(Boolean)
+                  .join(" — ");
                 return {
                   success: false as const,
-                  error: extractActionErrorMessage(error, "Login failed"),
+                  error: message || "Login failed",
                 };
               }
 
-              const verified = await verifyAdminAccessAction();
-              if (!verified.success) {
-                await supabase.auth.signOut();
-                return verified;
-              }
-
-              return { success: true as const, data: verified.data };
+              return { success: true as const, data: result.data };
             }, {
               successMessage: t("notifications.adminLoginSuccess"),
               onSuccess: async () => {

@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server";
-import { getSessionAction } from "@/app/_actions/auth-actions";
+import { getCurrentProfile, getCurrentUser, mapProfileToSession } from "@/core/supabase/auth-helpers";
 
 export async function GET() {
-  const result = await getSessionAction();
-  return NextResponse.json({
-    isLoggedIn: Boolean(result.data),
-    user: result.data,
-  });
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ isLoggedIn: false, user: null });
+    }
+
+    const profile = await getCurrentProfile();
+    const session = mapProfileToSession(
+      user.id,
+      profile,
+      user.phone,
+      user.email,
+    );
+
+    return NextResponse.json({ isLoggedIn: true, user: session });
+  } catch {
+    return NextResponse.json({ isLoggedIn: false, user: null });
+  }
 }
