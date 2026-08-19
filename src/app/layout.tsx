@@ -19,6 +19,10 @@ export const metadata: Metadata = {
     template: `%s | ${BRAND_NAME_FA}`,
   },
   description: "خرید آنلاین — EliMarket",
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/icon.png", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png", type: "image/png" }],
+  },
   themeColor: "#0f0f0f",
   appleWebApp: {
     capable: true,
