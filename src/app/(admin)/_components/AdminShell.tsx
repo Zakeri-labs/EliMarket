@@ -18,6 +18,7 @@ import { useTranslations } from "@/i18n/use-translations";
 const NAV_KEYS = [
   { href: "/dashboard", key: "admin.nav.dashboard" },
   { href: "/dashboard/products", key: "admin.nav.products" },
+  { href: "/dashboard/products/smart", key: "admin.nav.smartProduct" },
   { href: "/dashboard/categories", key: "admin.nav.categories" },
   { href: "/dashboard/brands", key: "admin.nav.brands" },
   { href: "/dashboard/banners", key: "admin.nav.banners" },

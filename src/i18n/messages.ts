@@ -174,6 +174,7 @@ export type Messages = {
     bannerCreated: string;
     bannerUpdated: string;
     bannerDeleted: string;
+    smartProductReady: string;
   };
   errors: {
     operationFailed: string;
@@ -227,6 +228,8 @@ export type Messages = {
     addressSaveFailed: string;
     aiImageFailed: string;
     aiDescriptionFailed: string;
+    smartProductFailed: string;
+    smartProductNoImages: string;
     storeLoadFailed: string;
     coverageSaveFailed: string;
   };
@@ -251,6 +254,7 @@ export type Messages = {
       orders: string;
       reports: string;
       coverage: string;
+      smartProduct: string;
     };
     login: {
       title: string;
@@ -277,11 +281,14 @@ export type Messages = {
       brandsDesc: string;
       bannersCard: string;
       bannersDesc: string;
+      smartProductCard: string;
+      smartProductDesc: string;
     };
     products: {
       title: string;
       subtitle: string;
       newProduct: string;
+      smartRegister: string;
       editProduct: string;
       namePlaceholder: string;
       slugPlaceholder: string;
@@ -329,6 +336,37 @@ export type Messages = {
       validationSlug: string;
       aiStubDescription: string;
       aiStubCategorySuffix: string;
+    };
+    smartProduct: {
+      title: string;
+      subtitle: string;
+      uploadTitle: string;
+      uploadHint: string;
+      uploadButton: string;
+      maxPhotos: string;
+      removePhoto: string;
+      hintName: string;
+      hintNamePlaceholder: string;
+      categoryOptional: string;
+      processButton: string;
+      processing: string;
+      processingEnhance: string;
+      processingContent: string;
+      before: string;
+      after: string;
+      pickPrimary: string;
+      primaryBadge: string;
+      reviewTitle: string;
+      reviewHint: string;
+      publish: string;
+      startOver: string;
+      noImages: string;
+      fallbackNotice: string;
+      stepPhoto: string;
+      stepEnhance: string;
+      stepContent: string;
+      stepReview: string;
+      stepPublish: string;
     };
     brands: {
       title: string;
@@ -702,6 +740,7 @@ const fa: Messages = {
     bannerCreated: "بنر ایجاد شد",
     bannerUpdated: "بنر به‌روز شد",
     bannerDeleted: "بنر حذف شد",
+    smartProductReady: "پیش‌نویس محصول آماده شد",
   },
   errors: {
     operationFailed: "عملیات ناموفق بود",
@@ -755,6 +794,8 @@ const fa: Messages = {
     addressSaveFailed: "ثبت آدرس ناموفق بود",
     aiImageFailed: "ویرایش تصویر با AI ناموفق بود",
     aiDescriptionFailed: "تولید توضیحات ناموفق بود",
+    smartProductFailed: "ثبت هوشمند محصول ناموفق بود",
+    smartProductNoImages: "هیچ تصویری برای پردازش وجود ندارد",
     storeLoadFailed: "بارگذاری فروشگاه ناموفق بود",
     coverageSaveFailed: "ذخیره محدوده پوشش ناموفق بود",
   },
@@ -779,6 +820,7 @@ const fa: Messages = {
       orders: "سفارش‌ها",
       reports: "گزارشات مالی",
       coverage: "محدوده پوشش",
+      smartProduct: "ثبت هوشمند",
     },
     login: {
       title: "ورود پنل مدیریت",
@@ -805,11 +847,14 @@ const fa: Messages = {
       brandsDesc: "تعریف و مدیریت برند محصولات",
       bannersCard: "بنر صفحه اصلی",
       bannersDesc: "چند بنر برای اسلایدر فروشگاه",
+      smartProductCard: "ثبت هوشمند محصول",
+      smartProductDesc: "از عکس خام تا محتوای آماده فروش با AI",
     },
     products: {
       title: "مدیریت محصولات",
       subtitle: "افزودن محصول، بارگذاری تصویر و کنترل موجودی",
       newProduct: "محصول جدید",
+      smartRegister: "ثبت هوشمند با AI",
       editProduct: "ویرایش محصول",
       namePlaceholder: "نام محصول",
       slugPlaceholder: "slug-en",
@@ -857,6 +902,37 @@ const fa: Messages = {
       validationSlug: "اسلاگ الزامی است",
       aiStubDescription: "{name} — محصول تازه و باکیفیت{category}.",
       aiStubCategorySuffix: " در دسته {category}",
+    },
+    smartProduct: {
+      title: "ثبت هوشمند محصول",
+      subtitle: "از عکس خام تا محتوای آماده فروش با کمک AI",
+      uploadTitle: "عکس محصول",
+      uploadHint: "چند زاویه از بسته‌بندی یا محصول بگیرید یا آپلود کنید. AI کیفیت تصویر را بهتر می‌کند و پیش‌نویس محتوا می‌سازد.",
+      uploadButton: "گرفتن یا آپلود عکس",
+      maxPhotos: "تا {count} عکس",
+      removePhoto: "حذف",
+      hintName: "نام محصول (اختیاری)",
+      hintNamePlaceholder: "اگر روی بسته‌بندی خوانا نیست، اینجا بنویسید",
+      categoryOptional: "دسته‌بندی (اختیاری)",
+      processButton: "بهبود تصویر و تولید محتوا",
+      processing: "در حال آماده‌سازی پیش‌نویس…",
+      processingEnhance: "حذف پس‌زمینه و یکدست‌کردن تصاویر",
+      processingContent: "پیشنهاد نام و توضیحات سه‌زبانه",
+      before: "قبل",
+      after: "بعد",
+      pickPrimary: "تصویر اصلی کاتالوگ را انتخاب کنید",
+      primaryBadge: "تصویر اصلی",
+      reviewTitle: "بازبینی ادمین",
+      reviewHint: "متن و قیمت را اصلاح کنید، سپس در کاتالوگ ثبت کنید.",
+      publish: "ثبت در کاتالوگ",
+      startOver: "شروع دوباره",
+      noImages: "حداقل یک عکس انتخاب کنید",
+      fallbackNotice: "مدل بینایی پیکربندی نشده؛ پیش‌نویس را خودتان کامل کنید. برای تشخیص خودکار عکس، GEMINI_API_KEY یا OPENAI_API_KEY را تنظیم کنید.",
+      stepPhoto: "عکس محصول",
+      stepEnhance: "بهبود تصویر",
+      stepContent: "تولید محتوا",
+      stepReview: "بازبینی",
+      stepPublish: "ثبت کاتالوگ",
     },
     brands: {
       title: "مدیریت برندها",
@@ -1239,6 +1315,7 @@ const ar: Messages = {
     bannerCreated: "تم إنشاء البانر",
     bannerUpdated: "تم تحديث البانر",
     bannerDeleted: "تم حذف البانر",
+    smartProductReady: "أصبحت مسودة المنتج جاهزة",
   },
   errors: {
     operationFailed: "فشلت العملية",
@@ -1292,6 +1369,8 @@ const ar: Messages = {
     addressSaveFailed: "فشل حفظ العنوان",
     aiImageFailed: "فشل تعديل الصورة بالذكاء الاصطناعي",
     aiDescriptionFailed: "فشل إنشاء الوصف",
+    smartProductFailed: "فشل التسجيل الذكي للمنتج",
+    smartProductNoImages: "لا توجد صور للمعالجة",
     storeLoadFailed: "فشل تحميل المتجر",
     coverageSaveFailed: "فشل حفظ نطاق التغطية",
   },
@@ -1316,6 +1395,7 @@ const ar: Messages = {
       orders: "الطلبات",
       reports: "التقارير المالية",
       coverage: "نطاق التغطية",
+      smartProduct: "تسجيل ذكي",
     },
     login: {
       title: "دخول لوحة الإدارة",
@@ -1342,11 +1422,14 @@ const ar: Messages = {
       brandsDesc: "تعريف وإدارة علامات المنتجات",
       bannersCard: "بانر الصفحة الرئيسية",
       bannersDesc: "عدة بانرات لشريط المتجر",
+      smartProductCard: "تسجيل المنتج بالذكاء الاصطناعي",
+      smartProductDesc: "من صورة خام إلى محتوى جاهز للبيع",
     },
     products: {
       title: "إدارة المنتجات",
       subtitle: "إضافة منتج، رفع صورة والتحكم بالمخزون",
       newProduct: "منتج جديد",
+      smartRegister: "تسجيل ذكي بالذكاء الاصطناعي",
       editProduct: "تعديل المنتج",
       namePlaceholder: "اسم المنتج",
       slugPlaceholder: "slug-en",
@@ -1394,6 +1477,37 @@ const ar: Messages = {
       validationSlug: "الرابط التعريفي مطلوب",
       aiStubDescription: "{name} — منتج طازج وعالي الجودة{category}.",
       aiStubCategorySuffix: " في فئة {category}",
+    },
+    smartProduct: {
+      title: "تسجيل المنتج بالذكاء الاصطناعي",
+      subtitle: "من صورة خام إلى محتوى جاهز للبيع",
+      uploadTitle: "صورة المنتج",
+      uploadHint: "التقط أو ارفع عدة زوايا للعبوة. يحسّن الذكاء الاصطناعي الصورة ويقترح المحتوى.",
+      uploadButton: "التقاط أو رفع صورة",
+      maxPhotos: "حتى {count} صور",
+      removePhoto: "حذف",
+      hintName: "اسم المنتج (اختياري)",
+      hintNamePlaceholder: "اكتب الاسم إذا لم يكن واضحاً على العبوة",
+      categoryOptional: "الفئة (اختياري)",
+      processButton: "تحسين الصورة وإنشاء المحتوى",
+      processing: "جارٍ إعداد المسودة…",
+      processingEnhance: "إزالة الخلفية وتوحيد الصور",
+      processingContent: "اقتراح الاسم والوصف بثلاث لغات",
+      before: "قبل",
+      after: "بعد",
+      pickPrimary: "اختر صورة الكتالوج الرئيسية",
+      primaryBadge: "الصورة الرئيسية",
+      reviewTitle: "مراجعة المشرف",
+      reviewHint: "عدّل النص والسعر ثم سجّل المنتج في الكتالوج.",
+      publish: "تسجيل في الكتالوج",
+      startOver: "البدء من جديد",
+      noImages: "اختر صورة واحدة على الأقل",
+      fallbackNotice: "لم يُضبط نموذج الرؤية. أكمل المسودة يدوياً أو أضف GEMINI_API_KEY أو OPENAI_API_KEY.",
+      stepPhoto: "صورة المنتج",
+      stepEnhance: "تحسين الصورة",
+      stepContent: "إنشاء المحتوى",
+      stepReview: "المراجعة",
+      stepPublish: "تسجيل الكتالوج",
     },
     brands: {
       title: "إدارة العلامات التجارية",
@@ -1776,6 +1890,7 @@ const en: Messages = {
     bannerCreated: "Banner created",
     bannerUpdated: "Banner updated",
     bannerDeleted: "Banner deleted",
+    smartProductReady: "Product draft is ready",
   },
   errors: {
     operationFailed: "Operation failed",
@@ -1829,6 +1944,8 @@ const en: Messages = {
     addressSaveFailed: "Failed to save address",
     aiImageFailed: "AI image edit failed",
     aiDescriptionFailed: "Failed to generate description",
+    smartProductFailed: "Smart product listing failed",
+    smartProductNoImages: "No images to process",
     storeLoadFailed: "Failed to load store",
     coverageSaveFailed: "Failed to save coverage area",
   },
@@ -1853,6 +1970,7 @@ const en: Messages = {
       orders: "Orders",
       reports: "Financial reports",
       coverage: "Coverage area",
+      smartProduct: "Smart listing",
     },
     login: {
       title: "Admin sign in",
@@ -1879,11 +1997,14 @@ const en: Messages = {
       brandsDesc: "Define and manage product brands",
       bannersCard: "Homepage banners",
       bannersDesc: "Multiple slides for the storefront carousel",
+      smartProductCard: "Smart product listing",
+      smartProductDesc: "From a raw photo to ready-to-sell catalog content",
     },
     products: {
       title: "Product management",
       subtitle: "Add products, upload images, control stock",
       newProduct: "New product",
+      smartRegister: "Smart AI listing",
       editProduct: "Edit product",
       namePlaceholder: "Product name",
       slugPlaceholder: "slug-en",
@@ -1931,6 +2052,37 @@ const en: Messages = {
       validationSlug: "Slug is required",
       aiStubDescription: "{name} — fresh, high-quality product{category}.",
       aiStubCategorySuffix: " in {category} category",
+    },
+    smartProduct: {
+      title: "Smart product listing",
+      subtitle: "From a raw photo to ready-to-sell catalog content",
+      uploadTitle: "Product photo",
+      uploadHint: "Take or upload several pack angles. AI improves the image and drafts the listing copy.",
+      uploadButton: "Take or upload photos",
+      maxPhotos: "Up to {count} photos",
+      removePhoto: "Remove",
+      hintName: "Product name (optional)",
+      hintNamePlaceholder: "Add a name if the pack is hard to read",
+      categoryOptional: "Category (optional)",
+      processButton: "Enhance images and generate copy",
+      processing: "Preparing the draft…",
+      processingEnhance: "Removing backgrounds and cleaning photos",
+      processingContent: "Suggesting a title and trilingual descriptions",
+      before: "Before",
+      after: "After",
+      pickPrimary: "Choose the catalog image",
+      primaryBadge: "Primary image",
+      reviewTitle: "Admin review",
+      reviewHint: "Edit the copy and price, then publish to the catalog.",
+      publish: "Publish to catalog",
+      startOver: "Start over",
+      noImages: "Select at least one photo",
+      fallbackNotice: "No vision model is configured. Complete the draft yourself, or set GEMINI_API_KEY or OPENAI_API_KEY.",
+      stepPhoto: "Product photo",
+      stepEnhance: "Image enhancement",
+      stepContent: "Content generation",
+      stepReview: "Review",
+      stepPublish: "Catalog listing",
     },
     brands: {
       title: "Brand management",

@@ -10,6 +10,11 @@ export default function AdminDashboardPage() {
 
   const cards = [
     {
+      href: "/dashboard/products/smart",
+      label: t("admin.dashboard.smartProductCard"),
+      desc: t("admin.dashboard.smartProductDesc"),
+    },
+    {
       href: "/dashboard/products",
       label: t("admin.dashboard.productsCard"),
       desc: t("admin.dashboard.productsDesc"),

@@ -7,6 +7,7 @@ import {
   buildProductDescriptionStub,
   type ProductDescriptionsI18n,
 } from "@/lib/ai/product-description-stub";
+import { enhanceProductImageAction } from "@/app/_actions/smart-product-actions";
 
 async function callEdgeFunction(
   name: string,
@@ -49,25 +50,9 @@ function normalizeAiDescriptions(
   };
 }
 
-/** Stub: returns placeholder descriptions until edge function is deployed */
+/** Enhance product photo: strip studio background when possible. */
 export async function editProductImageWithAiAction(imageUrl: string) {
-  try {
-    await requireAdmin();
-    try {
-      const result = (await callEdgeFunction("edit-product-image", {
-        imageUrl,
-      })) as { url?: string };
-      if (result?.url) return { success: true as const, data: { url: result.url } };
-    } catch {
-      // fall through to stub
-    }
-    return { success: true as const, data: { url: imageUrl } };
-  } catch (err) {
-    return {
-      success: false as const,
-      error: await actionErrorMessage("errors.aiImageFailed", err),
-    };
-  }
+  return enhanceProductImageAction(imageUrl);
 }
 
 /** Generate product descriptions in FA, AR, and EN */

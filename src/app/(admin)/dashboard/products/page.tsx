@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -374,6 +375,16 @@ export default function AdminProductsPage() {
       subtitle={t("admin.products.subtitle")}
     >
       <div className="space-y-4">
+        <Link
+          href="/dashboard/products/smart"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-[#6b8f71]/40 bg-[#6b8f71]/8 px-4 py-3"
+        >
+          <div>
+            <p className="text-sm font-semibold text-[#527559]">{t("admin.products.smartRegister")}</p>
+            <p className="text-xs text-[#71717a]">{t("admin.smartProduct.subtitle")}</p>
+          </div>
+          <span className="shrink-0 text-sm font-medium text-[#6b8f71]">→</span>
+        </Link>
         <Modal
           open={formOpen}
           onOpenChange={(open) => {
@@ -665,6 +676,9 @@ export default function AdminProductsPage() {
                     successMessage: "AI",
                     onSuccess: (data) => {
                       if (data?.url) form.setValue("image_url", data.url);
+                      if ("blurHash" in (data ?? {}) && data?.blurHash) {
+                        form.setValue("blur_hash", data.blurHash);
+                      }
                     },
                   });
                 }}
