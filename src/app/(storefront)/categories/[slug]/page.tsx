@@ -14,6 +14,7 @@ import {
 } from "@/lib/seo/site-url";
 import { getMessages } from "@/i18n/messages";
 import { getRequestLocale, serverT } from "@/i18n/server";
+import { resolveCategoryName } from "@/lib/i18n/category-name";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -30,18 +31,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: meta.storefrontTitle };
   }
 
-  const description = meta.categoryDescription.replace("{name}", category.name);
+  const categoryName = resolveCategoryName(category, locale);
+  const description = meta.categoryDescription.replace("{name}", categoryName);
   const path = `/categories/${slug}`;
 
   return {
-    title: category.name,
+    title: categoryName,
     description: trimDescription(description),
     alternates: {
       canonical: absoluteUrl(path),
       languages: languageAlternates(path),
     },
     openGraph: {
-      title: category.name,
+      title: categoryName,
       description: trimDescription(description),
       url: absoluteUrl(path),
       type: "website",
@@ -59,10 +61,12 @@ export default async function CategoryPage({ params }: Props) {
   if (!category) notFound();
 
   const backLabel = await serverT("categories.back");
+  const locale = await getRequestLocale();
+  const categoryName = resolveCategoryName(category, locale);
 
   return (
     <>
-      <JsonLd data={categoryBreadcrumbJsonLd(category)} />
+      <JsonLd data={categoryBreadcrumbJsonLd(category, locale)} />
       <main className="py-4 md:py-6">
         <div className="mb-4 flex items-center gap-2">
           <Link
@@ -72,7 +76,7 @@ export default async function CategoryPage({ params }: Props) {
             <AppIcon icon={ChevronLeft} size="sm" className="rtl:rotate-180" />
             {backLabel}
           </Link>
-          <h1 className="font-bold">{category.name}</h1>
+          <h1 className="text-start font-bold">{categoryName}</h1>
         </div>
         <CategoryProductList slug={slug} />
       </main>

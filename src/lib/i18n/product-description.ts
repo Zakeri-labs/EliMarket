@@ -22,6 +22,18 @@ export function resolveProductDescription(
   );
 }
 
+/** Short storefront blurb for product cards. */
+export function resolveProductCardExcerpt(
+  product: Product,
+  locale: Locale,
+  maxLength = 72,
+): string | null {
+  const description = resolveProductDescription(product, locale);
+  if (!description) return null;
+  if (description.length <= maxLength) return description;
+  return `${description.slice(0, maxLength).trim()}…`;
+}
+
 /** All description fields for search indexing. */
 export function productDescriptionSearchText(product: Product): string {
   return [

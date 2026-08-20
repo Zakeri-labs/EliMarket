@@ -54,6 +54,7 @@ type FormValues = {
   description_ar?: string;
   description_en?: string;
   price: number;
+  compare_at_price?: number;
   stock: number;
   category_id?: string;
   brand_id?: string;
@@ -84,6 +85,7 @@ export default function AdminProductsPage() {
         description_ar: z.string().optional(),
         description_en: z.string().optional(),
         price: z.number().min(0),
+        compare_at_price: z.number().min(0).optional(),
         stock: z.number().int().min(0),
         category_id: z.string().optional(),
         brand_id: z.string().optional(),
@@ -103,6 +105,7 @@ export default function AdminProductsPage() {
       description_ar: "",
       description_en: "",
       price: 0,
+      compare_at_price: undefined,
       stock: 0,
       category_id: "",
       brand_id: "",
@@ -132,6 +135,7 @@ export default function AdminProductsPage() {
         description_ar: editing.description_ar ?? "",
         description_en: editing.description_en ?? "",
         price: Number(editing.price),
+        compare_at_price: editing.compare_at_price ? Number(editing.compare_at_price) : undefined,
         stock: editing.stock,
         category_id: editing.category_id ?? "",
         brand_id: editing.brand_id ?? "",
@@ -168,6 +172,7 @@ export default function AdminProductsPage() {
       description_en: values.description_en?.trim() || null,
       image_url: values.image_url || null,
       blur_hash: values.image_url ? values.blur_hash || null : null,
+      compare_at_price: values.compare_at_price ? values.compare_at_price : null,
       features: features
         .map((feature) => ({
           label: feature.label.trim(),
@@ -462,14 +467,25 @@ export default function AdminProductsPage() {
             </div>
             <div>
               <label className="mb-1 block text-xs text-[#71717a]">
-                {t("admin.products.stockLabel")}
+                {t("admin.products.compareAtPriceLabel")}
               </label>
               <input
-                {...form.register("stock", { valueAsNumber: true })}
+                {...form.register("compare_at_price", { valueAsNumber: true })}
                 type="number"
                 className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs text-[#71717a]">
+              {t("admin.products.stockLabel")}
+            </label>
+            <input
+              {...form.register("stock", { valueAsNumber: true })}
+              type="number"
+              className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+            />
           </div>
 
           <select

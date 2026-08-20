@@ -30,7 +30,14 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    remotePatterns: supabaseRemotePattern(),
+    remotePatterns: [
+      ...supabaseRemotePattern(),
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
+    ],
   },
   async redirects() {
     return [

@@ -2,13 +2,13 @@
 
 import { useMemo } from "react";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
-import { ProductCard } from "@/app/(storefront)/_components/ProductCard";
+import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
 import { mockProducts } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
 
 export function ProductGrid() {
   const { data, isPending, error } = useProducts();
-  const { t, locale } = useTranslations();
+  const { t, locale, dir } = useTranslations();
   const isSkeleton = isPending;
 
   const items = useMemo(
@@ -29,11 +29,16 @@ export function ProductGrid() {
   }
 
   return (
-    <section>
-      <h2 className="mb-3 font-bold">{t("home.allProducts")}</h2>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4">
-        {items.map((product) => (
-          <ProductCard key={product.id} product={product} isSkeleton={isSkeleton} />
+    <section dir={dir}>
+      <h2 className="mb-4 text-start text-base font-bold sm:text-lg">{t("home.allProducts")}</h2>
+      <div className="-mx-4 flex flex-wrap justify-start gap-3 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        {items.map((product, index) => (
+          <ProductDealCard
+            key={product.id}
+            product={product}
+            isSkeleton={isSkeleton}
+            priority={index < 4}
+          />
         ))}
       </div>
     </section>

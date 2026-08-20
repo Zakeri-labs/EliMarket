@@ -2,6 +2,7 @@ import { BRAND_NAME } from "@/config/brand";
 import type { Category, Product } from "@/app/_types/database.types";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo/site-url";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
+import { resolveCategoryName } from "@/lib/i18n/category-name";
 import type { Locale } from "@/i18n/config";
 
 export function websiteJsonLd() {
@@ -58,7 +59,7 @@ export function productJsonLd(product: Product, locale: Locale = "fa") {
   };
 }
 
-export function categoryBreadcrumbJsonLd(category: Category) {
+export function categoryBreadcrumbJsonLd(category: Category, locale: Locale) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -78,7 +79,7 @@ export function categoryBreadcrumbJsonLd(category: Category) {
       {
         "@type": "ListItem",
         position: 3,
-        name: category.name,
+        name: resolveCategoryName(category, locale),
         item: absoluteUrl(`/categories/${category.slug}`),
       },
     ],

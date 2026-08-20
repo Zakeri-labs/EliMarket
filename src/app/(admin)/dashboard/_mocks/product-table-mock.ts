@@ -5,6 +5,9 @@ const MOCK_TIMESTAMP = "2024-01-15T10:30:00.000Z";
 const MOCK_CATEGORY = {
   id: "mock-admin-category",
   name: "Dairy and breakfast",
+  name_fa: "لبنیات و صبحانه",
+  name_ar: "منتجات الألبان والإفطار",
+  name_en: "Dairy and breakfast",
   slug: "dairy-breakfast",
   sort_order: 1,
   image_url: null,
@@ -68,6 +71,7 @@ export function mockAdminTableProducts(): Product[] {
     description_en:
       "Sample description for the admin product table skeleton loading state.",
     price: row.price,
+    compare_at_price: null,
     currency: "IRR",
     stock: row.stock,
     image_url: "/icon.png",

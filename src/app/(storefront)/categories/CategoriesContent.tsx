@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { getCategoriesAction } from "@/app/_actions/product-actions";
 import { CategoryProductList } from "@/app/(storefront)/_components/CategoryProductList";
 import { cn } from "@/app/utils/cn";
@@ -13,6 +13,7 @@ import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { getCategoryIcon } from "@/config/category-icons";
 import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { useTranslations } from "@/i18n/use-translations";
+import { resolveCategoryName } from "@/lib/i18n/category-name";
 
 export default function CategoriesContent() {
   const searchParams = useSearchParams();
@@ -43,7 +44,9 @@ export default function CategoriesContent() {
             <AppIcon icon={ChevronLeft} size="sm" className="rtl:rotate-180" />
             {t("categories.back")}
           </Link>
-          <h1 className="text-start font-bold">{selected?.name ?? slug}</h1>
+          <h1 className="text-start font-bold">
+            {selected ? resolveCategoryName(selected, locale) : slug}
+          </h1>
         </div>
         <CategoryProductList slug={slug} />
       </main>
@@ -62,6 +65,7 @@ export default function CategoriesContent() {
           <li key={cat.id}>
             <Link
               href={isSkeleton ? "#" : `/categories/${cat.slug}`}
+              dir={dir}
               className={cn(
                 "flex items-center gap-3 rounded-2xl border border-border bg-surface p-3",
                 isSkeleton && "skeleton pointer-events-none",
@@ -71,15 +75,17 @@ export default function CategoriesContent() {
               }}
               aria-busy={isSkeleton}
             >
-              <span className="target relative flex h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-surface-elevated">
+              <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
                 {!isSkeleton && cat.image_url ? (
                   <StorefrontImage
                     src={cat.image_url}
                     blurHash={cat.blur_hash}
                     alt=""
-                    fill
-                    sizes="48px"
-                    className="object-cover"
+                    width={56}
+                    height={56}
+                    sizes="56px"
+                    withBlur={!isSkeleton}
+                    className="max-h-full max-w-full object-contain"
                   />
                 ) : (
                   !isSkeleton && (
@@ -87,8 +93,10 @@ export default function CategoriesContent() {
                   )
                 )}
               </span>
-              <span className="flex-1 text-start font-medium">{cat.name}</span>
-              <AppIcon icon={ChevronLeft} size="sm" className="text-muted rtl:rotate-180" />
+              <span className="flex-1 text-start font-medium">
+                {resolveCategoryName(cat, locale)}
+              </span>
+              <AppIcon icon={ChevronRight} size="sm" className="shrink-0 text-muted rtl:rotate-180" />
             </Link>
           </li>
         ))}

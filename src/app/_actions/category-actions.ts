@@ -26,6 +26,7 @@ export async function createCategoryAction(input: {
       .from("categories")
       .insert({
         name: input.name.trim(),
+        name_fa: input.name.trim(),
         slug: input.slug.trim(),
         sort_order: input.sort_order ?? 0,
         image_url: imageUrl,
@@ -58,7 +59,10 @@ export async function updateCategoryAction(
   try {
     const { supabase } = await requireAdmin();
     const payload: Record<string, string | number | null> = {};
-    if (input.name !== undefined) payload.name = input.name.trim();
+    if (input.name !== undefined) {
+      payload.name = input.name.trim();
+      payload.name_fa = input.name.trim();
+    }
     if (input.slug !== undefined) payload.slug = input.slug.trim();
     if (input.sort_order !== undefined) payload.sort_order = input.sort_order;
     if (input.image_url !== undefined) {

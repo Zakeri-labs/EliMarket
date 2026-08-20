@@ -12,6 +12,7 @@ import {
   Share2,
 } from "lucide-react";
 import type { Product } from "@/app/_types/database.types";
+import type { Locale } from "@/i18n/config";
 import { useCartStore } from "@/app/_store/cart-store";
 import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { cn } from "@/app/utils/cn";
@@ -22,6 +23,7 @@ import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { STOREFRONT_CONTAINER_BLEED } from "@/config/layout";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
+import { resolveCategoryName } from "@/lib/i18n/category-name";
 
 type Props = {
   product: Product;
@@ -31,13 +33,13 @@ type Props = {
 const SIZE_LABEL_PATTERN =
   /^(weight|size|volume|package|وزن|حجم|اندازه|الوزن|الحجم|الحجم\/الوزن)$/i;
 
-function resolveProductSubtitle(product: Product): string | null {
+function resolveProductSubtitle(product: Product, locale: Locale): string | null {
   const sizeFeature = product.features?.find((feature) =>
     SIZE_LABEL_PATTERN.test(feature.label.trim()),
   );
   if (sizeFeature?.value.trim()) return sizeFeature.value.trim();
   if (product.brand?.name) return product.brand.name;
-  if (product.category?.name) return product.category.name;
+  if (product.category) return resolveCategoryName(product.category, locale);
   return null;
 }
 
@@ -52,7 +54,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const lineTotal = Number(product.price) * qty;
   const description =
     resolveProductDescription(product, locale) ?? t("product.noDescription");
-  const subtitle = resolveProductSubtitle(product);
+  const subtitle = resolveProductSubtitle(product, locale);
   const inStock = product.stock > 0;
   const addToCartLabel = showPrices
     ? t("product.addToCart", {
@@ -82,7 +84,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain">
           <div className={cn("relative", STOREFRONT_CONTAINER_BLEED, isSkeleton && "skeleton")}>
             <div
-              className="relative aspect-[4/5] max-h-[46vh] min-h-[280px] w-full bg-surface-elevated"
+              className="relative aspect-[4/5] max-h-[46vh] min-h-[280px] w-full bg-white"
               aria-busy={isSkeleton}
             >
             {product.image_url ? (
@@ -94,7 +96,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 priority
                 sizes="100vw"
                 withBlur={!isSkeleton}
-                className="object-cover object-center"
+                className="object-contain object-center"
               />
             ) : (
               <div className="flex h-full items-center justify-center">
@@ -266,7 +268,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         )}
         aria-busy={isSkeleton}
       >
-        <div className="target relative aspect-square overflow-hidden rounded-2xl bg-surface-elevated lg:sticky lg:top-24 lg:self-start">
+        <div className="target relative aspect-square overflow-hidden rounded-2xl bg-white lg:sticky lg:top-24 lg:self-start">
           {product.image_url ? (
             <StorefrontImage
               src={product.image_url}
@@ -276,7 +278,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               priority
               sizes="50vw"
               withBlur={!isSkeleton}
-              className="object-cover"
+              className="object-contain"
             />
           ) : (
             <ProductPlaceholder size="2xl" />

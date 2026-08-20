@@ -31,6 +31,7 @@ export type Messages = {
     heroGoToSlide: string;
     flashDeals: string;
     flashEnds: string;
+    flashEndsIn: string;
     categoriesTitle: string;
     viewAll: string;
     allProducts: string;
@@ -284,6 +285,7 @@ export type Messages = {
       descriptionEn: string;
       aiDescriptionAll: string;
       priceLabel: string;
+      compareAtPriceLabel: string;
       stockLabel: string;
       noCategory: string;
       brandLabel: string;
@@ -506,6 +508,7 @@ const fa: Messages = {
     heroGoToSlide: "رفتن به اسلاید {n}",
     flashDeals: "پیشنهاد لحظه‌ای",
     flashEnds: "پایان: ۰۲:۴۵:۱۸",
+    flashEndsIn: "پایان در",
     categoriesTitle: "خرید بر اساس دسته",
     viewAll: "مشاهده همه",
     allProducts: "همه محصولات",
@@ -792,6 +795,7 @@ const fa: Messages = {
       descriptionEn: "انگلیسی",
       aiDescriptionAll: "تولید توضیحات با AI",
       priceLabel: "قیمت (تومان)",
+      compareAtPriceLabel: "قیمت قبل از تخفیف (تومان)",
       stockLabel: "موجودی",
       noCategory: "بدون دسته",
       brandLabel: "برند",
@@ -1023,6 +1027,7 @@ const ar: Messages = {
     heroGoToSlide: "الانتقال إلى الشريحة {n}",
     flashDeals: "عروض لحظية",
     flashEnds: "ينتهي: ٠٢:٤٥:١٨",
+    flashEndsIn: "ينتهي خلال",
     categoriesTitle: "تسوق حسب الفئة",
     viewAll: "عرض الكل",
     allProducts: "جميع المنتجات",
@@ -1309,6 +1314,7 @@ const ar: Messages = {
       descriptionEn: "English",
       aiDescriptionAll: "إنشاء الوصف بالذكاء الاصطناعي",
       priceLabel: "السعر (تومان)",
+      compareAtPriceLabel: "السعر قبل الخصم (تومان)",
       stockLabel: "المخزون",
       noCategory: "بدون فئة",
       brandLabel: "العلامة التجارية",
@@ -1540,6 +1546,7 @@ const en: Messages = {
     heroGoToSlide: "Go to slide {n}",
     flashDeals: "Flash deals",
     flashEnds: "Ends: 02:45:18",
+    flashEndsIn: "Ends in",
     categoriesTitle: "Shop by category",
     viewAll: "View all",
     allProducts: "All products",
@@ -1826,6 +1833,7 @@ const en: Messages = {
       descriptionEn: "English",
       aiDescriptionAll: "Generate descriptions with AI",
       priceLabel: "Price (Toman)",
+      compareAtPriceLabel: "Original price (Toman)",
       stockLabel: "Stock",
       noCategory: "No category",
       brandLabel: "Brand",

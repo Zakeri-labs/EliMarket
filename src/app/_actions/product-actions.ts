@@ -136,6 +136,7 @@ export async function createProductAction(input: {
   description_ar?: string | null;
   description_en?: string | null;
   price: number;
+  compare_at_price?: number | null;
   currency?: string;
   stock: number;
   category_id?: string | null;
@@ -160,6 +161,7 @@ export async function createProductAction(input: {
         description_ar,
         description_en,
         price: input.price,
+        compare_at_price: input.compare_at_price ?? null,
         currency: input.currency ?? "IRR",
         stock: input.stock,
         category_id: input.category_id ?? null,
@@ -197,6 +199,7 @@ export async function updateProductAction(
     description_ar: string | null;
     description_en: string | null;
     price: number;
+    compare_at_price: number | null;
     stock: number;
     category_id: string | null;
     brand_id: string | null;

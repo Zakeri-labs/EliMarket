@@ -21,6 +21,9 @@ export type Profile = {
 export type Category = {
   id: string;
   name: string;
+  name_fa: string | null;
+  name_ar: string | null;
+  name_en: string | null;
   slug: string;
   sort_order: number;
   image_url: string | null;
@@ -62,6 +65,7 @@ export type Product = {
   description_ar: string | null;
   description_en: string | null;
   price: number;
+  compare_at_price: number | null;
   currency: string;
   stock: number;
   image_url: string | null;

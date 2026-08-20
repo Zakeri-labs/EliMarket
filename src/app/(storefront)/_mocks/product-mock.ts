@@ -7,7 +7,10 @@ const CATEGORY_BY_LOCALE: Record<Locale, Category> = {
   fa: {
     id: "mock-category-fa",
     name: "لبنیات و صبحانه",
-    slug: "dairy-breakfast",
+    name_fa: "لبنیات و صبحانه",
+    name_ar: "منتجات الألبان والإفطار",
+    name_en: "Dairy and breakfast",
+    slug: "dairy",
     sort_order: 1,
     image_url: null,
     blur_hash: null,
@@ -16,7 +19,10 @@ const CATEGORY_BY_LOCALE: Record<Locale, Category> = {
   ar: {
     id: "mock-category-ar",
     name: "منتجات الألبان والإفطار",
-    slug: "dairy-breakfast",
+    name_fa: "لبنیات و صبحانه",
+    name_ar: "منتجات الألبان والإفطار",
+    name_en: "Dairy and breakfast",
+    slug: "dairy",
     sort_order: 1,
     image_url: null,
     blur_hash: null,
@@ -25,7 +31,10 @@ const CATEGORY_BY_LOCALE: Record<Locale, Category> = {
   en: {
     id: "mock-category-en",
     name: "Dairy and breakfast",
-    slug: "dairy-breakfast",
+    name_fa: "لبنیات و صبحانه",
+    name_ar: "منتجات الألبان والإفطار",
+    name_en: "Dairy and breakfast",
+    slug: "dairy",
     sort_order: 1,
     image_url: null,
     blur_hash: null,
@@ -33,86 +42,143 @@ const CATEGORY_BY_LOCALE: Record<Locale, Category> = {
   },
 };
 
-const PRODUCT_COPY: Record<
-  Locale,
-  { name: string; description: string; slug: string }
-> = {
-  fa: {
-    name: "شیر پاستوریزه یک لیتری با کیفیت روزانه",
-    slug: "mock-pasteurized-milk-1l",
-    description:
-      "شیر پاستوریزه تازه با چربی استاندارد، مناسب مصرف روزانه خانواده. این محصول در دمای کنترل‌شده نگهداری می‌شود و برای صبحانه، دسر و نوشیدنی‌های گرم انتخابی مطمئن است.",
+const FLASH_DEAL_DATA: {
+  slug: string;
+  name_fa: string;
+  name_ar: string;
+  name_en: string;
+  price: number;
+  compare_at_price: number;
+  image_url: string;
+}[] = [
+  {
+    slug: "bananas-kg",
+    name_fa: "موز (کیلو)",
+    name_ar: "موز (كيلو)",
+    name_en: "Bananas (kg)",
+    price: 45000,
+    compare_at_price: 60000,
+    image_url: "/products/bananas.png",
   },
-  ar: {
-    name: "حليب مبستر یک لتر طازج يومي",
-    slug: "mock-pasteurized-milk-1l",
-    description:
-      "حليب مبستر طازج بنسبة دهون متوازنة، مناسب للاستهلاك اليومي للعائلة. يُحفظ في درجة حرارة م controlled ويُعد خيارًا موثوقًا للفطور والحلويات والمشروبات الساخنة.",
+  {
+    slug: "tomatoes-kg",
+    name_fa: "گوجه (کیلو)",
+    name_ar: "طماطم (كيلو)",
+    name_en: "Tomatoes (kg)",
+    price: 32000,
+    compare_at_price: 40000,
+    image_url: "/products/tomatoes.png",
   },
-  en: {
-    name: "Fresh pasteurized milk 1 liter daily quality",
-    slug: "mock-pasteurized-milk-1l",
-    description:
-      "Fresh pasteurized milk with standard fat content, suitable for everyday family use. Stored at a controlled temperature and a reliable choice for breakfast, desserts, and hot drinks.",
+  {
+    slug: "milk-full-fat-2l",
+    name_fa: "شیر پرچرب ۲ لیتری",
+    name_ar: "حليب كامل الدسم ۲ لتر",
+    name_en: "Milk Full Fat 2L",
+    price: 65000,
+    compare_at_price: 76500,
+    image_url: "/products/milk-2l.png",
   },
-};
+  {
+    slug: "eggs-15-pack",
+    name_fa: "تخم‌مرغ ۱۵ عددی",
+    name_ar: "بيض ۱۵ قطعة",
+    name_en: "Eggs 15 Pack",
+    price: 410000,
+    compare_at_price: 480000,
+    image_url: "/products/eggs-15.png",
+  },
+  {
+    slug: "crusty-bread-500g",
+    name_fa: "نان ۵۰۰ گرمی",
+    name_ar: "خبز ۵۰۰ غ",
+    name_en: "Crusty Bread 500g",
+    price: 95000,
+    compare_at_price: 110000,
+    image_url: "/products/bread-loaf.png",
+  },
+  {
+    slug: "chicken-breast-1kg",
+    name_fa: "سینه مرغ ۱ کیلو",
+    name_ar: "صدر دجاج ۱ كيلو",
+    name_en: "Chicken Breast 1kg",
+    price: 385000,
+    compare_at_price: 450000,
+    image_url: "/products/chicken-breast.png",
+  },
+  {
+    slug: "orange-juice-1l",
+    name_fa: "آب پرتقال ۱ لیتری",
+    name_ar: "عصير برتقال ۱ لتر",
+    name_en: "Orange Juice 1L",
+    price: 78000,
+    compare_at_price: 92000,
+    image_url: "/products/orange-juice.png",
+  },
+  {
+    slug: "potato-chips-200g",
+    name_fa: "چیپس ۲۰۰ گرمی",
+    name_ar: "رقائق بطاطس ۲۰۰ غ",
+    name_en: "Potato Chips 200g",
+    price: 55000,
+    compare_at_price: 65000,
+    image_url: "/products/potato-chips.png",
+  },
+];
 
-const GRID_NAMES: Record<Locale, string[]> = {
-  fa: [
-    "شیر پاستوریزه یک لیتری",
-    "ماست کم‌چرب 900 گرمی",
-    "پنیر سفید 400 گرمی",
-    "نان تست 500 گرمی",
-    "تخم‌مرغ 15 عددی",
-    "کره حیوانی 200 گرمی",
-    "عسل طبیعی 500 گرمی",
-    "چای سیاه 500 گرمی",
-  ],
-  ar: [
-    "حليب مبستر 1 لتر",
-    "زبادي قليل الدسم 900 غ",
-    "جبنة بيضاء 400 غ",
-    "خبز توست 500 غ",
-    "بيض 15 قطعة",
-    "زبدة 200 غ",
-    "عسل طبيعي 500 غ",
-    "شاي أسود 500 غ",
-  ],
-  en: [
-    "Pasteurized milk 1L",
-    "Low-fat yogurt 900g",
-    "White cheese 400g",
-    "Toast bread 500g",
-    "Eggs pack of 15",
-    "Butter 200g",
-    "Natural honey 500g",
-    "Black tea 500g",
-  ],
-};
+function localizedName(
+  item: (typeof FLASH_DEAL_DATA)[number],
+  locale: Locale,
+): string {
+  if (locale === "fa") return item.name_fa;
+  if (locale === "ar") return item.name_ar;
+  return item.name_en;
+}
 
 function buildMockProduct(
   locale: Locale,
   index: number,
   overrides?: Partial<Product>,
 ): Product {
-  const copy = PRODUCT_COPY[locale];
+  const item = FLASH_DEAL_DATA[index] ?? FLASH_DEAL_DATA[0];
   const category = CATEGORY_BY_LOCALE[locale];
-  const name = GRID_NAMES[locale][index] ?? copy.name;
+  const name = localizedName(item, locale);
 
   return {
     id: `mock-product-${index}`,
     category_id: category.id,
     brand_id: null,
     name,
-    slug: `${copy.slug}-${index}`,
-    description: copy.description,
-    description_fa: PRODUCT_COPY.fa.description,
-    description_ar: PRODUCT_COPY.ar.description,
-    description_en: PRODUCT_COPY.en.description,
-    price: 125_000 + index * 15_000,
+    slug: item.slug,
+    description: `${name} — ${item.name_en === "Bananas (kg)" ? "Fresh yellow bananas sold by kilogram." : item.name_en === "Tomatoes (kg)" ? "Vine-ripened red tomatoes sold by kilogram." : "Quality grocery item for everyday use."}`,
+    description_fa:
+      item.slug === "bananas-kg"
+        ? "موز تازه به‌ازای هر کیلوگرم."
+        : item.slug === "tomatoes-kg"
+          ? "گوجه فرنگی قرمز رسیده به‌ازای هر کیلوگرم."
+          : item.slug === "milk-full-fat-2l"
+            ? "شیر پرچرب پاستوریزه ۲ لیتری."
+            : "محصول با کیفیت برای مصرف روزانه.",
+    description_ar:
+      item.slug === "bananas-kg"
+        ? "موز أصفر طازج بالكيلogram."
+        : item.slug === "tomatoes-kg"
+          ? "طماطم حمراء ناضجة بالكيلogram."
+          : item.slug === "milk-full-fat-2l"
+            ? "حليب كامل الدسم مبستر ۲ لتر."
+            : "منتج عالي الجودة للاستخدام اليومي.",
+    description_en:
+      item.slug === "bananas-kg"
+        ? "Fresh yellow bananas sold by kilogram."
+        : item.slug === "tomatoes-kg"
+          ? "Vine-ripened red tomatoes sold by kilogram."
+          : item.slug === "milk-full-fat-2l"
+            ? "Full-fat pasteurized milk in a 2 liter bottle."
+            : "Quality grocery item for everyday use.",
+    price: item.price,
+    compare_at_price: item.compare_at_price,
     currency: "IRR",
     stock: 24,
-    image_url: "/icon.png",
+    image_url: item.image_url,
     blur_hash: null,
     is_active: true,
     created_at: MOCK_TIMESTAMP,
@@ -123,26 +189,21 @@ function buildMockProduct(
 
 /** Single product for product detail skeleton. */
 export function mockProductDetail(locale: Locale): Product {
-  return buildMockProduct(locale, 0, {
+  return buildMockProduct(locale, 2, {
     id: "mock-product-detail",
-    slug: PRODUCT_COPY[locale].slug,
-    name: PRODUCT_COPY[locale].name,
-    price: 289_000,
     stock: 18,
   });
 }
 
 /** Typical homepage / category grid count (8 cards). */
-export const MOCK_PRODUCT_GRID_COUNT = 8;
+export const MOCK_PRODUCT_GRID_COUNT = FLASH_DEAL_DATA.length;
 
 export function mockProducts(locale: Locale): Product[] {
-  return Array.from({ length: MOCK_PRODUCT_GRID_COUNT }, (_, index) =>
-    buildMockProduct(locale, index),
-  );
+  return FLASH_DEAL_DATA.map((_, index) => buildMockProduct(locale, index));
 }
 
-/** Horizontal flash deals row (4 cards). */
-export const MOCK_FLASH_DEALS_COUNT = 4;
+/** Horizontal flash deals row (6 cards). */
+export const MOCK_FLASH_DEALS_COUNT = 6;
 
 export function mockFlashDeals(locale: Locale): Product[] {
   return mockProducts(locale).slice(0, MOCK_FLASH_DEALS_COUNT);
