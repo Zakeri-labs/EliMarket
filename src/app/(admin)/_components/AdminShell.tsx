@@ -51,7 +51,7 @@ export function AdminShell({
   const closeMobile = () => setMobileOpen(false);
 
   return (
-    <div className="flex min-h-full flex-1">
+    <div className="flex h-full min-h-0 flex-1 overflow-hidden">
       {mobileOpen && (
         <button
           type="button"
@@ -62,13 +62,13 @@ export function AdminShell({
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 start-0 z-40 w-64 shrink-0 border-e border-[#e4e4e7] bg-white p-5 shadow-lg transition-transform md:static md:translate-x-0 md:shadow-none",
+          "fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 flex-col overflow-hidden border-e border-[#e4e4e7] bg-white p-5 shadow-lg transition-transform md:static md:h-full md:translate-x-0 md:shadow-none",
           mobileOpen
             ? "translate-x-0"
             : "max-md:-translate-x-full max-md:rtl:translate-x-full",
         )}
       >
-        <div className="mb-6 flex items-start justify-between gap-2">
+        <div className="mb-6 flex shrink-0 items-start justify-between gap-2">
           <div>
             <p className="text-xs text-[#6b8f71]">{t("admin.panelLabel")}</p>
             <p className="text-lg font-bold text-[#527559]">{t("admin.brandAdmin")}</p>
@@ -82,7 +82,7 @@ export function AdminShell({
             <AppIcon icon={X} size="md" />
           </button>
         </div>
-        <nav className="space-y-1">
+        <nav className="admin-thin-scroll min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain">
           {NAV_KEYS.map((item) => (
             <Link
               key={item.href}
@@ -103,7 +103,7 @@ export function AdminShell({
           type="button"
           variant="outline"
           fullWidth
-          className="mt-8 border-[#e4e4e7] text-[#71717a]"
+          className="mt-8 shrink-0 border-[#e4e4e7] text-[#71717a]"
           disabled={isPending}
           onClick={() =>
             runAction(() => signOutAction(), {
@@ -119,8 +119,8 @@ export function AdminShell({
         </Button>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="border-b border-[#e4e4e7] bg-white px-4 py-4 md:px-8">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="shrink-0 border-b border-[#e4e4e7] bg-white px-4 py-4 md:px-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button type="button" className="md:hidden" onClick={toggleMobile} aria-label={t("admin.menu")}>
@@ -140,7 +140,11 @@ export function AdminShell({
             </div>
           </div>
         </header>
-        <div className="flex-1 p-4 md:p-8">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 md:p-8">
+          <div className="admin-thin-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   );

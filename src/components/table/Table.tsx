@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import {
-  type Cell,
   type Column,
   type ColumnDef,
   type ColumnFiltersState,
@@ -47,6 +46,7 @@ export type DataTableProps<T> = {
   onRefresh?: () => void;
   onExport?: () => Promise<Record<string, unknown>[]>;
   onCreateClick?: () => void;
+  createLabel?: string;
   enableExport?: boolean;
   enableColumnFilters?: boolean;
   enableColumnResizing?: boolean;
@@ -149,15 +149,6 @@ function getColumnHeaderLabel<T>(column: Column<T, unknown>): string {
   return meta?.mobileLabel ?? column.id;
 }
 
-function partitionCellsForMobile<T>(cells: Cell<T, unknown>[]) {
-  const n = cells.length;
-  if (n <= 4) return { preview: cells, hidden: [] as Cell<T, unknown>[] };
-  return {
-    preview: [cells[0], cells[1], cells[n - 1]],
-    hidden: cells.slice(2, n - 1),
-  };
-}
-
 export function DataTable<T>({
   data,
   columns,
@@ -166,6 +157,7 @@ export function DataTable<T>({
   onRefresh,
   onExport,
   onCreateClick,
+  createLabel,
   enableExport = true,
   enableColumnFilters = true,
   enableColumnResizing = true,
@@ -239,7 +231,6 @@ export function DataTable<T>({
       ? readStoredColumnSizing(resolvedColumnSizingStorageKey)
       : {},
   );
-  const [mobileRowExpanded, setMobileRowExpanded] = React.useState<Record<string, boolean>>({});
   const panelRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -478,7 +469,7 @@ export function DataTable<T>({
               onClick={onCreateClick}
             >
               <AppIcon icon={Plus} size="xs" className="me-1.5" />
-              {t("table.create")}
+              {createLabel ?? t("table.create")}
             </Button>
           )}
         </div>
@@ -527,8 +518,13 @@ export function DataTable<T>({
       <div className="hidden min-w-0 w-full max-w-full md:block">
         <div
           ref={desktopScrollRef}
-          className="max-w-full overflow-auto overscroll-contain rounded-xl border border-[#e4e4e7] bg-white [scrollbar-gutter:stable]"
-          style={{ maxHeight: maxBodyHeight }}
+          className="admin-thin-scroll max-w-full overflow-auto overscroll-contain rounded-xl bg-white"
+          style={{
+            maxHeight: maxBodyHeight,
+            border: "2px solid #6b8f71",
+            scrollbarWidth: "thin",
+            scrollbarColor: "#6b8f71 #f4f4f5",
+          }}
         >
           <table
             dir={tableDir}
@@ -676,75 +672,50 @@ export function DataTable<T>({
 
       <div
         ref={mobileScrollRef}
-        className="space-y-3 overflow-y-auto overscroll-contain md:hidden"
-        style={{ maxHeight: maxBodyHeight }}
+        className="admin-thin-scroll space-y-3 overflow-y-auto overscroll-contain md:hidden"
+        style={{
+          maxHeight: maxBodyHeight,
+          scrollbarWidth: "thin",
+          scrollbarColor: "#6b8f71 #f4f4f5",
+        }}
       >
         {table.getRowModel().rows.length === 0 && !isSkeleton ? (
-          <div className="flex min-h-48 items-center justify-center rounded-xl border border-[#e4e4e7] bg-white p-3 text-sm text-[#71717a]">
+          <div className="flex min-h-48 items-center justify-center rounded-2xl border border-[#e4e4e7] bg-white p-4 text-sm text-[#71717a]">
             {t("table.noData")}
           </div>
         ) : (
           table.getRowModel().rows.map((row) => {
             const cells = row.getVisibleCells();
-            const { preview, hidden } = partitionCellsForMobile(cells);
-            const expanded = Boolean(mobileRowExpanded[row.id]);
-            const showToggle = hidden.length > 0;
-
-            const renderField = (cell: Cell<T, unknown>) => (
-              <div
-                key={cell.id}
-                className="flex min-w-0 flex-col gap-0.5 py-2 text-start first:pt-0 last:pb-0"
-              >
-                <span className="text-xs text-[#71717a]">
-                  {getColumnHeaderLabel(cell.column)}
-                </span>
-                <div className="min-w-0 text-sm leading-relaxed">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </div>
-              </div>
-            );
+            const actionCell = cells.find((cell) => cell.column.id === "actions");
+            const dataCells = cells.filter((cell) => cell.column.id !== "actions");
 
             return (
-              <div
+              <article
                 key={row.id}
                 className={cn(
-                  "rounded-xl border border-[#e4e4e7] bg-white p-3 shadow-sm",
+                  "rounded-2xl border border-[#e4e4e7] bg-white p-4 shadow-sm",
                   isSkeleton && "skeleton pointer-events-none",
                 )}
                 aria-busy={isSkeleton}
               >
-                <div className="divide-y divide-[#e4e4e7]/80">
-                  {preview.map((cell) => renderField(cell))}
-                </div>
-
-                {showToggle && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setMobileRowExpanded((prev) => ({
-                          ...prev,
-                          [row.id]: !prev[row.id],
-                        }))
-                      }
-                      className="mt-2 flex min-h-9 w-full items-center justify-center gap-1 rounded-lg border border-dashed border-[#e4e4e7] px-2 text-xs text-[#71717a]"
-                    >
-                      <AppIcon
-                        icon={expanded ? ChevronUp : ChevronDown}
-                        size="xs"
-                      />
-                      {expanded
-                        ? t("table.closeDetails")
-                        : t("table.showMore", { count: hidden.length })}
-                    </button>
-                    {expanded && (
-                      <div className="mt-3 divide-y divide-[#e4e4e7]/80 border-t border-[#e4e4e7] pt-1">
-                        {hidden.map((cell) => renderField(cell))}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+                <dl className="space-y-3">
+                  {dataCells.map((cell) => (
+                    <div key={cell.id} className="min-w-0">
+                      <dt className="text-[11px] font-medium text-[#71717a]">
+                        {getColumnHeaderLabel(cell.column)}
+                      </dt>
+                      <dd className="mt-1 min-w-0 text-sm leading-relaxed text-[#18181b] [overflow-wrap:anywhere]">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                {actionCell ? (
+                  <div className="mt-3 flex justify-end border-t border-[#e4e4e7] pt-3">
+                    {flexRender(actionCell.column.columnDef.cell, actionCell.getContext())}
+                  </div>
+                ) : null}
+              </article>
             );
           })
         )}
@@ -790,8 +761,7 @@ export function DataTable<T>({
           <Button
             type="button"
             size="sm"
-            variant="outline"
-            className="border-[#e4e4e7]"
+            className="!bg-[#6b8f71] !text-white hover:!bg-[#527559] disabled:!pointer-events-none disabled:!opacity-100 disabled:!bg-[#6b8f71] disabled:!text-white"
             onClick={() =>
               onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
             }
@@ -802,8 +772,7 @@ export function DataTable<T>({
           <Button
             type="button"
             size="sm"
-            variant="outline"
-            className="border-[#e4e4e7]"
+            className="!bg-[#6b8f71] !text-white hover:!bg-[#527559] disabled:!pointer-events-none disabled:!opacity-100 disabled:!bg-[#6b8f71] disabled:!text-white"
             onClick={() =>
               onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex + 1 }))
             }

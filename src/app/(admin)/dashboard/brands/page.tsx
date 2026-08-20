@@ -13,6 +13,7 @@ import {
 } from "@/app/_actions/brand-actions";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
+import { RowIconActions } from "@/components/admin/RowIconActions";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { useTranslations } from "@/i18n/use-translations";
 import type { Brand } from "@/app/_types/database.types";
@@ -184,17 +185,11 @@ export default function AdminBrandsPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="text-sm text-[#527559]"
-                    onClick={() => setEditing(brand)}
-                  >
-                    {t("admin.brands.edit")}
-                  </button>
-                  <button
-                    type="button"
-                    className="text-sm text-red-600"
-                    onClick={() =>
+                  <RowIconActions
+                    editLabel={t("admin.brands.edit")}
+                    deleteLabel={t("admin.brands.delete")}
+                    onEdit={() => setEditing(brand)}
+                    onDelete={() =>
                       runAction(() => deleteBrandAction(brand.id), {
                         successMessage: t("notifications.brandDeleted"),
                         onSuccess: () => {
@@ -203,9 +198,7 @@ export default function AdminBrandsPage() {
                         },
                       })
                     }
-                  >
-                    {t("admin.brands.delete")}
-                  </button>
+                  />
                 </div>
               </li>
             ))}

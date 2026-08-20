@@ -50,6 +50,9 @@ export function useFormAction() {
           const result = await action();
           if (result.success) {
             if (options?.successMessage) notifySuccess(options.successMessage);
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => resolve());
+            });
             options?.onSuccess?.(result.data);
           } else {
             const msg = extractActionErrorMessage(

@@ -27,6 +27,8 @@ import {
 import { notifyFormError } from "@/app/utils/form-notify";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { RowIconActions } from "@/components/admin/RowIconActions";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { DataTable } from "@/components/table";
@@ -63,6 +65,22 @@ type FormValues = {
   is_active: boolean;
 };
 
+const DEFAULT_FORM_VALUES: FormValues = {
+  name: "",
+  slug: "",
+  description_fa: "",
+  description_ar: "",
+  description_en: "",
+  price: 0,
+  compare_at_price: undefined,
+  stock: 0,
+  category_id: "",
+  brand_id: "",
+  image_url: "",
+  blur_hash: "",
+  is_active: true,
+};
+
 export default function AdminProductsPage() {
   const { data: products, refetch, isPending: isProductsPending } = useAdminProducts();
   const { runAction, isPending: isActionPending } = useFormAction();
@@ -72,6 +90,7 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [editing, setEditing] = useState<Product | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
   const [stockDrafts, setStockDrafts] = useState<Record<string, string>>({});
   const [descriptionTab, setDescriptionTab] = useState<DescriptionLocale>("fa");
   const [features, setFeatures] = useState<FeatureDraft[]>([{ ...EMPTY_FEATURE }]);
@@ -98,21 +117,7 @@ export default function AdminProductsPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: "",
-      slug: "",
-      description_fa: "",
-      description_ar: "",
-      description_en: "",
-      price: 0,
-      compare_at_price: undefined,
-      stock: 0,
-      category_id: "",
-      brand_id: "",
-      image_url: "",
-      blur_hash: "",
-      is_active: true,
-    },
+    defaultValues: DEFAULT_FORM_VALUES,
   });
 
   const imageUrl = form.watch("image_url");
@@ -154,6 +159,27 @@ export default function AdminProductsPage() {
     }
   }, [editing, form]);
 
+  const closeForm = () => {
+    setFormOpen(false);
+    setEditing(null);
+    form.reset(DEFAULT_FORM_VALUES);
+    setFeatures([{ ...EMPTY_FEATURE }]);
+  };
+
+  const openCreate = () => {
+    setEditing(null);
+    form.reset(DEFAULT_FORM_VALUES);
+    setFeatures([{ ...EMPTY_FEATURE }]);
+    setDescriptionTab("fa");
+    setFormOpen(true);
+  };
+
+  const openEdit = (product: Product) => {
+    setEditing(product);
+    setDescriptionTab("fa");
+    setFormOpen(true);
+  };
+
   useEffect(() => {
     if (products) {
       setStockDrafts(
@@ -185,9 +211,7 @@ export default function AdminProductsPage() {
       runAction(() => updateProductAction(editing.id, payload), {
         successMessage: t("notifications.productUpdated"),
         onSuccess: () => {
-          setEditing(null);
-          form.reset();
-          setFeatures([{ ...EMPTY_FEATURE }]);
+          closeForm();
           refetch();
         },
       });
@@ -195,8 +219,7 @@ export default function AdminProductsPage() {
       runAction(() => createProductAction(payload), {
         successMessage: t("notifications.productCreated"),
         onSuccess: () => {
-          form.reset();
-          setFeatures([{ ...EMPTY_FEATURE }]);
+          closeForm();
           refetch();
         },
       });
@@ -328,31 +351,21 @@ export default function AdminProductsPage() {
         enableSorting: false,
         enableColumnFilter: false,
         cell: ({ row }) => (
-          <div className="flex gap-2 whitespace-nowrap">
-            <button
-              type="button"
-              className="text-[#527559]"
-              onClick={() => setEditing(row.original)}
-            >
-              {t("admin.products.edit")}
-            </button>
-            <button
-              type="button"
-              className="text-red-600"
-              onClick={() =>
-                runAction(() => deleteProductAction(row.original.id), {
-                  successMessage: t("notifications.productDeleted"),
-                  onSuccess: () => refetch(),
-                })
-              }
-            >
-              {t("admin.products.delete")}
-            </button>
-          </div>
+          <RowIconActions
+            editLabel={t("admin.products.edit")}
+            deleteLabel={t("admin.products.delete")}
+            onEdit={() => openEdit(row.original)}
+            onDelete={() =>
+              runAction(() => deleteProductAction(row.original.id), {
+                successMessage: t("notifications.productDeleted"),
+                onSuccess: () => refetch(),
+              })
+            }
+          />
         ),
       },
     ],
-    [t, runAction, stockDrafts, formatLocalizedPrice],
+    [t, runAction, stockDrafts, formatLocalizedPrice, openEdit],
   );
 
   return (
@@ -360,15 +373,36 @@ export default function AdminProductsPage() {
       title={t("admin.products.title")}
       subtitle={t("admin.products.subtitle")}
     >
-      <div className="grid gap-8 xl:grid-cols-5">
-        <form
-          onSubmit={onSubmit}
-          className="space-y-3 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm xl:col-span-2"
+      <div className="space-y-4">
+        <Modal
+          open={formOpen}
+          onOpenChange={(open) => {
+            if (open) setFormOpen(true);
+            else closeForm();
+          }}
+          title={editing ? t("admin.products.editProduct") : t("admin.products.newProduct")}
+          size="lg"
+          footer={
+            <>
+              <Button type="button" variant="secondary" onClick={closeForm}>
+                {t("admin.products.cancel")}
+              </Button>
+              <Button
+                type="submit"
+                form="admin-product-form"
+                disabled={isActionPending || isUploadPending}
+                className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
+              >
+                {editing ? t("admin.products.save") : t("admin.products.create")}
+              </Button>
+            </>
+          }
         >
-          <h2 className="font-semibold">
-            {editing ? t("admin.products.editProduct") : t("admin.products.newProduct")}
-          </h2>
-
+          <form
+            id="admin-product-form"
+            onSubmit={onSubmit}
+            className="space-y-3"
+          >
           {imageUrl && (
             <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#f4f4f5]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -590,21 +624,6 @@ export default function AdminProductsPage() {
           </label>
 
           <div className="flex flex-wrap gap-2">
-            <Button type="submit" disabled={isActionPending || isUploadPending}>
-              {editing ? t("admin.products.save") : t("admin.products.create")}
-            </Button>
-            {editing && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setEditing(null);
-                  setFeatures([{ ...EMPTY_FEATURE }]);
-                }}
-              >
-                {t("admin.products.cancel")}
-              </Button>
-            )}
             <label className="cursor-pointer">
               <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
                 <AppIcon icon={Upload} size="sm" />
@@ -654,15 +673,17 @@ export default function AdminProductsPage() {
               </Button>
             )}
           </div>
-        </form>
+          </form>
+        </Modal>
 
-        <div className="xl:col-span-3">
-          <DataTable
+        <DataTable
             data={tableData}
             columns={columns}
             entityName={t("admin.products.entityName")}
             isSkeleton={isSkeleton}
             onRefresh={() => void refetch()}
+            onCreateClick={openCreate}
+            createLabel={t("admin.products.newProduct")}
             columnSizingStorageKey="admin-products"
             onExport={async () =>
               (products ?? []).map((p) => ({
@@ -676,7 +697,6 @@ export default function AdminProductsPage() {
               }))
             }
           />
-        </div>
       </div>
     </AdminShell>
   );

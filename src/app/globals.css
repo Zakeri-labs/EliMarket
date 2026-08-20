@@ -8,10 +8,14 @@
   --surface-elevated: #242424;
   --border: #2e2e2e;
   --muted: #a1a1aa;
+  --muted-foreground: #a1a1aa;
+  --card: #242424;
+  --card-foreground: #f4f4f5;
   --accent: #2dd4bf;
   --accent-dark: #0d9488;
   --accent-glow: rgba(45, 212, 191, 0.15);
   --danger: #f87171;
+  --destructive: #f87171;
   --success: #34d399;
   --radius: 16px;
   --radius-sm: 12px;
@@ -25,9 +29,13 @@
   --color-surface-elevated: var(--surface-elevated);
   --color-border: var(--border);
   --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
   --color-accent: var(--accent);
   --color-accent-dark: var(--accent-dark);
   --color-danger: var(--danger);
+  --color-destructive: var(--destructive);
   --color-success: var(--success);
   --font-sans: var(--font-vazirmatn), system-ui, sans-serif;
 }
@@ -50,15 +58,49 @@ body {
   --surface-elevated: #fafafa;
   --border: #e4e4e7;
   --muted: #71717a;
+  --muted-foreground: #71717a;
+  --card: #ffffff;
+  --card-foreground: #18181b;
   --accent: #6b8f71;
   --accent-dark: #527559;
   --accent-glow: rgba(107, 143, 113, 0.12);
+}
+
+.theme-admin input,
+.theme-admin textarea,
+.theme-admin select {
+  background-color: #ffffff;
+  color: #18181b;
+  caret-color: #18181b;
+  color-scheme: light;
+}
+
+.theme-admin input::placeholder,
+.theme-admin textarea::placeholder {
+  color: #a1a1aa;
+}
+
+.theme-admin input:-webkit-autofill,
+.theme-admin input:-webkit-autofill:hover,
+.theme-admin input:-webkit-autofill:focus,
+.theme-admin input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #18181b !important;
+  caret-color: #18181b;
 }
 
 .theme-admin body,
 body.theme-admin {
   background: var(--background);
   color: var(--foreground);
+}
+
+html:has(.theme-admin),
+html:has(.theme-admin) body {
+  height: 100%;
+  max-height: 100dvh;
+  overflow: hidden;
 }
 
 /* Scrollbar hide for horizontal lists */
@@ -68,6 +110,42 @@ body.theme-admin {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Only the actual scroll containers — same rules for table + product modal */
+.admin-thin-scroll,
+.app-modal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #6b8f71 #f4f4f5;
+}
+
+.admin-thin-scroll::-webkit-scrollbar,
+.app-modal-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-thin-scroll::-webkit-scrollbar-button,
+.app-modal-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.admin-thin-scroll::-webkit-scrollbar-track,
+.app-modal-scroll::-webkit-scrollbar-track {
+  background: #f4f4f5;
+}
+
+.admin-thin-scroll::-webkit-scrollbar-thumb,
+.app-modal-scroll::-webkit-scrollbar-thumb {
+  background: #6b8f71;
+  border-radius: 8px;
+}
+
+.admin-thin-scroll::-webkit-scrollbar-thumb:hover,
+.app-modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: #527559;
 }
 
 @layer base {

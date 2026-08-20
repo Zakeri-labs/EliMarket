@@ -9,11 +9,10 @@ import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { BRAND_NAME } from "@/config/brand";
-import { ADMIN_EMAIL_DOMAIN } from "@/config/admin-auth";
 import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
-  "w-full rounded-xl border border-[#e4e4e7] px-4 py-3 text-sm outline-none focus:border-[#6b8f71]";
+  "admin-login-input w-full rounded-xl border border-[#e4e4e7] !bg-white px-4 py-3 text-sm !text-[#18181b] outline-none caret-[#18181b] placeholder:text-[#a1a1aa] focus:border-[#6b8f71]";
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -34,9 +33,10 @@ function AdminLoginForm() {
         </p>
       )}
 
-      <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 shadow-sm [color-scheme:light]">
         <form
           className="space-y-4"
+          autoComplete="off"
           onSubmit={(e) => {
             e.preventDefault();
             runAction(async () => {
@@ -50,18 +50,13 @@ function AdminLoginForm() {
               const result = (await response.json()) as {
                 success: boolean;
                 error?: string;
-                hint?: string;
-                email?: string;
                 data?: unknown;
               };
 
               if (!result.success) {
-                const message = [result.error, result.hint, result.email]
-                  .filter(Boolean)
-                  .join(" — ");
                 return {
                   success: false as const,
-                  error: message || t("errors.loginFailed"),
+                  error: result.error || t("errors.loginFailed"),
                 };
               }
 
@@ -83,16 +78,16 @@ function AdminLoginForm() {
             </label>
             <input
               className={inputClass}
-              placeholder="admin"
+              name="admin-username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               dir="ltr"
-              autoComplete="username"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
               required
             />
-            <p className="mt-1 text-[10px] text-[#71717a]">
-              {t("admin.login.usernameHint", { domain: ADMIN_EMAIL_DOMAIN })}
-            </p>
           </div>
 
           <div>
@@ -103,11 +98,11 @@ function AdminLoginForm() {
             <input
               type="password"
               className={inputClass}
-              placeholder="••••••••"
+              name="admin-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               dir="ltr"
-              autoComplete="current-password"
+              autoComplete="new-password"
               required
             />
           </div>

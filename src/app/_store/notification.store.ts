@@ -16,9 +16,9 @@ function createId() {
 
 function buildNotification(input: NotificationInput): AppNotification {
   return {
-    id: createId(),
-    duration: input.type === "error" ? 6000 : 5000,
     ...input,
+    id: createId(),
+    duration: input.duration ?? (input.type === "error" ? 6000 : 5000),
   };
 }
 
