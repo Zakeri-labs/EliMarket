@@ -171,6 +171,9 @@ export type Messages = {
     brandUpdated: string;
     brandDeleted: string;
     heroUpdated: string;
+    bannerCreated: string;
+    bannerUpdated: string;
+    bannerDeleted: string;
   };
   errors: {
     operationFailed: string;
@@ -216,6 +219,10 @@ export type Messages = {
     brandDeleteFailed: string;
     brandsLoadFailed: string;
     heroUpdateFailed: string;
+    bannersLoadFailed: string;
+    bannerCreateFailed: string;
+    bannerUpdateFailed: string;
+    bannerDeleteFailed: string;
     addressesLoadFailed: string;
     addressSaveFailed: string;
     aiImageFailed: string;
@@ -377,7 +384,18 @@ export type Messages = {
       uploadImage: string;
       removeImage: string;
       save: string;
+      create: string;
+      cancel: string;
+      edit: string;
+      delete: string;
       previewTitle: string;
+      newBanner: string;
+      editBanner: string;
+      empty: string;
+      loading: string;
+      sortOrderLabel: string;
+      activeLabel: string;
+      inactiveLabel: string;
     };
     orders: {
       title: string;
@@ -681,6 +699,9 @@ const fa: Messages = {
     brandUpdated: "برند به‌روزرسانی شد",
     brandDeleted: "برند حذف شد",
     heroUpdated: "بنر ذخیره شد",
+    bannerCreated: "بنر ایجاد شد",
+    bannerUpdated: "بنر به‌روز شد",
+    bannerDeleted: "بنر حذف شد",
   },
   errors: {
     operationFailed: "عملیات ناموفق بود",
@@ -726,6 +747,10 @@ const fa: Messages = {
     brandDeleteFailed: "حذف برند ناموفق بود",
     brandsLoadFailed: "بارگذاری برندها ناموفق بود",
     heroUpdateFailed: "ذخیره بنر ناموفق بود",
+    bannersLoadFailed: "بارگذاری بنرها ناموفق بود",
+    bannerCreateFailed: "ایجاد بنر ناموفق بود",
+    bannerUpdateFailed: "ویرایش بنر ناموفق بود",
+    bannerDeleteFailed: "حذف بنر ناموفق بود",
     addressesLoadFailed: "بارگذاری آدرس‌ها ناموفق بود",
     addressSaveFailed: "ثبت آدرس ناموفق بود",
     aiImageFailed: "ویرایش تصویر با AI ناموفق بود",
@@ -779,7 +804,7 @@ const fa: Messages = {
       brandsCard: "برندها",
       brandsDesc: "تعریف و مدیریت برند محصولات",
       bannersCard: "بنر صفحه اصلی",
-      bannersDesc: "متن و تصویر بنر Hero",
+      bannersDesc: "چند بنر برای اسلایدر فروشگاه",
     },
     products: {
       title: "مدیریت محصولات",
@@ -875,7 +900,7 @@ const fa: Messages = {
     },
     banners: {
       title: "بنر صفحه اصلی",
-      subtitle: "متن و تصویر بخش Hero در صفحه فروشگاه",
+      subtitle: "چند بنر برای اسلایدر فروشگاه",
       formTitle: "تنظیمات بنر",
       formHint: "فیلدهای خالی از متن پیش‌فرض ترجمه استفاده می‌کنند.",
       badgePlaceholder: "برچسب (مثلاً پیشنهاد ویژه)",
@@ -886,8 +911,19 @@ const fa: Messages = {
       imageUrlPlaceholder: "آدرس تصویر بنر",
       uploadImage: "آپلود تصویر",
       removeImage: "حذف تصویر",
-      save: "ذخیره بنر",
+      save: "ذخیره",
+      create: "ایجاد",
+      cancel: "انصراف",
+      edit: "ویرایش",
+      delete: "حذف",
       previewTitle: "پیش‌نمایش",
+      newBanner: "بنر جدید",
+      editBanner: "ویرایش بنر",
+      empty: "بنری ثبت نشده است.",
+      loading: "بارگذاری…",
+      sortOrderLabel: "ترتیب نمایش",
+      activeLabel: "نمایش در فروشگاه",
+      inactiveLabel: "غیرفعال",
     },
     orders: {
       title: "سفارش‌ها",
@@ -1200,6 +1236,9 @@ const ar: Messages = {
     brandUpdated: "تم تحديث العلامة",
     brandDeleted: "تم حذف العلامة",
     heroUpdated: "تم حفظ البانر",
+    bannerCreated: "تم إنشاء البانر",
+    bannerUpdated: "تم تحديث البانر",
+    bannerDeleted: "تم حذف البانر",
   },
   errors: {
     operationFailed: "فشلت العملية",
@@ -1245,6 +1284,10 @@ const ar: Messages = {
     brandDeleteFailed: "فشل حذف العلامة",
     brandsLoadFailed: "فشل تحميل العلامات",
     heroUpdateFailed: "فشل حفظ البانر",
+    bannersLoadFailed: "فشل تحميل البانرات",
+    bannerCreateFailed: "فشل إنشاء البانر",
+    bannerUpdateFailed: "فشل تحديث البانر",
+    bannerDeleteFailed: "فشل حذف البانر",
     addressesLoadFailed: "فشل تحميل العناوين",
     addressSaveFailed: "فشل حفظ العنوان",
     aiImageFailed: "فشل تعديل الصورة بالذكاء الاصطناعي",
@@ -1298,7 +1341,7 @@ const ar: Messages = {
       brandsCard: "العلامات التجارية",
       brandsDesc: "تعريف وإدارة علامات المنتجات",
       bannersCard: "بانر الصفحة الرئيسية",
-      bannersDesc: "نص وصورة بانر Hero",
+      bannersDesc: "عدة بانرات لشريط المتجر",
     },
     products: {
       title: "إدارة المنتجات",
@@ -1394,7 +1437,7 @@ const ar: Messages = {
     },
     banners: {
       title: "بانر الصفحة الرئيسية",
-      subtitle: "نص وصورة قسم Hero في المتجر",
+      subtitle: "عدة بانرات لشريط المتجر",
       formTitle: "إعدادات البانر",
       formHint: "الحقول الفارغة تستخدم النص الافتراضي من الترجمة.",
       badgePlaceholder: "الشارة (مثلاً عرض خاص)",
@@ -1405,8 +1448,19 @@ const ar: Messages = {
       imageUrlPlaceholder: "رابط صورة البانر",
       uploadImage: "رفع صورة",
       removeImage: "إزالة الصورة",
-      save: "حفظ البانر",
+      save: "حفظ",
+      create: "إنشاء",
+      cancel: "إلغاء",
+      edit: "تعديل",
+      delete: "حذف",
       previewTitle: "معاينة",
+      newBanner: "بانر جديد",
+      editBanner: "تعديل البانر",
+      empty: "لا توجد بانرات.",
+      loading: "جاري التحميل…",
+      sortOrderLabel: "ترتيب العرض",
+      activeLabel: "إظهار في المتجر",
+      inactiveLabel: "غير نشط",
     },
     orders: {
       title: "الطلبات",
@@ -1719,6 +1773,9 @@ const en: Messages = {
     brandUpdated: "Brand updated",
     brandDeleted: "Brand deleted",
     heroUpdated: "Banner saved",
+    bannerCreated: "Banner created",
+    bannerUpdated: "Banner updated",
+    bannerDeleted: "Banner deleted",
   },
   errors: {
     operationFailed: "Operation failed",
@@ -1764,6 +1821,10 @@ const en: Messages = {
     brandDeleteFailed: "Failed to delete brand",
     brandsLoadFailed: "Failed to load brands",
     heroUpdateFailed: "Failed to save banner",
+    bannersLoadFailed: "Failed to load banners",
+    bannerCreateFailed: "Failed to create banner",
+    bannerUpdateFailed: "Failed to update banner",
+    bannerDeleteFailed: "Failed to delete banner",
     addressesLoadFailed: "Failed to load addresses",
     addressSaveFailed: "Failed to save address",
     aiImageFailed: "AI image edit failed",
@@ -1788,7 +1849,7 @@ const en: Messages = {
       products: "Products",
       categories: "Categories",
       brands: "Brands",
-      banners: "Homepage banner",
+      banners: "Homepage banners",
       orders: "Orders",
       reports: "Financial reports",
       coverage: "Coverage area",
@@ -1816,8 +1877,8 @@ const en: Messages = {
       categoriesDesc: "Add and edit product categories",
       brandsCard: "Brands",
       brandsDesc: "Define and manage product brands",
-      bannersCard: "Homepage banner",
-      bannersDesc: "Hero section text and image",
+      bannersCard: "Homepage banners",
+      bannersDesc: "Multiple slides for the storefront carousel",
     },
     products: {
       title: "Product management",
@@ -1912,8 +1973,8 @@ const en: Messages = {
       validationSlug: "Slug is required",
     },
     banners: {
-      title: "Homepage banner",
-      subtitle: "Hero section text and image on the storefront",
+      title: "Homepage banners",
+      subtitle: "Manage multiple hero slides for the storefront",
       formTitle: "Banner settings",
       formHint: "Empty fields fall back to default translated copy.",
       badgePlaceholder: "Badge (e.g. Special offer)",
@@ -1924,8 +1985,19 @@ const en: Messages = {
       imageUrlPlaceholder: "Banner image URL",
       uploadImage: "Upload image",
       removeImage: "Remove image",
-      save: "Save banner",
+      save: "Save",
+      create: "Create",
+      cancel: "Cancel",
+      edit: "Edit",
+      delete: "Delete",
       previewTitle: "Preview",
+      newBanner: "New banner",
+      editBanner: "Edit banner",
+      empty: "No banners yet.",
+      loading: "Loading…",
+      sortOrderLabel: "Display order",
+      activeLabel: "Show in store",
+      inactiveLabel: "Inactive",
     },
     orders: {
       title: "Orders",

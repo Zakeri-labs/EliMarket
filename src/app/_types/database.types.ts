@@ -97,6 +97,20 @@ export type StoreSettings = {
   hero_blur_hash: string | null;
 };
 
+export type HeroBanner = {
+  id: string;
+  badge: string | null;
+  title: string | null;
+  subtitle: string | null;
+  cta_label: string | null;
+  cta_href: string;
+  image_url: string | null;
+  blur_hash: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+};
+
 export type Address = {
   id: string;
   user_id: string;

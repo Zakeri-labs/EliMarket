@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, Search } from "lucide-react";
 import { getCategoriesAction } from "@/app/_actions/product-actions";
 import { CategoryProductList } from "@/app/(storefront)/_components/CategoryProductList";
 import { cn } from "@/app/utils/cn";
@@ -60,14 +60,14 @@ export default function CategoriesContent() {
         <AppIcon icon={Search} size="sm" />
         <span className="text-start">{t("categories.searchInCategories")}</span>
       </div>
-      <ul className="space-y-2">
+      <ul className="flex flex-wrap justify-start gap-2">
         {listCategories.map((cat) => (
           <li key={cat.id}>
             <Link
               href={isSkeleton ? "#" : `/categories/${cat.slug}`}
               dir={dir}
               className={cn(
-                "flex items-center gap-3 rounded-2xl border border-border bg-surface p-3",
+                "flex w-[4.5rem] shrink-0 flex-col items-center rounded-xl border border-border bg-surface px-1 pb-1.5 pt-1.5 sm:w-[5.25rem]",
                 isSkeleton && "skeleton pointer-events-none",
               )}
               onClick={(e) => {
@@ -75,28 +75,27 @@ export default function CategoriesContent() {
               }}
               aria-busy={isSkeleton}
             >
-              <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
+              <span className="relative flex h-14 w-full items-center justify-center sm:h-16">
                 {!isSkeleton && cat.image_url ? (
                   <StorefrontImage
                     src={cat.image_url}
                     blurHash={cat.blur_hash}
                     alt=""
-                    width={56}
-                    height={56}
-                    sizes="56px"
-                    withBlur={!isSkeleton}
+                    width={64}
+                    height={64}
+                    sizes="64px"
+                    withBlur={false}
                     className="max-h-full max-w-full object-contain"
                   />
                 ) : (
                   !isSkeleton && (
-                    <AppIcon icon={getCategoryIcon(cat.slug)} size="lg" className="text-accent" />
+                    <AppIcon icon={getCategoryIcon(cat.slug)} size="md" className="text-accent" />
                   )
                 )}
               </span>
-              <span className="flex-1 text-start font-medium">
+              <span className="mt-1 line-clamp-2 w-full text-center text-[10px] font-medium leading-tight">
                 {resolveCategoryName(cat, locale)}
               </span>
-              <AppIcon icon={ChevronRight} size="sm" className="shrink-0 text-muted rtl:rotate-180" />
             </Link>
           </li>
         ))}
