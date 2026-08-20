@@ -35,7 +35,7 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
         }}
         aria-busy={isSkeleton}
       >
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-transparent">
           {product.image_url ? (
             <StorefrontImage
               src={product.image_url}
@@ -43,8 +43,8 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
               alt=""
               fill
               sizes="56px"
-              withBlur={!isSkeleton}
-              className="object-contain p-1"
+              withBlur={false}
+              className="bg-transparent object-contain p-1"
             />
           ) : (
             <ProductPlaceholder size="md" />

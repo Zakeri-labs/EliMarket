@@ -27,6 +27,11 @@ function isStaticImport(
   return typeof src === "object" && src !== null && "src" in src;
 }
 
+function isTransparentPng(src: string | StaticImageData) {
+  const path = (typeof src === "string" ? src : src.src).split("?")[0].toLowerCase();
+  return path.endsWith(".png");
+}
+
 export function StorefrontImage({
   src,
   blurHash,
@@ -53,6 +58,8 @@ export function StorefrontImage({
     blurDataUrl ??
     resolveBlurDataUrl(blurHash, IMAGE_BLUR_DATA_URL);
 
+  const skipOptimizer = isTransparentPng(imageSrc);
+
   const image = (
     <Image
       {...props}
@@ -61,10 +68,12 @@ export function StorefrontImage({
       fill={fill}
       width={!fill ? width : undefined}
       height={!fill ? height : undefined}
-      className={className}
-      placeholder={withBlur ? "blur" : undefined}
+      unoptimized={skipOptimizer || props.unoptimized}
+      className={cn("bg-transparent", className)}
+      style={{ backgroundColor: "transparent", ...props.style }}
+      placeholder={withBlur && !skipOptimizer ? "blur" : undefined}
       blurDataURL={
-        withBlur && !useStaticBlur ? remoteBlurDataUrl : undefined
+        withBlur && !skipOptimizer && !useStaticBlur ? remoteBlurDataUrl : undefined
       }
     />
   );

@@ -57,7 +57,7 @@ export function CategoryGrid() {
               }}
               aria-busy={isSkeleton}
             >
-              <span className="relative flex h-14 w-full items-center justify-center sm:h-16">
+              <span className="relative flex h-14 w-full items-center justify-center bg-transparent sm:h-16">
                 {hasImage && cat.image_url ? (
                   <StorefrontImage
                     src={cat.image_url}
@@ -67,7 +67,7 @@ export function CategoryGrid() {
                     height={64}
                     sizes="64px"
                     withBlur={false}
-                    className="max-h-full max-w-full object-contain"
+                    className="max-h-full max-w-full bg-transparent object-contain"
                   />
                 ) : (
                   !isSkeleton && (

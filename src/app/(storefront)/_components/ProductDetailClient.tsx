@@ -84,7 +84,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain">
           <div className={cn("relative", STOREFRONT_CONTAINER_BLEED, isSkeleton && "skeleton")}>
             <div
-              className="relative aspect-[4/5] max-h-[46vh] min-h-[280px] w-full bg-white"
+              className="relative aspect-[4/5] max-h-[46vh] min-h-[280px] w-full bg-transparent"
               aria-busy={isSkeleton}
             >
             {product.image_url ? (
@@ -95,8 +95,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 fill
                 priority
                 sizes="100vw"
-                withBlur={!isSkeleton}
-                className="object-contain object-center"
+                withBlur={false}
+                className="bg-transparent object-contain object-center"
               />
             ) : (
               <div className="flex h-full items-center justify-center">
@@ -268,7 +268,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         )}
         aria-busy={isSkeleton}
       >
-        <div className="target relative aspect-square overflow-hidden rounded-2xl bg-white lg:sticky lg:top-24 lg:self-start">
+        <div className="target relative aspect-square overflow-hidden rounded-2xl bg-transparent lg:sticky lg:top-24 lg:self-start">
           {product.image_url ? (
             <StorefrontImage
               src={product.image_url}
@@ -277,8 +277,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               fill
               priority
               sizes="50vw"
-              withBlur={!isSkeleton}
-              className="object-contain"
+              withBlur={false}
+              className="bg-transparent object-contain"
             />
           ) : (
             <ProductPlaceholder size="2xl" />

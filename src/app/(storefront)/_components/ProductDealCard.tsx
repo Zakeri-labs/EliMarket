@@ -53,7 +53,7 @@ export function ProductDealCard({
             −{discount}%
           </span>
         )}
-        <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-xl bg-white sm:h-36">
+        <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-xl bg-transparent sm:h-36">
           {product.image_url ? (
             <StorefrontImage
               src={product.image_url}
@@ -63,8 +63,8 @@ export function ProductDealCard({
               height={128}
               priority={priority}
               sizes="160px"
-              withBlur={!isSkeleton}
-              className="max-h-full max-w-full object-contain"
+              withBlur={false}
+              className="max-h-full max-w-full bg-transparent object-contain"
             />
           ) : (
             <ProductPlaceholder size="lg" />
