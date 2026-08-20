@@ -51,7 +51,7 @@ export function AdminShell({
   const closeMobile = () => setMobileOpen(false);
 
   return (
-    <div className="flex h-full min-h-0 flex-1 overflow-hidden">
+    <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
       {mobileOpen && (
         <button
           type="button"
@@ -141,7 +141,17 @@ export function AdminShell({
           </div>
         </header>
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 md:p-8">
-          <div className="admin-thin-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+          <div
+            className="admin-page-scroll admin-thin-scroll"
+            style={{
+              flex: "1 1 0%",
+              minHeight: 0,
+              height: 0,
+              overflowX: "hidden",
+              overflowY: "auto",
+              overscrollBehavior: "contain",
+            }}
+          >
             {children}
           </div>
         </div>

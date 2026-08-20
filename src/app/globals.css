@@ -97,10 +97,22 @@ body.theme-admin {
 }
 
 html:has(.theme-admin),
-html:has(.theme-admin) body {
-  height: 100%;
-  max-height: 100dvh;
-  overflow: hidden;
+html:has(.theme-admin) body,
+html.admin-lock-scroll,
+html.admin-lock-scroll body {
+  height: 100% !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+.admin-page-scroll {
+  flex: 1 1 0%;
+  min-height: 0;
+  height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* Scrollbar hide for horizontal lists */
@@ -114,37 +126,43 @@ html:has(.theme-admin) body {
 
 /* Only the actual scroll containers — same rules for table + product modal */
 .admin-thin-scroll,
-.app-modal-scroll {
+.app-modal-scroll,
+.admin-page-scroll {
   scrollbar-width: thin;
   scrollbar-color: #6b8f71 #f4f4f5;
 }
 
 .admin-thin-scroll::-webkit-scrollbar,
-.app-modal-scroll::-webkit-scrollbar {
+.app-modal-scroll::-webkit-scrollbar,
+.admin-page-scroll::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 .admin-thin-scroll::-webkit-scrollbar-button,
-.app-modal-scroll::-webkit-scrollbar-button {
+.app-modal-scroll::-webkit-scrollbar-button,
+.admin-page-scroll::-webkit-scrollbar-button {
   display: none;
   width: 0;
   height: 0;
 }
 
 .admin-thin-scroll::-webkit-scrollbar-track,
-.app-modal-scroll::-webkit-scrollbar-track {
+.app-modal-scroll::-webkit-scrollbar-track,
+.admin-page-scroll::-webkit-scrollbar-track {
   background: #f4f4f5;
 }
 
 .admin-thin-scroll::-webkit-scrollbar-thumb,
-.app-modal-scroll::-webkit-scrollbar-thumb {
+.app-modal-scroll::-webkit-scrollbar-thumb,
+.admin-page-scroll::-webkit-scrollbar-thumb {
   background: #6b8f71;
   border-radius: 8px;
 }
 
 .admin-thin-scroll::-webkit-scrollbar-thumb:hover,
-.app-modal-scroll::-webkit-scrollbar-thumb:hover {
+.app-modal-scroll::-webkit-scrollbar-thumb:hover,
+.admin-page-scroll::-webkit-scrollbar-thumb:hover {
   background: #527559;
 }
 
