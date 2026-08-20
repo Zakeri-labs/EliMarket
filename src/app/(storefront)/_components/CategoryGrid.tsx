@@ -40,7 +40,7 @@ export function CategoryGrid() {
         </Link>
       </div>
       <div dir={dir} className="flex flex-wrap justify-start gap-2">
-        {items.map((cat) => {
+        {(isSkeleton ? items : items.filter((cat) => !cat.parent_id)).map((cat) => {
           const hasImage = Boolean(cat.image_url);
 
           return (

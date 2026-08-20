@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   Banknote,
   ChevronLeft,
@@ -11,23 +12,32 @@ import {
   MapPin,
   Receipt,
 } from "lucide-react";
-import { createAddressAction, getAddressesAction } from "@/app/_actions/address-actions";
+import {
+  checkAddressCoverageAction,
+  createAddressAction,
+  deleteAddressAction,
+  getAddressesAction,
+  updateAddressAction,
+} from "@/app/_actions/address-actions";
 import { createOrderAction } from "@/app/_actions/order-actions";
 import { sendOtpAction, verifyOtpAction } from "@/app/_actions/auth-actions";
 import { useCartStore } from "@/app/_store/cart-store";
 import { useAuthStore } from "@/app/_store/auth-store";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { Button } from "@/components/ui/Button";
-import {
-  DELIVERY_FEE,
-  FREE_DELIVERY_THRESHOLD,
-  VAT_RATE,
-} from "@/config/brand";
+import { cartTotals } from "@/config/brand";
+import { DEFAULT_MAP_CENTER } from "@/config/geo";
 import type { Address } from "@/app/_types/database.types";
 import { CartGate } from "@/app/(storefront)/_components/CartGate";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { SectionHeading } from "@/components/icons/SectionHeading";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import "leaflet/dist/leaflet.css";
+
+const AddressMapPicker = dynamic(
+  () => import("@/app/(storefront)/checkout/_components/AddressMapPicker"),
+  { ssr: false },
+);
 
 const inputClass =
   "w-full rounded-2xl border border-border bg-surface-elevated px-4 py-3 text-sm outline-none focus:border-accent";
@@ -54,16 +64,22 @@ function CheckoutPageContent() {
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [addressId, setAddressId] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [label, setLabel] = useState("");
+  const [addressLine, setAddressLine] = useState("");
+  const [lat, setLat] = useState<number>(DEFAULT_MAP_CENTER.lat);
+  const [lng, setLng] = useState<number>(DEFAULT_MAP_CENTER.lng);
+  const [coverageOk, setCoverageOk] = useState<boolean | null>(null);
   const [deliverySlot, setDeliverySlot] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online">("cash");
   const [otpStep, setOtpStep] = useState<"phone" | "code">("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
 
-  const subtotal = totalPrice();
-  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
-  const vat = Math.round(subtotal * VAT_RATE);
-  const total = subtotal + deliveryFee + vat;
+  const { subtotal, deliveryFee, vat, total } = useMemo(
+    () => cartTotals(totalPrice()),
+    [items, totalPrice],
+  );
 
   useEffect(() => {
     setDeliverySlot(deliverySlots[0] ?? "");
@@ -80,6 +96,17 @@ function CheckoutPageContent() {
       });
     }
   }, [status]);
+
+  useEffect(() => {
+    const selected = addresses.find((a) => a.id === addressId);
+    if (!selected) {
+      setCoverageOk(null);
+      return;
+    }
+    checkAddressCoverageAction(selected.lat, selected.lng).then((r) => {
+      if (r.success) setCoverageOk(r.data);
+    });
+  }, [addressId, addresses]);
 
   if (items.length === 0) {
     return (
@@ -134,6 +161,22 @@ function CheckoutPageContent() {
 
   const selectedAddress = addresses.find((a) => a.id === addressId);
 
+  const resetForm = () => {
+    setEditingId(null);
+    setLabel("");
+    setAddressLine("");
+    setLat(DEFAULT_MAP_CENTER.lat);
+    setLng(DEFAULT_MAP_CENTER.lng);
+  };
+
+  const startEdit = (address: Address) => {
+    setEditingId(address.id);
+    setLabel(address.label);
+    setAddressLine(address.address_line);
+    setLat(address.lat);
+    setLng(address.lng);
+  };
+
   return (
     <main className="space-y-4 py-4 pb-8 md:py-6 lg:grid lg:grid-cols-2 lg:gap-8 lg:pb-12">
       <Link href="/cart" className="inline-flex items-center gap-1 text-sm text-accent">
@@ -143,10 +186,7 @@ function CheckoutPageContent() {
       <h1 className="text-xl font-bold">{t("checkout.title")}</h1>
 
       <section className={cardClass}>
-        <div className="mb-3 flex items-center justify-between">
-          <SectionHeading icon={MapPin}>{t("checkout.addressTitle")}</SectionHeading>
-          <button type="button" className="text-xs text-accent">{t("checkout.change")}</button>
-        </div>
+        <SectionHeading icon={MapPin} className="mb-3">{t("checkout.addressTitle")}</SectionHeading>
         {selectedAddress ? (
           <p className="text-sm text-muted">
             <strong className="text-foreground">{selectedAddress.label}</strong>
@@ -156,42 +196,101 @@ function CheckoutPageContent() {
         ) : (
           <p className="text-sm text-muted">{t("checkout.noAddress")}</p>
         )}
+        {coverageOk === false && (
+          <p className="mt-2 text-sm text-red-400">{t("checkout.outsideCoverage")}</p>
+        )}
+        {coverageOk === true && (
+          <p className="mt-2 text-sm text-accent">{t("checkout.coverageOk")}</p>
+        )}
         {addresses.map((a) => (
-          <label key={a.id} className="mt-2 flex cursor-pointer items-center gap-2 text-sm">
-            <input type="radio" name="address" checked={addressId === a.id} onChange={() => setAddressId(a.id)} />
-            {a.label}
-          </label>
+          <div key={a.id} className="mt-2 flex items-center gap-2 text-sm">
+            <label className="flex flex-1 cursor-pointer items-center gap-2">
+              <input type="radio" name="address" checked={addressId === a.id} onChange={() => setAddressId(a.id)} />
+              {a.label}
+            </label>
+            <button type="button" className="text-xs text-accent" onClick={() => startEdit(a)}>
+              {t("checkout.editAddress")}
+            </button>
+            <button
+              type="button"
+              className="text-xs text-red-400"
+              onClick={() =>
+                runAction(() => deleteAddressAction(a.id), {
+                  successMessage: t("notifications.addressDeleted"),
+                  onSuccess: () => {
+                    setAddresses((prev) => prev.filter((row) => row.id !== a.id));
+                    if (addressId === a.id) setAddressId("");
+                    if (editingId === a.id) resetForm();
+                  },
+                })
+              }
+            >
+              {t("checkout.deleteAddress")}
+            </button>
+          </div>
         ))}
         <form
           className="mt-3 grid gap-2 border-t border-border pt-3"
           onSubmit={(e) => {
             e.preventDefault();
-            const fd = new FormData(e.currentTarget);
-            runAction(
-              () =>
-                createAddressAction({
-                  label: String(fd.get("label")),
-                  address_line: String(fd.get("address_line")),
-                  lat: 35.6892,
-                  lng: 51.389,
-                  is_default: true,
-                }),
-              {
+            const payload = {
+              label,
+              address_line: addressLine,
+              lat,
+              lng,
+              is_default: true,
+            };
+            if (editingId) {
+              runAction(() => updateAddressAction(editingId, payload), {
+                successMessage: t("notifications.addressUpdated"),
+                onSuccess: (addr) => {
+                  if (addr) {
+                    setAddresses((prev) => prev.map((row) => (row.id === addr.id ? addr : row)));
+                    setAddressId(addr.id);
+                  }
+                  resetForm();
+                },
+              });
+            } else {
+              runAction(() => createAddressAction(payload), {
                 successMessage: t("notifications.addressSaved"),
                 onSuccess: (addr) => {
                   if (addr) {
                     setAddresses((prev) => [addr, ...prev]);
                     setAddressId(addr.id);
                   }
-                  e.currentTarget.reset();
+                  resetForm();
                 },
-              },
-            );
+              });
+            }
           }}
         >
-          <input name="label" placeholder={t("checkout.labelPlaceholder")} className={inputClass} required />
-          <input name="address_line" placeholder={t("checkout.addressPlaceholder")} className={inputClass} required />
-          <Button type="submit" variant="secondary" size="sm">{t("checkout.addAddress")}</Button>
+          <input
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder={t("checkout.labelPlaceholder")}
+            className={inputClass}
+            required
+          />
+          <input
+            value={addressLine}
+            onChange={(e) => setAddressLine(e.target.value)}
+            placeholder={t("checkout.addressPlaceholder")}
+            className={inputClass}
+            required
+          />
+          <p className="text-xs text-muted">{t("checkout.pickOnMap")}</p>
+          <AddressMapPicker
+            lat={lat}
+            lng={lng}
+            onChange={(nextLat, nextLng) => {
+              setLat(nextLat);
+              setLng(nextLng);
+            }}
+          />
+          <Button type="submit" variant="secondary" size="sm">
+            {editingId ? t("checkout.saveAddress") : t("checkout.addAddress")}
+          </Button>
         </form>
       </section>
 
@@ -236,7 +335,7 @@ function CheckoutPageContent() {
         type="button"
         fullWidth
         size="lg"
-        disabled={!addressId || isPending}
+        disabled={!addressId || isPending || coverageOk === false}
         onClick={() => {
           setSyncing(true);
           runAction(
@@ -248,10 +347,17 @@ function CheckoutPageContent() {
                 paymentMethod,
               }),
             {
-              successMessage: t("notifications.orderPlaced"),
-              onSuccess: (order) => {
+              successMessage:
+                paymentMethod === "online"
+                  ? t("checkout.paymentRedirecting")
+                  : t("notifications.orderPlaced"),
+              onSuccess: (result) => {
                 clearCart();
-                if (order?.id) router.push(`/orders/${order.id}`);
+                if (result?.checkoutUrl) {
+                  window.location.href = result.checkoutUrl;
+                  return;
+                }
+                if (result?.order?.id) router.push(`/orders/${result.order.id}`);
               },
               onError: () => setSyncing(false),
               onSettled: () => setSyncing(false),

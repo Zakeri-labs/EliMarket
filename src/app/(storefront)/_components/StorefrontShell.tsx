@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { BottomNav } from "@/app/(storefront)/_components/BottomNav";
+import { PwaProvider } from "@/app/(storefront)/_components/PwaProvider";
 import { StorefrontHeader } from "@/app/(storefront)/_components/StorefrontHeader";
 import { cn } from "@/app/utils/cn";
 import { STOREFRONT_CONTAINER } from "@/config/layout";
@@ -49,6 +50,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       {!hideMobileNav && <BottomNav />}
+      <PwaProvider />
     </div>
   );
 }

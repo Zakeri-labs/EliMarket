@@ -1,20 +1,43 @@
 export const BRAND_NAME = "EliMarket";
 export const BRAND_NAME_FA = "EliMarket";
 
-export const FREE_DELIVERY_THRESHOLD = 500_000;
-export const DELIVERY_FEE = 25_000;
-export const VAT_RATE = 0.09;
+export const DEFAULT_CURRENCY = "OMR";
+export const FREE_DELIVERY_THRESHOLD = 10;
+export const DELIVERY_FEE = 0.5;
+export const VAT_RATE = 0.05;
+export const MONEY_SCALE = 1000;
 
 import { getNumberLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 
+export function roundMoney(amount: number) {
+  return Math.round(amount * MONEY_SCALE) / MONEY_SCALE;
+}
+
+export function toMinorUnits(amount: number) {
+  return Math.round(amount * MONEY_SCALE);
+}
+
+export function cartTotals(subtotal: number) {
+  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+  const vat = roundMoney(subtotal * VAT_RATE);
+  const total = roundMoney(subtotal + deliveryFee + vat);
+  return { subtotal, deliveryFee, vat, total };
+}
+
 export function formatPrice(
   amount: number,
-  currency = "IRR",
+  currency = DEFAULT_CURRENCY,
   locale: Locale = "fa",
 ) {
-  const formatted = amount.toLocaleString(getNumberLocale(locale));
+  const fractionDigits = currency === "OMR" ? 3 : currency === "IRR" ? 0 : 2;
+  const formatted = amount.toLocaleString(getNumberLocale(locale), {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  });
   const label =
-    currency === "IRR" ? getMessages(locale).brand.currency : currency;
+    currency === "OMR" || currency === "IRR"
+      ? getMessages(locale).brand.currency
+      : currency;
   return `${formatted} ${label}`;
 }

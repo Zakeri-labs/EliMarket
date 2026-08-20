@@ -13,6 +13,7 @@ import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { getCategoryIcon } from "@/config/category-icons";
 import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { useTranslations } from "@/i18n/use-translations";
+import { childCategories, topLevelCategories } from "@/lib/categories/tree";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 
 export default function CategoriesContent() {
@@ -31,8 +32,9 @@ export default function CategoriesContent() {
 
   const isSkeleton = isPending;
   const selected = categories?.find((c) => c.slug === slug);
+  const children = selected && categories ? childCategories(categories, selected.id) : [];
   const listCategories = useMemo(
-    () => (isSkeleton ? mockCategories(locale) : (categories ?? [])),
+    () => (isSkeleton ? mockCategories(locale) : topLevelCategories(categories ?? [])),
     [categories, isSkeleton, locale],
   );
 
@@ -48,6 +50,19 @@ export default function CategoriesContent() {
             {selected ? resolveCategoryName(selected, locale) : slug}
           </h1>
         </div>
+        {children.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {children.map((child) => (
+              <Link
+                key={child.id}
+                href={`/categories/${child.slug}`}
+                className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs"
+              >
+                {resolveCategoryName(child, locale)}
+              </Link>
+            ))}
+          </div>
+        )}
         <CategoryProductList slug={slug} />
       </main>
     );
@@ -61,8 +76,10 @@ export default function CategoriesContent() {
         <span className="text-start">{t("categories.searchInCategories")}</span>
       </div>
       <ul className="space-y-2">
-        {listCategories.map((cat) => (
-          <li key={cat.id}>
+        {listCategories.map((cat) => {
+          const nested = isSkeleton ? [] : childCategories(categories ?? [], cat.id);
+          return (
+          <li key={cat.id} className="space-y-2">
             <Link
               href={isSkeleton ? "#" : `/categories/${cat.slug}`}
               dir={dir}
@@ -93,13 +110,32 @@ export default function CategoriesContent() {
                   )
                 )}
               </span>
-              <span className="flex-1 text-start font-medium">
-                {resolveCategoryName(cat, locale)}
-              </span>
+                    <span className="flex-1 text-start font-medium">
+                      {resolveCategoryName(cat, locale)}
+                    </span>
+                    {nested.length > 0 && (
+                      <span className="text-[10px] text-muted">{nested.length}</span>
+                    )}
               <AppIcon icon={ChevronRight} size="sm" className="shrink-0 text-muted rtl:rotate-180" />
             </Link>
+            {nested.length > 0 && (
+              <ul className="ms-8 space-y-1.5">
+                {nested.map((child) => (
+                  <li key={child.id}>
+                    <Link
+                      href={`/categories/${child.slug}`}
+                      className="flex items-center justify-between rounded-xl border border-border/70 bg-surface-elevated px-3 py-2 text-sm"
+                    >
+                      {resolveCategoryName(child, locale)}
+                      <AppIcon icon={ChevronRight} size="sm" className="text-muted rtl:rotate-180" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
-        ))}
+          );
+        })}
       </ul>
     </main>
   );

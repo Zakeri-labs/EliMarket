@@ -2,10 +2,11 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getProductsAction } from "@/app/_actions/product-actions";
+import { getCategoriesAction, getProductsAction } from "@/app/_actions/product-actions";
 import { ProductCard } from "@/app/(storefront)/_components/ProductCard";
 import { mockProducts } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
+import { categoryAndDescendantSlugs } from "@/lib/categories/tree";
 
 const MOCK_LIST_COUNT = 6;
 
@@ -18,11 +19,16 @@ export function CategoryProductList({ slug }: Props) {
   const { data: products, isPending } = useQuery({
     queryKey: ["products", slug ?? "all"],
     queryFn: async () => {
-      const r = await getProductsAction();
-      if (!r.success) throw new Error(r.error);
-      const all = r.data;
+      const [productsResult, categoriesResult] = await Promise.all([
+        getProductsAction(),
+        getCategoriesAction(),
+      ]);
+      if (!productsResult.success) throw new Error(productsResult.error);
+      const all = productsResult.data;
       if (!slug) return all;
-      return all.filter((p) => p.category?.slug === slug);
+      const categories = categoriesResult.success ? categoriesResult.data : [];
+      const slugs = categoryAndDescendantSlugs(categories, slug);
+      return all.filter((p) => p.category && slugs.includes(p.category.slug));
     },
   });
 

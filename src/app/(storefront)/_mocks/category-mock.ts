@@ -104,6 +104,7 @@ export function mockCategories(locale: Locale): Category[] {
     name_en: item.name_en,
     slug: item.slug,
     sort_order: index + 1,
+    parent_id: null,
     image_url: item.image_url,
     blur_hash: null,
     created_at: MOCK_TIMESTAMP,

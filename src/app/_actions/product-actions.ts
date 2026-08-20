@@ -1,5 +1,6 @@
 "use server";
 
+import { DEFAULT_CURRENCY } from "@/config/brand";
 import { createClient } from "@/core/supabase/server";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
@@ -162,7 +163,7 @@ export async function createProductAction(input: {
         description_en,
         price: input.price,
         compare_at_price: input.compare_at_price ?? null,
-        currency: input.currency ?? "IRR",
+        currency: input.currency ?? DEFAULT_CURRENCY,
         stock: input.stock,
         category_id: input.category_id ?? null,
         brand_id: input.brand_id ?? null,

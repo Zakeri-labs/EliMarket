@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
 import { DataTable } from "@/components/table";
-import { formatPrice } from "@/config/brand";
+import { DEFAULT_CURRENCY, formatPrice } from "@/config/brand";
 import { getNumberLocale } from "@/i18n/config";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import type { Order, OrderStatus } from "@/app/_types/database.types";
@@ -32,6 +32,7 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 
 export default function AdminReportsPage() {
   const { data: report, isPending, error, refetch } = useFinancialReport();
+  const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
   const isSkeleton = isPending;
   const { t, locale } = useTranslations();
   const formatLocalizedPrice = useFormatPrice();
@@ -103,42 +104,70 @@ export default function AdminReportsPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               label={t("admin.reports.deliveredRevenue")}
-              value={formatPrice(report.deliveredRevenue, "IRR", locale)}
+              value={formatPrice(report.deliveredRevenue, DEFAULT_CURRENCY, locale)}
               sub={t("admin.reports.ordersCount", { count: report.deliveredCount })}
             />
             <StatCard
               label={t("admin.reports.pendingRevenue")}
-              value={formatPrice(report.pendingRevenue, "IRR", locale)}
+              value={formatPrice(report.pendingRevenue, DEFAULT_CURRENCY, locale)}
               sub={t("admin.reports.activeOrders", { count: report.pendingCount })}
             />
             <StatCard
               label={t("admin.reports.cashPayment")}
-              value={formatPrice(report.cashRevenue, "IRR", locale)}
+              value={formatPrice(report.cashRevenue, DEFAULT_CURRENCY, locale)}
             />
             <StatCard
               label={t("admin.reports.onlinePayment")}
-              value={formatPrice(report.onlineRevenue, "IRR", locale)}
+              value={formatPrice(report.onlineRevenue, DEFAULT_CURRENCY, locale)}
             />
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
             <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
-              <h2 className="mb-4 font-semibold">{t("admin.reports.revenue14Days")}</h2>
-              {report.revenueByDay.length === 0 ? (
-                <p className="text-sm text-[#71717a]">{t("admin.reports.noData")}</p>
-              ) : (
-                <ul className="space-y-2">
-                  {report.revenueByDay.map((day) => (
-                    <li key={day.date} className="flex justify-between text-sm">
-                      <span className="text-[#71717a]">{day.date}</span>
-                      <span className="font-medium">{formatPrice(day.total, "IRR", locale)}</span>
-                      <span className="text-[#71717a]">
-                        {t("admin.reports.ordersCount", { count: day.count })}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <h2 className="font-semibold">
+                  {period === "weekly"
+                    ? t("admin.reports.weekly")
+                    : period === "monthly"
+                      ? t("admin.reports.monthly")
+                      : t("admin.reports.revenue14Days")}
+                </h2>
+                <select
+                  className="h-9 rounded-xl border border-[#e4e4e7] px-3 text-sm"
+                  value={period}
+                  onChange={(e) => setPeriod(e.target.value as typeof period)}
+                >
+                  <option value="daily">{t("admin.reports.daily")}</option>
+                  <option value="weekly">{t("admin.reports.weekly")}</option>
+                  <option value="monthly">{t("admin.reports.monthly")}</option>
+                </select>
+              </div>
+              {(() => {
+                const rows =
+                  period === "weekly"
+                    ? report.revenueByWeek
+                    : period === "monthly"
+                      ? report.revenueByMonth
+                      : report.revenueByDay;
+                if (rows.length === 0) {
+                  return <p className="text-sm text-[#71717a]">{t("admin.reports.noData")}</p>;
+                }
+                return (
+                  <ul className="space-y-2">
+                    {rows.map((row) => (
+                      <li key={row.period} className="flex justify-between text-sm">
+                        <span className="text-[#71717a]">{row.period}</span>
+                        <span className="font-medium">
+                          {formatPrice(row.total, DEFAULT_CURRENCY, locale)}
+                        </span>
+                        <span className="text-[#71717a]">
+                          {t("admin.reports.ordersCount", { count: row.count })}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                );
+              })()}
             </section>
 
             <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">

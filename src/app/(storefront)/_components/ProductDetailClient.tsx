@@ -14,6 +14,7 @@ import {
 import type { Product } from "@/app/_types/database.types";
 import type { Locale } from "@/i18n/config";
 import { useCartStore } from "@/app/_store/cart-store";
+import { useWishlistStore } from "@/app/_store/wishlist-store";
 import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { cn } from "@/app/utils/cn";
 import { Button } from "@/components/ui/Button";
@@ -21,6 +22,7 @@ import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { STOREFRONT_CONTAINER_BLEED } from "@/config/layout";
+import { notifyFormSuccess } from "@/app/utils/form-notify";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
@@ -45,6 +47,8 @@ function resolveProductSubtitle(product: Product, locale: Locale): string | null
 
 export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const addItem = useCartStore((s) => s.addItem);
+  const wishlisted = useWishlistStore((s) => s.has(product.id));
+  const toggleWishlist = useWishlistStore((s) => s.toggle);
   const [qty, setQty] = useState(1);
   const [descOpen, setDescOpen] = useState(true);
   const { t, locale, dir } = useTranslations();
@@ -62,10 +66,24 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
       })
     : t("product.addToCartSimple");
 
+  const shareProduct = async () => {
+    if (isSkeleton || typeof window === "undefined") return;
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: product.name, url });
+        return;
+      }
+    } catch {
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+  };
+
   const addToCart = () => {
     if (isSkeleton || !inStock) return;
-    for (let i = 0; i < qty; i++) {
-      addItem({
+    addItem(
+      {
         productId: product.id,
         name: product.name,
         slug: product.slug,
@@ -73,8 +91,11 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         currency: product.currency,
         imageUrl: product.image_url,
         blurHash: product.blur_hash,
-      });
-    }
+        stock: product.stock,
+      },
+      qty,
+    );
+    notifyFormSuccess(t("notifications.addedToCart"));
   };
 
   return (
@@ -123,14 +144,23 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   disabled={isSkeleton}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm"
                   aria-label={t("product.share")}
+                  onClick={() => void shareProduct()}
                 >
                   <AppIcon icon={Share2} size="sm" />
                 </button>
                 <button
                   type="button"
                   disabled={isSkeleton}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm"
+                  className={`flex h-10 w-10 items-center justify-center rounded-full bg-black/35 backdrop-blur-sm ${wishlisted ? "text-red-400" : "text-white"}`}
                   aria-label={t("product.wishlist")}
+                  onClick={() =>
+                    toggleWishlist({
+                      productId: product.id,
+                      name: product.name,
+                      slug: product.slug,
+                      imageUrl: product.image_url,
+                    })
+                  }
                 >
                   <AppIcon icon={Heart} size="sm" />
                 </button>
@@ -236,7 +266,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   className="flex h-11 w-11 items-center justify-center border-s border-border text-muted"
                   onClick={() => {
                     if (isSkeleton) return;
-                    setQty(qty + 1);
+                    setQty(Math.min(product.stock || 1, qty + 1));
                   }}
                 >
                   <AppIcon icon={Plus} size="sm" />
@@ -376,7 +406,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   className="flex h-11 w-11 items-center justify-center border-s border-border"
                   onClick={() => {
                     if (isSkeleton) return;
-                    setQty(qty + 1);
+                    setQty(Math.min(product.stock || 1, qty + 1));
                   }}
                 >
                   <AppIcon icon={Plus} size="sm" />

@@ -91,6 +91,18 @@ export type Messages = {
     labelPlaceholder: string;
     addressPlaceholder: string;
     addAddress: string;
+    saveAddress: string;
+    editAddress: string;
+    deleteAddress: string;
+    pickOnMap: string;
+    outsideCoverage: string;
+    coverageOk: string;
+    paymentRedirecting: string;
+    payNow: string;
+    paymentPending: string;
+    paymentFailed: string;
+    paymentSuccess: string;
+    sandboxPay: string;
     deliveryTimeTitle: string;
     deliverySlots: string[];
     paymentTitle: string;
@@ -110,6 +122,19 @@ export type Messages = {
     hintPrefix: string;
     hintCategories: string;
     hintSuffix: string;
+    allCategories: string;
+    minPrice: string;
+    maxPrice: string;
+    onSale: string;
+    sortNewest: string;
+    sortPriceAsc: string;
+    sortPriceDesc: string;
+  };
+  pwa: {
+    install: string;
+    installTitle: string;
+    installDesc: string;
+    dismiss: string;
   };
   categories: {
     title: string;
@@ -153,7 +178,10 @@ export type Messages = {
     otpSent: string;
     loginSuccess: string;
     addressSaved: string;
+    addressUpdated: string;
+    addressDeleted: string;
     orderPlaced: string;
+    addedToCart: string;
     adminLoginSuccess: string;
     productUpdated: string;
     productCreated: string;
@@ -226,6 +254,14 @@ export type Messages = {
     bannerDeleteFailed: string;
     addressesLoadFailed: string;
     addressSaveFailed: string;
+    addressUpdateFailed: string;
+    addressDeleteFailed: string;
+    outsideCoverage: string;
+    coverageCheckFailed: string;
+    paymentNotFound: string;
+    paymentVerifyFailed: string;
+    customersLoadFailed: string;
+    categoryParentInvalid: string;
     aiImageFailed: string;
     aiDescriptionFailed: string;
     smartProductFailed: string;
@@ -254,6 +290,7 @@ export type Messages = {
       orders: string;
       reports: string;
       coverage: string;
+      customers: string;
       smartProduct: string;
     };
     login: {
@@ -273,6 +310,8 @@ export type Messages = {
       ordersDesc: string;
       reportsCard: string;
       reportsDesc: string;
+      customersCard: string;
+      customersDesc: string;
       coverageCard: string;
       coverageDesc: string;
       categoriesCard: string;
@@ -407,6 +446,9 @@ export type Messages = {
       empty: string;
       validationName: string;
       validationSlug: string;
+      parentLabel: string;
+      noParent: string;
+      childBadge: string;
     };
     banners: {
       title: string;
@@ -467,6 +509,21 @@ export type Messages = {
       colAmount: string;
       entityName: string;
       units: string;
+      weekly: string;
+      monthly: string;
+      daily: string;
+    };
+    customers: {
+      title: string;
+      subtitle: string;
+      loading: string;
+      empty: string;
+      colName: string;
+      colPhone: string;
+      colOrders: string;
+      colSpent: string;
+      colJoined: string;
+      entityName: string;
     };
     coverage: {
       title: string;
@@ -534,7 +591,7 @@ export type Messages = {
 };
 
 const fa: Messages = {
-  brand: { name: "EliMarket", nameLocal: "EliMarket", currency: "تومان" },
+  brand: { name: "EliMarket", nameLocal: "EliMarket", currency: "ر.ع." },
   nav: {
     home: "خانه",
     categories: "دسته‌ها",
@@ -546,7 +603,7 @@ const fa: Messages = {
   },
   home: {
     deliverTo: "تحویل به",
-    locationSample: "تهران، سعادت‌آباد",
+    locationSample: "مسقط، الغبرة",
     searchPlaceholder: "جستجوی محصول…",
     heroBadge: "پیشنهاد ویژه",
     heroTitle: "مواد تازه روزانه",
@@ -556,7 +613,7 @@ const fa: Messages = {
     heroSlide2Title: "لبنیات تازه هر روز",
     heroSlide2Subtitle: "تا ۲۵٪ تخفیف روی محصولات منتخب",
     heroSlide3Badge: "ارسال رایگان",
-    heroSlide3Title: "خرید بالای ۵۰۰ هزار تومان",
+    heroSlide3Title: "خرید بالای ۱۰ ریال عمان",
     heroSlide3Subtitle: "تحویل سریع در محدوده شهر",
     heroCarouselLabel: "بنرهای فروشگاه",
     heroPrev: "اسلاید قبلی",
@@ -624,6 +681,18 @@ const fa: Messages = {
     labelPlaceholder: "برچسب (منزل)",
     addressPlaceholder: "آدرس کامل",
     addAddress: "+ آدرس جدید",
+    saveAddress: "ذخیره آدرس",
+    editAddress: "ویرایش",
+    deleteAddress: "حذف",
+    pickOnMap: "محل را روی نقشه انتخاب کنید",
+    outsideCoverage: "این آدرس خارج از محدوده ارسال است",
+    coverageOk: "این آدرس داخل محدوده ارسال است",
+    paymentRedirecting: "در حال انتقال به درگاه پرداخت…",
+    payNow: "پرداخت سفارش",
+    paymentPending: "پرداخت در انتظار تأیید است",
+    paymentFailed: "پرداخت ناموفق بود",
+    paymentSuccess: "پرداخت با موفقیت انجام شد",
+    sandboxPay: "تأیید پرداخت آزمایشی",
     deliveryTimeTitle: "زمان تحویل",
     deliverySlots: [
       "امروز ۱۲:۰۰ – ۱۴:۰۰",
@@ -648,6 +717,19 @@ const fa: Messages = {
     hintPrefix: "یا از",
     hintCategories: "دسته‌بندی‌ها",
     hintSuffix: "شروع کنید",
+    allCategories: "همه دسته‌ها",
+    minPrice: "حداقل قیمت",
+    maxPrice: "حداکثر قیمت",
+    onSale: "فقط تخفیف‌دار",
+    sortNewest: "جدیدترین",
+    sortPriceAsc: "ارزان‌ترین",
+    sortPriceDesc: "گران‌ترین",
+  },
+  pwa: {
+    install: "نصب برنامه",
+    installTitle: "EliMarket را نصب کنید",
+    installDesc: "دسترسی سریع‌تر به فروشگاه، حتی بدون مرورگر",
+    dismiss: "الان نه",
   },
   categories: {
     title: "دسته‌بندی‌ها",
@@ -719,7 +801,10 @@ const fa: Messages = {
     otpSent: "کد ارسال شد",
     loginSuccess: "ورود موفق",
     addressSaved: "آدرس ثبت شد",
+    addressUpdated: "آدرس به‌روز شد",
+    addressDeleted: "آدرس حذف شد",
     orderPlaced: "سفارش ثبت شد",
+    addedToCart: "به سبد خرید اضافه شد",
     adminLoginSuccess: "ورود موفق",
     productUpdated: "محصول ویرایش شد",
     productCreated: "محصول ایجاد شد",
@@ -792,6 +877,14 @@ const fa: Messages = {
     bannerDeleteFailed: "حذف بنر ناموفق بود",
     addressesLoadFailed: "بارگذاری آدرس‌ها ناموفق بود",
     addressSaveFailed: "ثبت آدرس ناموفق بود",
+    addressUpdateFailed: "ویرایش آدرس ناموفق بود",
+    addressDeleteFailed: "حذف آدرس ناموفق بود",
+    outsideCoverage: "آدرس خارج از محدوده پوشش است",
+    coverageCheckFailed: "بررسی محدوده پوشش ناموفق بود",
+    paymentNotFound: "پرداخت یافت نشد",
+    paymentVerifyFailed: "تأیید پرداخت ناموفق بود",
+    customersLoadFailed: "بارگذاری مشتریان ناموفق بود",
+    categoryParentInvalid: "دسته والد نامعتبر است",
     aiImageFailed: "ویرایش تصویر با AI ناموفق بود",
     aiDescriptionFailed: "تولید توضیحات ناموفق بود",
     smartProductFailed: "ثبت هوشمند محصول ناموفق بود",
@@ -820,6 +913,7 @@ const fa: Messages = {
       orders: "سفارش‌ها",
       reports: "گزارشات مالی",
       coverage: "محدوده پوشش",
+      customers: "مشتریان",
       smartProduct: "ثبت هوشمند",
     },
     login: {
@@ -839,6 +933,8 @@ const fa: Messages = {
       ordersDesc: "وضعیت و پیک",
       reportsCard: "گزارشات مالی",
       reportsDesc: "درآمد و موجودی کم",
+      customersCard: "مشتریان",
+      customersDesc: "لیست و سابقه خرید",
       coverageCard: "محدوده پوشش",
       coverageDesc: "نقشه تحویل",
       categoriesCard: "دسته‌بندی‌ها",
@@ -864,8 +960,8 @@ const fa: Messages = {
       descriptionAr: "عربی",
       descriptionEn: "انگلیسی",
       aiDescriptionAll: "تولید توضیحات با AI",
-      priceLabel: "قیمت (تومان)",
-      compareAtPriceLabel: "قیمت قبل از تخفیف (تومان)",
+      priceLabel: "قیمت (ریال عمان)",
+      compareAtPriceLabel: "قیمت قبل از تخفیف (ریال عمان)",
       stockLabel: "موجودی",
       noCategory: "بدون دسته",
       brandLabel: "برند",
@@ -973,6 +1069,9 @@ const fa: Messages = {
       empty: "دسته‌ای ثبت نشده است.",
       validationName: "نام دسته الزامی است",
       validationSlug: "شناسه URL الزامی است",
+      parentLabel: "دسته والد",
+      noParent: "بدون والد (دسته اصلی)",
+      childBadge: "زیردسته",
     },
     banners: {
       title: "بنر صفحه اصلی",
@@ -1040,6 +1139,21 @@ const fa: Messages = {
       colAmount: "مبلغ",
       entityName: "سفارش‌ها",
       units: "عدد",
+      weekly: "هفتگی",
+      monthly: "ماهانه",
+      daily: "روزانه",
+    },
+    customers: {
+      title: "مشتریان",
+      subtitle: "لیست مشتریان و سابقه خرید",
+      loading: "بارگذاری مشتریان…",
+      empty: "مشتری‌ای ثبت نشده است.",
+      colName: "نام",
+      colPhone: "تلفن",
+      colOrders: "سفارش‌ها",
+      colSpent: "خرید",
+      colJoined: "عضویت",
+      entityName: "مشتریان",
     },
     coverage: {
       title: "محدوده پوشش",
@@ -1109,7 +1223,7 @@ const fa: Messages = {
 };
 
 const ar: Messages = {
-  brand: { name: "EliMarket", nameLocal: "إلي ماركت", currency: "تومان" },
+  brand: { name: "EliMarket", nameLocal: "إلي ماركت", currency: "ر.ع." },
   nav: {
     home: "الرئيسية",
     categories: "الفئات",
@@ -1121,7 +1235,7 @@ const ar: Messages = {
   },
   home: {
     deliverTo: "التوصيل إلى",
-    locationSample: "طهران، سعادت آباد",
+    locationSample: "مسقط، الغبرة",
     searchPlaceholder: "البحث عن منتج…",
     heroBadge: "عرض خاص",
     heroTitle: "مواد طازجة يومياً",
@@ -1131,7 +1245,7 @@ const ar: Messages = {
     heroSlide2Title: "منتجات ألبان طازجة يومياً",
     heroSlide2Subtitle: "خصم يصل إلى 25٪ على منتجات مختارة",
     heroSlide3Badge: "توصيل مجاني",
-    heroSlide3Title: "للطلبات فوق الحد الأدنى",
+    heroSlide3Title: "للطلبات فوق ١٠ ريالات عمانية",
     heroSlide3Subtitle: "توصيل سريع داخل المدينة",
     heroCarouselLabel: "بانرات المتجر",
     heroPrev: "الشريحة السابقة",
@@ -1199,6 +1313,18 @@ const ar: Messages = {
     labelPlaceholder: "التسمية (المنزل)",
     addressPlaceholder: "العنوان الكامل",
     addAddress: "+ عنوان جديد",
+    saveAddress: "حفظ العنوان",
+    editAddress: "تعديل",
+    deleteAddress: "حذف",
+    pickOnMap: "حدد الموقع على الخريطة",
+    outsideCoverage: "هذا العنوان خارج نطاق التوصيل",
+    coverageOk: "هذا العنوان داخل نطاق التوصيل",
+    paymentRedirecting: "جارٍ التحويل إلى بوابة الدفع…",
+    payNow: "دفع الطلب",
+    paymentPending: "الدفع بانتظار التأكيد",
+    paymentFailed: "فشل الدفع",
+    paymentSuccess: "تم الدفع بنجاح",
+    sandboxPay: "تأكيد الدفع التجريبي",
     deliveryTimeTitle: "وقت التوصيل",
     deliverySlots: [
       "اليوم ١٢:٠٠ – ١٤:٠٠",
@@ -1223,6 +1349,19 @@ const ar: Messages = {
     hintPrefix: "أو ابدأ من",
     hintCategories: "الفئات",
     hintSuffix: "للبدء",
+    allCategories: "كل الفئات",
+    minPrice: "أدنى سعر",
+    maxPrice: "أعلى سعر",
+    onSale: "العروض فقط",
+    sortNewest: "الأحدث",
+    sortPriceAsc: "الأرخص",
+    sortPriceDesc: "الأغلى",
+  },
+  pwa: {
+    install: "تثبيت التطبيق",
+    installTitle: "ثبّت إلي ماركت",
+    installDesc: "وصول أسرع إلى المتجر حتى بدون المتصفح",
+    dismiss: "لاحقاً",
   },
   categories: {
     title: "الفئات",
@@ -1294,7 +1433,10 @@ const ar: Messages = {
     otpSent: "تم إرسال الرمز",
     loginSuccess: "تم تسجيل الدخول",
     addressSaved: "تم حفظ العنوان",
+    addressUpdated: "تم تحديث العنوان",
+    addressDeleted: "تم حذف العنوان",
     orderPlaced: "تم تسجيل الطلب",
+    addedToCart: "تمت الإضافة إلى سلة التسوق",
     adminLoginSuccess: "تم تسجيل الدخول",
     productUpdated: "تم تحديث المنتج",
     productCreated: "تم إنشاء المنتج",
@@ -1367,6 +1509,14 @@ const ar: Messages = {
     bannerDeleteFailed: "فشل حذف البانر",
     addressesLoadFailed: "فشل تحميل العناوين",
     addressSaveFailed: "فشل حفظ العنوان",
+    addressUpdateFailed: "فشل تعديل العنوان",
+    addressDeleteFailed: "فشل حذف العنوان",
+    outsideCoverage: "العنوان خارج نطاق التغطية",
+    coverageCheckFailed: "فشل التحقق من نطاق التغطية",
+    paymentNotFound: "الدفعة غير موجودة",
+    paymentVerifyFailed: "فشل التحقق من الدفع",
+    customersLoadFailed: "فشل تحميل العملاء",
+    categoryParentInvalid: "الفئة الأب غير صالحة",
     aiImageFailed: "فشل تعديل الصورة بالذكاء الاصطناعي",
     aiDescriptionFailed: "فشل إنشاء الوصف",
     smartProductFailed: "فشل التسجيل الذكي للمنتج",
@@ -1395,6 +1545,7 @@ const ar: Messages = {
       orders: "الطلبات",
       reports: "التقارير المالية",
       coverage: "نطاق التغطية",
+      customers: "العملاء",
       smartProduct: "تسجيل ذكي",
     },
     login: {
@@ -1414,6 +1565,8 @@ const ar: Messages = {
       ordersDesc: "الحالة والسائق",
       reportsCard: "التقارير المالية",
       reportsDesc: "الإيرادات والمخزون المنخفض",
+      customersCard: "العملاء",
+      customersDesc: "القائمة وسجل المشتريات",
       coverageCard: "نطاق التغطية",
       coverageDesc: "خريطة التوصيل",
       categoriesCard: "الفئات",
@@ -1439,8 +1592,8 @@ const ar: Messages = {
       descriptionAr: "العربية",
       descriptionEn: "English",
       aiDescriptionAll: "إنشاء الوصف بالذكاء الاصطناعي",
-      priceLabel: "السعر (تومان)",
-      compareAtPriceLabel: "السعر قبل الخصم (تومان)",
+      priceLabel: "السعر (ريال عماني)",
+      compareAtPriceLabel: "السعر قبل الخصم (ريال عماني)",
       stockLabel: "المخزون",
       noCategory: "بدون فئة",
       brandLabel: "العلامة التجارية",
@@ -1548,6 +1701,9 @@ const ar: Messages = {
       empty: "لا توجد فئات.",
       validationName: "اسم الفئة مطلوب",
       validationSlug: "الرابط التعريفي مطلوب",
+      parentLabel: "الفئة الأب",
+      noParent: "بدون أب (فئة رئيسية)",
+      childBadge: "فئة فرعية",
     },
     banners: {
       title: "بانر الصفحة الرئيسية",
@@ -1615,6 +1771,21 @@ const ar: Messages = {
       colAmount: "المبلغ",
       entityName: "الطلبات",
       units: "قطعة",
+      weekly: "أسبوعي",
+      monthly: "شهري",
+      daily: "يومي",
+    },
+    customers: {
+      title: "العملاء",
+      subtitle: "قائمة العملاء وسجل المشتريات",
+      loading: "جاري تحميل العملاء…",
+      empty: "لا يوجد عملاء.",
+      colName: "الاسم",
+      colPhone: "الهاتف",
+      colOrders: "الطلبات",
+      colSpent: "الإنفاق",
+      colJoined: "الانضمام",
+      entityName: "العملاء",
     },
     coverage: {
       title: "نطاق التغطية",
@@ -1684,7 +1855,7 @@ const ar: Messages = {
 };
 
 const en: Messages = {
-  brand: { name: "EliMarket", nameLocal: "EliMarket", currency: "Toman" },
+  brand: { name: "EliMarket", nameLocal: "EliMarket", currency: "OMR" },
   nav: {
     home: "Home",
     categories: "Categories",
@@ -1696,7 +1867,7 @@ const en: Messages = {
   },
   home: {
     deliverTo: "Deliver to",
-    locationSample: "Tehran, Saadat Abad",
+    locationSample: "Muscat, Al Ghubra",
     searchPlaceholder: "Search products…",
     heroBadge: "Special offer",
     heroTitle: "Fresh daily groceries",
@@ -1706,7 +1877,7 @@ const en: Messages = {
     heroSlide2Title: "Fresh dairy every day",
     heroSlide2Subtitle: "Up to 25% off selected items",
     heroSlide3Badge: "Free delivery",
-    heroSlide3Title: "On orders above the threshold",
+    heroSlide3Title: "On orders above 10 OMR",
     heroSlide3Subtitle: "Fast delivery in your area",
     heroCarouselLabel: "Store banners",
     heroPrev: "Previous slide",
@@ -1774,6 +1945,18 @@ const en: Messages = {
     labelPlaceholder: "Label (Home)",
     addressPlaceholder: "Full address",
     addAddress: "+ New address",
+    saveAddress: "Save address",
+    editAddress: "Edit",
+    deleteAddress: "Delete",
+    pickOnMap: "Pick the location on the map",
+    outsideCoverage: "This address is outside the delivery area",
+    coverageOk: "This address is inside the delivery area",
+    paymentRedirecting: "Redirecting to the payment gateway…",
+    payNow: "Pay for order",
+    paymentPending: "Payment is pending confirmation",
+    paymentFailed: "Payment failed",
+    paymentSuccess: "Payment completed successfully",
+    sandboxPay: "Confirm sandbox payment",
     deliveryTimeTitle: "Delivery time",
     deliverySlots: [
       "Today 12:00 – 14:00",
@@ -1798,6 +1981,19 @@ const en: Messages = {
     hintPrefix: "Or browse",
     hintCategories: "categories",
     hintSuffix: "to get started",
+    allCategories: "All categories",
+    minPrice: "Min price",
+    maxPrice: "Max price",
+    onSale: "On sale only",
+    sortNewest: "Newest",
+    sortPriceAsc: "Price: low to high",
+    sortPriceDesc: "Price: high to low",
+  },
+  pwa: {
+    install: "Install app",
+    installTitle: "Install EliMarket",
+    installDesc: "Faster access to the store, even without the browser",
+    dismiss: "Not now",
   },
   categories: {
     title: "Categories",
@@ -1869,7 +2065,10 @@ const en: Messages = {
     otpSent: "Code sent",
     loginSuccess: "Signed in successfully",
     addressSaved: "Address saved",
+    addressUpdated: "Address updated",
+    addressDeleted: "Address deleted",
     orderPlaced: "Order placed",
+    addedToCart: "Added to cart",
     adminLoginSuccess: "Signed in successfully",
     productUpdated: "Product updated",
     productCreated: "Product created",
@@ -1942,6 +2141,14 @@ const en: Messages = {
     bannerDeleteFailed: "Failed to delete banner",
     addressesLoadFailed: "Failed to load addresses",
     addressSaveFailed: "Failed to save address",
+    addressUpdateFailed: "Failed to update address",
+    addressDeleteFailed: "Failed to delete address",
+    outsideCoverage: "Address is outside the coverage area",
+    coverageCheckFailed: "Failed to check coverage area",
+    paymentNotFound: "Payment not found",
+    paymentVerifyFailed: "Failed to verify payment",
+    customersLoadFailed: "Failed to load customers",
+    categoryParentInvalid: "Invalid parent category",
     aiImageFailed: "AI image edit failed",
     aiDescriptionFailed: "Failed to generate description",
     smartProductFailed: "Smart product listing failed",
@@ -1970,6 +2177,7 @@ const en: Messages = {
       orders: "Orders",
       reports: "Financial reports",
       coverage: "Coverage area",
+      customers: "Customers",
       smartProduct: "Smart listing",
     },
     login: {
@@ -1989,6 +2197,8 @@ const en: Messages = {
       ordersDesc: "Status & riders",
       reportsCard: "Financial reports",
       reportsDesc: "Revenue & low stock",
+      customersCard: "Customers",
+      customersDesc: "List and purchase history",
       coverageCard: "Coverage area",
       coverageDesc: "Delivery map",
       categoriesCard: "Categories",
@@ -2014,8 +2224,8 @@ const en: Messages = {
       descriptionAr: "Arabic",
       descriptionEn: "English",
       aiDescriptionAll: "Generate descriptions with AI",
-      priceLabel: "Price (Toman)",
-      compareAtPriceLabel: "Original price (Toman)",
+      priceLabel: "Price (OMR)",
+      compareAtPriceLabel: "Original price (OMR)",
       stockLabel: "Stock",
       noCategory: "No category",
       brandLabel: "Brand",
@@ -2123,6 +2333,9 @@ const en: Messages = {
       empty: "No categories yet.",
       validationName: "Category name is required",
       validationSlug: "Slug is required",
+      parentLabel: "Parent category",
+      noParent: "No parent (top-level)",
+      childBadge: "Subcategory",
     },
     banners: {
       title: "Homepage banners",
@@ -2190,6 +2403,21 @@ const en: Messages = {
       colAmount: "Amount",
       entityName: "Orders",
       units: "units",
+      weekly: "Weekly",
+      monthly: "Monthly",
+      daily: "Daily",
+    },
+    customers: {
+      title: "Customers",
+      subtitle: "Customer list and purchase history",
+      loading: "Loading customers…",
+      empty: "No customers yet.",
+      colName: "Name",
+      colPhone: "Phone",
+      colOrders: "Orders",
+      colSpent: "Spent",
+      colJoined: "Joined",
+      entityName: "Customers",
     },
     coverage: {
       title: "Coverage area",

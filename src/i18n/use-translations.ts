@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import { useLocaleStore } from "@/app/_store/locale-store";
-import { getDirection, getNumberLocale } from "@/i18n/config";
+import { formatPrice as formatPriceValue, DEFAULT_CURRENCY } from "@/config/brand";
+import { getDirection } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 import { resolveMessage } from "@/i18n/resolve-message";
 
@@ -25,10 +26,7 @@ export function useTranslations() {
 
 export function useFormatPrice() {
   const locale = useLocaleStore((s) => s.locale);
-  const m = getMessages(locale);
 
-  return (amount: number, currency = "IRR") => {
-    const formatted = amount.toLocaleString(getNumberLocale(locale));
-    return `${formatted} ${currency === "IRR" ? m.brand.currency : currency}`;
-  };
+  return (amount: number, currency = DEFAULT_CURRENCY) =>
+    formatPriceValue(amount, currency, locale);
 }

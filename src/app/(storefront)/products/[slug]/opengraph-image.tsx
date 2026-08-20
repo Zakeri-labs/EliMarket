@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getProductBySlugAction } from "@/app/_actions/product-actions";
-import { BRAND_NAME } from "@/config/brand";
+import { BRAND_NAME, DEFAULT_CURRENCY, formatPrice } from "@/config/brand";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -13,13 +13,10 @@ export default async function ProductOgImage({ params }: Props) {
 
   const name = result.success ? result.data.name : "Product";
   const price = result.success ? result.data.price : 0;
-  const currency = result.success ? result.data.currency : "IRR";
+  const currency = result.success ? result.data.currency : DEFAULT_CURRENCY;
   const imageUrl = result.success ? result.data.image_url : null;
 
-  const priceLabel =
-    currency === "IRR"
-      ? `${price.toLocaleString("fa-IR")} تومان`
-      : `${price.toLocaleString()} ${currency}`;
+  const priceLabel = formatPrice(Number(price), currency, "en");
 
   return new ImageResponse(
     (

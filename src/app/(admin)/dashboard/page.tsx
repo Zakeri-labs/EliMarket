@@ -45,6 +45,11 @@ export default function AdminDashboardPage() {
       desc: t("admin.dashboard.reportsDesc"),
     },
     {
+      href: "/dashboard/customers",
+      label: t("admin.dashboard.customersCard"),
+      desc: t("admin.dashboard.customersDesc"),
+    },
+    {
       href: "/dashboard/coverage-area",
       label: t("admin.dashboard.coverageCard"),
       desc: t("admin.dashboard.coverageDesc"),

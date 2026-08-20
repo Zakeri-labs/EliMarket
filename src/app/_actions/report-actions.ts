@@ -4,6 +4,8 @@ import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
 import type { Order, Product } from "@/app/_types/database.types";
 
+export type PeriodBucket = { period: string; total: number; count: number };
+
 export type FinancialReport = {
   totalRevenue: number;
   deliveredRevenue: number;
@@ -17,8 +19,33 @@ export type FinancialReport = {
   onlineRevenue: number;
   lowStockProducts: Pick<Product, "id" | "name" | "stock" | "price">[];
   recentOrders: Order[];
-  revenueByDay: { date: string; total: number; count: number }[];
+  revenueByDay: PeriodBucket[];
+  revenueByWeek: PeriodBucket[];
+  revenueByMonth: PeriodBucket[];
 };
+
+function isoWeekKey(date: Date) {
+  const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = utc.getUTCDay() || 7;
+  utc.setUTCDate(utc.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(utc.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((utc.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return `${utc.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}
+
+function bucketize(orders: Order[], keyFn: (d: Date) => string): PeriodBucket[] {
+  const map = new Map<string, { total: number; count: number }>();
+  for (const order of orders) {
+    const key = keyFn(new Date(order.created_at));
+    const entry = map.get(key) ?? { total: 0, count: 0 };
+    entry.total += Number(order.total);
+    entry.count += 1;
+    map.set(key, entry);
+  }
+  return [...map.entries()]
+    .map(([period, v]) => ({ period, ...v }))
+    .sort((a, b) => b.period.localeCompare(a.period));
+}
 
 export async function getFinancialReportAction() {
   try {
@@ -50,20 +77,6 @@ export async function getFinancialReportAction() {
       .filter((o) => o.payment_method === "online")
       .reduce((acc, o) => acc + Number(o.total), 0);
 
-    const dayMap = new Map<string, { total: number; count: number }>();
-    for (const order of delivered) {
-      const date = order.created_at.slice(0, 10);
-      const entry = dayMap.get(date) ?? { total: 0, count: 0 };
-      entry.total += Number(order.total);
-      entry.count += 1;
-      dayMap.set(date, entry);
-    }
-
-    const revenueByDay = [...dayMap.entries()]
-      .map(([date, v]) => ({ date, ...v }))
-      .sort((a, b) => b.date.localeCompare(a.date))
-      .slice(0, 14);
-
     const { data: lowStock, error: stockError } = await supabase
       .from("products")
       .select("id, name, stock, price")
@@ -86,7 +99,9 @@ export async function getFinancialReportAction() {
       onlineRevenue,
       lowStockProducts: (lowStock ?? []) as FinancialReport["lowStockProducts"],
       recentOrders: list.slice(0, 10),
-      revenueByDay,
+      revenueByDay: bucketize(delivered, (d) => d.toISOString().slice(0, 10)).slice(0, 14),
+      revenueByWeek: bucketize(delivered, isoWeekKey).slice(0, 12),
+      revenueByMonth: bucketize(delivered, (d) => d.toISOString().slice(0, 7)).slice(0, 12),
     };
 
     return { success: true as const, data: report };

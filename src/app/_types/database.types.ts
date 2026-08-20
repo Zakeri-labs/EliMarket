@@ -10,6 +10,15 @@ export type OrderStatus =
 
 export type PaymentMethod = "cash" | "online";
 
+export type PaymentStatus = "unpaid" | "pending" | "paid" | "failed" | "refunded";
+
+export type PaymentRecordStatus =
+  | "pending"
+  | "paid"
+  | "failed"
+  | "cancelled"
+  | "refunded";
+
 export type Profile = {
   id: string;
   phone: string | null;
@@ -25,6 +34,7 @@ export type Category = {
   name_ar: string | null;
   name_en: string | null;
   slug: string;
+  parent_id: string | null;
   sort_order: number;
   image_url: string | null;
   blur_hash: string | null;
@@ -129,6 +139,7 @@ export type Order = {
   total: number;
   currency: string;
   payment_method: PaymentMethod;
+  payment_status: PaymentStatus;
   delivery_slot: string | null;
   address_id: string | null;
   rider_id: string | null;
@@ -136,6 +147,25 @@ export type Order = {
   created_at: string;
   order_items?: OrderItem[];
   address?: Address | null;
+};
+
+export type Payment = {
+  id: string;
+  order_id: string;
+  provider: string;
+  provider_session_id: string | null;
+  amount: number;
+  currency: string;
+  status: PaymentRecordStatus;
+  raw_payload: unknown | null;
+  created_at: string;
+  updated_at: string;
+  order?: Order | null;
+};
+
+export type CreateOrderResult = {
+  order: Order;
+  checkoutUrl: string | null;
 };
 
 export type OrderItem = {
@@ -156,4 +186,5 @@ export type CartItem = {
   imageUrl?: string | null;
   blurHash?: string | null;
   quantity: number;
+  stock?: number;
 };

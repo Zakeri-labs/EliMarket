@@ -17,7 +17,7 @@ function ClickHandler({ onChange, points }: Props) {
 }
 
 export default function CoverageMap({ points, onChange }: Props) {
-  const center: [number, number] = points[0] ?? [35.6892, 51.389];
+  const center: [number, number] = points[0] ?? [23.588, 58.3829];
 
   return (
     <div className="h-[420px] overflow-hidden rounded-xl border">

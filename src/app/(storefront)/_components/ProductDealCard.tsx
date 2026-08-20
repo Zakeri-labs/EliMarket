@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { ShoppingCart } from "lucide-react";
 import type { Product } from "@/app/_types/database.types";
+import { useCartStore } from "@/app/_store/cart-store";
+import { useStoreSettings } from "@/app/_hooks/use-store-settings";
+import { notifyFormSuccess } from "@/app/utils/form-notify";
 import { cn } from "@/app/utils/cn";
+import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
+import { Button } from "@/components/ui/Button";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
 import {
@@ -26,10 +32,28 @@ export function ProductDealCard({
   className,
 }: Props) {
   const formatPrice = useFormatPrice();
-  const { locale, dir } = useTranslations();
+  const { locale, dir, t } = useTranslations();
+  const addItem = useCartStore((s) => s.addItem);
+  const { showPrices } = useStoreSettings();
   const discount = productDiscountPercent(product);
   const compareAt = productCompareAtPrice(product);
   const excerpt = resolveProductCardExcerpt(product, locale);
+  const inStock = product.stock > 0;
+
+  const addToCart = () => {
+    if (isSkeleton || !inStock || !showPrices) return;
+    addItem({
+      productId: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: Number(product.price),
+      currency: product.currency,
+      imageUrl: product.image_url,
+      blurHash: product.blur_hash,
+      stock: product.stock,
+    });
+    notifyFormSuccess(t("notifications.addedToCart"));
+  };
 
   return (
     <article
@@ -72,7 +96,7 @@ export function ProductDealCard({
         </div>
       </Link>
 
-      <div className="mt-2 min-w-0 text-start">
+      <div className="mt-2 flex min-h-0 flex-1 flex-col text-start">
         <p className="line-clamp-1 text-xs font-medium">{product.name}</p>
         {excerpt && (
           <p className="mt-0.5 line-clamp-2 text-[10px] leading-snug text-muted">{excerpt}</p>
@@ -87,6 +111,19 @@ export function ProductDealCard({
             </span>
           )}
         </div>
+        {showPrices && (
+          <Button
+            type="button"
+            size="sm"
+            fullWidth
+            disabled={isSkeleton || !inStock}
+            className="mt-auto pt-2"
+            onClick={addToCart}
+          >
+            <AppIcon icon={ShoppingCart} size="xs" className="me-1" />
+            {inStock ? t("product.addToCartSimple") : t("product.outOfStock")}
+          </Button>
+        )}
       </div>
     </article>
   );

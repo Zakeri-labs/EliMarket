@@ -15,6 +15,7 @@ import {
 import { getMessages } from "@/i18n/messages";
 import { getRequestLocale, serverT } from "@/i18n/server";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
+import { childCategories } from "@/lib/categories/tree";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -63,6 +64,7 @@ export default async function CategoryPage({ params }: Props) {
   const backLabel = await serverT("categories.back");
   const locale = await getRequestLocale();
   const categoryName = resolveCategoryName(category, locale);
+  const children = childCategories(categoriesResult.data, category.id);
 
   return (
     <>
@@ -78,6 +80,19 @@ export default async function CategoryPage({ params }: Props) {
           </Link>
           <h1 className="text-start font-bold">{categoryName}</h1>
         </div>
+        {children.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {children.map((child) => (
+              <Link
+                key={child.id}
+                href={`/categories/${child.slug}`}
+                className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs"
+              >
+                {resolveCategoryName(child, locale)}
+              </Link>
+            ))}
+          </div>
+        )}
         <CategoryProductList slug={slug} />
       </main>
     </>

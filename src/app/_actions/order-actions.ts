@@ -1,11 +1,16 @@
 "use server";
 
-import { createClient } from "@/core/supabase/server";
 import { requireAdmin, requireAuth } from "@/core/supabase/auth-helpers";
 import { getStoreSettingsAction } from "@/app/_actions/settings-actions";
+import { createPaymentForOrder } from "@/app/_actions/payment-actions";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
-import type { Order, PaymentMethod } from "@/app/_types/database.types";
+import { DEFAULT_CURRENCY, cartTotals } from "@/config/brand";
+import type {
+  CreateOrderResult,
+  Order,
+  PaymentMethod,
+} from "@/app/_types/database.types";
 
 export async function getOrdersAction() {
   try {
@@ -58,7 +63,10 @@ export async function createOrderAction(payload: {
   addressId: string;
   deliverySlot: string;
   paymentMethod: PaymentMethod;
-}) {
+}): Promise<
+  | { success: true; data: CreateOrderResult }
+  | { success: false; error: string }
+> {
   try {
     const { supabase, user } = await requireAuth();
 
@@ -69,6 +77,24 @@ export async function createOrderAction(payload: {
 
     if (!payload.items.length) throw new Error(await serverT("errors.emptyCart"));
 
+    const { data: address, error: addressError } = await supabase
+      .from("addresses")
+      .select("*")
+      .eq("id", payload.addressId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (addressError) throw addressError;
+    if (!address) throw new Error(await serverT("errors.addressSaveFailed"));
+
+    const { data: inCoverage, error: coverageError } = await supabase.rpc(
+      "address_in_coverage",
+      { p_lat: address.lat, p_lng: address.lng },
+    );
+    if (coverageError) throw coverageError;
+    if (inCoverage === false) {
+      throw new Error(await serverT("errors.outsideCoverage"));
+    }
+
     const productIds = payload.items.map((i) => i.productId);
     const { data: products, error: productsError } = await supabase
       .from("products")
@@ -77,8 +103,8 @@ export async function createOrderAction(payload: {
     if (productsError) throw productsError;
 
     const productMap = new Map((products ?? []).map((p) => [p.id, p]));
-    let total = 0;
-    let currency = "IRR";
+    let subtotal = 0;
+    let currency = DEFAULT_CURRENCY;
 
     for (const item of payload.items) {
       const product = productMap.get(item.productId);
@@ -86,9 +112,13 @@ export async function createOrderAction(payload: {
       if (product.stock < item.quantity) {
         throw new Error(await serverT("errors.insufficientStock"));
       }
-      total += Number(product.price) * item.quantity;
-      currency = product.currency ?? "IRR";
+      subtotal += Number(product.price) * item.quantity;
+      currency = product.currency ?? DEFAULT_CURRENCY;
     }
+
+    const { total } = cartTotals(subtotal);
+    const paymentStatus =
+      payload.paymentMethod === "online" ? "pending" : "unpaid";
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
@@ -98,6 +128,7 @@ export async function createOrderAction(payload: {
         total,
         currency,
         payment_method: payload.paymentMethod,
+        payment_status: paymentStatus,
         delivery_slot: payload.deliverySlot,
         address_id: payload.addressId,
       })
@@ -128,7 +159,16 @@ export async function createOrderAction(payload: {
         .eq("id", item.productId);
     }
 
-    return { success: true as const, data: order as Order };
+    let checkoutUrl: string | null = null;
+    if (payload.paymentMethod === "online") {
+      const payment = await createPaymentForOrder(supabase, order as Order);
+      checkoutUrl = payment.checkoutUrl;
+    }
+
+    return {
+      success: true as const,
+      data: { order: order as Order, checkoutUrl },
+    };
   } catch (err) {
     return {
       success: false as const,

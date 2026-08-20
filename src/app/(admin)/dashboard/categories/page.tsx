@@ -31,6 +31,7 @@ type FormValues = {
   name: string;
   slug: string;
   sort_order: number;
+  parent_id?: string;
   image_url?: string;
   blur_hash?: string;
 };
@@ -39,6 +40,7 @@ const DEFAULT_FORM_VALUES: FormValues = {
   name: "",
   slug: "",
   sort_order: 0,
+  parent_id: "",
   image_url: "",
   blur_hash: "",
 };
@@ -57,6 +59,7 @@ export default function AdminCategoriesPage() {
     name: z.string().min(1, t("admin.categories.validationName")),
     slug: z.string().min(1, t("admin.categories.validationSlug")),
     sort_order: z.number().int().min(0),
+    parent_id: z.string().optional(),
     image_url: z.string().optional(),
     blur_hash: z.string().optional(),
   });
@@ -83,6 +86,7 @@ export default function AdminCategoriesPage() {
       name: editing.name,
       slug: editing.slug,
       sort_order: editing.sort_order,
+      parent_id: editing.parent_id ?? "",
       image_url: editing.image_url ?? "",
       blur_hash: editing.blur_hash ?? "",
     });
@@ -113,6 +117,7 @@ export default function AdminCategoriesPage() {
   const onSubmit = form.handleSubmit((values) => {
     const payload = {
       ...values,
+      parent_id: values.parent_id?.trim() || null,
       image_url: values.image_url?.trim() || null,
       blur_hash: values.image_url?.trim() ? values.blur_hash?.trim() || null : null,
     };
@@ -207,6 +212,11 @@ export default function AdminCategoriesPage() {
                       <span className="line-clamp-2 text-sm font-semibold leading-snug text-[#18181b]">
                         {cat.name}
                       </span>
+                      {cat.parent_id ? (
+                        <span className="text-[10px] text-[#6b8f71]">
+                          {t("admin.categories.childBadge")}
+                        </span>
+                      ) : null}
                       <span className="truncate text-[11px] text-[#71717a]" dir="ltr">
                         {cat.slug}
                       </span>
@@ -286,6 +296,21 @@ export default function AdminCategoriesPage() {
               className={inputClass}
               dir="ltr"
             />
+            <div>
+              <label className="mb-1 block text-xs text-[#71717a]">
+                {t("admin.categories.parentLabel")}
+              </label>
+              <select {...form.register("parent_id")} className={inputClass}>
+                <option value="">{t("admin.categories.noParent")}</option>
+                {(categories ?? [])
+                  .filter((cat) => !cat.parent_id && cat.id !== editing?.id)
+                  .map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
             <div>
               <label className="mb-1 block text-xs text-[#71717a]">
                 {t("admin.categories.sortOrderLabel")}

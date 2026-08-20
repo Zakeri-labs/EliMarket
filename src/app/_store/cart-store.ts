@@ -23,20 +23,27 @@ export const useCartStore = create<CartState>()(
       addItem: (item, quantity = 1) => {
         set((state) => {
           const existing = state.items.find((i) => i.productId === item.productId);
+          const maxStock = item.stock ?? existing?.stock ?? Number.POSITIVE_INFINITY;
           if (existing) {
             return {
               items: state.items.map((i) =>
                 i.productId === item.productId
                   ? {
                       ...i,
-                      quantity: i.quantity + quantity,
+                      quantity: Math.min(i.quantity + quantity, maxStock),
                       blurHash: i.blurHash ?? item.blurHash,
+                      stock: item.stock ?? i.stock,
                     }
                   : i,
               ),
             };
           }
-          return { items: [...state.items, { ...item, quantity }] };
+          return {
+            items: [
+              ...state.items,
+              { ...item, quantity: Math.min(quantity, maxStock) },
+            ],
+          };
         });
       },
       removeItem: (productId) =>
@@ -49,9 +56,11 @@ export const useCartStore = create<CartState>()(
           return;
         }
         set((state) => ({
-          items: state.items.map((i) =>
-            i.productId === productId ? { ...i, quantity } : i,
-          ),
+          items: state.items.map((i) => {
+            if (i.productId !== productId) return i;
+            const maxStock = i.stock ?? Number.POSITIVE_INFINITY;
+            return { ...i, quantity: Math.min(quantity, maxStock) };
+          }),
         }));
       },
       clearCart: () => set({ items: [] }),

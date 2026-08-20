@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/core/supabase/server";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
+import { serverT } from "@/i18n/server";
 import type { Category } from "@/app/_types/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 function revalidateCategoryPaths() {
   revalidatePath("/");
@@ -12,15 +13,37 @@ function revalidateCategoryPaths() {
   revalidatePath("/dashboard/categories");
 }
 
+async function assertValidParent(
+  supabase: SupabaseClient,
+  parentId: string | null | undefined,
+  selfId?: string,
+) {
+  if (!parentId) return;
+  if (selfId && parentId === selfId) {
+    throw new Error(await serverT("errors.categoryParentInvalid"));
+  }
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, parent_id")
+    .eq("id", parentId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data || data.parent_id) {
+    throw new Error(await serverT("errors.categoryParentInvalid"));
+  }
+}
+
 export async function createCategoryAction(input: {
   name: string;
   slug: string;
   sort_order?: number;
+  parent_id?: string | null;
   image_url?: string | null;
   blur_hash?: string | null;
 }) {
   try {
     const { supabase } = await requireAdmin();
+    await assertValidParent(supabase, input.parent_id);
     const imageUrl = input.image_url?.trim() || null;
     const { data, error } = await supabase
       .from("categories")
@@ -29,6 +52,7 @@ export async function createCategoryAction(input: {
         name_fa: input.name.trim(),
         slug: input.slug.trim(),
         sort_order: input.sort_order ?? 0,
+        parent_id: input.parent_id || null,
         image_url: imageUrl,
         blur_hash: imageUrl ? input.blur_hash?.trim() || null : null,
       })
@@ -52,12 +76,16 @@ export async function updateCategoryAction(
     name: string;
     slug: string;
     sort_order: number;
+    parent_id: string | null;
     image_url: string | null;
     blur_hash: string | null;
   }>,
 ) {
   try {
     const { supabase } = await requireAdmin();
+    if (input.parent_id !== undefined) {
+      await assertValidParent(supabase, input.parent_id, id);
+    }
     const payload: Record<string, string | number | null> = {};
     if (input.name !== undefined) {
       payload.name = input.name.trim();
@@ -65,6 +93,9 @@ export async function updateCategoryAction(
     }
     if (input.slug !== undefined) payload.slug = input.slug.trim();
     if (input.sort_order !== undefined) payload.sort_order = input.sort_order;
+    if (input.parent_id !== undefined) {
+      payload.parent_id = input.parent_id || null;
+    }
     if (input.image_url !== undefined) {
       const imageUrl = input.image_url?.trim() || null;
       payload.image_url = imageUrl;

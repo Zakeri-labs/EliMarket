@@ -13,7 +13,7 @@ const ORDER_IDS = [
 
 const STATUSES: OrderStatus[] = ["pending", "confirmed", "preparing", "out_for_delivery"];
 
-const TOTALS = [485_000, 312_000, 756_000, 198_000];
+const TOTALS = [4.85, 3.12, 7.56, 1.98];
 
 /** Typical admin orders page (4 cards). */
 export const MOCK_ADMIN_ORDER_COUNT = ORDER_IDS.length;
@@ -25,9 +25,10 @@ export function mockAdminOrders(locale: Locale): Order[] {
     id,
     user_id: "mock-user-id",
     status: STATUSES[index] ?? "pending",
-    total: TOTALS[index] ?? 250_000,
-    currency: "IRR",
+    total: TOTALS[index] ?? 2.5,
+    currency: "OMR",
     payment_method: "cash" as const,
+    payment_status: "unpaid" as const,
     delivery_slot: "10:00 - 12:00",
     address_id: "mock-address-id",
     rider_id: null,
@@ -39,7 +40,7 @@ export function mockAdminOrders(locale: Locale): Order[] {
         order_id: id,
         product_id: product.id,
         quantity: 2,
-        unit_price: Math.round((TOTALS[index] ?? 250_000) / 2),
+        unit_price: Number(((TOTALS[index] ?? 2.5) / 2).toFixed(3)),
         product,
       },
     ],

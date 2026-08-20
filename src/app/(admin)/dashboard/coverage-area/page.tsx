@@ -7,6 +7,7 @@ import { useFormAction } from "@/app/hooks/use-form-action";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { useTranslations } from "@/i18n/use-translations";
+import { DEFAULT_COVERAGE_POLYGON } from "@/config/geo";
 import "leaflet/dist/leaflet.css";
 
 function MapLoader() {
@@ -24,12 +25,7 @@ export default function CoverageAreaPage() {
   const { t } = useTranslations();
   const [storeName, setStoreName] = useState("");
   const [storeId, setStoreId] = useState<string | undefined>();
-  const [polygon, setPolygon] = useState<[number, number][]>([
-    [35.70, 51.38],
-    [35.70, 51.42],
-    [35.66, 51.42],
-    [35.66, 51.38],
-  ]);
+  const [polygon, setPolygon] = useState<[number, number][]>(DEFAULT_COVERAGE_POLYGON);
 
   useEffect(() => {
     setStoreName(t("admin.coverage.defaultStoreName"));

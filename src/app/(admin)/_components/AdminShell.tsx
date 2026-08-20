@@ -24,6 +24,7 @@ const NAV_KEYS = [
   { href: "/dashboard/banners", key: "admin.nav.banners" },
   { href: "/dashboard/orders", key: "admin.nav.orders" },
   { href: "/dashboard/reports", key: "admin.nav.reports" },
+  { href: "/dashboard/customers", key: "admin.nav.customers" },
   { href: "/dashboard/coverage-area", key: "admin.nav.coverage" },
 ] as const;
 

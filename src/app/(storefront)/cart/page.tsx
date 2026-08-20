@@ -9,9 +9,9 @@ import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import {
-  DELIVERY_FEE,
   FREE_DELIVERY_THRESHOLD,
   VAT_RATE,
+  cartTotals,
 } from "@/config/brand";
 import { cn } from "@/app/utils/cn";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
@@ -61,9 +61,7 @@ function CartPageContent() {
   const itemCount = totalItems();
 
   const subtotal = totalPrice();
-  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
-  const vat = Math.round(subtotal * VAT_RATE);
-  const total = subtotal + deliveryFee + vat;
+  const { deliveryFee, vat, total } = cartTotals(subtotal);
   const remaining = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
   const progress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100);
   const hasFreeDelivery = remaining === 0;

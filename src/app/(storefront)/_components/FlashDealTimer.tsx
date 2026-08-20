@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "@/i18n/use-translations";
 
-const INITIAL_SECONDS = 2 * 3600 + 45 * 60 + 18;
+function secondsUntilEndOfDay() {
+  const now = new Date();
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+  return Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000));
+}
 
 function pad(value: number): string {
   return value.toString().padStart(2, "0");
@@ -18,11 +23,11 @@ function formatRemaining(totalSeconds: number) {
 
 export function FlashDealTimer() {
   const { t } = useTranslations();
-  const [remaining, setRemaining] = useState(INITIAL_SECONDS);
+  const [remaining, setRemaining] = useState(secondsUntilEndOfDay);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setRemaining((current) => (current <= 1 ? INITIAL_SECONDS : current - 1));
+      setRemaining(secondsUntilEndOfDay());
     }, 1000);
     return () => window.clearInterval(timer);
   }, []);
