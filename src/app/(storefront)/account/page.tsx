@@ -7,6 +7,8 @@ import { sendOtpAction, signOutAction, verifyOtpAction } from "@/app/_actions/au
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { useState } from "react";
 import { useTranslations } from "@/i18n/use-translations";
 
@@ -31,6 +33,10 @@ export default function AccountPage() {
           {session.role && (
             <p className="mt-1 text-xs text-accent">{session.role}</p>
           )}
+        </div>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <ThemeToggle className="w-full justify-center sm:w-auto" />
+          <LanguageTabs className="w-full sm:w-auto" />
         </div>
         <div className="mt-4 space-y-2">
           <Link href="/orders" className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-sm">
@@ -67,6 +73,10 @@ export default function AccountPage() {
     <main className="py-4 md:py-6">
       <h1 className="mb-2 text-xl font-bold">{t("account.loginTitle")}</h1>
       <p className="mb-6 text-sm text-muted">{t("account.loginSubtitle")}</p>
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row">
+        <ThemeToggle className="w-full justify-center sm:w-auto" />
+        <LanguageTabs className="w-full sm:w-auto" />
+      </div>
       {otpStep === "phone" ? (
         <form
           className="space-y-3"

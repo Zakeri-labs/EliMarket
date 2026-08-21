@@ -36,7 +36,7 @@ export function Button({
         size === "md" && "rounded-2xl px-4 py-2.5 text-sm",
         size === "lg" && "rounded-2xl px-6 py-3.5 text-base",
         variant === "primary" &&
-          "bg-accent text-black hover:bg-accent-dark hover:text-white shadow-[0_4px_20px_var(--accent-glow)]",
+          "bg-accent text-accent-foreground hover:bg-accent-dark shadow-[0_4px_20px_var(--accent-glow)]",
         variant === "secondary" &&
           "bg-surface-elevated text-foreground border border-border hover:border-accent/40",
         variant === "outline" &&

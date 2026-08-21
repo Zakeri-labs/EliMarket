@@ -38,7 +38,7 @@ export function LanguageTabs({ className, compact = false }: Props) {
               "rounded-lg px-2.5 py-1 text-xs font-medium transition-colors",
               compact && "px-2 py-0.5 text-[10px]",
               active
-                ? "bg-accent text-black"
+                ? "bg-accent text-accent-foreground"
                 : "text-muted hover:text-foreground",
             )}
           >

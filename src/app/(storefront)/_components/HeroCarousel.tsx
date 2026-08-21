@@ -126,7 +126,7 @@ function HeroSlidePanel({
         </p>
         <Link
           href={isSkeleton ? "#" : slide.ctaHref}
-          className="mt-4 inline-flex shrink-0 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-black transition-opacity hover:opacity-90"
+          className="mt-4 inline-flex shrink-0 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90"
           onClick={(e) => {
             if (isSkeleton) e.preventDefault();
           }}

@@ -178,6 +178,8 @@ export type Messages = {
     free: string;
     error: string;
     language: string;
+    themeLight: string;
+    themeDark: string;
     cancel: string;
     delete: string;
     confirmDeleteTitle: string;
@@ -921,6 +923,8 @@ const fa: Messages = {
     free: "رایگان",
     error: "خطا",
     language: "زبان",
+    themeLight: "تم روشن",
+    themeDark: "تم تیره",
     cancel: "انصراف",
     delete: "حذف",
     confirmDeleteTitle: "آیا مطمئن هستید؟",
@@ -1673,6 +1677,8 @@ const ar: Messages = {
     free: "مجاني",
     error: "خطأ",
     language: "اللغة",
+    themeLight: "المظهر الفاتح",
+    themeDark: "المظهر الداكن",
     cancel: "إلغاء",
     delete: "حذف",
     confirmDeleteTitle: "هل أنت متأكد؟",
@@ -2425,6 +2431,8 @@ const en: Messages = {
     free: "Free",
     error: "Error",
     language: "Language",
+    themeLight: "Light theme",
+    themeDark: "Dark theme",
     cancel: "Cancel",
     delete: "Delete",
     confirmDeleteTitle: "Are you sure?",

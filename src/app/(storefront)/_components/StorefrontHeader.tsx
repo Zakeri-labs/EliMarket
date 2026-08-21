@@ -7,6 +7,7 @@ import { useCartStore } from "@/app/_store/cart-store";
 import { cn } from "@/app/utils/cn";
 import { STOREFRONT_CONTAINER } from "@/config/layout";
 import { LanguageTabs } from "@/components/i18n/LanguageTabs";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
 
@@ -46,17 +47,18 @@ export function StorefrontHeader() {
               {messages.brand.nameLocal}
             </p>
           </Link>
+          <ThemeToggle compact />
           <Link
             href="/cart"
             className={cn(
-              "relative flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-black",
+              "relative flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-accent-foreground",
               pathname === "/cart" && "ring-2 ring-accent/40 ring-offset-2 ring-offset-background",
             )}
             aria-label={t("nav.cart")}
           >
             <AppIcon icon={ShoppingCart} size="md" />
             {cartCount > 0 && (
-              <span className="absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-accent">
+              <span className="absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-on-accent px-1 text-[10px] font-bold text-accent">
                 {cartCount}
               </span>
             )}
@@ -92,6 +94,7 @@ export function StorefrontHeader() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <ThemeToggle compact />
             <LanguageTabs compact className="hidden sm:inline-flex" />
             <Link
               href="/search"
@@ -103,14 +106,14 @@ export function StorefrontHeader() {
             <Link
               href="/cart"
               className={cn(
-                "relative flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90",
+                "relative flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90",
                 pathname === "/cart" && "ring-2 ring-accent/40 ring-offset-2 ring-offset-background",
               )}
             >
               <AppIcon icon={ShoppingCart} size="sm" />
               {t("nav.cart")}
               {cartCount > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-accent">
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-on-accent px-1 text-[10px] font-bold text-accent">
                   {cartCount}
                 </span>
               )}

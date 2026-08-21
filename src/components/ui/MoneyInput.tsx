@@ -40,7 +40,7 @@ export function MoneyInput({
       onChange={(event) => {
         const next = formatMoneyInputText(event.target.value);
         setText(next);
-        const parsed = next.trim() ? parseMoneyInputText(next) : undefined;
+        const parsed = next.trim() ? parseMoneyInputText(next) ?? undefined : undefined;
         lastEmitted.current = parsed;
         onValueChange(parsed);
       }}

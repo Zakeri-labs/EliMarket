@@ -110,27 +110,36 @@ function isMissingProductsColumn(error: { message?: string; details?: string; hi
 }
 
 async function loadReportProducts(supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"]) {
-  const selects = [
-    "id, name, stock, price, low_stock_threshold, inventory_unit, is_active",
-    "id, name, stock, price, is_active",
-  ] as const;
-
   type ReportProduct = FinancialReport["lowStockProducts"][number] & { is_active?: boolean };
 
-  for (const columns of selects) {
-    const { data, error } = await supabase.from("products").select(columns).order("stock");
-    if (!error) {
-      return ((data ?? []) as ReportProduct[]).map((product) => ({
-        ...product,
-        low_stock_threshold: product.low_stock_threshold ?? 5,
-        inventory_unit: product.inventory_unit ?? "count",
-        is_active: product.is_active,
-      }));
-    }
-    if (!isMissingProductsColumn(error)) throw error;
-  }
+  const full = await supabase
+    .from("products")
+    .select("id, name, stock, price, low_stock_threshold, inventory_unit, is_active")
+    .order("stock");
 
-  return [] as ReportProduct[];
+  if (!full.error) {
+    return (full.data ?? []).map((product) => ({
+      ...product,
+      low_stock_threshold: product.low_stock_threshold ?? 5,
+      inventory_unit: product.inventory_unit ?? "count",
+      is_active: product.is_active,
+    })) satisfies ReportProduct[];
+  }
+  if (!isMissingProductsColumn(full.error)) throw full.error;
+
+  const fallback = await supabase
+    .from("products")
+    .select("id, name, stock, price, is_active")
+    .order("stock");
+
+  if (fallback.error) throw fallback.error;
+
+  return (fallback.data ?? []).map((product) => ({
+    ...product,
+    low_stock_threshold: 5,
+    inventory_unit: "count" as const,
+    is_active: product.is_active,
+  })) satisfies ReportProduct[];
 }
 
 function topSellersFromOrders(orders: Order[], limit = 8): TopSeller[] {

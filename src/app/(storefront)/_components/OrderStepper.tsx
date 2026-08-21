@@ -33,7 +33,7 @@ export function OrderStepper({ status }: { status: OrderStatus }) {
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
                 done || active
-                  ? "bg-accent text-black"
+                  ? "bg-accent text-accent-foreground"
                   : "bg-surface-elevated text-muted"
               }`}
             >

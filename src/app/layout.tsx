@@ -1,10 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display, Vazirmatn } from "next/font/google";
+import { cookies } from "next/headers";
 import { Notifications } from "@/components/notification/Notifications";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { BRAND_NAME_FA } from "@/config/brand";
 import { publicEnv } from "@/config/env";
+import {
+  DEFAULT_THEME,
+  THEME_COOKIE,
+  isStorefrontTheme,
+} from "@/config/theme";
 import { getDirection } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 import { getRequestLocale } from "@/i18n/server";
@@ -31,8 +38,11 @@ const vazirmatn = Vazirmatn({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0f0f0f",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f5f5" },
+    { media: "(prefers-color-scheme: dark)", color: "#121212" },
+  ],
+  colorScheme: "dark light",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -65,20 +75,31 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getRequestLocale();
+  const themeCookie = (await cookies()).get(THEME_COOKIE)?.value;
+  const theme = isStorefrontTheme(themeCookie) ? themeCookie : DEFAULT_THEME;
 
   return (
     <html
       lang={locale}
       dir={getDirection(locale)}
       suppressHydrationWarning
-      className={`${playfair.variable} ${inter.variable} ${vazirmatn.variable} flex h-full flex-col antialiased`}
+      className={`${playfair.variable} ${inter.variable} ${vazirmatn.variable} theme-${theme} flex h-full flex-col antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=${JSON.stringify(theme)};var raw=localStorage.getItem(${JSON.stringify("elimarket-theme")});if(raw){var p=JSON.parse(raw);if(p&&p.state&&(p.state.theme==="light"||p.state.theme==="dark"))t=p.state.theme;}var r=document.documentElement;r.classList.remove("theme-dark","theme-light");r.classList.add("theme-"+t);r.style.colorScheme=t;}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="flex min-h-0 flex-1 flex-col bg-background text-foreground">
         <QueryProvider>
-          <LocaleProvider>
-            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-            <Notifications />
-          </LocaleProvider>
+          <ThemeProvider>
+            <LocaleProvider>
+              <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+              <Notifications />
+            </LocaleProvider>
+          </ThemeProvider>
         </QueryProvider>
       </body>
     </html>
