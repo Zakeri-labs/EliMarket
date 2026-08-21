@@ -106,7 +106,8 @@ export function AdminShell({
           variant="outline"
           fullWidth
           className="mt-8 shrink-0 border-[#e4e4e7] text-[#71717a]"
-          disabled={isPending}
+          loading={isPending}
+          loadingLabel={t("common.processing")}
           onClick={() =>
             runAction(() => signOutAction(), {
               onSuccess: () => {

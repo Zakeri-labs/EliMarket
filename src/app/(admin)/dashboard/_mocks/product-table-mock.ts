@@ -75,6 +75,8 @@ export function mockAdminTableProducts(): Product[] {
     compare_at_price: null,
     currency: "OMR",
     stock: row.stock,
+    inventory_unit: "count",
+    low_stock_threshold: 5,
     image_url: "/icon.png",
     blur_hash: null,
     is_active: row.is_active,

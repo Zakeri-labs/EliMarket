@@ -102,7 +102,7 @@ export default function AdminBrandsPage() {
       <div className="grid gap-8 lg:grid-cols-5">
         <form
           onSubmit={onSubmit}
-          className="space-y-3 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm lg:col-span-2"
+          className="relative space-y-3 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm lg:col-span-2"
         >
           <h2 className="font-semibold">
             {editing ? t("admin.brands.editBrand") : t("admin.brands.newBrand")}
@@ -136,13 +136,14 @@ export default function AdminBrandsPage() {
             />
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button type="submit" disabled={isActionPending}>
+            <Button type="submit" loading={isActionPending} loadingLabel={t("common.saving")}>
               {editing ? t("admin.brands.save") : t("admin.brands.create")}
             </Button>
             {editing && (
               <Button
                 type="button"
                 variant="secondary"
+                disabled={isActionPending}
                 onClick={() => {
                   setEditing(null);
                   form.reset({ name: "", slug: "", logo_url: "", sort_order: 0 });

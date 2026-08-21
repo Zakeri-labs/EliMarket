@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Minus, Plus, ShoppingCart, Trash2, Truck } from "lucide-react";
 import { useCartStore } from "@/app/_store/cart-store";
 import { CartGate } from "@/app/(storefront)/_components/CartGate";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
@@ -57,6 +59,7 @@ function CartPageContent() {
     useCartStore();
   const { t, dir } = useTranslations();
   const formatPrice = useFormatPrice();
+  const [pendingDelete, setPendingDelete] = useState<"all" | string | null>(null);
   const isSkeleton = isSyncing;
   const itemCount = totalItems();
 
@@ -95,7 +98,7 @@ function CartPageContent() {
             className="shrink-0 text-sm font-medium text-amber-500/90"
             onClick={() => {
               if (isSkeleton) return;
-              clearCart();
+              setPendingDelete("all");
             }}
           >
             {t("cart.clear")}
@@ -166,7 +169,7 @@ function CartPageContent() {
                           className="shrink-0 text-muted hover:text-danger"
                           onClick={() => {
                             if (isSkeleton) return;
-                            removeItem(item.productId);
+                            setPendingDelete(item.productId);
                           }}
                         >
                           <AppIcon icon={Trash2} size="sm" />
@@ -292,7 +295,7 @@ function CartPageContent() {
                     className="text-muted hover:text-danger"
                     onClick={() => {
                       if (isSkeleton) return;
-                      removeItem(item.productId);
+                      setPendingDelete(item.productId);
                     }}
                   >
                     <AppIcon icon={Trash2} size="sm" />
@@ -330,6 +333,20 @@ function CartPageContent() {
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={t("common.confirmDeleteTitle")}
+        description={t("common.confirmDelete")}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+        onConfirm={() => {
+          if (pendingDelete === "all") clearCart();
+          else if (pendingDelete) removeItem(pendingDelete);
+        }}
+      />
     </main>
   );
 }

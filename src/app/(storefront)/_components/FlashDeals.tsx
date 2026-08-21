@@ -33,7 +33,7 @@ export function FlashDeals() {
           </Link>
         </div>
       </div>
-      <div className="no-scrollbar -mx-4 flex justify-start gap-3 overflow-x-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="no-scrollbar -mx-4 flex items-stretch justify-start gap-3 overflow-x-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         {deals.map((product, index) => (
           <ProductDealCard
             key={product.id}

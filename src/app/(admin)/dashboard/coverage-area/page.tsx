@@ -64,7 +64,9 @@ export default function CoverageAreaPage() {
       <div className="mt-4 flex gap-2">
         <Button
           type="button"
-          disabled={isPending || polygon.length < 3}
+          loading={isPending}
+          loadingLabel={t("common.saving")}
+          disabled={polygon.length < 3}
           onClick={() =>
             runAction(
               () =>

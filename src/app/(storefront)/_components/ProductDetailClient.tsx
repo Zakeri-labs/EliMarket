@@ -19,13 +19,14 @@ import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { cn } from "@/app/utils/cn";
 import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
-import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
-import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { STOREFRONT_CONTAINER_BLEED } from "@/config/layout";
 import { notifyFormSuccess } from "@/app/utils/form-notify";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
+import { productCover } from "@/lib/products/gallery";
+import { inventoryUnitMessageKey, productInventoryUnit } from "@/lib/products/inventory";
+import { ProductGallery } from "@/app/(storefront)/_components/ProductGallery";
 
 type Props = {
   product: Product;
@@ -60,6 +61,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
     resolveProductDescription(product, locale) ?? t("product.noDescription");
   const subtitle = resolveProductSubtitle(product, locale);
   const inStock = product.stock > 0;
+  const cover = productCover(product);
+  const unitLabel = t(`product.${inventoryUnitMessageKey(productInventoryUnit(product))}`);
   const addToCartLabel = showPrices
     ? t("product.addToCart", {
         price: formatPrice(lineTotal, product.currency),
@@ -89,8 +92,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         slug: product.slug,
         price: Number(product.price),
         currency: product.currency,
-        imageUrl: product.image_url,
-        blurHash: product.blur_hash,
+        imageUrl: cover?.image_url ?? product.image_url,
+        blurHash: cover?.blur_hash ?? product.blur_hash,
         stock: product.stock,
       },
       qty,
@@ -108,22 +111,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               className="relative aspect-[4/5] max-h-[46vh] min-h-[280px] w-full bg-transparent"
               aria-busy={isSkeleton}
             >
-            {product.image_url ? (
-              <StorefrontImage
-                src={product.image_url}
-                blurHash={product.blur_hash}
-                alt={product.name}
-                fill
-                priority
-                sizes="100vw"
-                withBlur={false}
-                className="bg-transparent object-contain object-center"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <ProductPlaceholder size="2xl" />
-              </div>
-            )}
+            <ProductGallery product={product} isSkeleton={isSkeleton} sizes="100vw" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
 
@@ -158,7 +146,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                       productId: product.id,
                       name: product.name,
                       slug: product.slug,
-                      imageUrl: product.image_url,
+                      imageUrl: cover?.image_url ?? product.image_url,
                     })
                   }
                 >
@@ -167,9 +155,6 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               </div>
             </div>
 
-            <div className="absolute inset-x-0 bottom-4 flex justify-center gap-1.5" aria-hidden>
-              <span className="h-1.5 w-1.5 rounded-full bg-white" />
-            </div>
           </div>
 
           <div className="relative z-10 -mt-5 rounded-t-[1.75rem] bg-background px-4 pb-4 pt-5">
@@ -244,7 +229,9 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             )}
 
             <div className="flex items-center justify-between gap-4 pt-1">
-              <span className="text-sm font-medium">{t("product.quantity")}</span>
+              <span className="text-sm font-medium">
+                {t("product.quantity")} ({unitLabel})
+              </span>
               <div className="inline-flex overflow-hidden rounded-xl border border-border bg-surface-elevated">
                 <button
                   type="button"
@@ -285,7 +272,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             disabled={isSkeleton || !inStock}
             onClick={addToCart}
           >
-            {addToCartLabel}
+            <span>{addToCartLabel}</span>
           </Button>
         </div>
       </div>
@@ -298,21 +285,13 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         )}
         aria-busy={isSkeleton}
       >
-        <div className="target relative aspect-square overflow-hidden rounded-2xl bg-transparent lg:sticky lg:top-24 lg:self-start">
-          {product.image_url ? (
-            <StorefrontImage
-              src={product.image_url}
-              blurHash={product.blur_hash}
-              alt={product.name}
-              fill
-              priority
-              sizes="50vw"
-              withBlur={false}
-              className="bg-transparent object-contain"
-            />
-          ) : (
-            <ProductPlaceholder size="2xl" />
-          )}
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <ProductGallery
+            product={product}
+            isSkeleton={isSkeleton}
+            sizes="50vw"
+            showThumbs
+          />
         </div>
 
         <div className="flex flex-col">
@@ -384,7 +363,9 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
 
           <div className="mt-8 space-y-4 rounded-2xl border border-border bg-surface p-4 lg:mt-auto">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-sm font-medium">{t("product.quantity")}</span>
+              <span className="text-sm font-medium">
+                {t("product.quantity")} ({unitLabel})
+              </span>
               <div className="inline-flex overflow-hidden rounded-xl border border-border bg-surface-elevated">
                 <button
                   type="button"
@@ -420,7 +401,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               disabled={isSkeleton || !inStock}
               onClick={addToCart}
             >
-              {addToCartLabel}
+              <span>{addToCartLabel}</span>
             </Button>
           </div>
         </div>

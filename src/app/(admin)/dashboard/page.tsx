@@ -58,6 +58,30 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminShell title={t("admin.dashboard.title")}>
+      <section className="mb-8 rounded-2xl border border-[#e4e4e7] bg-white p-6 shadow-sm">
+        <span className="inline-flex rounded-full bg-[#6b8f71]/15 px-3 py-1 text-xs font-medium text-[#527559]">
+          {t("admin.dashboard.warehouseBadge")}
+        </span>
+        <h2 className="mt-3 text-xl font-bold text-[#18181b]">
+          {t("admin.dashboard.warehouseTitle")}
+        </h2>
+        <ul className="mt-4 space-y-2 text-sm leading-6 text-[#3f3f46]">
+          {[
+            "warehouseProducts",
+            "warehouseCategories",
+            "warehouseUnits",
+            "warehouseAutoStock",
+            "warehouseAlerts",
+            "warehouseOrders",
+          ].map((key) => (
+            <li key={key} className="flex items-start gap-2">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#6b8f71]" />
+              <span>{t(`admin.dashboard.${key}`)}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <div className="mb-8 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
         <PriceVisibilityToggle />
       </div>

@@ -66,6 +66,19 @@ export default function AdminOrdersPage() {
                   {Number(order.total).toLocaleString(getNumberLocale(locale))}{" "}
                   {order.currency}
                 </p>
+                {(order.customer?.full_name || order.customer?.phone) && (
+                  <p className="text-sm text-zinc-600">
+                    {t("admin.orders.customer")}: {order.customer.full_name || order.customer.phone}
+                    {order.customer.full_name && order.customer.phone ? ` — ${order.customer.phone}` : ""}
+                  </p>
+                )}
+                {order.address?.address_line && (
+                  <p className="text-xs text-zinc-500">{order.address.address_line}</p>
+                )}
+                <p className="text-xs text-zinc-500">
+                  {t("admin.orders.payment")}: {t(`admin.payment.${order.payment_method}`)}
+                  {order.payment_status ? ` · ${order.payment_status}` : ""}
+                </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <select
@@ -97,7 +110,9 @@ export default function AdminOrdersPage() {
                 <Button
                   type="button"
                   variant="secondary"
-                  disabled={isSkeleton || isActionPending || !riderIds[order.id]}
+                  loading={isActionPending}
+                  loadingLabel={t("common.saving")}
+                  disabled={isSkeleton || !riderIds[order.id]}
                   onClick={() => {
                     if (isSkeleton) return;
                     runAction(

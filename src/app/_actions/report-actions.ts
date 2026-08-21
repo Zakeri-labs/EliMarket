@@ -17,7 +17,10 @@ export type FinancialReport = {
   cancelledCount: number;
   cashRevenue: number;
   onlineRevenue: number;
-  lowStockProducts: Pick<Product, "id" | "name" | "stock" | "price">[];
+  lowStockProducts: Pick<
+    Product,
+    "id" | "name" | "stock" | "price" | "low_stock_threshold" | "inventory_unit"
+  >[];
   recentOrders: Order[];
   revenueByDay: PeriodBucket[];
   revenueByWeek: PeriodBucket[];
@@ -77,14 +80,17 @@ export async function getFinancialReportAction() {
       .filter((o) => o.payment_method === "online")
       .reduce((acc, o) => acc + Number(o.total), 0);
 
-    const { data: lowStock, error: stockError } = await supabase
+    const { data: lowStockRows, error: stockError } = await supabase
       .from("products")
-      .select("id, name, stock, price")
-      .lte("stock", 5)
+      .select("id, name, stock, price, low_stock_threshold, inventory_unit")
       .order("stock")
-      .limit(10);
+      .limit(80);
 
     if (stockError) throw stockError;
+
+    const lowStockProducts = ((lowStockRows ?? []) as FinancialReport["lowStockProducts"])
+      .filter((product) => product.stock <= (product.low_stock_threshold ?? 5))
+      .slice(0, 12);
 
     const report: FinancialReport = {
       totalRevenue: sum(delivered),
@@ -97,7 +103,7 @@ export async function getFinancialReportAction() {
       cancelledCount: cancelled.length,
       cashRevenue,
       onlineRevenue,
-      lowStockProducts: (lowStock ?? []) as FinancialReport["lowStockProducts"],
+      lowStockProducts,
       recentOrders: list.slice(0, 10),
       revenueByDay: bucketize(delivered, (d) => d.toISOString().slice(0, 10)).slice(0, 14),
       revenueByWeek: bucketize(delivered, isoWeekKey).slice(0, 12),

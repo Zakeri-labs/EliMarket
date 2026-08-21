@@ -31,13 +31,14 @@ export function ProductGrid() {
   return (
     <section dir={dir}>
       <h2 className="mb-4 text-start text-base font-bold sm:text-lg">{t("home.allProducts")}</h2>
-      <div className="-mx-4 flex flex-wrap justify-start gap-3 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {items.map((product, index) => (
           <ProductDealCard
             key={product.id}
             product={product}
             isSkeleton={isSkeleton}
             priority={index < 4}
+            layout="grid"
           />
         ))}
       </div>

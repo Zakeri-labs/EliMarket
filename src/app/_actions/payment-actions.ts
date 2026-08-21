@@ -11,6 +11,7 @@ import {
   isThawaniConfigured,
   paymentAppUrl,
 } from "@/lib/payments/thawani";
+import { restoreOrderStock } from "@/lib/inventory/stock";
 import type { Order, Payment } from "@/app/_types/database.types";
 
 type DbClient = Awaited<ReturnType<typeof createClient>>;
@@ -101,24 +102,6 @@ export async function createPaymentForOrder(
       })
       .eq("id", payment.id);
     return { payment: payment as Payment, checkoutUrl: sandboxUrl };
-  }
-}
-
-async function restoreOrderStock(
-  supabase: DbClient,
-  order: Order,
-) {
-  for (const item of order.order_items ?? []) {
-    const { data: product } = await supabase
-      .from("products")
-      .select("stock")
-      .eq("id", item.product_id)
-      .maybeSingle();
-    if (!product) continue;
-    await supabase
-      .from("products")
-      .update({ stock: Number(product.stock) + item.quantity })
-      .eq("id", item.product_id);
   }
 }
 

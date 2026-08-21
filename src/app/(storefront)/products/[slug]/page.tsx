@@ -12,6 +12,7 @@ import {
 import { getMessages } from "@/i18n/messages";
 import { getRequestLocale } from "@/i18n/server";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
+import { productGallery } from "@/lib/products/gallery";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -28,9 +29,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = result.data;
   const description = trimDescription(resolveProductDescription(product, locale));
   const path = `/products/${slug}`;
-  const images = product.image_url
-    ? [{ url: product.image_url, alt: product.name }]
-    : undefined;
+  const images = productGallery(product).map((image) => ({
+    url: image.image_url,
+    alt: product.name,
+  }));
 
   return {
     title: product.name,
@@ -44,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: description || undefined,
       url: absoluteUrl(path),
       type: "website",
-      images,
+      images: images.length ? images : undefined,
     },
   };
 }

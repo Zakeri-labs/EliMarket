@@ -246,15 +246,18 @@ export default function AdminBannersPage() {
           }}
           title={editing ? t("admin.banners.editBanner") : t("admin.banners.newBanner")}
           size="lg"
+          busy={isActionPending || isUploadPending}
+          busyLabel={isUploadPending ? t("common.uploading") : t("common.saving")}
           footer={
             <>
-              <Button type="button" variant="secondary" onClick={closeForm}>
+              <Button type="button" variant="secondary" onClick={closeForm} disabled={isActionPending || isUploadPending}>
                 {t("admin.banners.cancel")}
               </Button>
               <Button
                 type="submit"
                 form="admin-banner-form"
-                disabled={isActionPending || isUploadPending}
+                loading={isActionPending || isUploadPending}
+                loadingLabel={isUploadPending ? t("common.uploading") : t("common.saving")}
                 className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
               >
                 {editing ? t("admin.banners.save") : t("admin.banners.create")}

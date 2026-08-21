@@ -23,16 +23,17 @@ function formatRemaining(totalSeconds: number) {
 
 export function FlashDealTimer() {
   const { t } = useTranslations();
-  const [remaining, setRemaining] = useState(secondsUntilEndOfDay);
+  const [remaining, setRemaining] = useState<number | null>(null);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setRemaining(secondsUntilEndOfDay());
-    }, 1000);
+    const tick = () => setRemaining(secondsUntilEndOfDay());
+    tick();
+    const timer = window.setInterval(tick, 1000);
     return () => window.clearInterval(timer);
   }, []);
 
-  const { hours, minutes, seconds } = formatRemaining(remaining);
+  const display = formatRemaining(remaining ?? 0);
+  const { hours, minutes, seconds } = display;
 
   return (
     <div className="flex items-center gap-1.5 text-[11px] text-muted sm:text-xs">

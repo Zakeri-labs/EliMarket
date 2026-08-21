@@ -12,6 +12,7 @@ import { notifyFormError } from "@/app/utils/form-notify";
 import { uploadImageFileToStorage } from "@/lib/storage/upload-image-client";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
 import type { Category } from "@/app/_types/database.types";
@@ -139,7 +140,11 @@ export default function SmartProductPage() {
       });
       return;
     }
-    const primary = draft.images[primaryIndex] ?? draft.images[0];
+    const ordered = [
+      draft.images[primaryIndex],
+      ...draft.images.filter((_, index) => index !== primaryIndex),
+    ].filter(Boolean);
+    const primary = ordered[0];
     runAction(
       () =>
         createProductAction({
@@ -155,6 +160,10 @@ export default function SmartProductPage() {
           blur_hash: primary?.blurHash ?? null,
           is_active: true,
           features: features.filter((item) => item.label.trim() && item.value.trim()),
+          images: ordered.map((image) => ({
+            image_url: image.processedUrl,
+            blur_hash: image.blurHash,
+          })),
         }),
       {
         successMessage: t("notifications.productCreated"),
@@ -271,7 +280,8 @@ export default function SmartProductPage() {
 
           <Button
             className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
-            disabled={isPending}
+            loading={isPending}
+            loadingLabel={t("common.processing")}
             onClick={startPipeline}
           >
             <AppIcon icon={Sparkles} size="sm" className="me-2" />
@@ -282,7 +292,8 @@ export default function SmartProductPage() {
 
       {phase === "processing" && (
         <div className="rounded-2xl border border-[#e4e4e7] bg-white p-8 text-center shadow-sm">
-          <p className="text-sm font-medium text-[#527559]">{t("admin.smartProduct.processing")}</p>
+          <Spinner size="lg" className="mx-auto text-[#6b8f71]" label={t("admin.smartProduct.processing")} />
+          <p className="mt-4 text-sm font-medium text-[#527559]">{t("admin.smartProduct.processing")}</p>
           <p className="mt-2 text-sm text-[#71717a]">{t("admin.smartProduct.processingEnhance")}</p>
           <p className="mt-1 text-sm text-[#71717a]">{t("admin.smartProduct.processingContent")}</p>
         </div>
@@ -411,7 +422,8 @@ export default function SmartProductPage() {
             </Button>
             <Button
               className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
-              disabled={isPending}
+              loading={isPending}
+              loadingLabel={t("common.saving")}
               onClick={publish}
             >
               {t("admin.smartProduct.publish")}

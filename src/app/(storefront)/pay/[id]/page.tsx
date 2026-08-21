@@ -82,7 +82,8 @@ function PayPageContent({ params }: { params: Promise<{ id: string }> }) {
         <Button
           type="button"
           fullWidth
-          disabled={isPending}
+          loading={isPending}
+          loadingLabel={t("common.processing")}
           onClick={() =>
             runAction(() => confirmSandboxPaymentAction(payment.id), {
               successMessage: t("checkout.paymentSuccess"),
@@ -97,7 +98,8 @@ function PayPageContent({ params }: { params: Promise<{ id: string }> }) {
         type="button"
         variant="secondary"
         fullWidth
-        disabled={isPending}
+        loading={isPending}
+        loadingLabel={t("common.processing")}
         onClick={() =>
           runAction(() => cancelPaymentAction(payment.id), {
             onSuccess: () => router.push("/checkout"),

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check, Upload } from "lucide-react";
+import { Check, Sparkles, Star, Upload } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   createProductAction,
@@ -23,24 +23,46 @@ import { useAdminProducts } from "@/app/(admin)/dashboard/_hooks/use-admin-produ
 import { useFormAction } from "@/app/hooks/use-form-action";
 import {
   MAX_IMAGE_UPLOAD_BYTES,
-  useAdminImageUpload,
 } from "@/app/hooks/use-admin-image-upload";
+import { completeImageUploadAction } from "@/app/_actions/image-actions";
+import { flattenCategoryTree, categoryDepth } from "@/lib/categories/tree";
+import { isLowStock, INVENTORY_UNITS } from "@/lib/products/inventory";
 import { notifyFormError } from "@/app/utils/form-notify";
+import { uploadImageFileToStorage } from "@/lib/storage/upload-image-client";
+import type { Brand, Category, InventoryUnit, Product, ProductImageInput } from "@/app/_types/database.types";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { RowIconActions } from "@/components/admin/RowIconActions";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
+import { Spinner } from "@/components/ui/Spinner";
+import { productCover } from "@/lib/products/gallery";
 import { DataTable } from "@/components/table";
 import { formatPrice } from "@/config/brand";
 import { mockAdminTableProducts } from "@/app/(admin)/dashboard/_mocks/product-table-mock";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
-import type { Brand, Category, Product } from "@/app/_types/database.types";
 
 type FeatureDraft = { label: string; value: string };
+type GalleryItem = ProductImageInput;
 
 const EMPTY_FEATURE: FeatureDraft = { label: "", value: "" };
+const MAX_GALLERY_IMAGES = 8;
+
+function galleryFromProduct(product: Product): GalleryItem[] {
+  if (product.images?.length) {
+    return [...product.images]
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((image) => ({
+        image_url: image.image_url,
+        blur_hash: image.blur_hash,
+      }));
+  }
+  if (product.image_url) {
+    return [{ image_url: product.image_url, blur_hash: product.blur_hash }];
+  }
+  return [];
+}
 
 type DescriptionLocale = "fa" | "ar" | "en";
 
@@ -59,6 +81,8 @@ type FormValues = {
   price: number;
   compare_at_price?: number;
   stock: number;
+  inventory_unit: InventoryUnit;
+  low_stock_threshold: number;
   category_id?: string;
   brand_id?: string;
   image_url?: string;
@@ -75,6 +99,8 @@ const DEFAULT_FORM_VALUES: FormValues = {
   price: 0,
   compare_at_price: undefined,
   stock: 0,
+  inventory_unit: "count",
+  low_stock_threshold: 5,
   category_id: "",
   brand_id: "",
   image_url: "",
@@ -85,7 +111,6 @@ const DEFAULT_FORM_VALUES: FormValues = {
 export default function AdminProductsPage() {
   const { data: products, refetch, isPending: isProductsPending } = useAdminProducts();
   const { runAction, isPending: isActionPending } = useFormAction();
-  const { uploadImage, isPending: isUploadPending } = useAdminImageUpload();
   const { t } = useTranslations();
   const formatLocalizedPrice = useFormatPrice();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -95,6 +120,9 @@ export default function AdminProductsPage() {
   const [stockDrafts, setStockDrafts] = useState<Record<string, string>>({});
   const [descriptionTab, setDescriptionTab] = useState<DescriptionLocale>("fa");
   const [features, setFeatures] = useState<FeatureDraft[]>([{ ...EMPTY_FEATURE }]);
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [galleryBusy, setGalleryBusy] = useState(false);
+  const [imageUrlDraft, setImageUrlDraft] = useState("");
 
   const schema = useMemo(
     () =>
@@ -107,6 +135,8 @@ export default function AdminProductsPage() {
         price: z.number().min(0),
         compare_at_price: z.number().min(0).optional(),
         stock: z.number().int().min(0),
+        inventory_unit: z.enum(["count", "weight", "pack"]),
+        low_stock_threshold: z.number().int().min(0),
         category_id: z.string().optional(),
         brand_id: z.string().optional(),
         image_url: z.string().optional(),
@@ -120,8 +150,6 @@ export default function AdminProductsPage() {
     resolver: zodResolver(schema),
     defaultValues: DEFAULT_FORM_VALUES,
   });
-
-  const imageUrl = form.watch("image_url");
 
   useEffect(() => {
     getCategoriesAction().then((r) => {
@@ -143,6 +171,8 @@ export default function AdminProductsPage() {
         price: Number(editing.price),
         compare_at_price: editing.compare_at_price ? Number(editing.compare_at_price) : undefined,
         stock: editing.stock,
+        inventory_unit: editing.inventory_unit ?? "count",
+        low_stock_threshold: editing.low_stock_threshold ?? 5,
         category_id: editing.category_id ?? "",
         brand_id: editing.brand_id ?? "",
         image_url: editing.image_url ?? "",
@@ -157,6 +187,8 @@ export default function AdminProductsPage() {
             }))
           : [{ ...EMPTY_FEATURE }],
       );
+      setGallery(galleryFromProduct(editing));
+      setImageUrlDraft("");
     }
   }, [editing, form]);
 
@@ -165,12 +197,16 @@ export default function AdminProductsPage() {
     setEditing(null);
     form.reset(DEFAULT_FORM_VALUES);
     setFeatures([{ ...EMPTY_FEATURE }]);
+    setGallery([]);
+    setImageUrlDraft("");
   };
 
   const openCreate = () => {
     setEditing(null);
     form.reset(DEFAULT_FORM_VALUES);
     setFeatures([{ ...EMPTY_FEATURE }]);
+    setGallery([]);
+    setImageUrlDraft("");
     setDescriptionTab("fa");
     setFormOpen(true);
   };
@@ -197,9 +233,10 @@ export default function AdminProductsPage() {
       description_fa: values.description_fa?.trim() || null,
       description_ar: values.description_ar?.trim() || null,
       description_en: values.description_en?.trim() || null,
-      image_url: values.image_url || null,
-      blur_hash: values.image_url ? values.blur_hash || null : null,
+      image_url: gallery[0]?.image_url || null,
+      blur_hash: gallery[0]?.blur_hash || null,
       compare_at_price: values.compare_at_price ? values.compare_at_price : null,
+      images: gallery.filter((image) => image.image_url.trim()),
       features: features
         .map((feature) => ({
           label: feature.label.trim(),
@@ -227,6 +264,54 @@ export default function AdminProductsPage() {
     }
   });
 
+  const addGalleryItem = (item: GalleryItem) => {
+    setGallery((current) => {
+      if (current.length >= MAX_GALLERY_IMAGES) return current;
+      if (current.some((image) => image.image_url === item.image_url)) return current;
+      return [...current, item];
+    });
+  };
+
+  const uploadGalleryFiles = async (list: FileList | null) => {
+    if (!list) return;
+    setGalleryBusy(true);
+    let remaining = MAX_GALLERY_IMAGES - gallery.length;
+    try {
+      for (const file of Array.from(list)) {
+        if (remaining <= 0) break;
+        if (!file.type.startsWith("image/")) continue;
+        if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
+          notifyFormError(t("errors.fileTooLarge"), {
+            title: t("notifications.errorTitle"),
+          });
+          continue;
+        }
+        const { url } = await uploadImageFileToStorage(file, "products");
+        const completed = await completeImageUploadAction(url);
+        if (!completed.success || !completed.data?.url) {
+          notifyFormError(completed.error ?? t("errors.imageUploadFailed"), {
+            title: t("notifications.errorTitle"),
+          });
+          continue;
+        }
+        addGalleryItem({
+          image_url: completed.data.url,
+          blur_hash: completed.data.blurHash,
+        });
+        remaining -= 1;
+      }
+    } finally {
+      setGalleryBusy(false);
+    }
+  };
+
+  const addImageFromUrl = () => {
+    const url = imageUrlDraft.trim();
+    if (!url) return;
+    addGalleryItem({ image_url: url, blur_hash: null });
+    setImageUrlDraft("");
+  };
+
   const saveStock = (productId: string) => {
     const value = Number(stockDrafts[productId]);
     if (Number.isNaN(value) || value < 0) return;
@@ -245,12 +330,14 @@ export default function AdminProductsPage() {
         accessorKey: "image_url",
         header: t("admin.products.colImage"),
         enableSorting: false,
-        cell: ({ row }) => (
+        cell: ({ row }) => {
+          const cover = productCover(row.original);
+          return (
           <div className="h-12 w-12 overflow-hidden rounded-lg bg-[#f4f4f5]">
-            {row.original.image_url ? (
+            {cover ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={row.original.image_url}
+                src={cover.image_url}
                 alt=""
                 className="h-full w-full object-cover"
               />
@@ -258,7 +345,8 @@ export default function AdminProductsPage() {
               <ProductPlaceholder size="md" />
             )}
           </div>
-        ),
+          );
+        },
       },
       {
         accessorKey: "name",
@@ -297,10 +385,15 @@ export default function AdminProductsPage() {
             />
             <button
               type="button"
-              className="rounded bg-[#6b8f71]/15 px-2 py-1 text-[#527559]"
+              className="inline-flex min-w-8 items-center justify-center rounded bg-[#6b8f71]/15 px-2 py-1 text-[#527559] disabled:opacity-50"
+              disabled={isActionPending}
               onClick={() => saveStock(row.original.id)}
             >
-              <AppIcon icon={Check} size="xs" />
+              {isActionPending ? (
+                <Spinner size="sm" />
+              ) : (
+                <AppIcon icon={Check} size="xs" />
+              )}
             </button>
           </div>
         ),
@@ -324,6 +417,11 @@ export default function AdminProductsPage() {
             {row.original.stock === 0 && (
               <span className="mt-1 block text-xs text-red-600">
                 {t("admin.products.outOfStock")}
+              </span>
+            )}
+            {isLowStock(row.original) && (
+              <span className="mt-1 block text-xs text-amber-600">
+                {t("admin.products.lowStock")}
               </span>
             )}
           </div>
@@ -393,15 +491,18 @@ export default function AdminProductsPage() {
           }}
           title={editing ? t("admin.products.editProduct") : t("admin.products.newProduct")}
           size="lg"
+          busy={isActionPending || galleryBusy}
+          busyLabel={galleryBusy ? t("common.uploading") : t("common.saving")}
           footer={
             <>
-              <Button type="button" variant="secondary" onClick={closeForm}>
+              <Button type="button" variant="secondary" onClick={closeForm} disabled={isActionPending || galleryBusy}>
                 {t("admin.products.cancel")}
               </Button>
               <Button
                 type="submit"
                 form="admin-product-form"
-                disabled={isActionPending || isUploadPending}
+                loading={isActionPending || galleryBusy}
+                loadingLabel={galleryBusy ? t("common.uploading") : t("common.saving")}
                 className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
               >
                 {editing ? t("admin.products.save") : t("admin.products.create")}
@@ -414,13 +515,6 @@ export default function AdminProductsPage() {
             onSubmit={onSubmit}
             className="space-y-3"
           >
-          {imageUrl && (
-            <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#f4f4f5]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl} alt="" className="aspect-video w-full object-cover" />
-            </div>
-          )}
-
           <input
             {...form.register("name")}
             placeholder={t("admin.products.namePlaceholder")}
@@ -441,7 +535,8 @@ export default function AdminProductsPage() {
                 type="button"
                 variant="secondary"
                 className="text-xs"
-                disabled={isActionPending}
+                loading={isActionPending}
+                loadingLabel={t("common.processing")}
                 onClick={() => {
                   const name = form.getValues("name").trim();
                   if (!name) {
@@ -522,13 +617,42 @@ export default function AdminProductsPage() {
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="mb-1 block text-xs text-[#71717a]">
+                {t("admin.products.stockLabel")}
+              </label>
+              <input
+                {...form.register("stock", { valueAsNumber: true })}
+                type="number"
+                min={0}
+                className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-[#71717a]">
+                {t("admin.products.inventoryUnit")}
+              </label>
+              <select
+                {...form.register("inventory_unit")}
+                className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+              >
+                {INVENTORY_UNITS.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {t(`admin.products.${unit === "count" ? "unitCount" : unit === "weight" ? "unitWeight" : "unitPack"}`)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <div>
             <label className="mb-1 block text-xs text-[#71717a]">
-              {t("admin.products.stockLabel")}
+              {t("admin.products.lowStockThreshold")}
             </label>
             <input
-              {...form.register("stock", { valueAsNumber: true })}
+              {...form.register("low_stock_threshold", { valueAsNumber: true })}
               type="number"
+              min={0}
               className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
             />
           </div>
@@ -538,9 +662,9 @@ export default function AdminProductsPage() {
             className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
           >
             <option value="">{t("admin.products.noCategory")}</option>
-            {categories.map((c) => (
+            {flattenCategoryTree(categories).map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name}
+                {`${"— ".repeat(categoryDepth(categories, c))}${c.name}`}
               </option>
             ))}
           </select>
@@ -620,73 +744,128 @@ export default function AdminProductsPage() {
             </div>
           </div>
 
-          <input type="hidden" {...form.register("blur_hash")} />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-medium text-[#71717a]">
+                {t("admin.products.imagesSection")}
+              </p>
+              <span className="text-[11px] text-[#71717a]">
+                {t("admin.products.maxImages", { count: MAX_GALLERY_IMAGES })}
+              </span>
+            </div>
+            <p className="text-xs leading-5 text-[#71717a]">{t("admin.products.imagesHint")}</p>
+            {gallery.length > 0 && (
+              <ul className="grid grid-cols-3 gap-2">
+                {gallery.map((image, index) => (
+                  <li
+                    key={`${image.image_url}-${index}`}
+                    className={`relative overflow-hidden rounded-xl border ${
+                      index === 0 ? "border-[#6b8f71] ring-2 ring-[#6b8f71]/30" : "border-[#e4e4e7]"
+                    }`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={image.image_url} alt="" className="aspect-square w-full bg-[#f4f4f5] object-contain" />
+                    {index === 0 && (
+                      <span className="absolute start-1 top-1 rounded-md bg-[#6b8f71] px-1.5 py-0.5 text-[10px] font-medium text-white">
+                        {t("admin.products.primaryImage")}
+                      </span>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 flex gap-1 bg-black/55 p-1">
+                      {index !== 0 && (
+                        <button
+                          type="button"
+                          title={t("admin.products.setPrimaryImage")}
+                          className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-[#527559]"
+                          onClick={() =>
+                            setGallery((current) => {
+                              const next = [...current];
+                              const [picked] = next.splice(index, 1);
+                              return [picked, ...next];
+                            })
+                          }
+                        >
+                          <AppIcon icon={Star} size="xs" className="mx-auto" />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        title={t("admin.products.aiImage")}
+                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-[#527559]"
+                        onClick={() =>
+                          runAction(() => editProductImageWithAiAction(image.image_url), {
+                            successMessage: t("admin.products.aiImage"),
+                            onSuccess: (data) => {
+                              if (!data?.url) return;
+                              setGallery((current) =>
+                                current.map((item, itemIndex) =>
+                                  itemIndex === index
+                                    ? {
+                                        image_url: data.url,
+                                        blur_hash: data.blurHash ?? item.blur_hash,
+                                      }
+                                    : item,
+                                ),
+                              );
+                            },
+                          })
+                        }
+                      >
+                        <AppIcon icon={Sparkles} size="xs" className="mx-auto" />
+                      </button>
+                      <button
+                        type="button"
+                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-red-600"
+                        onClick={() =>
+                          setGallery((current) => current.filter((_, itemIndex) => itemIndex !== index))
+                        }
+                      >
+                        {t("admin.products.removeImage")}
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <label className="cursor-pointer">
+                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
+                  <AppIcon icon={Upload} size="sm" />
+                  {t("admin.products.uploadImages")}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  disabled={galleryBusy || gallery.length >= MAX_GALLERY_IMAGES}
+                  onChange={(event) => {
+                    void uploadGalleryFiles(event.target.files);
+                    event.target.value = "";
+                  }}
+                />
+              </label>
+            </div>
+            <div className="flex gap-2">
+              <input
+                value={imageUrlDraft}
+                onChange={(event) => setImageUrlDraft(event.target.value)}
+                placeholder={t("admin.products.imageUrlPlaceholder")}
+                className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+                dir="ltr"
+              />
+              <Button type="button" variant="secondary" onClick={addImageFromUrl}>
+                {t("admin.products.addImageUrl")}
+              </Button>
+            </div>
+          </div>
 
-          <input
-            {...form.register("image_url")}
-            placeholder={t("admin.products.imageUrlPlaceholder")}
-            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
-            dir="ltr"
-          />
+          <input type="hidden" {...form.register("blur_hash")} />
+          <input type="hidden" {...form.register("image_url")} />
 
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" {...form.register("is_active")} />{" "}
             {t("admin.products.showInStore")}
           </label>
-
-          <div className="flex flex-wrap gap-2">
-            <label className="cursor-pointer">
-              <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
-                <AppIcon icon={Upload} size="sm" />
-                {t("admin.products.uploadImage")}
-              </span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
-                    notifyFormError(t("errors.fileTooLarge"), {
-                      title: t("notifications.errorTitle"),
-                    });
-                    e.target.value = "";
-                    return;
-                  }
-                  uploadImage(file, "products", {
-                    successMessage: t("notifications.imageUploaded"),
-                    onSuccess: (data) => {
-                      if (data?.url) form.setValue("image_url", data.url);
-                      if (data?.blurHash) {
-                        form.setValue("blur_hash", data.blurHash);
-                      }
-                    },
-                  });
-                  e.target.value = "";
-                }}
-              />
-            </label>
-            {imageUrl && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  runAction(() => editProductImageWithAiAction(imageUrl), {
-                    successMessage: "AI",
-                    onSuccess: (data) => {
-                      if (data?.url) form.setValue("image_url", data.url);
-                      if ("blurHash" in (data ?? {}) && data?.blurHash) {
-                        form.setValue("blur_hash", data.blurHash);
-                      }
-                    },
-                  });
-                }}
-              >
-                {t("admin.products.aiImage")}
-              </Button>
-            )}
-          </div>
           </form>
         </Modal>
 

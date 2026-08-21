@@ -8,6 +8,8 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
+export type InventoryUnit = "count" | "weight" | "pack";
+
 export type PaymentMethod = "cash" | "online";
 
 export type PaymentStatus = "unpaid" | "pending" | "paid" | "failed" | "refunded";
@@ -64,6 +66,21 @@ export type ProductFeatureInput = {
   value: string;
 };
 
+export type ProductImage = {
+  id: string;
+  product_id: string;
+  image_url: string;
+  blur_hash: string | null;
+  sort_order: number;
+  is_primary: boolean;
+  created_at: string;
+};
+
+export type ProductImageInput = {
+  image_url: string;
+  blur_hash?: string | null;
+};
+
 export type Product = {
   id: string;
   category_id: string | null;
@@ -78,6 +95,8 @@ export type Product = {
   compare_at_price: number | null;
   currency: string;
   stock: number;
+  inventory_unit: InventoryUnit;
+  low_stock_threshold: number;
   image_url: string | null;
   blur_hash: string | null;
   is_active: boolean;
@@ -85,6 +104,7 @@ export type Product = {
   category?: Category | null;
   brand?: Brand | null;
   features?: ProductFeature[];
+  images?: ProductImage[];
 };
 
 export type Store = {
@@ -144,9 +164,11 @@ export type Order = {
   address_id: string | null;
   rider_id: string | null;
   store_id: string | null;
+  stock_restored?: boolean;
   created_at: string;
   order_items?: OrderItem[];
   address?: Address | null;
+  customer?: Pick<Profile, "id" | "full_name" | "phone"> | null;
 };
 
 export type Payment = {

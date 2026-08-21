@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useTransition } from "react";
+import { useCallback, useRef, useState } from "react";
 import { extractActionErrorMessage } from "@/app/_actions/extract-action-error";
 import { notifyFormError, notifyFormSuccess } from "@/app/utils/form-notify";
 import { useTranslations } from "@/i18n/use-translations";
@@ -19,9 +19,12 @@ type RunActionOptions<T> = {
   onSettled?: () => void;
 };
 
-/** Shared form pattern: startTransition + loading + notification */
+const MIN_PENDING_MS = 500;
+
+/** Shared form pattern: loading stays true until the DB action finishes. */
 export function useFormAction() {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
+  const pendingLock = useRef(false);
   const { t } = useTranslations();
 
   const notifyError = useCallback((message: unknown) => {
@@ -45,14 +48,15 @@ export function useFormAction() {
       action: () => Promise<ActionResult<T>>,
       options?: RunActionOptions<T>,
     ) => {
-      startTransition(async () => {
+      if (pendingLock.current) return;
+      pendingLock.current = true;
+      setIsPending(true);
+      const startedAt = Date.now();
+      void (async () => {
         try {
           const result = await action();
           if (result.success) {
             if (options?.successMessage) notifySuccess(options.successMessage);
-            await new Promise<void>((resolve) => {
-              requestAnimationFrame(() => resolve());
-            });
             options?.onSuccess?.(result.data);
           } else {
             const msg = extractActionErrorMessage(
@@ -68,16 +72,21 @@ export function useFormAction() {
           notifyError(msg);
           options?.onError?.(msg);
         } finally {
+          const wait = MIN_PENDING_MS - (Date.now() - startedAt);
+          if (wait > 0) {
+            await new Promise((resolve) => setTimeout(resolve, wait));
+          }
+          pendingLock.current = false;
+          setIsPending(false);
           options?.onSettled?.();
         }
-      });
+      })();
     },
     [notifyError, notifySuccess, t],
   );
 
   return {
     isPending,
-    startTransition,
     runAction,
     notifyError,
     notifySuccess,

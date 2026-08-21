@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import type { Product } from "@/app/_types/database.types";
@@ -13,6 +14,7 @@ import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { Button } from "@/components/ui/Button";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
+import { productCover } from "@/lib/products/gallery";
 import {
   productCompareAtPrice,
   productDiscountPercent,
@@ -23,6 +25,7 @@ type Props = {
   isSkeleton?: boolean;
   priority?: boolean;
   className?: string;
+  layout?: "rail" | "grid";
 };
 
 export function ProductDealCard({
@@ -30,15 +33,23 @@ export function ProductDealCard({
   isSkeleton = false,
   priority = false,
   className,
+  layout = "rail",
 }: Props) {
   const formatPrice = useFormatPrice();
   const { locale, dir, t } = useTranslations();
   const addItem = useCartStore((s) => s.addItem);
   const { showPrices } = useStoreSettings();
+  const [mounted, setMounted] = useState(false);
   const discount = productDiscountPercent(product);
   const compareAt = productCompareAtPrice(product);
   const excerpt = resolveProductCardExcerpt(product, locale);
+  const cover = productCover(product);
   const inStock = product.stock > 0;
+  const hideAddButton = mounted && !showPrices;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const addToCart = () => {
     if (isSkeleton || !inStock || !showPrices) return;
@@ -48,8 +59,8 @@ export function ProductDealCard({
       slug: product.slug,
       price: Number(product.price),
       currency: product.currency,
-      imageUrl: product.image_url,
-      blurHash: product.blur_hash,
+        imageUrl: cover?.image_url ?? product.image_url,
+        blurHash: cover?.blur_hash ?? product.blur_hash,
       stock: product.stock,
     });
     notifyFormSuccess(t("notifications.addedToCart"));
@@ -59,7 +70,8 @@ export function ProductDealCard({
     <article
       dir={dir}
       className={cn(
-        "flex w-36 shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-2.5 sm:w-40",
+        "flex h-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-2.5",
+        layout === "rail" ? "w-36 sm:w-40" : "w-full",
         isSkeleton && "skeleton",
         className,
       )}
@@ -67,7 +79,7 @@ export function ProductDealCard({
     >
       <Link
         href={isSkeleton ? "#" : `/products/${product.slug}`}
-        className="relative block"
+        className="relative block shrink-0"
         onClick={(e) => {
           if (isSkeleton) e.preventDefault();
         }}
@@ -77,18 +89,17 @@ export function ProductDealCard({
             −{discount}%
           </span>
         )}
-        <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-xl bg-transparent sm:h-36">
-          {product.image_url ? (
+        <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-transparent">
+          {cover ? (
             <StorefrontImage
-              src={product.image_url}
-              blurHash={product.blur_hash}
+              src={cover.image_url}
+              blurHash={cover.blur_hash}
               alt={product.name}
-              width={128}
-              height={128}
+              fill
               priority={priority}
-              sizes="160px"
+              sizes={layout === "grid" ? "(max-width: 640px) 50vw, 200px" : "160px"}
               withBlur={false}
-              className="max-h-full max-w-full bg-transparent object-contain"
+              className="bg-transparent object-contain"
             />
           ) : (
             <ProductPlaceholder size="lg" />
@@ -97,11 +108,15 @@ export function ProductDealCard({
       </Link>
 
       <div className="mt-2 flex min-h-0 flex-1 flex-col text-start">
-        <p className="line-clamp-1 text-xs font-medium">{product.name}</p>
-        {excerpt && (
-          <p className="mt-0.5 line-clamp-2 text-[10px] leading-snug text-muted">{excerpt}</p>
+        <p className="line-clamp-2 min-h-8 text-xs font-medium leading-4">{product.name}</p>
+        {excerpt ? (
+          <p className="mt-0.5 line-clamp-2 min-h-7 text-[10px] leading-snug text-muted">
+            {excerpt}
+          </p>
+        ) : (
+          <p className="mt-0.5 min-h-7" aria-hidden />
         )}
-        <div className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+        <div className="mt-1.5 flex min-h-8 flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
           <span className="text-sm font-bold">
             {formatPrice(Number(product.price), product.currency)}
           </span>
@@ -111,19 +126,21 @@ export function ProductDealCard({
             </span>
           )}
         </div>
-        {showPrices && (
+        <div className="mt-auto pt-2">
           <Button
             type="button"
             size="sm"
             fullWidth
-            disabled={isSkeleton || !inStock}
-            className="mt-auto pt-2"
+            disabled={isSkeleton || !inStock || hideAddButton}
+            className={cn("target", hideAddButton && "invisible")}
             onClick={addToCart}
           >
             <AppIcon icon={ShoppingCart} size="xs" className="me-1" />
-            {inStock ? t("product.addToCartSimple") : t("product.outOfStock")}
+            <span>
+              {inStock ? t("product.addToCartSimple") : t("product.outOfStock")}
+            </span>
           </Button>
-        )}
+        </div>
       </div>
     </article>
   );

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { useTranslations } from "@/i18n/use-translations";
+import { Spinner } from "@/components/ui/Spinner";
 
 type ModalSize = "sm" | "md" | "lg" | "xl" | "full";
 
@@ -15,6 +16,8 @@ type ModalProps = {
   children: ReactNode;
   size?: ModalSize;
   footer?: ReactNode;
+  busy?: boolean;
+  busyLabel?: string;
 };
 
 const SIZE_WIDTH: Record<ModalSize, string> = {
@@ -34,11 +37,19 @@ export function Modal({
   children,
   size = "md",
   footer,
+  busy = false,
+  busyLabel,
 }: ModalProps) {
   const { t } = useTranslations();
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={(next) => {
+        if (busy && !next) return;
+        onOpenChange(next);
+      }}
+    >
       <Dialog.Portal>
         <Dialog.Overlay
           className="fixed inset-0"
@@ -65,10 +76,15 @@ export function Modal({
         >
           <div className="flex shrink-0 items-start justify-between gap-2 border-b border-[#6b8f71]/30 bg-[#6b8f71] px-4 py-3 text-white">
             <div className="min-w-0 flex-1 pe-1">
-              <Dialog.Title className="text-lg font-semibold tracking-tight sm:text-xl">
+              <Dialog.Title className="flex items-center gap-2 text-lg font-semibold tracking-tight sm:text-xl">
+                {busy ? <Spinner size="sm" className="text-white" label={busyLabel} /> : null}
                 {title}
               </Dialog.Title>
-              {description ? (
+              {busy && busyLabel ? (
+                <Dialog.Description className="mt-1 text-sm text-white/90">
+                  {busyLabel}
+                </Dialog.Description>
+              ) : description ? (
                 <Dialog.Description className="mt-1 text-sm text-white/90">
                   {description}
                 </Dialog.Description>
@@ -79,7 +95,8 @@ export function Modal({
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-white/15"
+                disabled={busy}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-white/15 disabled:opacity-40"
                 aria-label={t("table.close")}
               >
                 <X className="h-5 w-5" />
@@ -88,14 +105,14 @@ export function Modal({
           </div>
 
           <div
-            className="app-modal-scroll min-h-0 overflow-y-auto overscroll-contain px-4 py-3"
+            className="app-modal-scroll relative min-h-0 overflow-y-auto overscroll-contain px-4 py-3"
             style={{ scrollbarWidth: "thin", scrollbarColor: "#6b8f71 #f4f4f5" }}
           >
             {children}
           </div>
 
           {footer ? (
-            <div className="flex shrink-0 flex-col gap-2 border-t border-[#6b8f71]/25 bg-[#fafafa] px-4 py-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-3 [&_button]:w-full sm:[&_button]:w-auto sm:[&_button]:min-w-32">
+            <div className="relative flex shrink-0 flex-col gap-2 border-t border-[#6b8f71]/25 bg-[#fafafa] px-4 py-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-3 [&_button]:w-full sm:[&_button]:w-auto sm:[&_button]:min-w-32">
               {footer}
             </div>
           ) : null}

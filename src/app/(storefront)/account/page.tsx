@@ -49,7 +49,8 @@ export default function AccountPage() {
           variant="outline"
           fullWidth
           className="mt-6"
-          disabled={isPending}
+          loading={isPending}
+          loadingLabel={t("common.processing")}
           onClick={() =>
             runAction(() => signOutAction(), {
               onSuccess: () => clearSession(),
@@ -84,7 +85,7 @@ export default function AccountPage() {
             onChange={(e) => setPhone(e.target.value)}
             dir="ltr"
           />
-          <Button type="submit" fullWidth disabled={isPending}>{t("account.getCode")}</Button>
+          <Button type="submit" fullWidth loading={isPending} loadingLabel={t("common.processing")}>{t("account.getCode")}</Button>
         </form>
       ) : (
         <form
@@ -107,7 +108,7 @@ export default function AccountPage() {
             onChange={(e) => setOtp(e.target.value)}
             dir="ltr"
           />
-          <Button type="submit" fullWidth disabled={isPending}>{t("account.confirm")}</Button>
+          <Button type="submit" fullWidth loading={isPending} loadingLabel={t("common.processing")}>{t("account.confirm")}</Button>
         </form>
       )}
     </main>

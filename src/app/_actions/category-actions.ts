@@ -22,14 +22,25 @@ async function assertValidParent(
   if (selfId && parentId === selfId) {
     throw new Error(await serverT("errors.categoryParentInvalid"));
   }
-  const { data, error } = await supabase
-    .from("categories")
-    .select("id, parent_id")
-    .eq("id", parentId)
-    .maybeSingle();
+  const { data, error } = await supabase.from("categories").select("id, parent_id");
   if (error) throw error;
-  if (!data || data.parent_id) {
+  const rows = (data ?? []) as { id: string; parent_id: string | null }[];
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  if (!byId.has(parentId)) {
     throw new Error(await serverT("errors.categoryParentInvalid"));
+  }
+
+  let current: string | null = parentId;
+  const seen = new Set<string>();
+  while (current) {
+    if (selfId && current === selfId) {
+      throw new Error(await serverT("errors.categoryParentInvalid"));
+    }
+    if (seen.has(current)) {
+      throw new Error(await serverT("errors.categoryParentInvalid"));
+    }
+    seen.add(current);
+    current = byId.get(current)?.parent_id ?? null;
   }
 }
 
@@ -45,6 +56,7 @@ export async function createCategoryAction(input: {
     const { supabase } = await requireAdmin();
     await assertValidParent(supabase, input.parent_id);
     const imageUrl = input.image_url?.trim() || null;
+    const parentId = input.parent_id?.trim() || null;
     const { data, error } = await supabase
       .from("categories")
       .insert({
@@ -52,9 +64,9 @@ export async function createCategoryAction(input: {
         name_fa: input.name.trim(),
         slug: input.slug.trim(),
         sort_order: input.sort_order ?? 0,
-        parent_id: input.parent_id || null,
         image_url: imageUrl,
         blur_hash: imageUrl ? input.blur_hash?.trim() || null : null,
+        ...(parentId ? { parent_id: parentId } : {}),
       })
       .select("*")
       .single();

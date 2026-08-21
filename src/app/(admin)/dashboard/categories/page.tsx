@@ -25,6 +25,7 @@ import {
 import { notifyFormError } from "@/app/utils/form-notify";
 import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
+import { flattenCategoryTree, categoryDepth, validCategoryParents } from "@/lib/categories/tree";
 import type { Category } from "@/app/_types/database.types";
 
 type FormValues = {
@@ -178,8 +179,8 @@ export default function AdminCategoriesPage() {
           </ul>
         ) : categories?.length ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-            {categories.map((cat) => (
-              <li key={cat.id}>
+            {flattenCategoryTree(categories).map((cat) => (
+              <li key={cat.id} style={{ paddingInlineStart: `${Math.min(categoryDepth(categories, cat), 4) * 8}px` }}>
                 <article
                   className={cn(
                     "group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all",
@@ -215,6 +216,9 @@ export default function AdminCategoriesPage() {
                       {cat.parent_id ? (
                         <span className="text-[10px] text-[#6b8f71]">
                           {t("admin.categories.childBadge")}
+                          {categories.find((item) => item.id === cat.parent_id)
+                            ? ` · ${categories.find((item) => item.id === cat.parent_id)?.name}`
+                            : ""}
                         </span>
                       ) : null}
                       <span className="truncate text-[11px] text-[#71717a]" dir="ltr">
@@ -259,15 +263,18 @@ export default function AdminCategoriesPage() {
           }}
           title={editing ? t("admin.categories.editCategory") : t("admin.categories.newCategory")}
           size="md"
+          busy={isActionPending || isUploadPending}
+          busyLabel={isUploadPending ? t("common.uploading") : t("common.saving")}
           footer={
             <>
-              <Button type="button" variant="secondary" onClick={closeForm}>
+              <Button type="button" variant="secondary" onClick={closeForm} disabled={isActionPending || isUploadPending}>
                 {t("admin.categories.cancel")}
               </Button>
               <Button
                 type="submit"
                 form="admin-category-form"
-                disabled={isActionPending || isUploadPending}
+                loading={isActionPending || isUploadPending}
+                loadingLabel={isUploadPending ? t("common.uploading") : t("common.saving")}
                 className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
               >
                 {editing ? t("admin.categories.save") : t("admin.categories.create")}
@@ -300,13 +307,12 @@ export default function AdminCategoriesPage() {
               <label className="mb-1 block text-xs text-[#71717a]">
                 {t("admin.categories.parentLabel")}
               </label>
+              <p className="mb-1 text-[11px] text-[#71717a]">{t("admin.categories.nestedHint")}</p>
               <select {...form.register("parent_id")} className={inputClass}>
                 <option value="">{t("admin.categories.noParent")}</option>
-                {(categories ?? [])
-                  .filter((cat) => !cat.parent_id && cat.id !== editing?.id)
-                  .map((cat) => (
+                {validCategoryParents(categories ?? [], editing?.id).map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.name}
+                      {`${"— ".repeat(categoryDepth(categories ?? [], cat))}${cat.name}`}
                     </option>
                   ))}
               </select>

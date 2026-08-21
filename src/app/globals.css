@@ -166,8 +166,19 @@ html.admin-lock-scroll body {
   background: #527559;
 }
 
+@keyframes app-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.app-spinner {
+  animation: app-spin 0.65s linear infinite !important;
+  pointer-events: none;
+}
+
 @layer base {
-  .skeleton *:not(:has(*)):not(.target),
+  .skeleton *:not(:has(*)):not(.target):not(.app-spinner),
   .skeleton .target {
     @apply !bg-gray-200 !text-gray-200 rounded-md !animate-pulse;
   }

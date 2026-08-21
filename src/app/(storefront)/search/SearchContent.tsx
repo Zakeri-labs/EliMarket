@@ -128,9 +128,9 @@ export function SearchContent() {
           {t("search.onSale")}
         </label>
       </div>
-      <div className="-mx-4 flex flex-wrap justify-start gap-3 px-4 sm:-mx-6 sm:px-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {filtered.map((p, index) => (
-          <ProductDealCard key={p.id} product={p} priority={index < 4} />
+          <ProductDealCard key={p.id} product={p} priority={index < 4} layout="grid" />
         ))}
       </div>
       {q && filtered.length === 0 && (

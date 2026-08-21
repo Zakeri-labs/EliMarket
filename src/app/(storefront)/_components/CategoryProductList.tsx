@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCategoriesAction, getProductsAction } from "@/app/_actions/product-actions";
-import { ProductCard } from "@/app/(storefront)/_components/ProductCard";
+import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
 import { mockProducts } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import { categoryAndDescendantSlugs } from "@/lib/categories/tree";
@@ -42,9 +42,15 @@ export function CategoryProductList({ slug }: Props) {
   );
 
   return (
-    <div className="space-y-2">
-      {items.map((product) => (
-        <ProductCard key={product.id} product={product} compact isSkeleton={isSkeleton} />
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {items.map((product, index) => (
+        <ProductDealCard
+          key={product.id}
+          product={product}
+          isSkeleton={isSkeleton}
+          layout="grid"
+          priority={index < 4}
+        />
       ))}
     </div>
   );

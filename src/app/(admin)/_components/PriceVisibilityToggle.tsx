@@ -44,7 +44,9 @@ export function PriceVisibilityToggle({ className, compact }: Props) {
         type="button"
         variant={showPrices ? "secondary" : "primary"}
         size={compact ? "sm" : "md"}
-        disabled={isLoading || isPending}
+        disabled={isLoading}
+        loading={isPending}
+        loadingLabel={t("common.saving")}
         onClick={toggle}
         className={cn(
           !showPrices && "bg-[#527559] text-white hover:opacity-90",

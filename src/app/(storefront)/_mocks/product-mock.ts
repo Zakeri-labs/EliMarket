@@ -181,6 +181,8 @@ function buildMockProduct(
     compare_at_price: item.compare_at_price,
     currency: "OMR",
     stock: 24,
+    inventory_unit: item.slug.includes("kg") ? "weight" : item.slug.includes("pack") ? "pack" : "count",
+    low_stock_threshold: 5,
     image_url: item.image_url,
     blur_hash: null,
     is_active: true,

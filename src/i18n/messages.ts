@@ -55,6 +55,9 @@ export type Messages = {
     fallbackName: string;
     vatIncluded: string;
     quantity: string;
+    unitCount: string;
+    unitWeight: string;
+    unitPack: string;
     share: string;
     wishlist: string;
   };
@@ -165,10 +168,17 @@ export type Messages = {
   };
   common: {
     loading: string;
+    saving: string;
+    processing: string;
+    uploading: string;
     back: string;
     free: string;
     error: string;
     language: string;
+    cancel: string;
+    delete: string;
+    confirmDeleteTitle: string;
+    confirmDelete: string;
   };
   notifications: {
     successTitle: string;
@@ -322,6 +332,14 @@ export type Messages = {
       bannersDesc: string;
       smartProductCard: string;
       smartProductDesc: string;
+      warehouseBadge: string;
+      warehouseTitle: string;
+      warehouseProducts: string;
+      warehouseCategories: string;
+      warehouseUnits: string;
+      warehouseAutoStock: string;
+      warehouseAlerts: string;
+      warehouseOrders: string;
     };
     products: {
       title: string;
@@ -340,6 +358,12 @@ export type Messages = {
       priceLabel: string;
       compareAtPriceLabel: string;
       stockLabel: string;
+      inventoryUnit: string;
+      unitCount: string;
+      unitWeight: string;
+      unitPack: string;
+      lowStockThreshold: string;
+      lowStock: string;
       noCategory: string;
       brandLabel: string;
       noBrand: string;
@@ -349,6 +373,14 @@ export type Messages = {
       addFeature: string;
       removeFeature: string;
       imageUrlPlaceholder: string;
+      imagesSection: string;
+      imagesHint: string;
+      uploadImages: string;
+      addImageUrl: string;
+      setPrimaryImage: string;
+      primaryImage: string;
+      removeImage: string;
+      maxImages: string;
       showInStore: string;
       save: string;
       create: string;
@@ -449,6 +481,7 @@ export type Messages = {
       parentLabel: string;
       noParent: string;
       childBadge: string;
+      nestedHint: string;
     };
     banners: {
       title: string;
@@ -484,6 +517,8 @@ export type Messages = {
       orderPrefix: string;
       riderPlaceholder: string;
       assignRider: string;
+      customer: string;
+      payment: string;
       status: Record<string, string>;
     };
     reports: {
@@ -645,6 +680,9 @@ const fa: Messages = {
     fallbackName: "محصول",
     vatIncluded: "شامل مالیات",
     quantity: "تعداد",
+    unitCount: "عدد",
+    unitWeight: "کیلو",
+    unitPack: "بسته",
     share: "اشتراک‌گذاری",
     wishlist: "علاقه‌مندی",
   },
@@ -788,10 +826,17 @@ const fa: Messages = {
   },
   common: {
     loading: "بارگذاری…",
+    saving: "در حال ذخیره…",
+    processing: "در حال انجام…",
+    uploading: "در حال آپلود…",
     back: "بازگشت",
     free: "رایگان",
     error: "خطا",
     language: "زبان",
+    cancel: "انصراف",
+    delete: "حذف",
+    confirmDeleteTitle: "آیا مطمئن هستید؟",
+    confirmDelete: "این مورد حذف می‌شود و قابل بازگشت نیست.",
   },
   notifications: {
     successTitle: "موفق",
@@ -945,6 +990,14 @@ const fa: Messages = {
       bannersDesc: "چند بنر برای اسلایدر فروشگاه",
       smartProductCard: "ثبت هوشمند محصول",
       smartProductDesc: "از عکس خام تا محتوای آماده فروش با AI",
+      warehouseBadge: "پنل مدیریت و انبار",
+      warehouseTitle: "کنترل روزانه فروشگاه",
+      warehouseProducts: "مدیریت محصول، قیمت، تصاویر و وضعیت فعال/غیرفعال",
+      warehouseCategories: "مدیریت دسته‌بندی‌های درختی و نامحدود",
+      warehouseUnits: "ثبت موجودی عددی، وزنی و بسته‌ای",
+      warehouseAutoStock: "کسر خودکار موجودی پس از سفارش",
+      warehouseAlerts: "جلوگیری از فروش کالای ناموجود و هشدار کمبود موجودی",
+      warehouseOrders: "مدیریت سفارش‌ها، مشتریان و وضعیت سفارش",
     },
     products: {
       title: "مدیریت محصولات",
@@ -963,6 +1016,12 @@ const fa: Messages = {
       priceLabel: "قیمت (ریال عمان)",
       compareAtPriceLabel: "قیمت قبل از تخفیف (ریال عمان)",
       stockLabel: "موجودی",
+      inventoryUnit: "نوع موجودی",
+      unitCount: "عددی",
+      unitWeight: "وزنی (کیلو)",
+      unitPack: "بسته‌ای",
+      lowStockThreshold: "آستانه هشدار کمبود",
+      lowStock: "کمبود موجودی",
       noCategory: "بدون دسته",
       brandLabel: "برند",
       noBrand: "بدون برند",
@@ -972,6 +1031,14 @@ const fa: Messages = {
       addFeature: "افزودن ویژگی",
       removeFeature: "حذف",
       imageUrlPlaceholder: "URL تصویر (یا آپلود کنید)",
+      imagesSection: "تصاویر محصول",
+      imagesHint: "چند زاویه از محصول آپلود کنید. تصویر اول، تصویر اصلی کارت و صفحه محصول است.",
+      uploadImages: "آپلود چند تصویر",
+      addImageUrl: "افزودن لینک",
+      setPrimaryImage: "تصویر اصلی",
+      primaryImage: "اصلی",
+      removeImage: "حذف",
+      maxImages: "تا {count} تصویر",
       showInStore: "نمایش در فروشگاه",
       save: "ذخیره",
       create: "ایجاد محصول",
@@ -1072,6 +1139,7 @@ const fa: Messages = {
       parentLabel: "دسته والد",
       noParent: "بدون والد (دسته اصلی)",
       childBadge: "زیردسته",
+      nestedHint: "هر دسته می‌تواند زیرمجموعه نامحدود داشته باشد.",
     },
     banners: {
       title: "بنر صفحه اصلی",
@@ -1107,6 +1175,8 @@ const fa: Messages = {
       orderPrefix: "سفارش",
       riderPlaceholder: "UUID پیک",
       assignRider: "تخصیص پیک",
+      customer: "مشتری",
+      payment: "پرداخت",
       status: {
         pending: "در انتظار",
         confirmed: "تأیید",
@@ -1277,6 +1347,9 @@ const ar: Messages = {
     fallbackName: "منتج",
     vatIncluded: "شامل ضريبة القيمة المضافة",
     quantity: "الكمية",
+    unitCount: "قطعة",
+    unitWeight: "كيلو",
+    unitPack: "علبة",
     share: "مشاركة",
     wishlist: "المفضلة",
   },
@@ -1420,10 +1493,17 @@ const ar: Messages = {
   },
   common: {
     loading: "جاري التحميل…",
+    saving: "جاري الحفظ…",
+    processing: "جاري التنفيذ…",
+    uploading: "جاري الرفع…",
     back: "رجوع",
     free: "مجاني",
     error: "خطأ",
     language: "اللغة",
+    cancel: "إلغاء",
+    delete: "حذف",
+    confirmDeleteTitle: "هل أنت متأكد؟",
+    confirmDelete: "سيتم حذف هذا العنصر ولا يمكن التراجع عن ذلك.",
   },
   notifications: {
     successTitle: "نجاح",
@@ -1577,6 +1657,14 @@ const ar: Messages = {
       bannersDesc: "عدة بانرات لشريط المتجر",
       smartProductCard: "تسجيل المنتج بالذكاء الاصطناعي",
       smartProductDesc: "من صورة خام إلى محتوى جاهز للبيع",
+      warehouseBadge: "لوحة الإدارة والمستودع",
+      warehouseTitle: "التحكم اليومي بالمتجر",
+      warehouseProducts: "إدارة المنتج والسعر والصور وحالة التفعيل",
+      warehouseCategories: "إدارة تصنيفات شجرية بلا حد للعمق",
+      warehouseUnits: "تسجيل المخزون بالعدد أو الوزن أو العبوة",
+      warehouseAutoStock: "خصم المخزون تلقائياً بعد الطلب",
+      warehouseAlerts: "منع بيع النافد والتنبيه عند انخفاض المخزون",
+      warehouseOrders: "إدارة الطلبات والعملاء وحالة الطلب",
     },
     products: {
       title: "إدارة المنتجات",
@@ -1595,6 +1683,12 @@ const ar: Messages = {
       priceLabel: "السعر (ريال عماني)",
       compareAtPriceLabel: "السعر قبل الخصم (ريال عماني)",
       stockLabel: "المخزون",
+      inventoryUnit: "نوع المخزون",
+      unitCount: "عددي",
+      unitWeight: "وزني (كيلو)",
+      unitPack: "عبوة",
+      lowStockThreshold: "حد التنبيه لانخفاض المخزون",
+      lowStock: "مخزون منخفض",
       noCategory: "بدون فئة",
       brandLabel: "العلامة التجارية",
       noBrand: "بدون علامة",
@@ -1604,6 +1698,14 @@ const ar: Messages = {
       addFeature: "إضافة مواصفة",
       removeFeature: "حذف",
       imageUrlPlaceholder: "رابط الصورة (أو ارفع ملفاً)",
+      imagesSection: "صور المنتج",
+      imagesHint: "ارفع عدة زوايا للمنتج. الصورة الأولى هي صورة البطاقة وصفحة المنتج.",
+      uploadImages: "رفع عدة صور",
+      addImageUrl: "إضافة رابط",
+      setPrimaryImage: "صورة رئيسية",
+      primaryImage: "رئيسية",
+      removeImage: "حذف",
+      maxImages: "حتى {count} صور",
       showInStore: "عرض في المتجر",
       save: "حفظ",
       create: "إنشاء منتج",
@@ -1704,6 +1806,7 @@ const ar: Messages = {
       parentLabel: "الفئة الأب",
       noParent: "بدون أب (فئة رئيسية)",
       childBadge: "فئة فرعية",
+      nestedHint: "يمكن أن تحتوي كل فئة على فئات فرعية بلا حد.",
     },
     banners: {
       title: "بانر الصفحة الرئيسية",
@@ -1739,6 +1842,8 @@ const ar: Messages = {
       orderPrefix: "طلب",
       riderPlaceholder: "UUID السائق",
       assignRider: "تعيين سائق",
+      customer: "العميل",
+      payment: "الدفع",
       status: {
         pending: "قيد الانتظار",
         confirmed: "مؤكد",
@@ -1909,6 +2014,9 @@ const en: Messages = {
     fallbackName: "Product",
     vatIncluded: "Inclusive of VAT",
     quantity: "Quantity",
+    unitCount: "pcs",
+    unitWeight: "kg",
+    unitPack: "pack",
     share: "Share",
     wishlist: "Wishlist",
   },
@@ -2052,10 +2160,17 @@ const en: Messages = {
   },
   common: {
     loading: "Loading…",
+    saving: "Saving…",
+    processing: "Working…",
+    uploading: "Uploading…",
     back: "Back",
     free: "Free",
     error: "Error",
     language: "Language",
+    cancel: "Cancel",
+    delete: "Delete",
+    confirmDeleteTitle: "Are you sure?",
+    confirmDelete: "This item will be deleted and cannot be undone.",
   },
   notifications: {
     successTitle: "Success",
@@ -2209,6 +2324,14 @@ const en: Messages = {
       bannersDesc: "Multiple slides for the storefront carousel",
       smartProductCard: "Smart product listing",
       smartProductDesc: "From a raw photo to ready-to-sell catalog content",
+      warehouseBadge: "Admin and warehouse panel",
+      warehouseTitle: "Daily store control",
+      warehouseProducts: "Manage products, prices, images, and active status",
+      warehouseCategories: "Unlimited nested category trees",
+      warehouseUnits: "Stock by count, weight, or pack",
+      warehouseAutoStock: "Automatic stock deduction after an order",
+      warehouseAlerts: "Block out-of-stock sales and alert on low stock",
+      warehouseOrders: "Manage orders, customers, and order status",
     },
     products: {
       title: "Product management",
@@ -2227,6 +2350,12 @@ const en: Messages = {
       priceLabel: "Price (OMR)",
       compareAtPriceLabel: "Original price (OMR)",
       stockLabel: "Stock",
+      inventoryUnit: "Inventory type",
+      unitCount: "Count",
+      unitWeight: "Weight (kg)",
+      unitPack: "Pack",
+      lowStockThreshold: "Low-stock alert threshold",
+      lowStock: "Low stock",
       noCategory: "No category",
       brandLabel: "Brand",
       noBrand: "No brand",
@@ -2236,6 +2365,14 @@ const en: Messages = {
       addFeature: "Add specification",
       removeFeature: "Remove",
       imageUrlPlaceholder: "Image URL (or upload)",
+      imagesSection: "Product images",
+      imagesHint: "Upload several angles of the product. The first image is the catalog cover.",
+      uploadImages: "Upload images",
+      addImageUrl: "Add URL",
+      setPrimaryImage: "Set as cover",
+      primaryImage: "Cover",
+      removeImage: "Remove",
+      maxImages: "Up to {count} images",
       showInStore: "Show in store",
       save: "Save",
       create: "Create product",
@@ -2336,6 +2473,7 @@ const en: Messages = {
       parentLabel: "Parent category",
       noParent: "No parent (top-level)",
       childBadge: "Subcategory",
+      nestedHint: "Any category can have unlimited nested children.",
     },
     banners: {
       title: "Homepage banners",
@@ -2371,6 +2509,8 @@ const en: Messages = {
       orderPrefix: "Order",
       riderPlaceholder: "Rider UUID",
       assignRider: "Assign rider",
+      customer: "Customer",
+      payment: "Payment",
       status: {
         pending: "Pending",
         confirmed: "Confirmed",

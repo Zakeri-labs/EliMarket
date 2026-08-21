@@ -5,12 +5,33 @@ import { createClient } from "@/core/supabase/server";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
-import type { Category, Product, ProductFeatureInput } from "@/app/_types/database.types";
+import type {
+  Category,
+  Product,
+  ProductFeatureInput,
+  ProductImageInput,
+  InventoryUnit,
+} from "@/app/_types/database.types";
 import { generateBlurHashFromFile } from "@/lib/images/generate-blur-hash";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-const PRODUCT_SELECT =
+const PRODUCT_SELECT_CORE =
   "*, category:categories(*), brand:brands(*), features:product_features(*)";
+const PRODUCT_SELECT = `${PRODUCT_SELECT_CORE}, images:product_images(*)`;
+
+function isMissingProductImagesRelation(error: { message?: string; details?: string; hint?: string }) {
+  const text = `${error.message ?? ""} ${error.details ?? ""} ${error.hint ?? ""}`.toLowerCase();
+  return text.includes("product_images");
+}
+
+function hydrateProduct(product: Product): Product {
+  const sorted = sortProductFeatures(product);
+  if (!sorted.images?.length) return sorted;
+  return {
+    ...sorted,
+    images: [...sorted.images].sort((a, b) => a.sort_order - b.sort_order),
+  };
+}
 
 function sortProductFeatures(product: Product): Product {
   if (!product.features?.length) return product;
@@ -51,18 +72,66 @@ async function syncProductFeatures(
   if (insertError) throw insertError;
 }
 
+async function syncProductImages(
+  supabase: SupabaseClient,
+  productId: string,
+  images?: ProductImageInput[],
+) {
+  const { error: deleteError } = await supabase
+    .from("product_images")
+    .delete()
+    .eq("product_id", productId);
+  if (deleteError) throw deleteError;
+
+  const rows = (images ?? [])
+    .map((image) => ({
+      image_url: image.image_url.trim(),
+      blur_hash: image.blur_hash?.trim() || null,
+    }))
+    .filter((image) => image.image_url);
+
+  if (rows.length === 0) return;
+
+  const { error: insertError } = await supabase.from("product_images").insert(
+    rows.map((row, index) => ({
+      product_id: productId,
+      image_url: row.image_url,
+      blur_hash: row.blur_hash,
+      sort_order: index,
+      is_primary: index === 0,
+    })),
+  );
+  if (insertError) throw insertError;
+}
+
+function coverFromImages(images?: ProductImageInput[]) {
+  const first = images?.find((image) => image.image_url.trim());
+  return {
+    image_url: first?.image_url.trim() || null,
+    blur_hash: first?.blur_hash?.trim() || null,
+  };
+}
+
 export async function getProductsAction() {
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase
+    const first = await supabase
       .from("products")
       .select(PRODUCT_SELECT)
       .eq("is_active", true)
       .order("name");
+    const { data, error } =
+      first.error && isMissingProductImagesRelation(first.error)
+        ? await supabase
+            .from("products")
+            .select(PRODUCT_SELECT_CORE)
+            .eq("is_active", true)
+            .order("name")
+        : first;
     if (error) throw error;
     return {
       success: true as const,
-      data: ((data ?? []) as Product[]).map(sortProductFeatures),
+      data: ((data ?? []) as Product[]).map(hydrateProduct),
     };
   } catch (err) {
     return {
@@ -100,7 +169,7 @@ export async function getProductBySlugAction(slug: string) {
       .maybeSingle();
     if (error) throw error;
     if (!data) throw new Error(await serverT("errors.productNotFound"));
-    return { success: true as const, data: sortProductFeatures(data as Product) };
+    return { success: true as const, data: hydrateProduct(data as Product) };
   } catch (err) {
     return {
       success: false as const,
@@ -119,7 +188,7 @@ export async function getAdminProductsAction() {
     if (error) throw error;
     return {
       success: true as const,
-      data: ((data ?? []) as Product[]).map(sortProductFeatures),
+      data: ((data ?? []) as Product[]).map(hydrateProduct),
     };
   } catch (err) {
     return {
@@ -140,18 +209,22 @@ export async function createProductAction(input: {
   compare_at_price?: number | null;
   currency?: string;
   stock: number;
+  inventory_unit?: InventoryUnit;
+  low_stock_threshold?: number;
   category_id?: string | null;
   brand_id?: string | null;
   image_url?: string | null;
   blur_hash?: string | null;
   is_active?: boolean;
   features?: ProductFeatureInput[];
+  images?: ProductImageInput[];
 }) {
   try {
     const { supabase } = await requireAdmin();
     const description_fa = input.description_fa?.trim() || input.description?.trim() || null;
     const description_ar = input.description_ar?.trim() || null;
     const description_en = input.description_en?.trim() || null;
+    const cover = coverFromImages(input.images);
     const { data, error } = await supabase
       .from("products")
       .insert({
@@ -165,23 +238,33 @@ export async function createProductAction(input: {
         compare_at_price: input.compare_at_price ?? null,
         currency: input.currency ?? DEFAULT_CURRENCY,
         stock: input.stock,
+        inventory_unit: input.inventory_unit ?? "count",
+        low_stock_threshold: Math.max(0, Math.floor(input.low_stock_threshold ?? 5)),
         category_id: input.category_id ?? null,
         brand_id: input.brand_id ?? null,
-        image_url: input.image_url ?? null,
-        blur_hash: input.blur_hash ?? null,
+        image_url: cover.image_url ?? input.image_url ?? null,
+        blur_hash: cover.blur_hash ?? input.blur_hash ?? null,
         is_active: input.is_active ?? true,
       })
       .select(PRODUCT_SELECT)
       .single();
     if (error) throw error;
     await syncProductFeatures(supabase, data.id, input.features);
+    await syncProductImages(
+      supabase,
+      data.id,
+      input.images ??
+        (input.image_url
+          ? [{ image_url: input.image_url, blur_hash: input.blur_hash }]
+          : undefined),
+    );
     const refreshed = await supabase
       .from("products")
       .select(PRODUCT_SELECT)
       .eq("id", data.id)
       .single();
     if (refreshed.error) throw refreshed.error;
-    return { success: true as const, data: sortProductFeatures(refreshed.data as Product) };
+    return { success: true as const, data: hydrateProduct(refreshed.data as Product) };
   } catch (err) {
     return {
       success: false as const,
@@ -202,17 +285,20 @@ export async function updateProductAction(
     price: number;
     compare_at_price: number | null;
     stock: number;
+    inventory_unit: InventoryUnit;
+    low_stock_threshold: number;
     category_id: string | null;
     brand_id: string | null;
     image_url: string | null;
     blur_hash: string | null;
     is_active: boolean;
     features: ProductFeatureInput[];
+    images: ProductImageInput[];
   }>,
 ) {
   try {
     const { supabase } = await requireAdmin();
-    const { features, ...rest } = input;
+    const { features, images, ...rest } = input;
     const patch = { ...rest };
 
     if (
@@ -229,6 +315,12 @@ export async function updateProductAction(
       patch.description = fa ?? ar ?? en;
     }
 
+    if (images !== undefined) {
+      const cover = coverFromImages(images);
+      patch.image_url = cover.image_url;
+      patch.blur_hash = cover.blur_hash;
+    }
+
     const { data, error } = await supabase
       .from("products")
       .update(patch)
@@ -239,16 +331,22 @@ export async function updateProductAction(
 
     if (features !== undefined) {
       await syncProductFeatures(supabase, id, features);
+    }
+    if (images !== undefined) {
+      await syncProductImages(supabase, id, images);
+    }
+
+    if (features !== undefined || images !== undefined) {
       const refreshed = await supabase
         .from("products")
         .select(PRODUCT_SELECT)
         .eq("id", id)
         .single();
       if (refreshed.error) throw refreshed.error;
-      return { success: true as const, data: sortProductFeatures(refreshed.data as Product) };
+      return { success: true as const, data: hydrateProduct(refreshed.data as Product) };
     }
 
-    return { success: true as const, data: sortProductFeatures(data as Product) };
+    return { success: true as const, data: hydrateProduct(data as Product) };
   } catch (err) {
     return {
       success: false as const,

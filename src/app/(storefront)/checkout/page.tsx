@@ -25,6 +25,7 @@ import { useCartStore } from "@/app/_store/cart-store";
 import { useAuthStore } from "@/app/_store/auth-store";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cartTotals } from "@/config/brand";
 import { DEFAULT_MAP_CENTER } from "@/config/geo";
 import type { Address } from "@/app/_types/database.types";
@@ -68,6 +69,7 @@ function CheckoutPageContent() {
   const [label, setLabel] = useState("");
   const [addressLine, setAddressLine] = useState("");
   const [lat, setLat] = useState<number>(DEFAULT_MAP_CENTER.lat);
+  const [deleteAddressId, setDeleteAddressId] = useState<string | null>(null);
   const [lng, setLng] = useState<number>(DEFAULT_MAP_CENTER.lng);
   const [coverageOk, setCoverageOk] = useState<boolean | null>(null);
   const [deliverySlot, setDeliverySlot] = useState("");
@@ -135,7 +137,7 @@ function CheckoutPageContent() {
             }}
           >
             <input className={inputClass} placeholder={t("checkout.phonePlaceholder")} value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" />
-            <Button type="submit" fullWidth disabled={isPending}>{t("checkout.getCode")}</Button>
+            <Button type="submit" fullWidth loading={isPending} loadingLabel={t("common.processing")}>{t("checkout.getCode")}</Button>
           </form>
         ) : (
           <form
@@ -152,7 +154,7 @@ function CheckoutPageContent() {
             }}
           >
             <input className={inputClass} placeholder={t("checkout.otpPlaceholder")} value={otp} onChange={(e) => setOtp(e.target.value)} dir="ltr" />
-            <Button type="submit" fullWidth disabled={isPending}>{t("checkout.confirm")}</Button>
+            <Button type="submit" fullWidth loading={isPending} loadingLabel={t("common.processing")}>{t("checkout.confirm")}</Button>
           </form>
         )}
       </main>
@@ -214,16 +216,7 @@ function CheckoutPageContent() {
             <button
               type="button"
               className="text-xs text-red-400"
-              onClick={() =>
-                runAction(() => deleteAddressAction(a.id), {
-                  successMessage: t("notifications.addressDeleted"),
-                  onSuccess: () => {
-                    setAddresses((prev) => prev.filter((row) => row.id !== a.id));
-                    if (addressId === a.id) setAddressId("");
-                    if (editingId === a.id) resetForm();
-                  },
-                })
-              }
+              onClick={() => setDeleteAddressId(a.id)}
             >
               {t("checkout.deleteAddress")}
             </button>
@@ -288,7 +281,7 @@ function CheckoutPageContent() {
               setLng(nextLng);
             }}
           />
-          <Button type="submit" variant="secondary" size="sm">
+          <Button type="submit" variant="secondary" size="sm" loading={isPending} loadingLabel={t("common.saving")}>
             {editingId ? t("checkout.saveAddress") : t("checkout.addAddress")}
           </Button>
         </form>
@@ -335,7 +328,9 @@ function CheckoutPageContent() {
         type="button"
         fullWidth
         size="lg"
-        disabled={!addressId || isPending || coverageOk === false}
+        loading={isPending}
+        loadingLabel={t("common.processing")}
+        disabled={!addressId || coverageOk === false}
         onClick={() => {
           setSyncing(true);
           runAction(
@@ -367,6 +362,29 @@ function CheckoutPageContent() {
       >
         {t("checkout.submitOrder", { price: formatPrice(total) })}
       </Button>
+      <ConfirmDialog
+        open={deleteAddressId !== null}
+        title={t("common.confirmDeleteTitle")}
+        description={t("common.confirmDelete")}
+        confirmLabel={t("checkout.deleteAddress")}
+        cancelLabel={t("common.cancel")}
+        onOpenChange={(open) => {
+          if (!open) setDeleteAddressId(null);
+        }}
+        onConfirm={() => {
+          if (!deleteAddressId) return;
+          const id = deleteAddressId;
+          setDeleteAddressId(null);
+          runAction(() => deleteAddressAction(id), {
+            successMessage: t("notifications.addressDeleted"),
+            onSuccess: () => {
+              setAddresses((prev) => prev.filter((row) => row.id !== id));
+              if (addressId === id) setAddressId("");
+              if (editingId === id) resetForm();
+            },
+          });
+        }}
+      />
     </main>
   );
 }

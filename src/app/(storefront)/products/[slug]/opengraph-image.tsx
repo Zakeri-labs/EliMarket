@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getProductBySlugAction } from "@/app/_actions/product-actions";
+import { productCover } from "@/lib/products/gallery";
 import { BRAND_NAME, DEFAULT_CURRENCY, formatPrice } from "@/config/brand";
 
 export const size = { width: 1200, height: 630 };
@@ -14,7 +15,7 @@ export default async function ProductOgImage({ params }: Props) {
   const name = result.success ? result.data.name : "Product";
   const price = result.success ? result.data.price : 0;
   const currency = result.success ? result.data.currency : DEFAULT_CURRENCY;
-  const imageUrl = result.success ? result.data.image_url : null;
+  const imageUrl = result.success ? productCover(result.data)?.image_url ?? null : null;
 
   const priceLabel = formatPrice(Number(price), currency, "en");
 

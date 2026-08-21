@@ -6,6 +6,7 @@ import { createPaymentForOrder } from "@/app/_actions/payment-actions";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
 import { DEFAULT_CURRENCY, cartTotals } from "@/config/brand";
+import { applyOrderStockDecrement, restoreOrderStock } from "@/lib/inventory/stock";
 import type {
   CreateOrderResult,
   Order,
@@ -26,7 +27,21 @@ export async function getOrdersAction() {
 
     const { data, error } = await query;
     if (error) throw error;
-    return { success: true as const, data: (data ?? []) as Order[] };
+    const orders = (data ?? []) as Order[];
+
+    if (profile?.role === "admin" && orders.length) {
+      const userIds = [...new Set(orders.map((order) => order.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name, phone")
+        .in("id", userIds);
+      const profileMap = new Map((profiles ?? []).map((item) => [item.id, item]));
+      for (const order of orders) {
+        order.customer = profileMap.get(order.user_id) ?? null;
+      }
+    }
+
+    return { success: true as const, data: orders };
   } catch (err) {
     return {
       success: false as const,
@@ -151,12 +166,11 @@ export async function createOrderAction(payload: {
       .insert(orderItems);
     if (itemsError) throw itemsError;
 
-    for (const item of payload.items) {
-      const product = productMap.get(item.productId)!;
-      await supabase
-        .from("products")
-        .update({ stock: product.stock - item.quantity })
-        .eq("id", item.productId);
+    try {
+      await applyOrderStockDecrement(supabase, order.id);
+    } catch (stockError) {
+      await supabase.from("orders").delete().eq("id", order.id);
+      throw stockError;
     }
 
     let checkoutUrl: string | null = null;
@@ -220,6 +234,14 @@ export async function updateOrderStatusAction(
 ) {
   try {
     const { supabase } = await requireAdmin();
+    const { data: current, error: currentError } = await supabase
+      .from("orders")
+      .select("*, order_items(*)")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (currentError) throw currentError;
+    if (!current) throw new Error(await serverT("errors.orderNotFound"));
+
     const { data, error } = await supabase
       .from("orders")
       .update({ status })
@@ -227,6 +249,11 @@ export async function updateOrderStatusAction(
       .select("*")
       .single();
     if (error) throw error;
+
+    if (status === "cancelled" && current.status !== "cancelled") {
+      await restoreOrderStock(supabase, current as Order);
+    }
+
     return { success: true as const, data: data as Order };
   } catch (err) {
     return {

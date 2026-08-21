@@ -24,7 +24,7 @@ export function Notifications() {
       aria-relevant="additions text"
       style={{
         position: "fixed",
-        zIndex: 99999,
+        zIndex: 200000,
         bottom: 24,
         left: isEnglish ? "auto" : 16,
         right: isEnglish ? 16 : "auto",

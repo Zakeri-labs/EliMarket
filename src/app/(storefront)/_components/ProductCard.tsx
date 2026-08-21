@@ -10,6 +10,7 @@ import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
 import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
+import { productCover } from "@/lib/products/gallery";
 import { productCompareAtPrice } from "@/lib/products/pricing";
 
 type Props = { product: Product; compact?: boolean; isSkeleton?: boolean };
@@ -21,6 +22,7 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
 
   if (compact) {
     const compareAt = productCompareAtPrice(product);
+    const cover = productCover(product);
 
     return (
       <Link
@@ -36,10 +38,10 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
         aria-busy={isSkeleton}
       >
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-transparent">
-          {product.image_url ? (
+          {cover ? (
             <StorefrontImage
-              src={product.image_url}
-              blurHash={product.blur_hash}
+              src={cover.image_url}
+              blurHash={cover.blur_hash}
               alt=""
               fill
               sizes="56px"
