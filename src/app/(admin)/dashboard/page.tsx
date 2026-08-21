@@ -35,6 +35,11 @@ export default function AdminDashboardPage() {
       desc: t("admin.dashboard.bannersDesc"),
     },
     {
+      href: "/dashboard/campaigns",
+      label: t("admin.dashboard.campaignsCard"),
+      desc: t("admin.dashboard.campaignsDesc"),
+    },
+    {
       href: "/dashboard/orders",
       label: t("admin.dashboard.ordersCard"),
       desc: t("admin.dashboard.ordersDesc"),
@@ -58,7 +63,7 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminShell title={t("admin.dashboard.title")}>
-      <section className="mb-8 rounded-2xl border border-[#e4e4e7] bg-white p-6 shadow-sm">
+      {/* <section className="mb-8 rounded-2xl border border-[#e4e4e7] bg-white p-6 shadow-sm">
         <span className="inline-flex rounded-full bg-[#6b8f71]/15 px-3 py-1 text-xs font-medium text-[#527559]">
           {t("admin.dashboard.warehouseBadge")}
         </span>
@@ -80,7 +85,7 @@ export default function AdminDashboardPage() {
             </li>
           ))}
         </ul>
-      </section>
+      </section> */}
 
       <div className="mb-8 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
         <PriceVisibilityToggle />

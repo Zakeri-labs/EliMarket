@@ -3,15 +3,12 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "@/i18n/use-translations";
 
-function secondsUntilEndOfDay() {
-  const now = new Date();
-  const end = new Date(now);
-  end.setHours(23, 59, 59, 999);
-  return Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000));
-}
-
 function pad(value: number): string {
   return value.toString().padStart(2, "0");
+}
+
+function secondsUntil(iso: string) {
+  return Math.max(0, Math.floor((new Date(iso).getTime() - Date.now()) / 1000));
 }
 
 function formatRemaining(totalSeconds: number) {
@@ -21,19 +18,24 @@ function formatRemaining(totalSeconds: number) {
   return { hours, minutes, seconds };
 }
 
-export function FlashDealTimer() {
+export function FlashDealTimer({ endsAt }: { endsAt?: string | null }) {
   const { t } = useTranslations();
   const [remaining, setRemaining] = useState<number | null>(null);
 
   useEffect(() => {
-    const tick = () => setRemaining(secondsUntilEndOfDay());
+    if (!endsAt) {
+      setRemaining(null);
+      return;
+    }
+    const tick = () => setRemaining(secondsUntil(endsAt));
     tick();
     const timer = window.setInterval(tick, 1000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [endsAt]);
 
-  const display = formatRemaining(remaining ?? 0);
-  const { hours, minutes, seconds } = display;
+  if (!endsAt || remaining == null) return null;
+
+  const { hours, minutes, seconds } = formatRemaining(remaining);
 
   return (
     <div className="flex items-center gap-1.5 text-[11px] text-muted sm:text-xs">

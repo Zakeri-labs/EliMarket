@@ -29,6 +29,8 @@ export type Messages = {
     heroPrev: string;
     heroNext: string;
     heroGoToSlide: string;
+    campaignPercentOff: string;
+    campaignFixedOff: string;
     flashDeals: string;
     flashEnds: string;
     flashEndsIn: string;
@@ -126,6 +128,7 @@ export type Messages = {
     hintCategories: string;
     hintSuffix: string;
     allCategories: string;
+    allCampaigns: string;
     minPrice: string;
     maxPrice: string;
     onSale: string;
@@ -212,6 +215,9 @@ export type Messages = {
     bannerCreated: string;
     bannerUpdated: string;
     bannerDeleted: string;
+    campaignCreated: string;
+    campaignUpdated: string;
+    campaignDeleted: string;
     smartProductReady: string;
   };
   errors: {
@@ -262,6 +268,16 @@ export type Messages = {
     bannerCreateFailed: string;
     bannerUpdateFailed: string;
     bannerDeleteFailed: string;
+    campaignsLoadFailed: string;
+    campaignCreateFailed: string;
+    campaignUpdateFailed: string;
+    campaignDeleteFailed: string;
+    campaignNameRequired: string;
+    campaignDatesRequired: string;
+    campaignWindowInvalid: string;
+    campaignDiscountRequired: string;
+    campaignPercentMax: string;
+    campaignProductsRequired: string;
     addressesLoadFailed: string;
     addressSaveFailed: string;
     addressUpdateFailed: string;
@@ -297,6 +313,7 @@ export type Messages = {
       categories: string;
       brands: string;
       banners: string;
+      campaigns: string;
       orders: string;
       reports: string;
       coverage: string;
@@ -330,6 +347,8 @@ export type Messages = {
       brandsDesc: string;
       bannersCard: string;
       bannersDesc: string;
+      campaignsCard: string;
+      campaignsDesc: string;
       smartProductCard: string;
       smartProductDesc: string;
       warehouseBadge: string;
@@ -510,6 +529,46 @@ export type Messages = {
       activeLabel: string;
       inactiveLabel: string;
     };
+    campaigns: {
+      title: string;
+      subtitle: string;
+      newCampaign: string;
+      editCampaign: string;
+      namePlaceholder: string;
+      badgePlaceholder: string;
+      bannerHint: string;
+      bannerLabel: string;
+      uploadImage: string;
+      removeImage: string;
+      typeLabel: string;
+      typePercent: string;
+      typeFixed: string;
+      valueLabel: string;
+      startsAt: string;
+      endsAt: string;
+      activeLabel: string;
+      homeLabel: string;
+      productsLabel: string;
+      productSearch: string;
+      noProducts: string;
+      selectedCount: string;
+      productCount: string;
+      percentOff: string;
+      fixedOff: string;
+      save: string;
+      create: string;
+      cancel: string;
+      edit: string;
+      delete: string;
+      loading: string;
+      empty: string;
+      status: {
+        live: string;
+        scheduled: string;
+        ended: string;
+        inactive: string;
+      };
+    };
     orders: {
       title: string;
       loading: string;
@@ -654,6 +713,8 @@ const fa: Messages = {
     heroPrev: "اسلاید قبلی",
     heroNext: "اسلاید بعدی",
     heroGoToSlide: "رفتن به اسلاید {n}",
+    campaignPercentOff: "{value}٪ تخفیف",
+    campaignFixedOff: "{value} ریال عمان تخفیف",
     flashDeals: "پیشنهاد لحظه‌ای",
     flashEnds: "پایان: ۰۲:۴۵:۱۸",
     flashEndsIn: "پایان در",
@@ -756,6 +817,7 @@ const fa: Messages = {
     hintCategories: "دسته‌بندی‌ها",
     hintSuffix: "شروع کنید",
     allCategories: "همه دسته‌ها",
+    allCampaigns: "همه کمپین‌ها",
     minPrice: "حداقل قیمت",
     maxPrice: "حداکثر قیمت",
     onSale: "فقط تخفیف‌دار",
@@ -870,6 +932,9 @@ const fa: Messages = {
     bannerCreated: "بنر ایجاد شد",
     bannerUpdated: "بنر به‌روز شد",
     bannerDeleted: "بنر حذف شد",
+    campaignCreated: "کمپین ایجاد شد",
+    campaignUpdated: "کمپین به‌روز شد",
+    campaignDeleted: "کمپین حذف شد",
     smartProductReady: "پیش‌نویس محصول آماده شد",
   },
   errors: {
@@ -920,6 +985,16 @@ const fa: Messages = {
     bannerCreateFailed: "ایجاد بنر ناموفق بود",
     bannerUpdateFailed: "ویرایش بنر ناموفق بود",
     bannerDeleteFailed: "حذف بنر ناموفق بود",
+    campaignsLoadFailed: "بارگذاری کمپین‌ها ناموفق بود",
+    campaignCreateFailed: "ایجاد کمپین ناموفق بود",
+    campaignUpdateFailed: "ویرایش کمپین ناموفق بود",
+    campaignDeleteFailed: "حذف کمپین ناموفق بود",
+    campaignNameRequired: "نام کمپین الزامی است",
+    campaignDatesRequired: "تاریخ شروع و پایان را وارد کنید",
+    campaignWindowInvalid: "تاریخ پایان باید بعد از شروع باشد",
+    campaignDiscountRequired: "مقدار تخفیف نامعتبر است",
+    campaignPercentMax: "تخفیف درصدی حداکثر ۹۰ است",
+    campaignProductsRequired: "حداقل یک محصول را انتخاب کنید",
     addressesLoadFailed: "بارگذاری آدرس‌ها ناموفق بود",
     addressSaveFailed: "ثبت آدرس ناموفق بود",
     addressUpdateFailed: "ویرایش آدرس ناموفق بود",
@@ -955,6 +1030,7 @@ const fa: Messages = {
       categories: "دسته‌بندی‌ها",
       brands: "برندها",
       banners: "بنر صفحه اصلی",
+      campaigns: "تخفیف و کمپین",
       orders: "سفارش‌ها",
       reports: "گزارشات مالی",
       coverage: "محدوده پوشش",
@@ -988,6 +1064,8 @@ const fa: Messages = {
       brandsDesc: "تعریف و مدیریت برند محصولات",
       bannersCard: "بنر صفحه اصلی",
       bannersDesc: "چند بنر برای اسلایدر فروشگاه",
+      campaignsCard: "تخفیف و فروش ویژه",
+      campaignsDesc: "کمپین‌های زمان‌دار و تخفیف روی محصولات",
       smartProductCard: "ثبت هوشمند محصول",
       smartProductDesc: "از عکس خام تا محتوای آماده فروش با AI",
       warehouseBadge: "پنل مدیریت و انبار",
@@ -1168,6 +1246,46 @@ const fa: Messages = {
       activeLabel: "نمایش در فروشگاه",
       inactiveLabel: "غیرفعال",
     },
+    campaigns: {
+      title: "تخفیف و کمپین",
+      subtitle: "فروش ویژه و کمپین‌های زمان‌دار روی محصولات منتخب",
+      newCampaign: "کمپین جدید",
+      editCampaign: "ویرایش کمپین",
+      namePlaceholder: "نام کمپین (مثلاً جمعه ویژه)",
+      badgePlaceholder: "برچسب روی کارت (مثلاً فروش ویژه)",
+      bannerHint: "این تصویر فقط وقتی کمپین فعال و در بازه زمانی باشد در بنرهای صفحه اصلی نمایش داده می‌شود.",
+      bannerLabel: "تصویر بنر صفحه اصلی",
+      uploadImage: "آپلود تصویر بنر",
+      removeImage: "حذف تصویر بنر",
+      typeLabel: "نوع تخفیف",
+      typePercent: "درصدی",
+      typeFixed: "مبلغ ثابت",
+      valueLabel: "مقدار تخفیف",
+      startsAt: "شروع",
+      endsAt: "پایان",
+      activeLabel: "فعال",
+      homeLabel: "نمایش در پیشنهاد لحظه‌ای صفحه اصلی",
+      productsLabel: "محصولات مشمول",
+      productSearch: "جستجوی محصول",
+      noProducts: "محصولی یافت نشد.",
+      selectedCount: "{count} محصول انتخاب شده",
+      productCount: "{count} محصول",
+      percentOff: "{value}٪ تخفیف",
+      fixedOff: "{value} ریال عمان تخفیف",
+      save: "ذخیره",
+      create: "ایجاد",
+      cancel: "انصراف",
+      edit: "ویرایش",
+      delete: "حذف",
+      loading: "بارگذاری…",
+      empty: "کمپینی ثبت نشده است.",
+      status: {
+        live: "در حال اجرا",
+        scheduled: "زمان‌بندی‌شده",
+        ended: "پایان‌یافته",
+        inactive: "غیرفعال",
+      },
+    },
     orders: {
       title: "سفارش‌ها",
       loading: "بارگذاری…",
@@ -1321,6 +1439,8 @@ const ar: Messages = {
     heroPrev: "الشريحة السابقة",
     heroNext: "الشريحة التالية",
     heroGoToSlide: "الانتقال إلى الشريحة {n}",
+    campaignPercentOff: "خصم {value}٪",
+    campaignFixedOff: "خصم {value} ر.ع.",
     flashDeals: "عروض لحظية",
     flashEnds: "ينتهي: ٠٢:٤٥:١٨",
     flashEndsIn: "ينتهي خلال",
@@ -1423,6 +1543,7 @@ const ar: Messages = {
     hintCategories: "الفئات",
     hintSuffix: "للبدء",
     allCategories: "كل الفئات",
+    allCampaigns: "كل الحملات",
     minPrice: "أدنى سعر",
     maxPrice: "أعلى سعر",
     onSale: "العروض فقط",
@@ -1537,6 +1658,9 @@ const ar: Messages = {
     bannerCreated: "تم إنشاء البانر",
     bannerUpdated: "تم تحديث البانر",
     bannerDeleted: "تم حذف البانر",
+    campaignCreated: "تم إنشاء الحملة",
+    campaignUpdated: "تم تحديث الحملة",
+    campaignDeleted: "تم حذف الحملة",
     smartProductReady: "أصبحت مسودة المنتج جاهزة",
   },
   errors: {
@@ -1587,6 +1711,16 @@ const ar: Messages = {
     bannerCreateFailed: "فشل إنشاء البانر",
     bannerUpdateFailed: "فشل تحديث البانر",
     bannerDeleteFailed: "فشل حذف البانر",
+    campaignsLoadFailed: "فشل تحميل الحملات",
+    campaignCreateFailed: "فشل إنشاء الحملة",
+    campaignUpdateFailed: "فشل تحديث الحملة",
+    campaignDeleteFailed: "فشل حذف الحملة",
+    campaignNameRequired: "اسم الحملة مطلوب",
+    campaignDatesRequired: "أدخل تاريخ البداية والنهاية",
+    campaignWindowInvalid: "يجب أن يكون تاريخ النهاية بعد البداية",
+    campaignDiscountRequired: "قيمة الخصم غير صالحة",
+    campaignPercentMax: "الخصم بالنسبة لا يتجاوز 90٪",
+    campaignProductsRequired: "اختر منتجاً واحداً على الأقل",
     addressesLoadFailed: "فشل تحميل العناوين",
     addressSaveFailed: "فشل حفظ العنوان",
     addressUpdateFailed: "فشل تعديل العنوان",
@@ -1622,6 +1756,7 @@ const ar: Messages = {
       categories: "الفئات",
       brands: "العلامات التجارية",
       banners: "بانر الصفحة الرئيسية",
+      campaigns: "الخصومات والحملات",
       orders: "الطلبات",
       reports: "التقارير المالية",
       coverage: "نطاق التغطية",
@@ -1655,6 +1790,8 @@ const ar: Messages = {
       brandsDesc: "تعريف وإدارة علامات المنتجات",
       bannersCard: "بانر الصفحة الرئيسية",
       bannersDesc: "عدة بانرات لشريط المتجر",
+      campaignsCard: "الخصومات والعروض",
+      campaignsDesc: "حملات مؤقتة وخصومات على المنتجات",
       smartProductCard: "تسجيل المنتج بالذكاء الاصطناعي",
       smartProductDesc: "من صورة خام إلى محتوى جاهز للبيع",
       warehouseBadge: "لوحة الإدارة والمستودع",
@@ -1835,6 +1972,46 @@ const ar: Messages = {
       activeLabel: "إظهار في المتجر",
       inactiveLabel: "غير نشط",
     },
+    campaigns: {
+      title: "الخصومات والحملات",
+      subtitle: "عروض خاصة وحملات مؤقتة على منتجات مختارة",
+      newCampaign: "حملة جديدة",
+      editCampaign: "تعديل الحملة",
+      namePlaceholder: "اسم الحملة",
+      badgePlaceholder: "الشارة على البطاقة (مثلاً عرض خاص)",
+      bannerHint: "تظهر هذه الصورة في بانرات الصفحة الرئيسية فقط عندما تكون الحملة نشطة وضمن مدتها.",
+      bannerLabel: "صورة بانر الصفحة الرئيسية",
+      uploadImage: "رفع صورة البانر",
+      removeImage: "إزالة صورة البانر",
+      typeLabel: "نوع الخصم",
+      typePercent: "نسبة مئوية",
+      typeFixed: "مبلغ ثابت",
+      valueLabel: "قيمة الخصم",
+      startsAt: "البداية",
+      endsAt: "النهاية",
+      activeLabel: "نشطة",
+      homeLabel: "عرض في عروض الصفحة الرئيسية",
+      productsLabel: "المنتجات المشمولة",
+      productSearch: "بحث عن منتج",
+      noProducts: "لا توجد منتجات.",
+      selectedCount: "{count} منتج محدد",
+      productCount: "{count} منتج",
+      percentOff: "خصم {value}٪",
+      fixedOff: "خصم {value} ر.ع.",
+      save: "حفظ",
+      create: "إنشاء",
+      cancel: "إلغاء",
+      edit: "تعديل",
+      delete: "حذف",
+      loading: "جاري التحميل…",
+      empty: "لا توجد حملات.",
+      status: {
+        live: "جارية",
+        scheduled: "مجدولة",
+        ended: "منتهية",
+        inactive: "غير نشطة",
+      },
+    },
     orders: {
       title: "الطلبات",
       loading: "جاري التحميل…",
@@ -1988,6 +2165,8 @@ const en: Messages = {
     heroPrev: "Previous slide",
     heroNext: "Next slide",
     heroGoToSlide: "Go to slide {n}",
+    campaignPercentOff: "{value}% off",
+    campaignFixedOff: "{value} OMR off",
     flashDeals: "Flash deals",
     flashEnds: "Ends: 02:45:18",
     flashEndsIn: "Ends in",
@@ -2090,6 +2269,7 @@ const en: Messages = {
     hintCategories: "categories",
     hintSuffix: "to get started",
     allCategories: "All categories",
+    allCampaigns: "All campaigns",
     minPrice: "Min price",
     maxPrice: "Max price",
     onSale: "On sale only",
@@ -2204,6 +2384,9 @@ const en: Messages = {
     bannerCreated: "Banner created",
     bannerUpdated: "Banner updated",
     bannerDeleted: "Banner deleted",
+    campaignCreated: "Campaign created",
+    campaignUpdated: "Campaign updated",
+    campaignDeleted: "Campaign deleted",
     smartProductReady: "Product draft is ready",
   },
   errors: {
@@ -2254,6 +2437,16 @@ const en: Messages = {
     bannerCreateFailed: "Failed to create banner",
     bannerUpdateFailed: "Failed to update banner",
     bannerDeleteFailed: "Failed to delete banner",
+    campaignsLoadFailed: "Failed to load campaigns",
+    campaignCreateFailed: "Failed to create campaign",
+    campaignUpdateFailed: "Failed to update campaign",
+    campaignDeleteFailed: "Failed to delete campaign",
+    campaignNameRequired: "Campaign name is required",
+    campaignDatesRequired: "Start and end dates are required",
+    campaignWindowInvalid: "End time must be after start time",
+    campaignDiscountRequired: "Discount value is invalid",
+    campaignPercentMax: "Percent discount cannot exceed 90",
+    campaignProductsRequired: "Select at least one product",
     addressesLoadFailed: "Failed to load addresses",
     addressSaveFailed: "Failed to save address",
     addressUpdateFailed: "Failed to update address",
@@ -2289,6 +2482,7 @@ const en: Messages = {
       categories: "Categories",
       brands: "Brands",
       banners: "Homepage banners",
+      campaigns: "Sales & campaigns",
       orders: "Orders",
       reports: "Financial reports",
       coverage: "Coverage area",
@@ -2322,6 +2516,8 @@ const en: Messages = {
       brandsDesc: "Define and manage product brands",
       bannersCard: "Homepage banners",
       bannersDesc: "Multiple slides for the storefront carousel",
+      campaignsCard: "Discounts & sales",
+      campaignsDesc: "Timed campaigns and product discounts",
       smartProductCard: "Smart product listing",
       smartProductDesc: "From a raw photo to ready-to-sell catalog content",
       warehouseBadge: "Admin and warehouse panel",
@@ -2501,6 +2697,46 @@ const en: Messages = {
       sortOrderLabel: "Display order",
       activeLabel: "Show in store",
       inactiveLabel: "Inactive",
+    },
+    campaigns: {
+      title: "Discounts & campaigns",
+      subtitle: "Special sales and timed campaigns on selected products",
+      newCampaign: "New campaign",
+      editCampaign: "Edit campaign",
+      namePlaceholder: "Campaign name (e.g. Friday sale)",
+      badgePlaceholder: "Card badge (e.g. Special sale)",
+      bannerHint: "This image appears in homepage banners only while the campaign is active and within its time window.",
+      bannerLabel: "Homepage banner image",
+      uploadImage: "Upload banner image",
+      removeImage: "Remove banner image",
+      typeLabel: "Discount type",
+      typePercent: "Percent off",
+      typeFixed: "Fixed amount off",
+      valueLabel: "Discount value",
+      startsAt: "Starts",
+      endsAt: "Ends",
+      activeLabel: "Active",
+      homeLabel: "Show in homepage flash deals",
+      productsLabel: "Included products",
+      productSearch: "Search products",
+      noProducts: "No products found.",
+      selectedCount: "{count} products selected",
+      productCount: "{count} products",
+      percentOff: "{value}% off",
+      fixedOff: "{value} OMR off",
+      save: "Save",
+      create: "Create",
+      cancel: "Cancel",
+      edit: "Edit",
+      delete: "Delete",
+      loading: "Loading…",
+      empty: "No campaigns yet.",
+      status: {
+        live: "Live",
+        scheduled: "Scheduled",
+        ended: "Ended",
+        inactive: "Inactive",
+      },
     },
     orders: {
       title: "Orders",

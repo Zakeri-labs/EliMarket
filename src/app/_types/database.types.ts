@@ -81,6 +81,36 @@ export type ProductImageInput = {
   blur_hash?: string | null;
 };
 
+export type CampaignType = "percent" | "fixed";
+
+export type CampaignProduct = {
+  campaign_id: string;
+  product_id: string;
+  sale_price: number | null;
+};
+
+export type Campaign = {
+  id: string;
+  name: string;
+  slug: string;
+  type: CampaignType;
+  discount_value: number;
+  starts_at: string;
+  ends_at: string;
+  is_active: boolean;
+  show_on_home: boolean;
+  badge: string | null;
+  banner_image_url: string | null;
+  banner_blur_hash: string | null;
+  created_at: string;
+  products?: CampaignProduct[];
+};
+
+export type ProductCampaign = Pick<
+  Campaign,
+  "id" | "name" | "slug" | "type" | "discount_value" | "starts_at" | "ends_at" | "show_on_home" | "badge"
+>;
+
 export type Product = {
   id: string;
   category_id: string | null;
@@ -105,6 +135,7 @@ export type Product = {
   brand?: Brand | null;
   features?: ProductFeature[];
   images?: ProductImage[];
+  campaign?: ProductCampaign | null;
 };
 
 export type Store = {

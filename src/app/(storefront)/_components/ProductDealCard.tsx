@@ -17,7 +17,7 @@ import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
 import { productCover } from "@/lib/products/gallery";
 import {
   productCompareAtPrice,
-  productDiscountPercent,
+  productDiscountBadge,
 } from "@/lib/products/pricing";
 
 type Props = {
@@ -40,7 +40,7 @@ export function ProductDealCard({
   const addItem = useCartStore((s) => s.addItem);
   const { showPrices } = useStoreSettings();
   const [mounted, setMounted] = useState(false);
-  const discount = productDiscountPercent(product);
+  const discountBadge = productDiscountBadge(product, formatPrice);
   const compareAt = productCompareAtPrice(product);
   const excerpt = resolveProductCardExcerpt(product, locale);
   const cover = productCover(product);
@@ -84,9 +84,9 @@ export function ProductDealCard({
           if (isSkeleton) e.preventDefault();
         }}
       >
-        {!isSkeleton && discount != null && (
+        {!isSkeleton && discountBadge && (
           <span className="absolute start-0 top-0 z-10 rounded-md bg-[#8B7355] px-1.5 py-0.5 text-[10px] font-semibold text-white">
-            −{discount}%
+            {discountBadge}
           </span>
         )}
         <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-transparent">

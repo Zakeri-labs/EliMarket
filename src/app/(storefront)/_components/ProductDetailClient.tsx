@@ -25,6 +25,7 @@ import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 import { productCover } from "@/lib/products/gallery";
+import { productCompareAtPrice, productDiscountBadge } from "@/lib/products/pricing";
 import { inventoryUnitMessageKey, productInventoryUnit } from "@/lib/products/inventory";
 import { ProductGallery } from "@/app/(storefront)/_components/ProductGallery";
 
@@ -62,6 +63,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const subtitle = resolveProductSubtitle(product, locale);
   const inStock = product.stock > 0;
   const cover = productCover(product);
+  const compareAt = productCompareAtPrice(product);
+  const discountBadge = productDiscountBadge(product, formatPrice);
   const unitLabel = t(`product.${inventoryUnitMessageKey(productInventoryUnit(product))}`);
   const addToCartLabel = showPrices
     ? t("product.addToCart", {
@@ -167,9 +170,17 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             <div>
               <div className="flex items-start justify-between gap-4">
                 {showPrices ? (
-                  <p className="text-start text-3xl font-bold tracking-tight">
-                    {formatPrice(Number(product.price), product.currency)}
-                  </p>
+                  <div>
+                    <p className="text-start text-3xl font-bold tracking-tight">
+                      {formatPrice(Number(product.price), product.currency)}
+                    </p>
+                    {compareAt != null && (
+                      <p className="mt-1 text-start text-sm text-muted line-through">
+                        {formatPrice(compareAt, product.currency)}
+                        {discountBadge ? ` · ${discountBadge}` : ""}
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <p className="text-sm text-muted">{t("store.pricesHidden")}</p>
                 )}
@@ -303,9 +314,17 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
 
             <div className="flex items-center justify-between">
               {showPrices ? (
-                <p className="text-3xl font-bold text-accent">
-                  {formatPrice(Number(product.price), product.currency)}
-                </p>
+                <div>
+                  <p className="text-3xl font-bold text-accent">
+                    {formatPrice(Number(product.price), product.currency)}
+                  </p>
+                  {compareAt != null && (
+                    <p className="mt-1 text-sm text-muted line-through">
+                      {formatPrice(compareAt, product.currency)}
+                      {discountBadge ? ` · ${discountBadge}` : ""}
+                    </p>
+                  )}
+                </div>
               ) : (
                 <p className="text-sm text-muted">{t("store.pricesHidden")}</p>
               )}

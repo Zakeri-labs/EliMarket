@@ -7,10 +7,13 @@ import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
 import { DEFAULT_CURRENCY, cartTotals } from "@/config/brand";
 import { applyOrderStockDecrement, restoreOrderStock } from "@/lib/inventory/stock";
+import { applyLiveCampaigns } from "@/lib/campaigns/apply";
+import { loadActiveCampaigns } from "@/lib/campaigns/load";
 import type {
   CreateOrderResult,
   Order,
   PaymentMethod,
+  Product,
 } from "@/app/_types/database.types";
 
 export async function getOrdersAction() {
@@ -113,11 +116,14 @@ export async function createOrderAction(payload: {
     const productIds = payload.items.map((i) => i.productId);
     const { data: products, error: productsError } = await supabase
       .from("products")
-      .select("id, price, currency, stock, is_active")
+      .select("id, price, compare_at_price, currency, stock, is_active")
       .in("id", productIds);
     if (productsError) throw productsError;
 
-    const productMap = new Map((products ?? []).map((p) => [p.id, p]));
+    const campaigns = await loadActiveCampaigns(supabase);
+    const productMap = new Map(
+      (products ?? []).map((p) => [p.id, applyLiveCampaigns(p as Product, campaigns)]),
+    );
     let subtotal = 0;
     let currency = DEFAULT_CURRENCY;
 

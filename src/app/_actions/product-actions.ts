@@ -13,6 +13,8 @@ import type {
   InventoryUnit,
 } from "@/app/_types/database.types";
 import { generateBlurHashFromFile } from "@/lib/images/generate-blur-hash";
+import { applyLiveCampaigns, applyLiveCampaignsToProducts } from "@/lib/campaigns/apply";
+import { loadActiveCampaigns } from "@/lib/campaigns/load";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const PRODUCT_SELECT_CORE =
@@ -129,9 +131,10 @@ export async function getProductsAction() {
             .order("name")
         : first;
     if (error) throw error;
+    const campaigns = await loadActiveCampaigns(supabase);
     return {
       success: true as const,
-      data: ((data ?? []) as Product[]).map(hydrateProduct),
+      data: applyLiveCampaignsToProducts(((data ?? []) as Product[]).map(hydrateProduct), campaigns),
     };
   } catch (err) {
     return {
@@ -169,7 +172,11 @@ export async function getProductBySlugAction(slug: string) {
       .maybeSingle();
     if (error) throw error;
     if (!data) throw new Error(await serverT("errors.productNotFound"));
-    return { success: true as const, data: hydrateProduct(data as Product) };
+    const campaigns = await loadActiveCampaigns(supabase);
+    return {
+      success: true as const,
+      data: applyLiveCampaigns(hydrateProduct(data as Product), campaigns),
+    };
   } catch (err) {
     return {
       success: false as const,
