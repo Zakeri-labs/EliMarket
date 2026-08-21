@@ -17,10 +17,11 @@ export function StorefrontHeader() {
     (s) => s.items.reduce((sum, item) => sum + item.quantity, 0),
   );
   const { t, messages, locale } = useTranslations();
+  // Arabic renders the brand in Arabic script, which Playfair does not cover.
   const brandClass =
-    locale === "en"
-      ? "font-logo font-semibold tracking-wide"
-      : "font-bold tracking-wide";
+    locale === "ar"
+      ? "font-bold tracking-wide"
+      : "font-logo font-semibold tracking-wide";
 
   const NAV_LINKS = [
     { href: "/", label: t("nav.home"), exact: true },

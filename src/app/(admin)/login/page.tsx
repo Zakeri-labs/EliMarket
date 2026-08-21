@@ -123,7 +123,7 @@ function AdminLoginForm() {
 }
 
 export default function AdminLoginPage() {
-  const { t, locale } = useTranslations();
+  const { t } = useTranslations();
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
@@ -132,13 +132,7 @@ export default function AdminLoginPage() {
       </div>
 
       <div className="text-center">
-        <h1
-          className={
-            locale === "en"
-              ? "font-logo text-2xl font-semibold tracking-wide text-[#527559]"
-              : "text-2xl font-bold text-[#527559]"
-          }
-        >
+        <h1 className="font-logo text-2xl font-semibold tracking-wide text-[#527559]">
           {BRAND_NAME}
         </h1>
         <p className="mt-2 text-sm text-[#71717a]">{t("admin.login.title")}</p>
