@@ -5,6 +5,7 @@ import type { Product } from "@/app/_types/database.types";
 import { cn } from "@/app/utils/cn";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
+import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { productGallery } from "@/lib/products/gallery";
 
 type Props = {
@@ -31,7 +32,9 @@ export function ProductGallery({
   return (
     <div className={cn(showThumbs ? "flex flex-col gap-3" : "relative h-full", className)}>
       <div className={cn("relative", showThumbs ? "aspect-square overflow-hidden rounded-2xl" : "h-full w-full")}>
-        {current ? (
+        {isSkeleton ? (
+          <SkeletonImage className="absolute inset-0 p-8" />
+        ) : current ? (
           <StorefrontImage
             src={current.image_url}
             blurHash={current.blur_hash}
@@ -47,7 +50,7 @@ export function ProductGallery({
             <ProductPlaceholder size="2xl" />
           </div>
         )}
-        {images.length > 1 && (
+        {images.length > 1 && !isSkeleton && (
           <div
             className={cn(
               "absolute inset-x-0 z-10 flex justify-center gap-1.5",
@@ -70,7 +73,7 @@ export function ProductGallery({
         )}
       </div>
 
-      {showThumbs && images.length > 1 && (
+      {showThumbs && images.length > 1 && !isSkeleton && (
         <div className="flex gap-2 overflow-x-auto">
           {images.map((image, imageIndex) => (
             <button

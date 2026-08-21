@@ -11,6 +11,7 @@ import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
+import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { Button } from "@/components/ui/Button";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
@@ -90,14 +91,16 @@ export function ProductDealCard({
           </span>
         )}
         <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-transparent">
-          {cover ? (
+          {isSkeleton ? (
+            <SkeletonImage />
+          ) : cover ? (
             <StorefrontImage
               src={cover.image_url}
               blurHash={cover.blur_hash}
               alt={product.name}
               fill
               priority={priority}
-              sizes={layout === "grid" ? "(max-width: 640px) 50vw, 200px" : "160px"}
+              sizes={layout === "grid" ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" : "160px"}
               withBlur={false}
               className="bg-transparent object-contain"
             />
@@ -116,12 +119,12 @@ export function ProductDealCard({
         ) : (
           <p className="mt-0.5 min-h-7" aria-hidden />
         )}
-        <div className="mt-1.5 flex min-h-8 flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-          <span className="text-sm font-bold">
+        <div className="mt-1.5 flex min-h-8 flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums">
+          <span className="price-num text-sm font-bold">
             {formatPrice(Number(product.price), product.currency)}
           </span>
           {compareAt != null && (
-            <span className="text-[10px] text-muted line-through">
+            <span className="price-num text-[10px] text-muted line-through">
               {formatPrice(compareAt, product.currency)}
             </span>
           )}

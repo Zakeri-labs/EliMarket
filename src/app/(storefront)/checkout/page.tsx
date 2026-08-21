@@ -314,7 +314,7 @@ function CheckoutPageContent() {
 
       <section className={cardClass}>
         <SectionHeading icon={Receipt} className="mb-3">{t("checkout.summaryTitle")}</SectionHeading>
-        <div className="space-y-2 text-sm text-muted">
+        <div className="space-y-2 text-sm text-muted tabular-nums">
           <div className="flex justify-between"><span>{t("checkout.subtotal")}</span><span>{formatPrice(subtotal)}</span></div>
           <div className="flex justify-between"><span>{t("checkout.delivery")}</span><span>{deliveryFee === 0 ? t("common.free") : formatPrice(deliveryFee)}</span></div>
           <div className="flex justify-between"><span>{t("checkout.vat")}</span><span>{formatPrice(vat)}</span></div>

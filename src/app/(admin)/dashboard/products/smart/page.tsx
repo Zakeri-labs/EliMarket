@@ -13,6 +13,7 @@ import { uploadImageFileToStorage } from "@/lib/storage/upload-image-client";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
 import type { Category } from "@/app/_types/database.types";
@@ -47,7 +48,8 @@ export default function SmartProductPage() {
   const [descriptionFa, setDescriptionFa] = useState("");
   const [descriptionAr, setDescriptionAr] = useState("");
   const [descriptionEn, setDescriptionEn] = useState("");
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState<number | undefined>(undefined);
+  const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(undefined);
   const [stock, setStock] = useState(0);
   const [features, setFeatures] = useState<FeatureDraft[]>([]);
 
@@ -140,6 +142,24 @@ export default function SmartProductPage() {
       });
       return;
     }
+    if (price == null || price <= 0) {
+      notifyFormError(t("admin.products.validationPrice"), {
+        title: t("notifications.errorTitle"),
+      });
+      return;
+    }
+    if (compareAtPrice == null || compareAtPrice <= 0) {
+      notifyFormError(t("admin.products.validationCompareAt"), {
+        title: t("notifications.errorTitle"),
+      });
+      return;
+    }
+    if (compareAtPrice < price) {
+      notifyFormError(t("admin.products.validationCompareAtMin"), {
+        title: t("notifications.errorTitle"),
+      });
+      return;
+    }
     const ordered = [
       draft.images[primaryIndex],
       ...draft.images.filter((_, index) => index !== primaryIndex),
@@ -154,6 +174,7 @@ export default function SmartProductPage() {
           description_ar: descriptionAr.trim() || null,
           description_en: descriptionEn.trim() || null,
           price,
+          compare_at_price: compareAtPrice,
           stock,
           category_id: categoryId || null,
           image_url: primary?.processedUrl ?? null,
@@ -380,13 +401,20 @@ export default function SmartProductPage() {
               dir="ltr"
             />
             <div className="grid grid-cols-2 gap-2">
-              <input
-                type="number"
+              <MoneyInput
                 value={price}
-                onChange={(event) => setPrice(Number(event.target.value) || 0)}
+                onValueChange={setPrice}
                 placeholder={t("admin.products.priceLabel")}
                 className={inputClass}
               />
+              <MoneyInput
+                value={compareAtPrice}
+                onValueChange={setCompareAtPrice}
+                placeholder={t("admin.products.compareAtPriceLabel")}
+                className={inputClass}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               <input
                 type="number"
                 value={stock}
@@ -394,19 +422,19 @@ export default function SmartProductPage() {
                 placeholder={t("admin.products.stockLabel")}
                 className={inputClass}
               />
+              <select
+                value={categoryId}
+                onChange={(event) => setCategoryId(event.target.value)}
+                className={inputClass}
+              >
+                <option value="">{t("admin.products.noCategory")}</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            <select
-              value={categoryId}
-              onChange={(event) => setCategoryId(event.target.value)}
-              className={inputClass}
-            >
-              <option value="">{t("admin.products.noCategory")}</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
           </section>
 
           <div className="flex flex-wrap gap-2">

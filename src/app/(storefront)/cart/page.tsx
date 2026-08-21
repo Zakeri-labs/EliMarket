@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
+import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import {
   FREE_DELIVERY_THRESHOLD,
   VAT_RATE,
@@ -139,14 +140,16 @@ function CartPageContent() {
                 >
                   <div className="flex gap-3">
                     <div className="target relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-elevated">
-                      {item.imageUrl ? (
+                      {isSkeleton ? (
+                        <SkeletonImage />
+                      ) : item.imageUrl ? (
                         <StorefrontImage
                           src={item.imageUrl}
                           blurHash={item.blurHash}
                           alt=""
                           fill
                           sizes="64px"
-                          withBlur={!isSkeleton}
+                          withBlur
                           className="object-cover"
                         />
                       ) : (
@@ -159,7 +162,7 @@ function CartPageContent() {
                           <p className="text-start text-sm font-semibold leading-snug">
                             {item.name}
                           </p>
-                          <p className="mt-2 text-start text-sm font-bold">
+                          <p className="price-num mt-2 text-start text-sm font-bold tabular-nums">
                             {formatPrice(item.price, item.currency)}
                           </p>
                         </div>
@@ -195,7 +198,7 @@ function CartPageContent() {
               ))}
             </ul>
 
-            <div className="space-y-2 border-t border-border p-4 text-sm">
+            <div className="space-y-2 border-t border-border p-4 text-sm tabular-nums">
               <div className="flex items-center justify-between text-muted">
                 <span>{t("cart.subtotal")}</span>
                 <span>{formatPrice(subtotal)}</span>
@@ -257,14 +260,16 @@ function CartPageContent() {
                   aria-busy={isSkeleton}
                 >
                   <div className="target relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-elevated">
-                    {item.imageUrl ? (
+                    {isSkeleton ? (
+                      <SkeletonImage />
+                    ) : item.imageUrl ? (
                       <StorefrontImage
                         src={item.imageUrl}
                         blurHash={item.blurHash}
                         alt=""
                         fill
                         sizes="64px"
-                        withBlur={!isSkeleton}
+                        withBlur
                         className="object-cover"
                       />
                     ) : (
@@ -273,7 +278,7 @@ function CartPageContent() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{item.name}</p>
-                    <p className="text-xs text-accent">{formatPrice(item.price, item.currency)}</p>
+                    <p className="price-num text-xs text-accent tabular-nums">{formatPrice(item.price, item.currency)}</p>
                     <div className="mt-2">
                       <CartQtyStepper
                         quantity={item.quantity}
@@ -306,7 +311,7 @@ function CartPageContent() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="space-y-2 rounded-2xl border border-border bg-surface p-4 text-sm lg:sticky lg:top-24">
+            <div className="space-y-2 rounded-2xl border border-border bg-surface p-4 text-sm tabular-nums lg:sticky lg:top-24">
               <div className="flex justify-between text-muted">
                 <span>{t("cart.subtotal")}</span>
                 <span>{formatPrice(subtotal)}</span>

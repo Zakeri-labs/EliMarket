@@ -10,6 +10,8 @@ import { useTranslations } from "@/i18n/use-translations";
 import { campaignSearchPath } from "@/lib/campaigns/href";
 import { sortFlashDealProducts } from "@/lib/products/pricing";
 
+const HOME_DEAL_COUNT = 10;
+
 export function FlashDeals() {
   const { data: products, isPending } = useProducts();
   const { t, dir, locale } = useTranslations();
@@ -17,7 +19,11 @@ export function FlashDeals() {
 
   const { deals, endsAt, viewAllHref } = useMemo(() => {
     if (isSkeleton) {
-      return { deals: mockFlashDeals(locale), endsAt: null as string | null, viewAllHref: "/search?sale=1" };
+      return {
+        deals: mockFlashDeals(locale).slice(0, HOME_DEAL_COUNT),
+        endsAt: null as string | null,
+        viewAllHref: "/search?sale=1",
+      };
     }
     if (!products?.length) {
       return { deals: [], endsAt: null as string | null, viewAllHref: "/search?sale=1" };
@@ -25,12 +31,17 @@ export function FlashDeals() {
 
     const campaignDeals = products.filter((product) => product.campaign);
     const homeDeals = campaignDeals.filter((product) => product.campaign?.show_on_home);
-    const sourced = homeDeals.length ? homeDeals : campaignDeals.length ? campaignDeals : sortFlashDealProducts(products);
-    const nextDeals = sourced.slice(0, 6);
-    const nextEndsAt = nextDeals
-      .map((product) => product.campaign?.ends_at)
-      .filter((value): value is string => Boolean(value))
-      .sort()[0] ?? null;
+    const sourced = homeDeals.length
+      ? homeDeals
+      : campaignDeals.length
+        ? campaignDeals
+        : sortFlashDealProducts(products);
+    const nextDeals = sourced.slice(0, HOME_DEAL_COUNT);
+    const nextEndsAt =
+      nextDeals
+        .map((product) => product.campaign?.ends_at)
+        .filter((value): value is string => Boolean(value))
+        .sort()[0] ?? null;
     const uniqueCampaigns = nextDeals
       .map((product) => product.campaign)
       .filter((campaign): campaign is NonNullable<typeof campaign> => Boolean(campaign))
@@ -53,13 +64,14 @@ export function FlashDeals() {
           </Link>
         </div>
       </div>
-      <div className="no-scrollbar -mx-4 flex items-stretch justify-start gap-3 overflow-x-auto px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {deals.map((product, index) => (
           <ProductDealCard
             key={product.id}
             product={product}
             isSkeleton={isSkeleton}
             priority={index < 2}
+            layout="grid"
           />
         ))}
       </div>

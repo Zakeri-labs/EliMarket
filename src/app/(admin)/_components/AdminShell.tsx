@@ -45,7 +45,7 @@ export function AdminShell({
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
   const clearSession = useAuthStore((s) => s.clearSession);
   const { runAction, isPending } = useFormAction();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
   useEffect(() => {
     setMobileOpen(false);
@@ -74,7 +74,15 @@ export function AdminShell({
         <div className="mb-6 flex shrink-0 items-start justify-between gap-2">
           <div>
             <p className="text-xs text-[#6b8f71]">{t("admin.panelLabel")}</p>
-            <p className="text-lg font-bold text-[#527559]">{t("admin.brandAdmin")}</p>
+            <p
+              className={
+                locale === "en"
+                  ? "font-logo text-lg font-semibold tracking-wide text-[#527559]"
+                  : "text-lg font-bold text-[#527559]"
+              }
+            >
+              {t("admin.brandAdmin")}
+            </p>
           </div>
           <button
             type="button"

@@ -10,6 +10,7 @@ import { CategoryProductList } from "@/app/(storefront)/_components/CategoryProd
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
+import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { getCategoryIcon } from "@/config/category-icons";
 import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { useTranslations } from "@/i18n/use-translations";
@@ -93,7 +94,9 @@ export default function CategoriesContent() {
               aria-busy={isSkeleton}
             >
               <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-transparent">
-                {!isSkeleton && cat.image_url ? (
+                {isSkeleton ? (
+                  <SkeletonImage />
+                ) : cat.image_url ? (
                   <StorefrontImage
                     src={cat.image_url}
                     blurHash={cat.blur_hash}
@@ -105,9 +108,7 @@ export default function CategoriesContent() {
                     className="max-h-full max-w-full bg-transparent object-contain"
                   />
                 ) : (
-                  !isSkeleton && (
-                    <AppIcon icon={getCategoryIcon(cat.slug)} size="lg" className="text-accent" />
-                  )
+                  <AppIcon icon={getCategoryIcon(cat.slug)} size="lg" className="text-accent" />
                 )}
               </span>
                     <span className="flex-1 text-start font-medium">

@@ -15,7 +15,11 @@ export function StorefrontHeader() {
   const cartCount = useCartStore(
     (s) => s.items.reduce((sum, item) => sum + item.quantity, 0),
   );
-  const { t, messages } = useTranslations();
+  const { t, messages, locale } = useTranslations();
+  const brandClass =
+    locale === "en"
+      ? "font-logo font-semibold tracking-wide"
+      : "font-bold tracking-wide";
 
   const NAV_LINKS = [
     { href: "/", label: t("nav.home"), exact: true },
@@ -38,7 +42,7 @@ export function StorefrontHeader() {
             <AppIcon icon={Menu} size="md" />
           </Link>
           <Link href="/" className="min-w-0 flex-1 text-center">
-            <p className="truncate font-serif text-base font-bold tracking-wide">
+            <p className={cn("truncate text-base", brandClass)}>
               {messages.brand.nameLocal}
             </p>
           </Link>
@@ -62,7 +66,7 @@ export function StorefrontHeader() {
         {/* Desktop */}
         <div className="hidden items-center justify-between gap-4 md:flex">
           <Link href="/" className="shrink-0">
-            <p className="font-serif text-lg font-bold tracking-wide">{messages.brand.nameLocal}</p>
+            <p className={cn("text-lg", brandClass)}>{messages.brand.nameLocal}</p>
           </Link>
 
           <nav className="flex flex-1 items-center justify-center gap-1">

@@ -8,7 +8,9 @@ import type { HeroSlide } from "@/app/(storefront)/_types/hero-slide";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
+import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { heroDefaultImage } from "@/lib/images/blur-placeholders";
+import type { Locale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import styles from "./HeroCarousel.module.css";
 
@@ -40,11 +42,13 @@ function HeroSlidePanel({
   isSkeleton,
   frameHeight,
   dir,
+  locale,
 }: {
   slide: HeroSlide;
   isSkeleton: boolean;
   frameHeight: number;
   dir: "rtl" | "ltr";
+  locale: Locale;
 }) {
   const isRtl = dir === "rtl";
   const imageSrc = slide.imageUrl ?? null;
@@ -62,7 +66,11 @@ function HeroSlidePanel({
       aria-busy={isSkeleton}
       style={{ minHeight: frameHeight, height: frameHeight }}
     >
-      {hasImage && imageSrc && (
+      {isSkeleton ? (
+        <div className={styles.mediaLayer}>
+          <SkeletonImage className="p-10 sm:p-16" />
+        </div>
+      ) : hasImage && imageSrc ? (
         <div className={styles.mediaLayer}>
           <StorefrontImage
             src={imageSrc}
@@ -71,7 +79,7 @@ function HeroSlidePanel({
             fill
             priority
             sizes="(max-width: 1280px) 100vw, 1280px"
-            withBlur={!isSkeleton}
+            withBlur
             className="object-cover object-center md:object-[center_35%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10" />
@@ -84,9 +92,7 @@ function HeroSlidePanel({
             )}
           />
         </div>
-      )}
-
-      {!hasImage && (
+      ) : (
         <div className={cn(styles.mediaLayer, "pointer-events-none opacity-30")}>
           <StorefrontImage
             src={heroDefaultImage}
@@ -107,7 +113,12 @@ function HeroSlidePanel({
         <p className="w-full text-start text-xs font-medium uppercase tracking-wide opacity-90">
           {slide.badge}
         </p>
-        <h2 className="mt-1 w-full max-w-lg text-start font-serif text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">
+        <h2
+          className={cn(
+            "mt-1 w-full max-w-lg text-start text-2xl leading-tight sm:text-3xl md:text-4xl",
+            locale === "en" ? "font-logo font-semibold" : "font-bold",
+          )}
+        >
           {slide.title}
         </h2>
         <p className="mt-2 w-full max-w-md text-start text-sm opacity-90 sm:text-base">
@@ -129,7 +140,7 @@ function HeroSlidePanel({
 
 export function HeroCarousel() {
   const { slides, isSkeleton } = useHeroSlides();
-  const { t, dir } = useTranslations();
+  const { t, dir, locale } = useTranslations();
   const frameHeight = useHeroFrameHeight();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -189,6 +200,7 @@ export function HeroCarousel() {
                 isSkeleton={isSkeleton}
                 frameHeight={frameHeight}
                 dir={dir}
+                locale={locale}
               />
             ))}
           </div>

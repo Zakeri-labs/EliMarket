@@ -207,8 +207,8 @@ export function mockProducts(locale: Locale): Product[] {
   return FLASH_DEAL_DATA.map((_, index) => buildMockProduct(locale, index));
 }
 
-/** Horizontal flash deals row (6 cards). */
-export const MOCK_FLASH_DEALS_COUNT = 6;
+/** Homepage flash deals grid (up to two rows of five). */
+export const MOCK_FLASH_DEALS_COUNT = 10;
 
 export function mockFlashDeals(locale: Locale): Product[] {
   return mockProducts(locale).slice(0, MOCK_FLASH_DEALS_COUNT);

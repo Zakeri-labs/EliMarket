@@ -331,6 +331,28 @@ export type Messages = {
     };
     dashboard: {
       title: string;
+      subtitle: string;
+      salesToday: string;
+      salesWeek: string;
+      salesMonth: string;
+      activeOrders: string;
+      liveCampaigns: string;
+      inventory: string;
+      activeProducts: string;
+      outOfStock: string;
+      lowStockTitle: string;
+      topSellers: string;
+      topSellersEmpty: string;
+      soldCount: string;
+      viewReports: string;
+      viewOrders: string;
+      viewProducts: string;
+      salesTrend: string;
+      chartRevenue: string;
+      chartOrders: string;
+      inventorySplit: string;
+      stockOk: string;
+      orderStatusChart: string;
       productsCard: string;
       productsDesc: string;
       ordersCard: string;
@@ -376,6 +398,7 @@ export type Messages = {
       aiDescriptionAll: string;
       priceLabel: string;
       compareAtPriceLabel: string;
+      pricePlaceholder: string;
       stockLabel: string;
       inventoryUnit: string;
       unitCount: string;
@@ -424,6 +447,9 @@ export type Messages = {
       entityName: string;
       validationName: string;
       validationSlug: string;
+      validationPrice: string;
+      validationCompareAt: string;
+      validationCompareAtMin: string;
       aiStubDescription: string;
       aiStubCategorySuffix: string;
     };
@@ -1048,6 +1074,28 @@ const fa: Messages = {
     },
     dashboard: {
       title: "داشبورد",
+      subtitle: "وضعیت فروش، موجودی و سفارش‌ها در یک نگاه",
+      salesToday: "فروش امروز",
+      salesWeek: "فروش ۷ روز اخیر",
+      salesMonth: "فروش این ماه",
+      activeOrders: "سفارش‌های فعال",
+      liveCampaigns: "کمپین فعال",
+      inventory: "موجودی انبار",
+      activeProducts: "{count} محصول فعال",
+      outOfStock: "ناموجود",
+      lowStockTitle: "کمتر از حد تعریف‌شده",
+      topSellers: "محصولات پرفروش این ماه",
+      topSellersEmpty: "این ماه هنوز سفارشی ثبت نشده است.",
+      soldCount: "{count} فروش",
+      viewReports: "گزارش کامل",
+      viewOrders: "همه سفارش‌ها",
+      viewProducts: "مدیریت موجودی",
+      salesTrend: "روند فروش",
+      chartRevenue: "فروش",
+      chartOrders: "سفارش",
+      inventorySplit: "وضعیت موجودی",
+      stockOk: "موجودی کافی",
+      orderStatusChart: "وضعیت سفارش‌ها",
       productsCard: "مدیریت محصولات",
       productsDesc: "افزودن، تصویر، موجودی",
       ordersCard: "مدیریت سفارش‌ها",
@@ -1093,6 +1141,7 @@ const fa: Messages = {
       aiDescriptionAll: "تولید توضیحات با AI",
       priceLabel: "قیمت (ریال عمان)",
       compareAtPriceLabel: "قیمت قبل از تخفیف (ریال عمان)",
+      pricePlaceholder: "مثلاً ۱,۲۵۰",
       stockLabel: "موجودی",
       inventoryUnit: "نوع موجودی",
       unitCount: "عددی",
@@ -1141,6 +1190,9 @@ const fa: Messages = {
       entityName: "محصولات",
       validationName: "نام الزامی است",
       validationSlug: "اسلاگ الزامی است",
+      validationPrice: "قیمت محصول را وارد کنید",
+      validationCompareAt: "قیمت قبل از تخفیف را وارد کنید",
+      validationCompareAtMin: "قیمت قبل از تخفیف باید برابر یا بیشتر از قیمت فروش باشد",
       aiStubDescription: "{name} — محصول تازه و باکیفیت{category}.",
       aiStubCategorySuffix: " در دسته {category}",
     },
@@ -1774,6 +1826,28 @@ const ar: Messages = {
     },
     dashboard: {
       title: "لوحة التحكم",
+      subtitle: "المبيعات والمخزون والطلبات في نظرة واحدة",
+      salesToday: "مبيعات اليوم",
+      salesWeek: "مبيعات آخر ٧ أيام",
+      salesMonth: "مبيعات هذا الشهر",
+      activeOrders: "طلبات نشطة",
+      liveCampaigns: "حملات نشطة",
+      inventory: "مخزون المستودع",
+      activeProducts: "{count} منتج نشط",
+      outOfStock: "نفد المخزون",
+      lowStockTitle: "أقل من الحد المحدد",
+      topSellers: "الأكثر مبيعاً هذا الشهر",
+      topSellersEmpty: "لا توجد طلبات هذا الشهر بعد.",
+      soldCount: "{count} عملية بيع",
+      viewReports: "التقرير الكامل",
+      viewOrders: "كل الطلبات",
+      viewProducts: "إدارة المخزون",
+      salesTrend: "اتجاه المبيعات",
+      chartRevenue: "المبيعات",
+      chartOrders: "الطلبات",
+      inventorySplit: "حالة المخزون",
+      stockOk: "مخزون كافٍ",
+      orderStatusChart: "حالة الطلبات",
       productsCard: "إدارة المنتجات",
       productsDesc: "إضافة، صورة، مخزون",
       ordersCard: "إدارة الطلبات",
@@ -1819,6 +1893,7 @@ const ar: Messages = {
       aiDescriptionAll: "إنشاء الوصف بالذكاء الاصطناعي",
       priceLabel: "السعر (ريال عماني)",
       compareAtPriceLabel: "السعر قبل الخصم (ريال عماني)",
+      pricePlaceholder: "مثلاً 1,250",
       stockLabel: "المخزون",
       inventoryUnit: "نوع المخزون",
       unitCount: "عددي",
@@ -1867,6 +1942,9 @@ const ar: Messages = {
       entityName: "المنتجات",
       validationName: "الاسم مطلوب",
       validationSlug: "الرابط التعريفي مطلوب",
+      validationPrice: "أدخل سعر المنتج",
+      validationCompareAt: "أدخل السعر قبل الخصم",
+      validationCompareAtMin: "يجب أن يكون السعر قبل الخصم مساوياً أو أعلى من سعر البيع",
       aiStubDescription: "{name} — منتج طازج وعالي الجودة{category}.",
       aiStubCategorySuffix: " في فئة {category}",
     },
@@ -2500,6 +2578,28 @@ const en: Messages = {
     },
     dashboard: {
       title: "Dashboard",
+      subtitle: "Sales, stock, and orders at a glance",
+      salesToday: "Today’s sales",
+      salesWeek: "Last 7 days",
+      salesMonth: "This month",
+      activeOrders: "Active orders",
+      liveCampaigns: "Live campaigns",
+      inventory: "Warehouse stock",
+      activeProducts: "{count} active products",
+      outOfStock: "Out of stock",
+      lowStockTitle: "Below stock threshold",
+      topSellers: "Best sellers this month",
+      topSellersEmpty: "No orders recorded this month yet.",
+      soldCount: "{count} sold",
+      viewReports: "Full report",
+      viewOrders: "All orders",
+      viewProducts: "Manage stock",
+      salesTrend: "Sales trend",
+      chartRevenue: "Sales",
+      chartOrders: "Orders",
+      inventorySplit: "Stock status",
+      stockOk: "In stock",
+      orderStatusChart: "Order status",
       productsCard: "Manage products",
       productsDesc: "Add, images, stock",
       ordersCard: "Manage orders",
@@ -2545,6 +2645,7 @@ const en: Messages = {
       aiDescriptionAll: "Generate descriptions with AI",
       priceLabel: "Price (OMR)",
       compareAtPriceLabel: "Original price (OMR)",
+      pricePlaceholder: "e.g. 1,250",
       stockLabel: "Stock",
       inventoryUnit: "Inventory type",
       unitCount: "Count",
@@ -2593,6 +2694,9 @@ const en: Messages = {
       entityName: "Products",
       validationName: "Name is required",
       validationSlug: "Slug is required",
+      validationPrice: "Enter the product price",
+      validationCompareAt: "Enter the price before discount",
+      validationCompareAtMin: "Original price must be equal to or higher than the selling price",
       aiStubDescription: "{name} — fresh, high-quality product{category}.",
       aiStubCategorySuffix: " in {category} category",
     },

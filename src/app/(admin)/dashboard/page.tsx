@@ -1,107 +1,178 @@
 "use client";
 
 import Link from "next/link";
+import { AlertTriangle, ShoppingBag } from "lucide-react";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { PriceVisibilityToggle } from "@/app/(admin)/_components/PriceVisibilityToggle";
-import { useTranslations } from "@/i18n/use-translations";
+import { DashboardCharts } from "@/app/(admin)/dashboard/_components/DashboardCharts";
+import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
+import { AppIcon } from "@/components/icons/AppIcon";
+import { getNumberLocale } from "@/i18n/config";
+import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { cn } from "@/app/utils/cn";
+import type { PeriodSummary } from "@/app/_actions/report-actions";
+
+function StatCard({
+  label,
+  value,
+  sub,
+  tone = "default",
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  tone?: "default" | "warn" | "danger";
+}) {
+  return (
+    <div className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+      <p className="text-sm text-[#71717a]">{label}</p>
+      <p
+        className={cn(
+          "mt-2 text-2xl font-bold",
+          tone === "danger" && "text-red-600",
+          tone === "warn" && "text-amber-700",
+          tone === "default" && "text-[#527559]",
+        )}
+      >
+        {value}
+      </p>
+      {sub ? <p className="mt-1 text-xs text-[#71717a]">{sub}</p> : null}
+    </div>
+  );
+}
 
 export default function AdminDashboardPage() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
+  const formatPrice = useFormatPrice();
+  const { data: report, isPending, error } = useFinancialReport();
 
-  const cards = [
-    {
-      href: "/dashboard/products/smart",
-      label: t("admin.dashboard.smartProductCard"),
-      desc: t("admin.dashboard.smartProductDesc"),
-    },
-    {
-      href: "/dashboard/products",
-      label: t("admin.dashboard.productsCard"),
-      desc: t("admin.dashboard.productsDesc"),
-    },
-    {
-      href: "/dashboard/categories",
-      label: t("admin.dashboard.categoriesCard"),
-      desc: t("admin.dashboard.categoriesDesc"),
-    },
-    {
-      href: "/dashboard/brands",
-      label: t("admin.dashboard.brandsCard"),
-      desc: t("admin.dashboard.brandsDesc"),
-    },
-    {
-      href: "/dashboard/banners",
-      label: t("admin.dashboard.bannersCard"),
-      desc: t("admin.dashboard.bannersDesc"),
-    },
-    {
-      href: "/dashboard/campaigns",
-      label: t("admin.dashboard.campaignsCard"),
-      desc: t("admin.dashboard.campaignsDesc"),
-    },
-    {
-      href: "/dashboard/orders",
-      label: t("admin.dashboard.ordersCard"),
-      desc: t("admin.dashboard.ordersDesc"),
-    },
-    {
-      href: "/dashboard/reports",
-      label: t("admin.dashboard.reportsCard"),
-      desc: t("admin.dashboard.reportsDesc"),
-    },
-    {
-      href: "/dashboard/customers",
-      label: t("admin.dashboard.customersCard"),
-      desc: t("admin.dashboard.customersDesc"),
-    },
-    {
-      href: "/dashboard/coverage-area",
-      label: t("admin.dashboard.coverageCard"),
-      desc: t("admin.dashboard.coverageDesc"),
-    },
-  ];
+  const periodCard = (label: string, summary?: PeriodSummary) => (
+    <StatCard
+      label={label}
+      value={formatPrice(summary?.revenue ?? 0)}
+      sub={t("admin.reports.ordersCount", { count: summary?.orders ?? 0 })}
+    />
+  );
 
   return (
-    <AdminShell title={t("admin.dashboard.title")}>
-      {/* <section className="mb-8 rounded-2xl border border-[#e4e4e7] bg-white p-6 shadow-sm">
-        <span className="inline-flex rounded-full bg-[#6b8f71]/15 px-3 py-1 text-xs font-medium text-[#527559]">
-          {t("admin.dashboard.warehouseBadge")}
-        </span>
-        <h2 className="mt-3 text-xl font-bold text-[#18181b]">
-          {t("admin.dashboard.warehouseTitle")}
-        </h2>
-        <ul className="mt-4 space-y-2 text-sm leading-6 text-[#3f3f46]">
-          {[
-            "warehouseProducts",
-            "warehouseCategories",
-            "warehouseUnits",
-            "warehouseAutoStock",
-            "warehouseAlerts",
-            "warehouseOrders",
-          ].map((key) => (
-            <li key={key} className="flex items-start gap-2">
-              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#6b8f71]" />
-              <span>{t(`admin.dashboard.${key}`)}</span>
-            </li>
-          ))}
-        </ul>
-      </section> */}
+    <AdminShell title={t("admin.dashboard.title")} subtitle={t("admin.dashboard.subtitle")}>
+      <div className="space-y-8">
+        {isPending ? (
+          <p className="text-sm text-[#71717a]">{t("admin.reports.loading")}</p>
+        ) : null}
+        {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
 
-      <div className="mb-8 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
-        <PriceVisibilityToggle />
-      </div>
+        {report ? (
+          <>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {periodCard(t("admin.dashboard.salesToday"), report.today)}
+              {periodCard(t("admin.dashboard.salesWeek"), report.week)}
+              {periodCard(t("admin.dashboard.salesMonth"), report.month)}
+            </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {cards.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="rounded-xl border border-[#e4e4e7] bg-white p-6 shadow-sm transition-colors hover:border-[#6b8f71]"
-          >
-            <p className="font-semibold text-[#527559]">{item.label}</p>
-            <p className="mt-1 text-sm text-[#71717a]">{item.desc}</p>
-          </Link>
-        ))}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <StatCard
+                label={t("admin.dashboard.activeOrders")}
+                value={String(report.pendingCount)}
+                sub={formatPrice(report.pendingRevenue)}
+              />
+              <StatCard
+                label={t("admin.dashboard.lowStockTitle")}
+                value={String(report.inventory.lowStock)}
+                sub={t("admin.dashboard.activeProducts", { count: report.inventory.active })}
+                tone={report.inventory.lowStock > 0 ? "warn" : "default"}
+              />
+              <StatCard
+                label={t("admin.dashboard.outOfStock")}
+                value={String(report.inventory.outOfStock)}
+                sub={t("admin.dashboard.inventory")}
+                tone={report.inventory.outOfStock > 0 ? "danger" : "default"}
+              />
+              <StatCard
+                label={t("admin.dashboard.liveCampaigns")}
+                value={String(report.liveCampaigns)}
+              />
+            </div>
+
+            <DashboardCharts report={report} />
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h2 className="flex items-center gap-2 font-semibold text-[#18181b]">
+                    <AppIcon icon={AlertTriangle} size="sm" className="text-amber-600" />
+                    {t("admin.dashboard.lowStockTitle")}
+                  </h2>
+                  <Link href="/dashboard/products" className="text-xs text-[#527559]">
+                    {t("admin.dashboard.viewProducts")}
+                  </Link>
+                </div>
+                {report.lowStockProducts.length === 0 ? (
+                  <p className="text-sm text-[#71717a]">{t("admin.reports.allStockOk")}</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {report.lowStockProducts.map((product) => (
+                      <li
+                        key={product.id}
+                        className="flex items-center justify-between gap-3 rounded-xl bg-[#f4f4f5] px-3 py-2 text-sm"
+                      >
+                        <span className="min-w-0 truncate">{product.name}</span>
+                        <span
+                          className={cn(
+                            "shrink-0 font-medium",
+                            product.stock <= 0 ? "text-red-600" : "text-amber-700",
+                          )}
+                        >
+                          {product.stock} / {product.low_stock_threshold ?? 5}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+
+              <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h2 className="flex items-center gap-2 font-semibold text-[#18181b]">
+                    <AppIcon icon={ShoppingBag} size="sm" className="text-[#6b8f71]" />
+                    {t("admin.reports.recentOrders")}
+                  </h2>
+                  <Link href="/dashboard/orders" className="text-xs text-[#527559]">
+                    {t("admin.dashboard.viewOrders")}
+                  </Link>
+                </div>
+                {report.recentOrders.length === 0 ? (
+                  <p className="text-sm text-[#71717a]">{t("admin.reports.noData")}</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {report.recentOrders.map((order) => (
+                      <li
+                        key={order.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f4f4f5] px-3 py-2 text-sm"
+                      >
+                        <span className="font-mono text-xs text-[#71717a]" dir="ltr">
+                          {order.id.slice(0, 8)}
+                        </span>
+                        <span>{t(`admin.status.${order.status}`)}</span>
+                        <span className="text-[#71717a]">
+                          {new Date(order.created_at).toLocaleString(getNumberLocale(locale), {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          })}
+                        </span>
+                        <span className="font-medium">{formatPrice(Number(order.total))}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            </div>
+          </>
+        ) : null}
+
+        <div className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+          <PriceVisibilityToggle />
+        </div>
       </div>
     </AdminShell>
   );

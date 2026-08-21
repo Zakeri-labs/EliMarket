@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Check, Sparkles, Star, Upload } from "lucide-react";
@@ -33,6 +33,7 @@ import type { Brand, Category, InventoryUnit, Product, ProductImageInput } from 
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { MoneyInput } from "@/components/ui/MoneyInput";
 import { RowIconActions } from "@/components/admin/RowIconActions";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
@@ -78,7 +79,7 @@ type FormValues = {
   description_fa?: string;
   description_ar?: string;
   description_en?: string;
-  price: number;
+  price?: number;
   compare_at_price?: number;
   stock: number;
   inventory_unit: InventoryUnit;
@@ -96,7 +97,7 @@ const DEFAULT_FORM_VALUES: FormValues = {
   description_fa: "",
   description_ar: "",
   description_en: "",
-  price: 0,
+  price: undefined,
   compare_at_price: undefined,
   stock: 0,
   inventory_unit: "count",
@@ -132,8 +133,8 @@ export default function AdminProductsPage() {
         description_fa: z.string().optional(),
         description_ar: z.string().optional(),
         description_en: z.string().optional(),
-        price: z.number().min(0),
-        compare_at_price: z.number().min(0).optional(),
+        price: z.number().optional(),
+        compare_at_price: z.number().optional(),
         stock: z.number().int().min(0),
         inventory_unit: z.enum(["count", "weight", "pack"]),
         low_stock_threshold: z.number().int().min(0),
@@ -142,6 +143,31 @@ export default function AdminProductsPage() {
         image_url: z.string().optional(),
         blur_hash: z.string().optional(),
         is_active: z.boolean(),
+      }).superRefine((data, ctx) => {
+        if (data.price == null || !Number.isFinite(data.price) || data.price <= 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("admin.products.validationPrice"),
+            path: ["price"],
+          });
+        }
+        if (
+          data.compare_at_price == null ||
+          !Number.isFinite(data.compare_at_price) ||
+          data.compare_at_price <= 0
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("admin.products.validationCompareAt"),
+            path: ["compare_at_price"],
+          });
+        } else if (data.price != null && data.compare_at_price < data.price) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("admin.products.validationCompareAtMin"),
+            path: ["compare_at_price"],
+          });
+        }
       }),
     [t],
   );
@@ -228,6 +254,7 @@ export default function AdminProductsPage() {
   const onSubmit = form.handleSubmit((values) => {
     const payload = {
       ...values,
+      price: values.price as number,
       category_id: values.category_id || null,
       brand_id: values.brand_id || null,
       description_fa: values.description_fa?.trim() || null,
@@ -235,7 +262,7 @@ export default function AdminProductsPage() {
       description_en: values.description_en?.trim() || null,
       image_url: gallery[0]?.image_url || null,
       blur_hash: gallery[0]?.blur_hash || null,
-      compare_at_price: values.compare_at_price ? values.compare_at_price : null,
+      compare_at_price: values.compare_at_price as number,
       images: gallery.filter((image) => image.image_url.trim()),
       features: features
         .map((feature) => ({
@@ -595,26 +622,50 @@ export default function AdminProductsPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
-                {t("admin.products.priceLabel")}
-              </label>
-              <input
-                {...form.register("price", { valueAsNumber: true })}
-                type="number"
-                className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
-                {t("admin.products.compareAtPriceLabel")}
-              </label>
-              <input
-                {...form.register("compare_at_price", { valueAsNumber: true })}
-                type="number"
-                className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
-              />
-            </div>
+            <Controller
+              control={form.control}
+              name="price"
+              render={({ field, fieldState }) => (
+                <div>
+                  <label className="mb-1 block text-xs text-[#71717a]">
+                    {t("admin.products.priceLabel")}
+                  </label>
+                  <MoneyInput
+                    name={field.name}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder={t("admin.products.pricePlaceholder")}
+                    className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+                  />
+                  {fieldState.error ? (
+                    <p className="mt-1 text-xs text-red-600">{fieldState.error.message}</p>
+                  ) : null}
+                </div>
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="compare_at_price"
+              render={({ field, fieldState }) => (
+                <div>
+                  <label className="mb-1 block text-xs text-[#71717a]">
+                    {t("admin.products.compareAtPriceLabel")}
+                  </label>
+                  <MoneyInput
+                    name={field.name}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder={t("admin.products.pricePlaceholder")}
+                    className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+                  />
+                  {fieldState.error ? (
+                    <p className="mt-1 text-xs text-red-600">{fieldState.error.message}</p>
+                  ) : null}
+                </div>
+              )}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-2">

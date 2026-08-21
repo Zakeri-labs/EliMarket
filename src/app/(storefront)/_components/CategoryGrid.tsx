@@ -7,10 +7,14 @@ import { getCategoriesAction } from "@/app/_actions/product-actions";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
+import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { getCategoryIcon } from "@/config/category-icons";
 import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
+
+/** One homepage row: 5 on mobile, 8 on tablet, 10 on desktop. The rest is on /categories. */
+const HOME_CATEGORY_SLOTS = 10;
 
 export function CategoryGrid() {
   const { t, locale, dir } = useTranslations();
@@ -26,9 +30,12 @@ export function CategoryGrid() {
   const isSkeleton = isPending;
 
   const items = useMemo(() => {
-    if (isSkeleton) return mockCategories(locale);
-    if (categories?.length) return categories;
-    return mockCategories(locale);
+    const source = isSkeleton
+      ? mockCategories(locale)
+      : categories?.length
+        ? categories
+        : mockCategories(locale);
+    return source.filter((cat) => !cat.parent_id).slice(0, HOME_CATEGORY_SLOTS);
   }, [categories, isSkeleton, locale]);
 
   return (
@@ -39,8 +46,8 @@ export function CategoryGrid() {
           {t("home.viewAll")}
         </Link>
       </div>
-      <div dir={dir} className="flex flex-wrap justify-start gap-2">
-        {(isSkeleton ? items : items.filter((cat) => !cat.parent_id)).map((cat) => {
+      <div dir={dir} className="flex flex-nowrap gap-2">
+        {items.map((cat, index) => {
           const hasImage = Boolean(cat.image_url);
 
           return (
@@ -49,7 +56,10 @@ export function CategoryGrid() {
               href={isSkeleton ? "#" : `/categories/${cat.slug}`}
               dir={dir}
               className={cn(
-                "flex w-[4.5rem] shrink-0 flex-col items-center rounded-xl border border-border bg-surface-elevated px-1 pb-1.5 pt-1.5 sm:w-[5.25rem]",
+                "flex w-0 min-w-0 max-w-[20%] flex-1 flex-col items-center rounded-xl border border-border bg-surface-elevated px-1 pb-1.5 pt-1.5",
+                index >= 5 && "hidden",
+                index < 8 && "sm:flex",
+                index >= 8 && "lg:flex",
                 isSkeleton && "skeleton pointer-events-none",
               )}
               onClick={(e) => {
@@ -58,7 +68,9 @@ export function CategoryGrid() {
               aria-busy={isSkeleton}
             >
               <span className="relative flex h-14 w-full items-center justify-center bg-transparent sm:h-16">
-                {hasImage && cat.image_url ? (
+                {isSkeleton ? (
+                  <SkeletonImage />
+                ) : hasImage && cat.image_url ? (
                   <StorefrontImage
                     src={cat.image_url}
                     blurHash={cat.blur_hash}
@@ -70,13 +82,11 @@ export function CategoryGrid() {
                     className="max-h-full max-w-full bg-transparent object-contain"
                   />
                 ) : (
-                  !isSkeleton && (
-                    <AppIcon
-                      icon={getCategoryIcon(cat.slug)}
-                      size="md"
-                      className="text-accent/80"
-                    />
-                  )
+                  <AppIcon
+                    icon={getCategoryIcon(cat.slug)}
+                    size="md"
+                    className="text-accent/80"
+                  />
                 )}
               </span>
               <p className="mt-1 line-clamp-2 w-full text-center text-[10px] font-medium leading-tight text-foreground">

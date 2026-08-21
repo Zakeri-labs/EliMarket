@@ -7,6 +7,7 @@ import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
+import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
 import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
@@ -38,7 +39,9 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
         aria-busy={isSkeleton}
       >
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-transparent">
-          {cover ? (
+          {isSkeleton ? (
+            <SkeletonImage />
+          ) : cover ? (
             <StorefrontImage
               src={cover.image_url}
               blurHash={cover.blur_hash}
@@ -57,10 +60,10 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
           {excerpt && (
             <p className="mt-0.5 line-clamp-1 text-[11px] text-muted">{excerpt}</p>
           )}
-          <div className="mt-1 flex items-baseline gap-1.5">
-            <p className="text-xs font-semibold">{formatPrice(Number(product.price))}</p>
+          <div className="mt-1 flex items-baseline gap-1.5 tabular-nums">
+            <p className="price-num text-xs font-semibold">{formatPrice(Number(product.price))}</p>
             {compareAt != null && (
-              <p className="text-[10px] text-muted line-through">{formatPrice(compareAt)}</p>
+              <p className="price-num text-[10px] text-muted line-through">{formatPrice(compareAt)}</p>
             )}
           </div>
         </div>

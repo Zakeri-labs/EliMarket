@@ -171,11 +171,11 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               <div className="flex items-start justify-between gap-4">
                 {showPrices ? (
                   <div>
-                    <p className="text-start text-3xl font-bold tracking-tight">
+                    <p className="price-num text-start text-3xl font-bold tracking-tight tabular-nums">
                       {formatPrice(Number(product.price), product.currency)}
                     </p>
                     {compareAt != null && (
-                      <p className="mt-1 text-start text-sm text-muted line-through">
+                      <p className="price-num mt-1 text-start text-sm text-muted line-through tabular-nums">
                         {formatPrice(compareAt, product.currency)}
                         {discountBadge ? ` · ${discountBadge}` : ""}
                       </p>
@@ -315,11 +315,11 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             <div className="flex items-center justify-between">
               {showPrices ? (
                 <div>
-                  <p className="text-3xl font-bold text-accent">
+                  <p className="price-num text-3xl font-bold text-accent tabular-nums">
                     {formatPrice(Number(product.price), product.currency)}
                   </p>
                   {compareAt != null && (
-                    <p className="mt-1 text-sm text-muted line-through">
+                    <p className="price-num mt-1 text-sm text-muted line-through tabular-nums">
                       {formatPrice(compareAt, product.currency)}
                       {discountBadge ? ` · ${discountBadge}` : ""}
                     </p>

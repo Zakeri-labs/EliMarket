@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Vazirmatn } from "next/font/google";
+import { Inter, Playfair_Display, Vazirmatn } from "next/font/google";
 import { Notifications } from "@/components/notification/Notifications";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
@@ -9,6 +9,20 @@ import { getDirection } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 import { getRequestLocale } from "@/i18n/server";
 import "./globals.css";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const vazirmatn = Vazirmatn({
   subsets: ["arabic"],
@@ -57,7 +71,7 @@ export default async function RootLayout({
       lang={locale}
       dir={getDirection(locale)}
       suppressHydrationWarning
-      className={`${vazirmatn.variable} flex h-full flex-col antialiased`}
+      className={`${playfair.variable} ${inter.variable} ${vazirmatn.variable} flex h-full flex-col antialiased`}
     >
       <body className="flex min-h-0 flex-1 flex-col bg-background text-foreground">
         <QueryProvider>
