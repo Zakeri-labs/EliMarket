@@ -154,7 +154,6 @@ export default function AdminCategoriesPage() {
           <Button
             type="button"
             size="sm"
-            className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
             onClick={openCreate}
           >
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
@@ -275,7 +274,6 @@ export default function AdminCategoriesPage() {
                 form="admin-category-form"
                 loading={isActionPending || isUploadPending}
                 loadingLabel={isUploadPending ? t("common.uploading") : t("common.saving")}
-                className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
               >
                 {editing ? t("admin.categories.save") : t("admin.categories.create")}
               </Button>

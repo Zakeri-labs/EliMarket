@@ -112,7 +112,6 @@ function AdminLoginForm() {
             fullWidth
             loading={isPending}
             loadingLabel={t("common.processing")}
-            className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
           >
             {t("admin.login.submit")}
           </Button>

@@ -23,13 +23,9 @@ const CoverageMap = dynamic(
 export default function CoverageAreaPage() {
   const { runAction, isPending } = useFormAction();
   const { t } = useTranslations();
-  const [storeName, setStoreName] = useState("");
+  const [storeName, setStoreName] = useState(() => t("admin.coverage.defaultStoreName"));
   const [storeId, setStoreId] = useState<string | undefined>();
   const [polygon, setPolygon] = useState<[number, number][]>(DEFAULT_COVERAGE_POLYGON);
-
-  useEffect(() => {
-    setStoreName(t("admin.coverage.defaultStoreName"));
-  }, [t]);
 
   useEffect(() => {
     getStoreAction().then((r) => {

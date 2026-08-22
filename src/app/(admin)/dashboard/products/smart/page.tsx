@@ -60,7 +60,10 @@ export default function SmartProductPage() {
   }, []);
 
   useEffect(() => {
+    // Genuine external-system sync (object URLs need cleanup), not derived
+    // state — can't move this to render or it'd leak a URL every re-render.
     const urls = rawFiles.map((file) => URL.createObjectURL(file));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreviews(urls);
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
   }, [rawFiles]);
@@ -300,7 +303,6 @@ export default function SmartProductPage() {
           </section>
 
           <Button
-            className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
             loading={isPending}
             loadingLabel={t("common.processing")}
             onClick={startPipeline}
@@ -449,7 +451,6 @@ export default function SmartProductPage() {
               {t("admin.smartProduct.startOver")}
             </Button>
             <Button
-              className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
               loading={isPending}
               loadingLabel={t("common.saving")}
               onClick={publish}

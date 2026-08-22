@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Upload } from "lucide-react";
 import {
@@ -73,6 +73,22 @@ function emptyForm(): FormState {
   };
 }
 
+function campaignToForm(campaign: Campaign): FormState {
+  return {
+    name: campaign.name,
+    badge: campaign.badge ?? "",
+    type: campaign.type,
+    discount_value: Number(campaign.discount_value),
+    starts_at: toLocalInput(campaign.starts_at),
+    ends_at: toLocalInput(campaign.ends_at),
+    is_active: campaign.is_active,
+    show_on_home: campaign.show_on_home,
+    banner_image_url: campaign.banner_image_url ?? "",
+    banner_blur_hash: campaign.banner_blur_hash ?? "",
+    product_ids: (campaign.products ?? []).map((row) => row.product_id),
+  };
+}
+
 function campaignStatus(campaign: Campaign) {
   const now = Date.now();
   if (!campaign.is_active) return "inactive" as const;
@@ -100,23 +116,6 @@ export default function AdminCampaignsPage() {
       return result.data;
     },
   });
-
-  useEffect(() => {
-    if (!editing) return;
-    setForm({
-      name: editing.name,
-      badge: editing.badge ?? "",
-      type: editing.type,
-      discount_value: Number(editing.discount_value),
-      starts_at: toLocalInput(editing.starts_at),
-      ends_at: toLocalInput(editing.ends_at),
-      is_active: editing.is_active,
-      show_on_home: editing.show_on_home,
-      banner_image_url: editing.banner_image_url ?? "",
-      banner_blur_hash: editing.banner_blur_hash ?? "",
-      product_ids: (editing.products ?? []).map((row) => row.product_id),
-    });
-  }, [editing]);
 
   const refetch = () => {
     void queryClient.invalidateQueries({ queryKey: ["admin-campaigns"] });
@@ -194,7 +193,6 @@ export default function AdminCampaignsPage() {
           <Button
             type="button"
             size="sm"
-            className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
             onClick={openCreate}
           >
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
@@ -258,6 +256,7 @@ export default function AdminCampaignsPage() {
                     deleteLabel={t("admin.campaigns.delete")}
                     onEdit={() => {
                       setEditing(campaign);
+                      setForm(campaignToForm(campaign));
                       setFormOpen(true);
                     }}
                     onDelete={() =>
@@ -297,7 +296,6 @@ export default function AdminCampaignsPage() {
                 form="admin-campaign-form"
                 loading={isActionPending || isUploadPending}
                 loadingLabel={isUploadPending ? t("common.uploading") : t("common.saving")}
-                className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
               >
                 {editing ? t("admin.campaigns.save") : t("admin.campaigns.create")}
               </Button>

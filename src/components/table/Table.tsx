@@ -335,10 +335,25 @@ export function DataTable<T>({
   const getColumnFilterValue = (id: string) =>
     resolvedColumnFilters.find((f) => f.id === id)?.value;
 
-  const canShowColumnFilter = (column: Column<T, unknown>) => {
-    if (!enableColumnFilters || !column.getCanFilter()) return false;
+  const hasAccessor = (column: Column<T, unknown>) => {
     const def = column.columnDef as { accessorKey?: unknown; accessorFn?: unknown };
     return def.accessorKey != null || typeof def.accessorFn === "function";
+  };
+
+  const canShowColumnFilter = (column: Column<T, unknown>) => {
+    if (!enableColumnFilters || !column.getCanFilter()) return false;
+    return hasAccessor(column);
+  };
+
+  // Cells are whitespace-nowrap + clipped when resizable, so long values
+  // (product names, etc.) can get cut off with no way to read the rest.
+  // Give those a title tooltip — only when the column has a plain
+  // string/number accessor, since e.g. the actions column has no accessor
+  // at all and calling getValue() on it throws.
+  const getCellTitle = (cell: { column: Column<T, unknown>; getValue: () => unknown }) => {
+    if (!hasAccessor(cell.column)) return undefined;
+    const value = cell.getValue();
+    return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
   };
 
   const renderColumnFilter = (columnId: string, header: { column: Column<T, unknown> }) => {
@@ -465,7 +480,6 @@ export function DataTable<T>({
             <Button
               type="button"
               size="sm"
-              className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
               onClick={onCreateClick}
             >
               <AppIcon icon={Plus} size="xs" className="me-1.5" />
@@ -649,8 +663,9 @@ export function DataTable<T>({
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
+                        title={getCellTitle(cell)}
                         className={cn(
-                          "px-4 py-2.5 text-sm whitespace-nowrap",
+                          "px-4 py-2.5 text-sm whitespace-nowrap text-ellipsis",
                           enableColumnResizing && "overflow-hidden border-e border-[#e4e4e7]/60",
                         )}
                         style={
@@ -761,7 +776,6 @@ export function DataTable<T>({
           <Button
             type="button"
             size="sm"
-            className="!bg-[#6b8f71] !text-white hover:!bg-[#527559] disabled:!pointer-events-none disabled:!opacity-100 disabled:!bg-[#6b8f71] disabled:!text-white"
             onClick={() =>
               onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
             }
@@ -772,7 +786,6 @@ export function DataTable<T>({
           <Button
             type="button"
             size="sm"
-            className="!bg-[#6b8f71] !text-white hover:!bg-[#527559] disabled:!pointer-events-none disabled:!opacity-100 disabled:!bg-[#6b8f71] disabled:!text-white"
             onClick={() =>
               onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex + 1 }))
             }

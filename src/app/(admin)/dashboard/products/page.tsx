@@ -186,38 +186,6 @@ export default function AdminProductsPage() {
     });
   }, []);
 
-  useEffect(() => {
-    if (editing) {
-      form.reset({
-        name: editing.name,
-        slug: editing.slug,
-        description_fa: editing.description_fa ?? editing.description ?? "",
-        description_ar: editing.description_ar ?? "",
-        description_en: editing.description_en ?? "",
-        price: Number(editing.price),
-        compare_at_price: editing.compare_at_price ? Number(editing.compare_at_price) : undefined,
-        stock: editing.stock,
-        inventory_unit: editing.inventory_unit ?? "count",
-        low_stock_threshold: editing.low_stock_threshold ?? 5,
-        category_id: editing.category_id ?? "",
-        brand_id: editing.brand_id ?? "",
-        image_url: editing.image_url ?? "",
-        blur_hash: editing.blur_hash ?? "",
-        is_active: editing.is_active,
-      });
-      setFeatures(
-        editing.features?.length
-          ? editing.features.map((feature) => ({
-              label: feature.label,
-              value: feature.value,
-            }))
-          : [{ ...EMPTY_FEATURE }],
-      );
-      setGallery(galleryFromProduct(editing));
-      setImageUrlDraft("");
-    }
-  }, [editing, form]);
-
   const closeForm = () => {
     setFormOpen(false);
     setEditing(null);
@@ -239,17 +207,45 @@ export default function AdminProductsPage() {
 
   const openEdit = (product: Product) => {
     setEditing(product);
+    form.reset({
+      name: product.name,
+      slug: product.slug,
+      description_fa: product.description_fa ?? product.description ?? "",
+      description_ar: product.description_ar ?? "",
+      description_en: product.description_en ?? "",
+      price: Number(product.price),
+      compare_at_price: product.compare_at_price ? Number(product.compare_at_price) : undefined,
+      stock: product.stock,
+      inventory_unit: product.inventory_unit ?? "count",
+      low_stock_threshold: product.low_stock_threshold ?? 5,
+      category_id: product.category_id ?? "",
+      brand_id: product.brand_id ?? "",
+      image_url: product.image_url ?? "",
+      blur_hash: product.blur_hash ?? "",
+      is_active: product.is_active,
+    });
+    setFeatures(
+      product.features?.length
+        ? product.features.map((feature) => ({
+            label: feature.label,
+            value: feature.value,
+          }))
+        : [{ ...EMPTY_FEATURE }],
+    );
+    setGallery(galleryFromProduct(product));
+    setImageUrlDraft("");
     setDescriptionTab("fa");
     setFormOpen(true);
   };
 
-  useEffect(() => {
-    if (products) {
-      setStockDrafts(
-        Object.fromEntries(products.map((p) => [p.id, String(p.stock)])),
-      );
-    }
-  }, [products]);
+  // Sync draft stock inputs when the query returns fresh data (initial load,
+  // refetch after a save). Adjusted during render rather than in an effect
+  // per https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  const [syncedProducts, setSyncedProducts] = useState<Product[] | undefined>(undefined);
+  if (products && products !== syncedProducts) {
+    setSyncedProducts(products);
+    setStockDrafts(Object.fromEntries(products.map((p) => [p.id, String(p.stock)])));
+  }
 
   const onSubmit = form.handleSubmit((values) => {
     const payload = {
@@ -532,7 +528,6 @@ export default function AdminProductsPage() {
                 form="admin-product-form"
                 loading={isActionPending || galleryBusy}
                 loadingLabel={galleryBusy ? t("common.uploading") : t("common.saving")}
-                className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
               >
                 {editing ? t("admin.products.save") : t("admin.products.create")}
               </Button>

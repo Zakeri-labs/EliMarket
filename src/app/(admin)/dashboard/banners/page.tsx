@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Upload } from "lucide-react";
 import {
@@ -68,21 +68,6 @@ export default function AdminBannersPage() {
     },
   });
 
-  useEffect(() => {
-    if (!editing) return;
-    setForm({
-      badge: editing.badge ?? "",
-      title: editing.title ?? "",
-      subtitle: editing.subtitle ?? "",
-      cta_label: editing.cta_label ?? "",
-      cta_href: editing.cta_href ?? "/categories",
-      image_url: editing.image_url ?? "",
-      blur_hash: editing.blur_hash ?? "",
-      sort_order: editing.sort_order,
-      is_active: editing.is_active,
-    });
-  }, [editing]);
-
   const refetch = () => {
     void queryClient.invalidateQueries({ queryKey: ["admin-hero-banners"] });
     void queryClient.invalidateQueries({ queryKey: ["hero-banners"] });
@@ -105,6 +90,17 @@ export default function AdminBannersPage() {
 
   const openEdit = (banner: HeroBanner) => {
     setEditing(banner);
+    setForm({
+      badge: banner.badge ?? "",
+      title: banner.title ?? "",
+      subtitle: banner.subtitle ?? "",
+      cta_label: banner.cta_label ?? "",
+      cta_href: banner.cta_href ?? "/categories",
+      image_url: banner.image_url ?? "",
+      blur_hash: banner.blur_hash ?? "",
+      sort_order: banner.sort_order,
+      is_active: banner.is_active,
+    });
     setFormOpen(true);
   };
 
@@ -150,7 +146,6 @@ export default function AdminBannersPage() {
           <Button
             type="button"
             size="sm"
-            className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
             onClick={openCreate}
           >
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
@@ -258,7 +253,6 @@ export default function AdminBannersPage() {
                 form="admin-banner-form"
                 loading={isActionPending || isUploadPending}
                 loadingLabel={isUploadPending ? t("common.uploading") : t("common.saving")}
-                className="!bg-[#6b8f71] !text-white hover:!bg-[#527559]"
               >
                 {editing ? t("admin.banners.save") : t("admin.banners.create")}
               </Button>
