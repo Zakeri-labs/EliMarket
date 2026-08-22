@@ -1,49 +1,25 @@
 import type { Category, Product } from "@/app/_types/database.types";
 import type { Locale } from "@/i18n/config";
+import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 
 const MOCK_TIMESTAMP = "2024-01-15T10:30:00.000Z";
 
-const CATEGORY_BY_LOCALE: Record<Locale, Category> = {
-  fa: {
-    id: "mock-category-fa",
-    name: "لبنیات و صبحانه",
-    name_fa: "لبنیات و صبحانه",
-    name_ar: "منتجات الألبان والإفطار",
-    name_en: "Dairy and breakfast",
-    slug: "dairy",
-    sort_order: 1,
-    parent_id: null,
-    image_url: null,
-    blur_hash: null,
-    created_at: MOCK_TIMESTAMP,
-  },
-  ar: {
-    id: "mock-category-ar",
-    name: "منتجات الألبان والإفطار",
-    name_fa: "لبنیات و صبحانه",
-    name_ar: "منتجات الألبان والإفطار",
-    name_en: "Dairy and breakfast",
-    slug: "dairy",
-    sort_order: 1,
-    parent_id: null,
-    image_url: null,
-    blur_hash: null,
-    created_at: MOCK_TIMESTAMP,
-  },
-  en: {
-    id: "mock-category-en",
-    name: "Dairy and breakfast",
-    name_fa: "لبنیات و صبحانه",
-    name_ar: "منتجات الألبان والإفطار",
-    name_en: "Dairy and breakfast",
-    slug: "dairy",
-    sort_order: 1,
-    parent_id: null,
-    image_url: null,
-    blur_hash: null,
-    created_at: MOCK_TIMESTAMP,
-  },
+const PRODUCT_CATEGORY_SLUG: Record<string, string> = {
+  "bananas-kg": "produce",
+  "tomatoes-kg": "produce",
+  "milk-full-fat-2l": "dairy",
+  "bread-loaf": "bakery",
+  "chicken-breast-1kg": "meat",
+  "orange-juice-1l": "beverages",
+  "potato-chips-200g": "snacks",
 };
+
+function categoryForProduct(locale: Locale, productSlug: string): Category {
+  const catSlug = PRODUCT_CATEGORY_SLUG[productSlug] ?? "dairy";
+  const cats = mockCategories(locale);
+  return cats.find((c) => c.slug === catSlug) ?? cats[1] ?? cats[0];
+}
+
 
 const FLASH_DEAL_DATA: {
   slug: string;
@@ -143,7 +119,7 @@ function buildMockProduct(
   overrides?: Partial<Product>,
 ): Product {
   const item = FLASH_DEAL_DATA[index] ?? FLASH_DEAL_DATA[0];
-  const category = CATEGORY_BY_LOCALE[locale];
+  const category = categoryForProduct(locale, item.slug);
   const name = localizedName(item, locale);
 
   return {

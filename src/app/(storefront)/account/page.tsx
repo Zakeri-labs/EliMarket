@@ -22,7 +22,7 @@ export default function AccountPage() {
 
   if (status === "authenticated" && session) {
     return (
-      <main className="py-4 md:py-6">
+      <main className="py-4 md:mx-auto md:max-w-md md:py-6">
         <h1 className="mb-6 text-xl font-bold">{t("account.title")}</h1>
         <div className="rounded-2xl border border-border bg-surface p-5">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/20">
@@ -70,12 +70,12 @@ export default function AccountPage() {
   }
 
   return (
-    <main className="py-4 md:py-6">
+    <main className="py-4 md:mx-auto md:max-w-md md:py-6">
       <h1 className="mb-2 text-xl font-bold">{t("account.loginTitle")}</h1>
       <p className="mb-6 text-sm text-muted">{t("account.loginSubtitle")}</p>
-      <div className="mb-6 flex flex-col gap-2 sm:flex-row">
-        <ThemeToggle className="w-full justify-center sm:w-auto" />
-        <LanguageTabs className="w-full sm:w-auto" />
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <ThemeToggle />
+        <LanguageTabs />
       </div>
       {otpStep === "phone" ? (
         <form

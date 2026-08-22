@@ -7,12 +7,14 @@ import { useQuery } from "@tanstack/react-query";
 import { getCategoriesAction } from "@/app/_actions/product-actions";
 import { getLiveCampaignsAction } from "@/app/_actions/campaign-actions";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
+import { BrowseWithSidebar } from "@/app/(storefront)/_components/BrowseWithSidebar";
+import { CategorySideNav } from "@/app/(storefront)/_components/CategorySideNav";
+import { FilterPanel } from "@/app/(storefront)/_components/FilterPanel";
 import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
 import { useTranslations } from "@/i18n/use-translations";
 import { productDescriptionSearchText } from "@/lib/i18n/product-description";
-import { categoryAndDescendantSlugs, topLevelCategories } from "@/lib/categories/tree";
+import { categoryAndDescendantSlugs } from "@/lib/categories/tree";
 import { productCompareAtPrice } from "@/lib/products/pricing";
-import { resolveCategoryName } from "@/lib/i18n/category-name";
 import type { LiveCampaignOption } from "@/lib/campaigns/load";
 
 type SortKey = "newest" | "price-asc" | "price-desc";
@@ -27,11 +29,13 @@ function resolveCampaign(
   );
 }
 
+const fieldClass =
+  "w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm outline-none focus:border-accent";
+
 export function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("q") ?? "";
-  const [q, setQ] = useState(initialQuery);
+  const [q, setQ] = useState(searchParams.get("q") ?? "");
   const [categorySlug, setCategorySlug] = useState(searchParams.get("category") ?? "");
   const [minPrice, setMinPrice] = useState(searchParams.get("min") ?? "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("max") ?? "");
@@ -39,7 +43,7 @@ export function SearchContent() {
   const [campaignParam, setCampaignParam] = useState(searchParams.get("campaign") ?? "");
   const [sort, setSort] = useState<SortKey>((searchParams.get("sort") as SortKey) || "newest");
   const { data: products } = useProducts();
-  const { t, dir, locale } = useTranslations();
+  const { t, dir } = useTranslations();
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -62,18 +66,20 @@ export function SearchContent() {
 
   useEffect(() => {
     setQ(searchParams.get("q") ?? "");
+    setCategorySlug(searchParams.get("category") ?? "");
     setCampaignParam(searchParams.get("campaign") ?? "");
     setOnSale(searchParams.get("sale") === "1");
   }, [searchParams]);
 
   const selectedCampaign = resolveCampaign(campaigns, campaignParam);
 
-  const filtered = useMemo(() => {
+  const results = useMemo(() => {
     const min = minPrice ? Number(minPrice) : null;
     const max = maxPrice ? Number(maxPrice) : null;
-    const slugs = categorySlug && categories
-      ? categoryAndDescendantSlugs(categories, categorySlug)
-      : null;
+    const slugs =
+      categorySlug && categories
+        ? categoryAndDescendantSlugs(categories, categorySlug)
+        : null;
     const campaignProductIds = selectedCampaign
       ? new Set(selectedCampaign.product_ids)
       : null;
@@ -117,10 +123,10 @@ export function SearchContent() {
     selectedCampaign,
   ]);
 
-  const parents = categories ? topLevelCategories(categories) : [];
   const hasActiveFilters = Boolean(
     q.trim() || campaignParam || onSale || categorySlug || minPrice || maxPrice,
   );
+  const hasSidebarFilters = Boolean(campaignParam || onSale || categorySlug || minPrice || maxPrice);
 
   const applyCampaignFilter = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -136,99 +142,159 @@ export function SearchContent() {
     router.replace(query ? `/search?${query}` : "/search", { scroll: false });
   };
 
+  const clearFilters = () => {
+    setCategorySlug("");
+    setMinPrice("");
+    setMaxPrice("");
+    setOnSale(false);
+    setCampaignParam("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("campaign");
+    params.delete("sale");
+    params.delete("category");
+    params.delete("min");
+    params.delete("max");
+    const query = params.toString();
+    router.replace(query ? `/search?${query}` : "/search", { scroll: false });
+  };
+
   return (
     <main dir={dir} className="py-4 md:py-6">
-      <h1 className="mb-4 text-xl font-bold">
-        {selectedCampaign?.name || t("search.title")}
-      </h1>
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold md:text-2xl">
+            {selectedCampaign?.name || t("search.title")}
+          </h1>
+          {hasActiveFilters ? (
+            <p className="mt-1 text-sm text-muted">
+              {t("search.resultsCount", { count: results.length })}
+            </p>
+          ) : null}
+        </div>
+        <label className="hidden items-center gap-2 text-sm md:flex">
+          <span className="text-muted">{t("search.sortLabel")}</span>
+          <select
+            className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm outline-none focus:border-accent"
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortKey)}
+          >
+            <option value="newest">{t("search.sortNewest")}</option>
+            <option value="price-asc">{t("search.sortPriceAsc")}</option>
+            <option value="price-desc">{t("search.sortPriceDesc")}</option>
+          </select>
+        </label>
+      </div>
+
       <input
-        className="mb-4 w-full rounded-2xl border border-border bg-surface-elevated px-4 py-3 text-sm outline-none focus:border-accent"
+        className="mb-4 w-full rounded-2xl border border-border bg-surface-elevated px-4 py-3 text-sm outline-none focus:border-accent md:hidden"
         placeholder={t("search.placeholder")}
         value={q}
         onChange={(e) => setQ(e.target.value)}
         autoFocus={!campaignParam}
       />
-      <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        <select
-          className="rounded-2xl border border-border bg-surface-elevated px-3 py-2.5 text-sm"
-          value={categorySlug}
-          onChange={(e) => setCategorySlug(e.target.value)}
-        >
-          <option value="">{t("search.allCategories")}</option>
-          {parents.map((cat) => (
-            <option key={cat.id} value={cat.slug}>
-              {resolveCategoryName(cat, locale)}
-            </option>
-          ))}
-        </select>
-        {(campaigns?.length || campaignParam) ? (
-          <select
-            className="rounded-2xl border border-border bg-surface-elevated px-3 py-2.5 text-sm"
-            value={selectedCampaign?.id || campaignParam}
-            onChange={(e) => applyCampaignFilter(e.target.value)}
+
+      <BrowseWithSidebar
+        sidebar={
+          <FilterPanel
+            actions={
+              hasSidebarFilters ? (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="text-xs font-medium text-accent"
+                >
+                  {t("search.clearFilters")}
+                </button>
+              ) : null
+            }
           >
-            <option value="">{t("search.allCampaigns")}</option>
-            {(campaigns ?? []).map((campaign) => (
-              <option key={campaign.id} value={campaign.id}>
-                {campaign.name}
-              </option>
-            ))}
-          </select>
-        ) : null}
-        <input
-          type="number"
-          min={0}
-          step="0.001"
-          className="rounded-2xl border border-border bg-surface-elevated px-3 py-2.5 text-sm"
-          placeholder={t("search.minPrice")}
-          value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-        />
-        <input
-          type="number"
-          min={0}
-          step="0.001"
-          className="rounded-2xl border border-border bg-surface-elevated px-3 py-2.5 text-sm"
-          placeholder={t("search.maxPrice")}
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-        />
-        <select
-          className="rounded-2xl border border-border bg-surface-elevated px-3 py-2.5 text-sm"
-          value={sort}
-          onChange={(e) => setSort(e.target.value as SortKey)}
-        >
-          <option value="newest">{t("search.sortNewest")}</option>
-          <option value="price-asc">{t("search.sortPriceAsc")}</option>
-          <option value="price-desc">{t("search.sortPriceDesc")}</option>
-        </select>
-        <label className="flex items-center gap-2 rounded-2xl border border-border bg-surface-elevated px-3 py-2.5 text-sm">
-          <input
-            type="checkbox"
-            checked={onSale}
-            disabled={Boolean(campaignParam)}
-            onChange={(e) => setOnSale(e.target.checked)}
-          />
-          {t("search.onSale")}
-        </label>
-      </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {filtered.map((p, index) => (
-          <ProductDealCard key={p.id} product={p} priority={index < 4} layout="grid" />
-        ))}
-      </div>
-      {filtered.length === 0 && hasActiveFilters && (
-        <p className="mt-8 text-center text-sm text-muted">{t("search.noResults")}</p>
-      )}
-      {!hasActiveFilters && (
-        <p className="mt-4 text-center text-sm text-muted">
-          {t("search.hintPrefix")}{" "}
-          <Link href="/categories" className="text-accent">
-            {t("search.hintCategories")}
-          </Link>{" "}
-          {t("search.hintSuffix")}
-        </p>
-      )}
+            <CategorySideNav
+              categories={categories ?? []}
+              selectedSlug={categorySlug}
+              onSelect={setCategorySlug}
+            />
+            {(campaigns?.length || campaignParam) ? (
+              <label className="block space-y-1.5">
+                <span className="text-xs font-medium text-muted">{t("search.campaignLabel")}</span>
+                <select
+                  className={fieldClass}
+                  value={selectedCampaign?.id || campaignParam}
+                  onChange={(e) => applyCampaignFilter(e.target.value)}
+                >
+                  <option value="">{t("search.allCampaigns")}</option>
+                  {(campaigns ?? []).map((campaign) => (
+                    <option key={campaign.id} value={campaign.id}>
+                      {campaign.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            <fieldset className="space-y-1.5">
+              <legend className="text-xs font-medium text-muted">{t("search.priceLabel")}</legend>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  step="0.001"
+                  className={fieldClass}
+                  placeholder={t("search.minPrice")}
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+                <input
+                  type="number"
+                  min={0}
+                  step="0.001"
+                  className={fieldClass}
+                  placeholder={t("search.maxPrice")}
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+            </fieldset>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={onSale}
+                disabled={Boolean(campaignParam)}
+                onChange={(e) => setOnSale(e.target.checked)}
+              />
+              {t("search.onSale")}
+            </label>
+            <label className="block space-y-1.5 md:hidden">
+              <span className="text-xs font-medium text-muted">{t("search.sortLabel")}</span>
+              <select
+                className={fieldClass}
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortKey)}
+              >
+                <option value="newest">{t("search.sortNewest")}</option>
+                <option value="price-asc">{t("search.sortPriceAsc")}</option>
+                <option value="price-desc">{t("search.sortPriceDesc")}</option>
+              </select>
+            </label>
+          </FilterPanel>
+        }
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+          {results.map((p, index) => (
+            <ProductDealCard key={p.id} product={p} priority={index < 4} layout="grid" />
+          ))}
+        </div>
+        {results.length === 0 && hasActiveFilters && (
+          <p className="mt-8 text-center text-sm text-muted">{t("search.noResults")}</p>
+        )}
+        {!hasActiveFilters && (
+          <p className="mt-4 text-center text-sm text-muted">
+            {t("search.hintPrefix")}{" "}
+            <Link href="/categories" className="text-accent">
+              {t("search.hintCategories")}
+            </Link>{" "}
+            {t("search.hintSuffix")}
+          </p>
+        )}
+      </BrowseWithSidebar>
     </main>
   );
 }

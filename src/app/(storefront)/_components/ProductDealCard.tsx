@@ -9,7 +9,7 @@ import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { notifyFormSuccess } from "@/app/utils/form-notify";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
-import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
+import { StripePlaceholder } from "@/components/ui/StripePlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { Button } from "@/components/ui/Button";
@@ -71,7 +71,7 @@ export function ProductDealCard({
     <article
       dir={dir}
       className={cn(
-        "flex h-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-2.5",
+        "flex h-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-2.5 lg:rounded-lg",
         layout === "rail" ? "w-36 sm:w-40" : "w-full",
         isSkeleton && "skeleton",
         className,
@@ -86,7 +86,7 @@ export function ProductDealCard({
         }}
       >
         {!isSkeleton && discountBadge && (
-          <span className="absolute start-0 top-0 z-10 rounded-md bg-[#8B7355] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+          <span className="absolute start-0 top-0 z-10 rounded-md bg-accent-gold px-1.5 py-0.5 text-[10px] font-semibold text-bg-main">
             {discountBadge}
           </span>
         )}
@@ -105,26 +105,37 @@ export function ProductDealCard({
               className="bg-transparent object-contain"
             />
           ) : (
-            <ProductPlaceholder size="lg" />
+            <StripePlaceholder className="absolute inset-0" />
           )}
         </div>
       </Link>
 
       <div className="mt-2 flex min-h-0 flex-1 flex-col text-start">
-        <p className="line-clamp-2 min-h-8 text-xs font-medium leading-4">{product.name}</p>
+        <p className="line-clamp-2 min-h-8 text-xs font-medium leading-4 lg:text-sm lg:font-semibold">
+          {product.name}
+        </p>
         {excerpt ? (
-          <p className="mt-0.5 line-clamp-2 min-h-7 text-[10px] leading-snug text-muted">
+          <p className="mt-0.5 line-clamp-2 min-h-7 text-[10px] leading-snug text-muted lg:hidden">
             {excerpt}
           </p>
         ) : (
-          <p className="mt-0.5 min-h-7" aria-hidden />
+          <p className="mt-0.5 min-h-7 lg:hidden" aria-hidden />
         )}
+        <p className="mt-0.5 hidden text-xs text-muted lg:block">
+          {t(
+            product.inventory_unit === "weight"
+              ? "product.unitWeight"
+              : product.inventory_unit === "pack"
+                ? "product.unitPack"
+                : "product.unitCount",
+          )}
+        </p>
         <div className="mt-1.5 flex min-h-8 flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums">
-          <span className="price-num text-sm font-bold">
+          <span className="price-num text-sm font-bold text-accent-teal">
             {formatPrice(Number(product.price), product.currency)}
           </span>
           {compareAt != null && (
-            <span className="price-num text-[10px] text-muted line-through">
+            <span className="price-num text-[10px] text-price-strike line-through">
               {formatPrice(compareAt, product.currency)}
             </span>
           )}
@@ -135,12 +146,18 @@ export function ProductDealCard({
             size="sm"
             fullWidth
             disabled={isSkeleton || !inStock || hideAddButton}
-            className={cn("target", hideAddButton && "invisible")}
+            className={cn(
+              "target md:rounded-lg md:border md:border-accent-teal md:bg-transparent md:text-accent-teal md:shadow-none md:hover:bg-accent-teal/10",
+              hideAddButton && "invisible",
+            )}
             onClick={addToCart}
           >
-            <AppIcon icon={ShoppingCart} size="xs" className="me-1" />
-            <span>
+            <AppIcon icon={ShoppingCart} size="xs" className="me-1 lg:hidden" />
+            <span className="lg:hidden">
               {inStock ? t("product.addToCartSimple") : t("product.outOfStock")}
+            </span>
+            <span className="hidden lg:inline">
+              {inStock ? t("product.addShort") : t("product.outOfStock")}
             </span>
           </Button>
         </div>

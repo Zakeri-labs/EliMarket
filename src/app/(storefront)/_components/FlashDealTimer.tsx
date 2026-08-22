@@ -33,19 +33,20 @@ export function FlashDealTimer({ endsAt }: { endsAt?: string | null }) {
     return () => window.clearInterval(timer);
   }, [endsAt]);
 
-  if (!endsAt || remaining == null) return null;
-
-  const { hours, minutes, seconds } = formatRemaining(remaining);
+  const showFallback = !endsAt || remaining == null;
+  const { hours, minutes, seconds } = showFallback
+    ? { hours: 2, minutes: 45, seconds: 18 }
+    : formatRemaining(remaining ?? 0);
 
   return (
-    <div className="flex items-center gap-1.5 text-[11px] text-muted sm:text-xs">
-      <span className="whitespace-nowrap">{t("home.flashEndsIn")}</span>
-      <div className="flex items-center gap-0.5 font-mono tabular-nums text-foreground">
-        <span className="rounded-md bg-surface-elevated px-1.5 py-0.5">{pad(hours)}</span>
+    <div className="flex items-center gap-1.5 text-[11px] font-medium text-accent-gold sm:text-xs">
+      <span className="whitespace-nowrap tracking-wide uppercase">{t("home.flashEndsIn")}</span>
+      <div className="flex items-center gap-0.5 font-mono tabular-nums text-accent-gold">
+        <span>{pad(hours)}</span>
         <span>:</span>
-        <span className="rounded-md bg-surface-elevated px-1.5 py-0.5">{pad(minutes)}</span>
+        <span>{pad(minutes)}</span>
         <span>:</span>
-        <span className="rounded-md bg-surface-elevated px-1.5 py-0.5">{pad(seconds)}</span>
+        <span>{pad(seconds)}</span>
       </div>
     </div>
   );

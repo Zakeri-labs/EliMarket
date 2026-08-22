@@ -1,44 +1,56 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Search, ShoppingCart } from "lucide-react";
+import { Menu, ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/app/_store/cart-store";
+import { useLocaleStore } from "@/app/_store/locale-store";
 import { cn } from "@/app/utils/cn";
 import { STOREFRONT_CONTAINER } from "@/config/layout";
-import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { CategoryNav } from "@/app/(storefront)/_components/CategoryNav";
+import { DeliverToDropdown } from "@/app/(storefront)/_components/DeliverToDropdown";
+import { StorefrontSearchBar } from "@/app/(storefront)/_components/StorefrontSearchBar";
+import { UtilityBar } from "@/app/(storefront)/_components/UtilityBar";
 import { useTranslations } from "@/i18n/use-translations";
+import { LOCALE_SHORT, LOCALES } from "@/i18n/config";
 
+/**
+ * Main storefront header.
+ * Desktop (≥1024px): UtilityBar → one 80px main row (logo | deliver | search | account/cart) → CategoryNav.
+ * Mobile: compact bar only. Never duplicates the desktop main row.
+ */
 export function StorefrontHeader() {
   const pathname = usePathname();
-  const cartCount = useCartStore(
-    (s) => s.items.reduce((sum, item) => sum + item.quantity, 0),
-  );
+  const items = useCartStore((s) => s.items);
+  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const { t, messages, locale } = useTranslations();
-  // Arabic renders the brand in Arabic script, which Playfair does not cover.
+  const setLocale = useLocaleStore((s) => s.setLocale);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const brandClass =
     locale === "ar"
       ? "font-bold tracking-wide"
       : "font-logo font-semibold tracking-wide";
 
-  const NAV_LINKS = [
-    { href: "/", label: t("nav.home"), exact: true },
-    { href: "/categories", label: t("nav.categories") },
-    { href: "/search", label: t("nav.search") },
-    { href: "/orders", label: t("nav.orders") },
-    { href: "/account", label: t("nav.account") },
-  ];
+  const countBadge = mounted ? cartCount : 0;
+  const totalLabel = mounted ? cartTotal.toFixed(3) : "0.000";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
-      <div className={cn(STOREFRONT_CONTAINER, "py-3 md:py-4")}>
-        {/* Mobile — mockup-style bar */}
-        <div className="flex items-center justify-between gap-3 md:hidden">
+    <header className="sticky top-0 z-40 bg-bg-main">
+      {/* Mobile only */}
+      <div className={cn(STOREFRONT_CONTAINER, "border-b border-border-subtle py-3 lg:hidden")}>
+        <div className="flex items-center justify-between gap-3">
           <Link
             href="/categories"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border-subtle bg-bg-card"
             aria-label={t("nav.categories")}
           >
             <AppIcon icon={Menu} size="md" />
@@ -49,78 +61,97 @@ export function StorefrontHeader() {
             </p>
           </Link>
           <ThemeToggle compact />
+          <div
+            className="inline-flex h-10 shrink-0 items-center gap-0.5 rounded-xl border border-border-subtle bg-bg-card p-0.5"
+            role="group"
+            aria-label={t("common.language")}
+          >
+            {LOCALES.map((code) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => setLocale(code)}
+                aria-pressed={locale === code}
+                suppressHydrationWarning
+                className={cn(
+                  "rounded-lg px-1.5 py-1 text-[11px] font-semibold uppercase transition-colors",
+                  locale === code
+                    ? "bg-accent-teal text-on-accent"
+                    : "text-text-secondary hover:text-text-primary",
+                )}
+              >
+                {LOCALE_SHORT[code]}
+              </button>
+            ))}
+          </div>
           <Link
             href="/cart"
             className={cn(
-              "relative flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-accent-foreground",
-              pathname === "/cart" && "ring-2 ring-accent/40 ring-offset-2 ring-offset-background",
+              "relative flex h-10 w-10 items-center justify-center rounded-xl bg-accent-teal text-on-accent",
+              pathname === "/cart" && "ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-main",
             )}
             aria-label={t("nav.cart")}
           >
             <AppIcon icon={ShoppingCart} size="md" />
-            {cartCount > 0 && (
-              <span className="absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-on-accent px-1 text-[10px] font-bold text-accent">
-                {cartCount}
+            {countBadge > 0 ? (
+              <span className="absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-gold px-1 text-[10px] font-bold text-bg-main">
+                {countBadge}
               </span>
-            )}
+            ) : null}
           </Link>
         </div>
+      </div>
 
-        {/* Desktop */}
-        <div className="hidden items-center justify-between gap-4 md:flex">
-          <Link href="/" className="shrink-0">
-            <p className={cn("text-lg", brandClass)}>{messages.brand.nameLocal}</p>
+      {/* Desktop only — min-width 1024px (lg) */}
+      <div className="hidden lg:block">
+        <UtilityBar />
+
+        {/* Single main header row — exactly 4 sections, LTR */}
+        <div
+          dir="ltr"
+          className="flex h-20 w-full items-center justify-between border-b border-border-subtle bg-bg-main px-8"
+        >
+          {/* 1) Logo */}
+          <Link href="/" className="w-[220px] shrink-0">
+            <span className="font-logo block text-[22px] leading-none tracking-[0.2em] text-text-primary uppercase">
+              HILLS ELI MART
+            </span>
           </Link>
 
-          <nav className="flex flex-1 items-center justify-center gap-1">
-            {NAV_LINKS.map((link) => {
-              const active = link.exact
-                ? pathname === link.href
-                : pathname.startsWith(link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "rounded-xl px-4 py-2 text-sm transition-colors",
-                    active
-                      ? "bg-accent/15 font-medium text-accent"
-                      : "text-muted hover:bg-surface-elevated hover:text-foreground",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
+          {/* 2) Deliver to */}
+          <DeliverToDropdown className="mx-4 w-[220px] shrink-0" />
 
-          <div className="flex items-center gap-3">
-            <ThemeToggle compact />
-            <LanguageTabs compact className="hidden sm:inline-flex" />
-            <Link
-              href="/search"
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm text-muted hover:text-foreground"
-            >
-              <AppIcon icon={Search} size="sm" />
-              {t("nav.searchShortcut")}
+          {/* 3) Search — grows, capped at 700px, centered in remaining space */}
+          <div className="flex min-w-0 flex-1 justify-center px-4">
+            <StorefrontSearchBar
+              size="desktop"
+              className="w-full max-w-[700px]"
+              placeholder="Search for products, brands and categories"
+            />
+          </div>
+
+          {/* 4) Account + Cart */}
+          <div className="flex w-[260px] shrink-0 items-center justify-end gap-4">
+            <Link href="/account" className="shrink-0 text-start leading-tight">
+              <span className="block text-[11px] text-text-secondary">Account</span>
+              <span className="block text-[14px] font-bold text-text-primary">Sign in</span>
             </Link>
             <Link
               href="/cart"
-              className={cn(
-                "relative flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90",
-                pathname === "/cart" && "ring-2 ring-accent/40 ring-offset-2 ring-offset-background",
-              )}
+              className="relative rounded-lg bg-accent-teal px-5 py-2.5 text-sm font-semibold text-on-accent"
             >
-              <AppIcon icon={ShoppingCart} size="sm" />
-              {t("nav.cart")}
-              {cartCount > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-on-accent px-1 text-[10px] font-bold text-accent">
-                  {cartCount}
-                </span>
-              )}
+              Cart · OMR {totalLabel}
+              <span
+                suppressHydrationWarning
+                className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-gold px-1 text-[11px] font-bold text-bg-main"
+              >
+                {countBadge}
+              </span>
             </Link>
           </div>
         </div>
+
+        <CategoryNav />
       </div>
     </header>
   );

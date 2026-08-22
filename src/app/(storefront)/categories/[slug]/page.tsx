@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
 import { getCategoriesAction } from "@/app/_actions/product-actions";
-import { CategoryProductList } from "@/app/(storefront)/_components/CategoryProductList";
-import { AppIcon } from "@/components/icons/AppIcon";
+import { CategoryBrowse } from "@/app/(storefront)/_components/CategoryBrowse";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { categoryBreadcrumbJsonLd } from "@/lib/seo/schemas";
 import {
@@ -13,9 +10,8 @@ import {
   trimDescription,
 } from "@/lib/seo/site-url";
 import { getMessages } from "@/i18n/messages";
-import { getRequestLocale, serverT } from "@/i18n/server";
+import { getRequestLocale } from "@/i18n/server";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
-import { childCategories } from "@/lib/categories/tree";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -61,40 +57,12 @@ export default async function CategoryPage({ params }: Props) {
   const category = categoriesResult.data.find((c) => c.slug === slug);
   if (!category) notFound();
 
-  const backLabel = await serverT("categories.back");
   const locale = await getRequestLocale();
-  const categoryName = resolveCategoryName(category, locale);
-  const children = childCategories(categoriesResult.data, category.id);
 
   return (
     <>
       <JsonLd data={categoryBreadcrumbJsonLd(category, locale)} />
-      <main className="py-4 md:py-6">
-        <div className="mb-4 flex items-center gap-2">
-          <Link
-            href="/categories"
-            className="inline-flex items-center gap-1 text-sm text-accent"
-          >
-            <AppIcon icon={ChevronLeft} size="sm" className="rtl:rotate-180" />
-            {backLabel}
-          </Link>
-          <h1 className="text-start font-bold">{categoryName}</h1>
-        </div>
-        {children.length > 0 && (
-          <div className="mb-4 flex flex-wrap gap-2">
-            {children.map((child) => (
-              <Link
-                key={child.id}
-                href={`/categories/${child.slug}`}
-                className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs"
-              >
-                {resolveCategoryName(child, locale)}
-              </Link>
-            ))}
-          </div>
-        )}
-        <CategoryProductList slug={slug} />
-      </main>
+      <CategoryBrowse slug={slug} />
     </>
   );
 }

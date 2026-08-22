@@ -78,8 +78,7 @@ const CATEGORY_DATA: {
     name_fa: "مراقبت از نوزاد",
     name_ar: "رعاية الأطفال",
     name_en: "Baby Care",
-    image_url:
-      "https://images.unsplash.com/photo-1515488042361-ee00e0170ffa?w=400&q=80",
+    image_url: "/categories/babycare.png",
   },
 ];
 

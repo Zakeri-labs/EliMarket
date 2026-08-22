@@ -3,7 +3,22 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  Package,
+  Sparkles,
+  FolderTree,
+  Tag,
+  Image as ImageIcon,
+  Percent,
+  ClipboardList,
+  MapPin,
+  BarChart3,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { signOutAction } from "@/app/_actions/auth-actions";
 import { useAuthStore } from "@/app/_store/auth-store";
 import { useUiStore } from "@/app/_store/ui-store";
@@ -15,19 +30,45 @@ import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { Button } from "@/components/ui/Button";
 import { useTranslations } from "@/i18n/use-translations";
 
-const NAV_KEYS = [
-  { href: "/dashboard", key: "admin.nav.dashboard" },
-  { href: "/dashboard/products", key: "admin.nav.products" },
-  { href: "/dashboard/products/smart", key: "admin.nav.smartProduct" },
-  { href: "/dashboard/categories", key: "admin.nav.categories" },
-  { href: "/dashboard/brands", key: "admin.nav.brands" },
-  { href: "/dashboard/banners", key: "admin.nav.banners" },
-  { href: "/dashboard/campaigns", key: "admin.nav.campaigns" },
-  { href: "/dashboard/orders", key: "admin.nav.orders" },
-  { href: "/dashboard/reports", key: "admin.nav.reports" },
-  { href: "/dashboard/customers", key: "admin.nav.customers" },
-  { href: "/dashboard/coverage-area", key: "admin.nav.coverage" },
-] as const;
+type NavItem = { href: string; key: string; icon: LucideIcon };
+type NavGroup = { groupKey: string; items: NavItem[] };
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    groupKey: "admin.navGroups.overview",
+    items: [{ href: "/dashboard", key: "admin.nav.dashboard", icon: LayoutDashboard }],
+  },
+  {
+    groupKey: "admin.navGroups.catalog",
+    items: [
+      { href: "/dashboard/products", key: "admin.nav.products", icon: Package },
+      { href: "/dashboard/products/smart", key: "admin.nav.smartProduct", icon: Sparkles },
+      { href: "/dashboard/categories", key: "admin.nav.categories", icon: FolderTree },
+      { href: "/dashboard/brands", key: "admin.nav.brands", icon: Tag },
+    ],
+  },
+  {
+    groupKey: "admin.navGroups.marketing",
+    items: [
+      { href: "/dashboard/banners", key: "admin.nav.banners", icon: ImageIcon },
+      { href: "/dashboard/campaigns", key: "admin.nav.campaigns", icon: Percent },
+    ],
+  },
+  {
+    groupKey: "admin.navGroups.operations",
+    items: [
+      { href: "/dashboard/orders", key: "admin.nav.orders", icon: ClipboardList },
+      { href: "/dashboard/coverage-area", key: "admin.nav.coverage", icon: MapPin },
+    ],
+  },
+  {
+    groupKey: "admin.navGroups.insights",
+    items: [
+      { href: "/dashboard/reports", key: "admin.nav.reports", icon: BarChart3 },
+      { href: "/dashboard/customers", key: "admin.nav.customers", icon: Users },
+    ],
+  },
+];
 
 export function AdminShell({
   title,
@@ -87,21 +128,36 @@ export function AdminShell({
             <AppIcon icon={X} size="md" />
           </button>
         </div>
-        <nav className="admin-thin-scroll min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain">
-          {NAV_KEYS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={closeMobile}
-              className={cn(
-                "block rounded-xl px-3 py-2.5 text-sm transition-colors",
-                pathname === item.href
-                  ? "bg-[#6b8f71]/15 font-medium text-[#527559]"
-                  : "text-[#71717a] hover:bg-[#f4f4f5]",
-              )}
-            >
-              {t(item.key)}
-            </Link>
+        <nav className="admin-thin-scroll min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.groupKey} className="space-y-1">
+              <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-[#a1a1aa]">
+                {t(group.groupKey)}
+              </p>
+              {group.items.map((item) => {
+                const active = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMobile}
+                    className={cn(
+                      "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-colors",
+                      active
+                        ? "bg-[#6b8f71]/15 font-medium text-[#527559]"
+                        : "text-[#71717a] hover:bg-[#f4f4f5]",
+                    )}
+                  >
+                    <AppIcon
+                      icon={item.icon}
+                      size="sm"
+                      className={active ? "text-[#527559]" : "text-[#a1a1aa]"}
+                    />
+                    {t(item.key)}
+                  </Link>
+                );
+              })}
+            </div>
           ))}
         </nav>
         <Button

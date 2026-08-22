@@ -10,6 +10,10 @@ export type Messages = {
     account: string;
     cart: string;
     searchShortcut: string;
+    trackOrder: string;
+    help: string;
+    accountSignIn: string;
+    signIn: string;
   };
   home: {
     deliverTo: string;
@@ -43,6 +47,28 @@ export type Messages = {
     fallbackDairy: string;
     fallbackMeat: string;
     fallbackBakery: string;
+    searchPlaceholderDesktop: string;
+    utilityFreeDelivery: string;
+    shopByCategory: string;
+    refine: string;
+    inStockOnly: string;
+    onCampaign: string;
+    organic: string;
+    sameDayDelivery: string;
+    sameDayDeliveryTitle: string;
+    sameDayDeliveryBody: string;
+    heroFreshThisWeek: string;
+    filterLabel: string;
+    pillCampaigns: string;
+    pillNewest: string;
+    pillBestSellers: string;
+    pillDiscounted: string;
+    pillUnderOne: string;
+    pillLocal: string;
+    browseDeals: string;
+    heroDesktopTitle: string;
+    heroDesktopSubtitle: string;
+    allCategories: string;
   };
   product: {
     inStock: string;
@@ -54,6 +80,7 @@ export type Messages = {
     noFeatures: string;
     addToCart: string;
     addToCartSimple: string;
+    addShort: string;
     fallbackName: string;
     vatIncluded: string;
     quantity: string;
@@ -62,6 +89,7 @@ export type Messages = {
     unitPack: string;
     share: string;
     wishlist: string;
+    zoom: string;
   };
   cart: {
     title: string;
@@ -135,6 +163,13 @@ export type Messages = {
     sortNewest: string;
     sortPriceAsc: string;
     sortPriceDesc: string;
+    filters: string;
+    clearFilters: string;
+    resultsCount: string;
+    sortLabel: string;
+    categoryLabel: string;
+    campaignLabel: string;
+    priceLabel: string;
   };
   pwa: {
     install: string;
@@ -146,6 +181,7 @@ export type Messages = {
     title: string;
     searchInCategories: string;
     back: string;
+    subcategoryCount: string;
   };
   account: {
     title: string;
@@ -322,6 +358,13 @@ export type Messages = {
       customers: string;
       smartProduct: string;
     };
+    navGroups: {
+      overview: string;
+      catalog: string;
+      marketing: string;
+      operations: string;
+      insights: string;
+    };
     login: {
       title: string;
       subtitle: string;
@@ -436,6 +479,7 @@ export type Messages = {
       colName: string;
       colPrice: string;
       colStock: string;
+      saveStock: string;
       colStatus: string;
       colActions: string;
       active: string;
@@ -662,6 +706,9 @@ export type Messages = {
       offDesc: string;
       on: string;
       off: string;
+      confirmOffTitle: string;
+      confirmOffDesc: string;
+      confirmOffAction: string;
     };
     payment: {
       cash: string;
@@ -722,10 +769,14 @@ const fa: Messages = {
     account: "حساب",
     cart: "سبد خرید",
     searchShortcut: "جستجو",
+    trackOrder: "پیگیری سفارش",
+    help: "راهنما",
+    accountSignIn: "حساب / ورود",
+    signIn: "ورود",
   },
   home: {
     deliverTo: "تحویل به",
-    locationSample: "مسقط، الغبرة",
+    locationSample: "مسقط، الخوض",
     searchPlaceholder: "جستجوی محصول…",
     heroBadge: "پیشنهاد ویژه",
     heroTitle: "مواد تازه روزانه",
@@ -755,6 +806,28 @@ const fa: Messages = {
     fallbackDairy: "لبنیات",
     fallbackMeat: "گوشت",
     fallbackBakery: "نانوایی",
+    searchPlaceholderDesktop: "جستجوی محصول، برند و دسته…",
+    utilityFreeDelivery: "ارسال رایگان برای سفارش‌های بالای {amount} · مسقط و سیب",
+    shopByCategory: "خرید بر اساس دسته",
+    refine: "فیلتر",
+    inStockOnly: "فقط موجود",
+    onCampaign: "در کمپین",
+    organic: "ارگانیک",
+    sameDayDelivery: "ارسال امروز — تا ساعت ۱۶ سفارش دهید، امشب بین ۲۰ تا ۲۲ تحویل بگیرید.",
+    sameDayDeliveryTitle: "ارسال امروز",
+    sameDayDeliveryBody: "تا ساعت ۱۶ سفارش دهید، امشب بین ۲۰ تا ۲۲ تحویل بگیرید.",
+    heroFreshThisWeek: "تازه این هفته",
+    filterLabel: "فیلتر",
+    pillCampaigns: "کمپین‌ها",
+    pillNewest: "جدیدترین",
+    pillBestSellers: "پرفروش",
+    pillDiscounted: "تخفیف‌دار",
+    pillUnderOne: "زیر ۱ ریال",
+    pillLocal: "تولید محلی",
+    browseDeals: "مشاهده پیشنهادها",
+    heroDesktopTitle: "تازه‌های ضروری، دم در خانه",
+    heroDesktopSubtitle: "تا {highlight} تخفیف روی اقلام روزانه",
+    allCategories: "همه دسته‌ها",
   },
   product: {
     inStock: "موجود",
@@ -766,6 +839,7 @@ const fa: Messages = {
     noFeatures: "ویژگی‌ای ثبت نشده است.",
     addToCart: "افزودن به سبد — {price}",
     addToCartSimple: "افزودن به سبد",
+    addShort: "افزودن",
     fallbackName: "محصول",
     vatIncluded: "شامل مالیات",
     quantity: "تعداد",
@@ -774,6 +848,7 @@ const fa: Messages = {
     unitPack: "بسته",
     share: "اشتراک‌گذاری",
     wishlist: "علاقه‌مندی",
+    zoom: "بزرگ‌نمایی تصویر",
   },
   cart: {
     title: "سبد خرید من",
@@ -852,6 +927,13 @@ const fa: Messages = {
     sortNewest: "جدیدترین",
     sortPriceAsc: "ارزان‌ترین",
     sortPriceDesc: "گران‌ترین",
+    filters: "فیلترها",
+    clearFilters: "حذف فیلترها",
+    resultsCount: "{count} محصول",
+    sortLabel: "مرتب‌سازی",
+    categoryLabel: "دسته‌بندی",
+    campaignLabel: "کمپین",
+    priceLabel: "قیمت",
   },
   pwa: {
     install: "نصب برنامه",
@@ -863,6 +945,7 @@ const fa: Messages = {
     title: "دسته‌بندی‌ها",
     searchInCategories: "جستجو در دسته‌ها",
     back: "دسته‌ها",
+    subcategoryCount: "{count} زیردسته",
   },
   account: {
     title: "حساب کاربری",
@@ -1067,6 +1150,13 @@ const fa: Messages = {
       customers: "مشتریان",
       smartProduct: "ثبت هوشمند",
     },
+    navGroups: {
+      overview: "کلی",
+      catalog: "کاتالوگ",
+      marketing: "بازاریابی",
+      operations: "عملیات",
+      insights: "گزارش‌ها",
+    },
     login: {
       title: "ورود پنل مدیریت",
       subtitle: "ورود با نام کاربری و رمز عبور",
@@ -1181,6 +1271,7 @@ const fa: Messages = {
       colName: "نام",
       colPrice: "قیمت",
       colStock: "موجودی",
+      saveStock: "ذخیره‌ی موجودی",
       colStatus: "وضعیت",
       colActions: "عملیات",
       active: "فعال",
@@ -1414,6 +1505,9 @@ const fa: Messages = {
       offDesc: "قیمت‌ها مخفی و سبد خرید غیرفعال است",
       on: "قیمت: روشن",
       off: "قیمت: خاموش",
+      confirmOffTitle: "قیمت‌ها در کل فروشگاه مخفی بشه؟",
+      confirmOffDesc: "با این کار قیمت محصولات برای همه‌ی مشتریان مخفی و سبد خرید غیرفعال می‌شود.",
+      confirmOffAction: "بله، مخفی کن",
     },
     payment: { cash: "نقدی", online: "آنلاین" },
     status: {
@@ -1476,10 +1570,14 @@ const ar: Messages = {
     account: "الحساب",
     cart: "سلة التسوق",
     searchShortcut: "بحث",
+    trackOrder: "تتبع الطلب",
+    help: "مساعدة",
+    accountSignIn: "الحساب / تسجيل الدخول",
+    signIn: "تسجيل الدخول",
   },
   home: {
     deliverTo: "التوصيل إلى",
-    locationSample: "مسقط، الغبرة",
+    locationSample: "مسقط، الخوض",
     searchPlaceholder: "البحث عن منتج…",
     heroBadge: "عرض خاص",
     heroTitle: "مواد طازجة يومياً",
@@ -1509,6 +1607,28 @@ const ar: Messages = {
     fallbackDairy: "ألبان",
     fallbackMeat: "لحوم",
     fallbackBakery: "مخبوزات",
+    searchPlaceholderDesktop: "ابحث عن منتجات وعلامات وفئات…",
+    utilityFreeDelivery: "توصيل مجاني للطلبات فوق {amount} · مسقط والسيب",
+    shopByCategory: "تسوق حسب الفئة",
+    refine: "تصفية",
+    inStockOnly: "المتوفّر فقط",
+    onCampaign: "ضمن حملة",
+    organic: "عضوي",
+    sameDayDelivery: "توصيل اليوم — اطلب قبل الساعة ٤ مساءً واستلمه الليلة بين ٨ و١٠.",
+    sameDayDeliveryTitle: "توصيل في نفس اليوم",
+    sameDayDeliveryBody: "اطلب قبل الساعة ٤ مساءً، واستلمه الليلة بين ٨ و١٠.",
+    heroFreshThisWeek: "طازج هذا الأسبوع",
+    filterLabel: "تصفية",
+    pillCampaigns: "الحملات",
+    pillNewest: "الأحدث",
+    pillBestSellers: "الأكثر مبيعاً",
+    pillDiscounted: "مخفّضة",
+    pillUnderOne: "أقل من ريال واحد",
+    pillLocal: "منتج محلي",
+    browseDeals: "تصفح العروض",
+    heroDesktopTitle: "أساسيات طازجة، تصلك إلى بابك",
+    heroDesktopSubtitle: "وفّر حتى {highlight} على المستلزمات اليومية",
+    allCategories: "كل الفئات",
   },
   product: {
     inStock: "متوفر",
@@ -1520,6 +1640,7 @@ const ar: Messages = {
     noFeatures: "لا توجد مواصفات.",
     addToCart: "أضف إلى السلة — {price}",
     addToCartSimple: "أضف إلى السلة",
+    addShort: "أضف",
     fallbackName: "منتج",
     vatIncluded: "شامل ضريبة القيمة المضافة",
     quantity: "الكمية",
@@ -1528,6 +1649,7 @@ const ar: Messages = {
     unitPack: "علبة",
     share: "مشاركة",
     wishlist: "المفضلة",
+    zoom: "تكبير الصورة",
   },
   cart: {
     title: "سلة التسوق",
@@ -1606,6 +1728,13 @@ const ar: Messages = {
     sortNewest: "الأحدث",
     sortPriceAsc: "الأرخص",
     sortPriceDesc: "الأغلى",
+    filters: "عوامل التصفية",
+    clearFilters: "مسح التصفية",
+    resultsCount: "{count} منتج",
+    sortLabel: "الترتيب",
+    categoryLabel: "الفئة",
+    campaignLabel: "الحملة",
+    priceLabel: "السعر",
   },
   pwa: {
     install: "تثبيت التطبيق",
@@ -1617,6 +1746,7 @@ const ar: Messages = {
     title: "الفئات",
     searchInCategories: "بحث في الفئات",
     back: "الفئات",
+    subcategoryCount: "{count} فئات فرعية",
   },
   account: {
     title: "حسابي",
@@ -1821,6 +1951,13 @@ const ar: Messages = {
       customers: "العملاء",
       smartProduct: "تسجيل ذكي",
     },
+    navGroups: {
+      overview: "عام",
+      catalog: "الكتالوج",
+      marketing: "التسويق",
+      operations: "العمليات",
+      insights: "التقارير",
+    },
     login: {
       title: "دخول لوحة الإدارة",
       subtitle: "الدخول باسم المستخدم وكلمة المرور",
@@ -1935,6 +2072,7 @@ const ar: Messages = {
       colName: "الاسم",
       colPrice: "السعر",
       colStock: "المخزون",
+      saveStock: "حفظ المخزون",
       colStatus: "الحالة",
       colActions: "إجراءات",
       active: "نشط",
@@ -2168,6 +2306,9 @@ const ar: Messages = {
       offDesc: "الأسعار مخفية وسلة التسوق معطّلة",
       on: "السعر: مفعّل",
       off: "السعر: معطّل",
+      confirmOffTitle: "هل تريد إخفاء الأسعار في كل المتجر؟",
+      confirmOffDesc: "سيؤدي هذا إلى إخفاء أسعار المنتجات لجميع العملاء وتعطيل سلة التسوق.",
+      confirmOffAction: "نعم، أخفِ الأسعار",
     },
     payment: { cash: "نقدي", online: "إلكتروني" },
     status: {
@@ -2230,10 +2371,14 @@ const en: Messages = {
     account: "Account",
     cart: "Cart",
     searchShortcut: "Search",
+    trackOrder: "Track order",
+    help: "Help",
+    accountSignIn: "Account / Sign in",
+    signIn: "Sign in",
   },
   home: {
     deliverTo: "Deliver to",
-    locationSample: "Muscat, Al Ghubra",
+    locationSample: "Muscat, Al Khoudh",
     searchPlaceholder: "Search products…",
     heroBadge: "Special offer",
     heroTitle: "Fresh daily groceries",
@@ -2251,7 +2396,7 @@ const en: Messages = {
     heroGoToSlide: "Go to slide {n}",
     campaignPercentOff: "{value}% off",
     campaignFixedOff: "{value} OMR off",
-    flashDeals: "Flash deals",
+    flashDeals: "Flash Deals",
     flashEnds: "Ends: 02:45:18",
     flashEndsIn: "Ends in",
     categoriesTitle: "Shop by category",
@@ -2263,6 +2408,28 @@ const en: Messages = {
     fallbackDairy: "Dairy",
     fallbackMeat: "Meat",
     fallbackBakery: "Bakery",
+    searchPlaceholderDesktop: "Search for products, brands and categories",
+    utilityFreeDelivery: "Free delivery on orders over {amount} · Muscat & Seeb",
+    shopByCategory: "Shop by category",
+    refine: "Refine",
+    inStockOnly: "In stock only",
+    onCampaign: "On campaign",
+    organic: "Organic",
+    sameDayDelivery: "Same-day delivery — Order before 4 PM, get it tonight 8–10 PM.",
+    sameDayDeliveryTitle: "Same-day delivery",
+    sameDayDeliveryBody: "Order before 4 PM, get it tonight 8–10 PM.",
+    heroFreshThisWeek: "FRESH THIS WEEK",
+    filterLabel: "Filter",
+    pillCampaigns: "Campaigns",
+    pillNewest: "Newest",
+    pillBestSellers: "Best sellers",
+    pillDiscounted: "Discounted",
+    pillUnderOne: "Under OMR 1",
+    pillLocal: "Local produce",
+    browseDeals: "Browse deals",
+    heroDesktopTitle: "Fresh essentials, delivered to you",
+    heroDesktopSubtitle: "Save up to {highlight} on daily basics.",
+    allCategories: "All categories",
   },
   product: {
     inStock: "In stock",
@@ -2274,6 +2441,7 @@ const en: Messages = {
     noFeatures: "No specifications listed.",
     addToCart: "Add to cart — {price}",
     addToCartSimple: "Add to cart",
+    addShort: "Add",
     fallbackName: "Product",
     vatIncluded: "Inclusive of VAT",
     quantity: "Quantity",
@@ -2282,6 +2450,7 @@ const en: Messages = {
     unitPack: "pack",
     share: "Share",
     wishlist: "Wishlist",
+    zoom: "Zoom image",
   },
   cart: {
     title: "My cart",
@@ -2360,6 +2529,13 @@ const en: Messages = {
     sortNewest: "Newest",
     sortPriceAsc: "Price: low to high",
     sortPriceDesc: "Price: high to low",
+    filters: "Filters",
+    clearFilters: "Clear filters",
+    resultsCount: "{count} products",
+    sortLabel: "Sort",
+    categoryLabel: "Category",
+    campaignLabel: "Campaign",
+    priceLabel: "Price",
   },
   pwa: {
     install: "Install app",
@@ -2371,6 +2547,7 @@ const en: Messages = {
     title: "Categories",
     searchInCategories: "Search categories",
     back: "Categories",
+    subcategoryCount: "{count} subcategories",
   },
   account: {
     title: "My account",
@@ -2575,6 +2752,13 @@ const en: Messages = {
       customers: "Customers",
       smartProduct: "Smart listing",
     },
+    navGroups: {
+      overview: "Overview",
+      catalog: "Catalog",
+      marketing: "Marketing",
+      operations: "Operations",
+      insights: "Insights",
+    },
     login: {
       title: "Admin sign in",
       subtitle: "Sign in with username and password",
@@ -2689,6 +2873,7 @@ const en: Messages = {
       colName: "Name",
       colPrice: "Price",
       colStock: "Stock",
+      saveStock: "Save stock",
       colStatus: "Status",
       colActions: "Actions",
       active: "Active",
@@ -2922,6 +3107,9 @@ const en: Messages = {
       offDesc: "Prices are hidden and cart is disabled",
       on: "Prices: on",
       off: "Prices: off",
+      confirmOffTitle: "Hide prices storewide?",
+      confirmOffDesc: "This hides product prices for every customer and disables the cart.",
+      confirmOffAction: "Yes, hide prices",
     },
     payment: { cash: "Cash", online: "Online" },
     status: {

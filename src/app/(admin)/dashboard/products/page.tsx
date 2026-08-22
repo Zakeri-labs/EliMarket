@@ -412,7 +412,9 @@ export default function AdminProductsPage() {
             />
             <button
               type="button"
-              className="inline-flex min-w-8 items-center justify-center rounded bg-[#6b8f71]/15 px-2 py-1 text-[#527559] disabled:opacity-50"
+              title={t("admin.products.saveStock")}
+              aria-label={t("admin.products.saveStock")}
+              className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-[#6b8f71] text-white transition-colors hover:bg-[#527559] disabled:opacity-50"
               disabled={isActionPending}
               onClick={() => saveStock(row.original.id)}
             >

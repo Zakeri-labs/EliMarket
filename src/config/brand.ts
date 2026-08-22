@@ -30,14 +30,17 @@ export function formatPrice(
   currency = DEFAULT_CURRENCY,
   locale: Locale = "fa",
 ) {
+  const value = Number(amount);
+  const safeAmount = Number.isFinite(value) ? value : 0;
+  const safeLocale: Locale = locale === "en" || locale === "ar" ? locale : "fa";
   const fractionDigits = currency === "OMR" ? 3 : currency === "IRR" ? 0 : 2;
-  const formatted = amount.toLocaleString(getNumberLocale(locale), {
+  const formatted = safeAmount.toLocaleString(getNumberLocale(safeLocale), {
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
   });
   const label =
     currency === "OMR" || currency === "IRR"
-      ? getMessages(locale).brand.currency
+      ? getMessages(safeLocale).brand.currency
       : currency;
   return `${formatted} ${label}`;
 }

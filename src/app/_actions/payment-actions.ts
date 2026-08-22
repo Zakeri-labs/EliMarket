@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/core/supabase/server";
+import { createServiceRoleClient } from "@/core/supabase/service";
 import { requireAuth } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
@@ -115,7 +116,11 @@ export async function confirmSandboxPaymentAction(paymentId: string) {
       return { success: true as const, data: payment };
     }
 
-    const { data: updated, error } = await supabase
+    // Marking a payment "paid" grants value, so it must go through the
+    // service-role client — RLS blocks a customer from doing this to their
+    // own payment row directly (see 20260828000000_security_hardening.sql).
+    const service = createServiceRoleClient();
+    const { data: updated, error } = await service
       .from("payments")
       .update({
         status: "paid",
@@ -126,7 +131,7 @@ export async function confirmSandboxPaymentAction(paymentId: string) {
       .single();
     if (error) throw error;
 
-    await supabase
+    await service
       .from("orders")
       .update({ payment_status: "paid", status: "confirmed" })
       .eq("id", payment.order_id);
@@ -159,12 +164,16 @@ export async function cancelPaymentAction(paymentId: string) {
     if (error) throw error;
 
     if (payment.order?.payment_status !== "failed") {
-      await supabase
+      // Cancelling doesn't grant value, but the order row itself still has
+      // no customer-owned UPDATE policy, so this write also needs the
+      // service-role client to actually take effect.
+      const service = createServiceRoleClient();
+      await service
         .from("orders")
         .update({ payment_status: "failed", status: "cancelled" })
         .eq("id", payment.order_id);
       if (payment.order) {
-        await restoreOrderStock(supabase, payment.order);
+        await restoreOrderStock(service, payment.order);
       }
     }
 
@@ -189,7 +198,11 @@ export async function verifyThawaniPaymentAction(
     const session = await getThawaniCheckoutSession(sid);
     const paid = session.payment_status === "paid";
 
-    await supabase
+    // We've now independently verified the charge with Thawani's API, so
+    // this is the one place allowed to write status = "paid" — via the
+    // service-role client, same reasoning as confirmSandboxPaymentAction.
+    const service = createServiceRoleClient();
+    await service
       .from("payments")
       .update({
         status: paid ? "paid" : "failed",
@@ -200,16 +213,16 @@ export async function verifyThawaniPaymentAction(
       .eq("id", paymentId);
 
     if (paid) {
-      await supabase
+      await service
         .from("orders")
         .update({ payment_status: "paid", status: "confirmed" })
         .eq("id", payment.order_id);
     } else if (payment.order?.payment_status !== "failed") {
-      await supabase
+      await service
         .from("orders")
         .update({ payment_status: "failed", status: "cancelled" })
         .eq("id", payment.order_id);
-      if (payment.order) await restoreOrderStock(supabase, payment.order);
+      if (payment.order) await restoreOrderStock(service, payment.order);
     }
 
     return {

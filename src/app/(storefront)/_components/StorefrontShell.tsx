@@ -19,7 +19,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
   return (
     <div
       className={cn(
-        "flex min-h-full w-full flex-1 flex-col bg-background",
+        "flex min-h-full w-full flex-1 flex-col bg-background storefront-hills",
         mobileFullHeight && "max-md:h-[100dvh] max-md:max-h-[100dvh] max-md:overflow-hidden",
       )}
     >

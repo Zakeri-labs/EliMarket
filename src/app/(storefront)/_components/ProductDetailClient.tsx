@@ -163,7 +163,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           <div className="relative z-10 -mt-5 rounded-t-[1.75rem] bg-background px-4 pb-4 pt-5">
             <div className="space-y-4">
             <div>
-              <h1 className="text-start text-2xl font-bold leading-tight">{product.name}</h1>
+              <h1 className="font-logo text-start text-2xl font-bold leading-tight">{product.name}</h1>
               {subtitle && <p className="mt-1 text-start text-sm text-muted">{subtitle}</p>}
             </div>
 
@@ -308,7 +308,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         <div className="flex flex-col">
           <div className="space-y-4">
             <div>
-              <h1 className="text-3xl font-bold">{product.name}</h1>
+              <h1 className="font-logo text-3xl font-bold">{product.name}</h1>
               {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
             </div>
 
@@ -329,7 +329,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 <p className="text-sm text-muted">{t("store.pricesHidden")}</p>
               )}
               {inStock ? (
-                <span className="inline-flex items-center gap-1.5 text-sm text-success">
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-accent">
                   <AppIcon icon={CheckCircle2} size="sm" />
                   {t("product.inStock")}
                 </span>
@@ -380,7 +380,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             )}
           </div>
 
-          <div className="mt-8 space-y-4 rounded-2xl border border-border bg-surface p-4 lg:mt-auto">
+          <div className="mt-8 space-y-4 rounded-2xl border border-border bg-surface p-4 lg:sticky lg:bottom-6 lg:mt-auto lg:shadow-lg">
             <div className="flex items-center justify-between gap-4">
               <span className="text-sm font-medium">
                 {t("product.quantity")} ({unitLabel})

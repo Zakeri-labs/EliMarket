@@ -36,9 +36,17 @@ export const useLocaleStore = create<LocaleState>()(
     }),
     {
       name: "elimarket-locale",
+      // Avoid SSR/client mismatch: seed from server cookie first, then rehydrate.
+      skipHydration: true,
       onRehydrateStorage: () => (state) => {
         if (state?.locale) applyDocumentLocale(state.locale);
       },
     },
   ),
 );
+
+/** Call once from LocaleProvider with the request cookie locale. */
+export function seedLocaleFromServer(locale: Locale) {
+  useLocaleStore.setState({ locale });
+  applyDocumentLocale(locale);
+}

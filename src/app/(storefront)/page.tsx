@@ -4,11 +4,7 @@ import { websiteJsonLd } from "@/lib/seo/schemas";
 import { absoluteUrl, languageAlternates } from "@/lib/seo/site-url";
 import { getMessages } from "@/i18n/messages";
 import { getRequestLocale } from "@/i18n/server";
-import { CategoryGrid } from "@/app/(storefront)/_components/CategoryGrid";
-import { FlashDeals } from "@/app/(storefront)/_components/FlashDeals";
-import { HeroCarousel } from "@/app/(storefront)/_components/HeroCarousel";
-import { LocationBar, SearchBar } from "@/app/(storefront)/_components/HomeSections";
-import { ProductGrid } from "@/app/(storefront)/_components/ProductGrid";
+import { HomeView } from "@/app/(storefront)/_components/HomeView";
 import { CartDisabledNotice } from "@/app/(storefront)/_components/CartGate";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -35,16 +31,9 @@ export default function StorefrontHomePage() {
   return (
     <>
       <JsonLd data={websiteJsonLd()} />
-      <main className="space-y-6 py-4 md:space-y-8 md:py-6">
+      <main>
         <CartDisabledNotice />
-        <div className="space-y-3">
-          <LocationBar />
-          <SearchBar />
-        </div>
-        <HeroCarousel />
-        <CategoryGrid />
-        <FlashDeals />
-        <ProductGrid />
+        <HomeView />
       </main>
     </>
   );

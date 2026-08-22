@@ -12,15 +12,20 @@ import { sortFlashDealProducts } from "@/lib/products/pricing";
 
 const HOME_DEAL_COUNT = 10;
 
-export function FlashDeals() {
+type Props = {
+  limit?: number;
+};
+
+export function FlashDeals({ limit }: Props) {
   const { data: products, isPending } = useProducts();
   const { t, dir, locale } = useTranslations();
   const isSkeleton = isPending;
+  const dealCount = limit ?? HOME_DEAL_COUNT;
 
   const { deals, endsAt, viewAllHref } = useMemo(() => {
     if (isSkeleton) {
       return {
-        deals: mockFlashDeals(locale).slice(0, HOME_DEAL_COUNT),
+        deals: mockFlashDeals(locale).slice(0, dealCount),
         endsAt: null as string | null,
         viewAllHref: "/search?sale=1",
       };
@@ -36,7 +41,7 @@ export function FlashDeals() {
       : campaignDeals.length
         ? campaignDeals
         : sortFlashDealProducts(products);
-    const nextDeals = sourced.slice(0, HOME_DEAL_COUNT);
+    const nextDeals = sourced.slice(0, dealCount);
     const nextEndsAt =
       nextDeals
         .map((product) => product.campaign?.ends_at)
@@ -49,22 +54,27 @@ export function FlashDeals() {
     const viewAllHref =
       uniqueCampaigns.length === 1 ? campaignSearchPath(uniqueCampaigns[0]) : "/search?sale=1";
     return { deals: nextDeals, endsAt: nextEndsAt, viewAllHref };
-  }, [isSkeleton, locale, products]);
+  }, [dealCount, isSkeleton, locale, products]);
 
   if (!isSkeleton && deals.length === 0) return null;
 
   return (
     <section dir={dir}>
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-start text-base font-bold sm:text-lg">{t("home.flashDeals")}</h2>
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <h2 className="text-start font-logo text-base tracking-wide sm:text-lg">
+            {t("home.flashDeals")}
+          </h2>
           <FlashDealTimer endsAt={endsAt} />
-          <Link href={viewAllHref} className="text-sm font-medium text-accent">
-            {t("home.viewAll")}
-          </Link>
         </div>
+        <Link
+          href={viewAllHref}
+          className="shrink-0 text-sm font-medium text-accent-gold"
+        >
+          {t("home.viewAll")}
+        </Link>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {deals.map((product, index) => (
           <ProductDealCard
             key={product.id}

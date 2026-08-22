@@ -26,7 +26,7 @@ export function applyDocumentTheme(theme: StorefrontTheme) {
   root.style.colorScheme = theme;
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
-    meta.setAttribute("content", theme === "light" ? "#f5f5f5" : "#121212");
+    meta.setAttribute("content", theme === "light" ? "#f5f5f5" : "#0b1210");
   }
   syncThemeCookie(theme);
 }

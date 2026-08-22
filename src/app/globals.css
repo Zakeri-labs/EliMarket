@@ -2,25 +2,35 @@
 
 :root,
 html.theme-dark {
-  /* Storefront dark — teal on charcoal */
-  --background: #121212;
-  --foreground: #ffffff;
-  --surface: #1e1e1e;
-  --surface-elevated: #252525;
-  --border: #2e2e2e;
-  --muted: #b0b0b0;
-  --muted-foreground: #b0b0b0;
-  --card: #1e1e1e;
-  --card-foreground: #ffffff;
-  --accent: #26a69a;
-  --accent-dark: #1e8a80;
-  --accent-foreground: #0f0f0f;
-  --accent-glow: rgba(38, 166, 154, 0.22);
-  --on-accent: #0f0f0f;
+  /* Hills Eli Mart desktop palette */
+  --bg-main: #0b1210;
+  --bg-card: #101915;
+  --border-subtle: #1e2a24;
+  --text-primary: #f5f5f0;
+  --text-secondary: #8a9490;
+  --accent-teal: #2dd4bf;
+  --accent-gold: #c9a876;
+  --price-strike: #5c645f;
+
+  --background: var(--bg-main);
+  --foreground: var(--text-primary);
+  --surface: var(--bg-card);
+  --surface-elevated: #141c18;
+  --border: var(--border-subtle);
+  --muted: var(--text-secondary);
+  --muted-foreground: var(--text-secondary);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+  --accent: var(--accent-teal);
+  --accent-dark: #14b8a6;
+  --accent-foreground: #0b1210;
+  --accent-glow: rgba(45, 212, 191, 0.22);
+  --on-accent: #0b1210;
+  --gold: var(--accent-gold);
   --danger: #f87171;
   --destructive: #f87171;
   --success: #34d399;
-  --skeleton: #3f3f46;
+  --skeleton: #2a3330;
   --radius: 16px;
   --radius-sm: 12px;
   --max-mobile: 480px;
@@ -43,6 +53,15 @@ html.theme-light {
   --accent-foreground: #ffffff;
   --accent-glow: rgba(90, 109, 44, 0.16);
   --on-accent: #ffffff;
+  --gold: #8a6d3b;
+  --bg-main: #f5f5f5;
+  --bg-card: #ffffff;
+  --border-subtle: #e4e4e7;
+  --text-primary: #18181b;
+  --text-secondary: #71717a;
+  --accent-teal: #5a6d2c;
+  --accent-gold: #8a6d3b;
+  --price-strike: #a1a1aa;
   --danger: #dc2626;
   --destructive: #dc2626;
   --success: #16a34a;
@@ -64,6 +83,15 @@ html.theme-light {
   --color-accent-dark: var(--accent-dark);
   --color-accent-foreground: var(--accent-foreground);
   --color-on-accent: var(--on-accent);
+  --color-gold: var(--gold);
+  --color-bg-main: var(--bg-main);
+  --color-bg-card: var(--bg-card);
+  --color-border-subtle: var(--border-subtle);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-accent-teal: var(--accent-teal);
+  --color-accent-gold: var(--accent-gold);
+  --color-price-strike: var(--price-strike);
   --color-danger: var(--danger);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
@@ -103,6 +131,137 @@ body {
   font-feature-settings: "tnum" 1;
 }
 
+.stripe-placeholder {
+  background-color: #0e1612;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    #2a3a33 5px,
+    #2a3a33 6px
+  );
+}
+
+/* Force the Hills desktop chrome to appear from 768px — xl (1280) hid it
+   in typical laptop / IDE preview widths. Phone layout stays below 768. */
+.hills-desktop,
+.hills-desktop-flex {
+  display: none !important;
+}
+@media (max-width: 767.98px) {
+  .hills-desktop,
+  .hills-desktop-flex {
+    display: none !important;
+  }
+}
+@media (min-width: 768px) {
+  .hills-desktop {
+    display: block !important;
+  }
+  .hills-desktop-flex {
+    display: flex !important;
+  }
+  .hills-mobile {
+    display: none !important;
+  }
+}
+
+/* Storefront default (dark) Hills palette. */
+.storefront-hills {
+  --bg-main: #0b1210;
+  --bg-card: #101915;
+  --border-subtle: #1e2a24;
+  --text-primary: #f5f5f0;
+  --text-secondary: #8a9490;
+  --accent-teal: #2dd4bf;
+  --accent-gold: #c9a876;
+  --price-strike: #5c645f;
+  --background: var(--bg-main);
+  --foreground: var(--text-primary);
+  --surface: var(--bg-card);
+  --surface-elevated: #141c18;
+  --border: var(--border-subtle);
+  --muted: var(--text-secondary);
+  --muted-foreground: var(--text-secondary);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+  --accent: var(--accent-teal);
+  --accent-foreground: #0b1210;
+  --on-accent: #0b1210;
+  --gold: var(--accent-gold);
+  background: var(--bg-main);
+  color: var(--text-primary);
+  color-scheme: dark;
+}
+
+/* Storefront light variant — same brand accents, olive-on-white surfaces. */
+html.theme-light .storefront-hills {
+  --bg-main: #f5f5f5;
+  --bg-card: #ffffff;
+  --border-subtle: #e4e4e7;
+  --text-primary: #18181b;
+  --text-secondary: #71717a;
+  --accent-teal: #0d9488;
+  --accent-gold: #8a6d3b;
+  --price-strike: #a1a1aa;
+  --background: var(--bg-main);
+  --foreground: var(--text-primary);
+  --surface: var(--bg-card);
+  --surface-elevated: #fafafa;
+  --border: var(--border-subtle);
+  --muted: var(--text-secondary);
+  --muted-foreground: var(--text-secondary);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+  --accent: var(--accent-teal);
+  --accent-foreground: #ffffff;
+  --on-accent: #ffffff;
+  --gold: var(--accent-gold);
+  background: var(--bg-main);
+  color: var(--text-primary);
+  color-scheme: light;
+}
+
+.desktop-range {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.desktop-range::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--accent-teal);
+  border: 0;
+  cursor: pointer;
+}
+.desktop-range::-moz-range-thumb {
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--accent-teal);
+  border: 0;
+  cursor: pointer;
+}
+.desktop-range::-webkit-slider-runnable-track {
+  height: 6px;
+  background: transparent;
+}
+.desktop-range::-moz-range-track {
+  height: 6px;
+  background: transparent;
+}
+
 /* Admin light theme override */
 .theme-admin {
   --background: #f4f4f5;
@@ -119,6 +278,7 @@ body {
   --accent-foreground: #ffffff;
   --accent-glow: rgba(107, 143, 113, 0.12);
   --on-accent: #ffffff;
+  --gold: #8a6d3b;
   --skeleton: #e4e4e7;
 }
 

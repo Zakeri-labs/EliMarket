@@ -70,7 +70,11 @@ export function StorefrontImage({
       height={!fill ? height : undefined}
       unoptimized={skipOptimizer || props.unoptimized}
       className={cn("bg-transparent", className)}
-      style={{ backgroundColor: "transparent", ...props.style }}
+      style={{
+        backgroundColor: "transparent",
+        ...(!fill ? { width: "auto", height: "auto" } : {}),
+        ...props.style,
+      }}
       placeholder={withBlur && !skipOptimizer ? "blur" : undefined}
       blurDataURL={
         withBlur && !skipOptimizer && !useStaticBlur ? remoteBlurDataUrl : undefined

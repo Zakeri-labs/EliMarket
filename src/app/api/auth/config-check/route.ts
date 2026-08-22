@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { publicEnv } from "@/config/env";
 
-/** Non-sensitive env check — compare local vs Vercel deployment. */
+/** Dev-only env check — compare local vs Vercel deployment. */
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+  }
   try {
     const url = new URL(publicEnv.supabaseUrl);
     const key = publicEnv.supabaseAnonKey;

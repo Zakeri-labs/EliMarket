@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect } from "react";
-import { useLocaleStore } from "@/app/_store/locale-store";
-import { DEFAULT_LOCALE, getDirection } from "@/i18n/config";
+import { useEffect, useRef } from "react";
+import { seedLocaleFromServer, useLocaleStore } from "@/app/_store/locale-store";
+import { getDirection, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
+export function LocaleProvider({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale: Locale;
+}) {
+  const seeded = useRef(false);
+  if (!seeded.current) {
+    seedLocaleFromServer(initialLocale);
+    seeded.current = true;
+  }
+
   const locale = useLocaleStore((s) => s.locale);
+
+  useEffect(() => {
+    void useLocaleStore.persist.rehydrate();
+  }, []);
 
   useEffect(() => {
     const m = getMessages(locale);

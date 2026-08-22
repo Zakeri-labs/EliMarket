@@ -121,7 +121,7 @@ function CheckoutPageContent() {
 
   if (status !== "authenticated") {
     return (
-      <main className="px-4 py-6">
+      <main className="px-4 py-6 md:mx-auto md:max-w-md">
         <Link href="/cart" className="mb-4 inline-block text-sm text-accent">{t("checkout.backToCart")}</Link>
         <h1 className="mb-2 text-xl font-bold">{t("checkout.loginTitle")}</h1>
         <p className="mb-6 text-sm text-muted">{t("checkout.loginSubtitle")}</p>

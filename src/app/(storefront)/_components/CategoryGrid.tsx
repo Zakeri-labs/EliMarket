@@ -13,8 +13,7 @@ import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 
-/** One homepage row: 5 on mobile, 8 on tablet, 10 on desktop. The rest is on /categories. */
-const HOME_CATEGORY_SLOTS = 10;
+const HOME_CATEGORY_SLOTS = 16;
 
 export function CategoryGrid() {
   const { t, locale, dir } = useTranslations();
@@ -46,8 +45,8 @@ export function CategoryGrid() {
           {t("home.viewAll")}
         </Link>
       </div>
-      <div dir={dir} className="flex flex-nowrap gap-2">
-        {items.map((cat, index) => {
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+        {items.map((cat) => {
           const hasImage = Boolean(cat.image_url);
 
           return (
@@ -56,10 +55,7 @@ export function CategoryGrid() {
               href={isSkeleton ? "#" : `/categories/${cat.slug}`}
               dir={dir}
               className={cn(
-                "flex w-0 min-w-0 max-w-[20%] flex-1 flex-col items-center rounded-xl border border-border bg-surface-elevated px-1 pb-1.5 pt-1.5",
-                index >= 5 && "hidden",
-                index < 8 && "sm:flex",
-                index >= 8 && "lg:flex",
+                "flex flex-col items-center rounded-xl border border-border bg-surface-elevated px-1 pb-1.5 pt-1.5 sm:rounded-2xl sm:px-2 sm:py-2",
                 isSkeleton && "skeleton pointer-events-none",
               )}
               onClick={(e) => {
@@ -75,11 +71,10 @@ export function CategoryGrid() {
                     src={cat.image_url}
                     blurHash={cat.blur_hash}
                     alt=""
-                    width={64}
-                    height={64}
+                    fill
                     sizes="64px"
                     withBlur={false}
-                    className="max-h-full max-w-full bg-transparent object-contain"
+                    className="object-contain"
                   />
                 ) : (
                   <AppIcon
@@ -89,7 +84,7 @@ export function CategoryGrid() {
                   />
                 )}
               </span>
-              <p className="mt-1 line-clamp-2 w-full text-center text-[10px] font-medium leading-tight text-foreground">
+              <p className="mt-1 line-clamp-2 w-full text-center text-[10px] font-medium leading-tight text-foreground sm:text-xs">
                 {resolveCategoryName(cat, locale)}
               </p>
             </Link>
