@@ -538,6 +538,8 @@ export type Messages = {
       namePlaceholder: string;
       slugPlaceholder: string;
       logoUrlPlaceholder: string;
+      uploadLogo: string;
+      removeLogo: string;
       sortOrderLabel: string;
       save: string;
       create: string;
@@ -1330,6 +1332,8 @@ const fa: Messages = {
       namePlaceholder: "نام برند",
       slugPlaceholder: "brand-slug",
       logoUrlPlaceholder: "URL لوگو (اختیاری)",
+      uploadLogo: "بارگذاری لوگو",
+      removeLogo: "حذف لوگو",
       sortOrderLabel: "ترتیب نمایش",
       save: "ذخیره",
       create: "ایجاد برند",
@@ -2131,6 +2135,8 @@ const ar: Messages = {
       namePlaceholder: "اسم العلامة",
       slugPlaceholder: "brand-slug",
       logoUrlPlaceholder: "رابط الشعار (اختياري)",
+      uploadLogo: "رفع الشعار",
+      removeLogo: "إزالة الشعار",
       sortOrderLabel: "ترتيب العرض",
       save: "حفظ",
       create: "إنشاء علامة",
@@ -2932,6 +2938,8 @@ const en: Messages = {
       namePlaceholder: "Brand name",
       slugPlaceholder: "brand-slug",
       logoUrlPlaceholder: "Logo URL (optional)",
+      uploadLogo: "Upload logo",
+      removeLogo: "Remove logo",
       sortOrderLabel: "Sort order",
       save: "Save",
       create: "Create brand",
