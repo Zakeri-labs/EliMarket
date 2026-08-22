@@ -559,12 +559,13 @@ export function DataTable<T>({
             <thead className="sticky top-0 z-20 bg-[#f4f4f5]">
               {table.getHeaderGroups().map((hg) => (
                 <tr key={hg.id}>
-                  {hg.headers.map((header) => {
+                  {hg.headers.map((header, headerIndex) => {
                     const canSort = header.column.getCanSort();
                     const isSorted = header.column.getIsSorted();
                     const columnId = header.column.id;
                     const filterValue = getColumnFilterValue(columnId);
                     const canResize = enableColumnResizing && header.column.getCanResize();
+                    const isLastHeader = headerIndex === hg.headers.length - 1;
 
                     return (
                       <th
@@ -631,7 +632,12 @@ export function DataTable<T>({
                             onTouchStart={header.getResizeHandler()}
                             onDoubleClick={() => header.column.resetSize()}
                             className={cn(
-                              "absolute top-0 bottom-0 end-0 z-10 w-2 translate-x-1/2 cursor-col-resize touch-none select-none bg-transparent hover:bg-[#6b8f71]/25 active:bg-[#6b8f71]/40",
+                              "absolute top-0 bottom-0 end-0 z-10 w-2 cursor-col-resize touch-none select-none bg-transparent hover:bg-[#6b8f71]/25 active:bg-[#6b8f71]/40",
+                              // Straddling the border (translate-x-1/2) makes the handle
+                              // easier to grab, but on the last column it pushes 4px past
+                              // the table's own edge — enough for the scroll container to
+                              // treat it as real overflow and show a phantom scrollbar.
+                              !isLastHeader && "translate-x-1/2",
                               header.column.getIsResizing() && "bg-[#6b8f71]/40",
                             )}
                           />
