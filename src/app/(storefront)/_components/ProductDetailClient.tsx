@@ -18,6 +18,7 @@ import { useWishlistStore } from "@/app/_store/wishlist-store";
 import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { cn } from "@/app/utils/cn";
 import { Button } from "@/components/ui/Button";
+import { Price } from "@/components/ui/Price";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { STOREFRONT_CONTAINER_BLEED } from "@/config/layout";
 import { notifyFormSuccess } from "@/app/utils/form-notify";
@@ -121,7 +122,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             <div className="absolute inset-x-0 top-0 flex items-center justify-between px-4 pb-2 pt-3">
               <Link
                 href={isSkeleton ? "#" : "/"}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-black/35 text-white backdrop-blur-sm"
                 onClick={(e) => {
                   if (isSkeleton) e.preventDefault();
                 }}
@@ -133,7 +134,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 <button
                   type="button"
                   disabled={isSkeleton}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-black/35 text-white backdrop-blur-sm"
                   aria-label={t("product.share")}
                   onClick={() => void shareProduct()}
                 >
@@ -142,7 +143,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 <button
                   type="button"
                   disabled={isSkeleton}
-                  className={`flex h-10 w-10 items-center justify-center rounded-full bg-black/35 backdrop-blur-sm ${wishlisted ? "text-red-400" : "text-white"}`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-black/35 backdrop-blur-sm ${wishlisted ? "text-red-400" : "text-white"}`}
                   aria-label={t("product.wishlist")}
                   onClick={() =>
                     toggleWishlist({
@@ -170,15 +171,21 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             <div>
               <div className="flex items-start justify-between gap-4">
                 {showPrices ? (
-                  <div>
-                    <p className="price-num text-start text-3xl font-bold tracking-tight tabular-nums">
-                      {formatPrice(Number(product.price), product.currency)}
-                    </p>
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <Price
+                      amount={Number(product.price)}
+                      currency={product.currency}
+                      className="text-start text-3xl font-bold tracking-tight text-accent-teal"
+                    />
                     {compareAt != null && (
-                      <p className="price-num mt-1 text-start text-sm text-muted line-through tabular-nums">
+                      <span className="price-num text-start text-sm text-muted line-through tabular-nums">
                         {formatPrice(compareAt, product.currency)}
-                        {discountBadge ? ` · ${discountBadge}` : ""}
-                      </p>
+                      </span>
+                    )}
+                    {discountBadge && (
+                      <span className="rounded-md bg-accent-gold px-1.5 py-0.5 text-xs font-semibold text-bg-main">
+                        {discountBadge}
+                      </span>
                     )}
                   </div>
                 ) : (
@@ -314,15 +321,21 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
 
             <div className="flex items-center justify-between">
               {showPrices ? (
-                <div>
-                  <p className="price-num text-3xl font-bold text-accent tabular-nums">
-                    {formatPrice(Number(product.price), product.currency)}
-                  </p>
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <Price
+                    amount={Number(product.price)}
+                    currency={product.currency}
+                    className="text-3xl font-bold text-accent"
+                  />
                   {compareAt != null && (
-                    <p className="price-num mt-1 text-sm text-muted line-through tabular-nums">
+                    <span className="price-num text-sm text-muted line-through tabular-nums">
                       {formatPrice(compareAt, product.currency)}
-                      {discountBadge ? ` · ${discountBadge}` : ""}
-                    </p>
+                    </span>
+                  )}
+                  {discountBadge && (
+                    <span className="rounded-md bg-accent-gold px-1.5 py-0.5 text-xs font-semibold text-bg-main">
+                      {discountBadge}
+                    </span>
                   )}
                 </div>
               ) : (

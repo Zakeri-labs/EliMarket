@@ -13,6 +13,7 @@ import { StripePlaceholder } from "@/components/ui/StripePlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { Button } from "@/components/ui/Button";
+import { Price } from "@/components/ui/Price";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
 import { productCover } from "@/lib/products/gallery";
@@ -131,9 +132,11 @@ export function ProductDealCard({
           )}
         </p>
         <div className="mt-1.5 flex min-h-8 flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums">
-          <span className="price-num text-sm font-bold text-accent-teal">
-            {formatPrice(Number(product.price), product.currency)}
-          </span>
+          <Price
+            amount={Number(product.price)}
+            currency={product.currency}
+            className="text-sm font-bold text-accent-teal"
+          />
           {compareAt != null && (
             <span className="price-num text-[10px] text-price-strike line-through">
               {formatPrice(compareAt, product.currency)}

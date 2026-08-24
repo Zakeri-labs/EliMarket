@@ -69,6 +69,11 @@ export type Messages = {
     heroDesktopTitle: string;
     heroDesktopSubtitle: string;
     allCategories: string;
+    filtersTitle: string;
+    resetAll: string;
+    clear: string;
+    showResults: string;
+    collectionsLabel: string;
   };
   product: {
     inStock: string;
@@ -195,6 +200,20 @@ export type Messages = {
     getCode: string;
     otpPlaceholder: string;
     confirm: string;
+    ordersLabel: string;
+    addressesLabel: string;
+    favouritesLabel: string;
+    deliveryAddresses: string;
+    favourites: string;
+    language: string;
+    theme: string;
+    addressesTitle: string;
+    favouritesTitle: string;
+    noAddressesYet: string;
+    noFavouritesYet: string;
+    setDefault: string;
+    defaultBadge: string;
+    addNewAddress: string;
   };
   orders: {
     title: string;
@@ -830,6 +849,11 @@ const fa: Messages = {
     heroDesktopTitle: "تازه‌های ضروری، دم در خانه",
     heroDesktopSubtitle: "تا {highlight} تخفیف روی اقلام روزانه",
     allCategories: "همه دسته‌ها",
+    filtersTitle: "فیلترها",
+    resetAll: "بازنشانی همه",
+    clear: "پاک کردن",
+    showResults: "نمایش {count} نتیجه",
+    collectionsLabel: "مجموعه‌ها",
   },
   product: {
     inStock: "موجود",
@@ -961,6 +985,20 @@ const fa: Messages = {
     getCode: "دریافت کد",
     otpPlaceholder: "کد ۶ رقمی",
     confirm: "تأیید",
+    ordersLabel: "سفارش‌ها",
+    addressesLabel: "آدرس‌ها",
+    favouritesLabel: "علاقه‌مندی‌ها",
+    deliveryAddresses: "آدرس‌های تحویل",
+    favourites: "علاقه‌مندی‌ها",
+    language: "زبان",
+    theme: "پوسته",
+    addressesTitle: "آدرس‌های من",
+    favouritesTitle: "علاقه‌مندی‌های من",
+    noAddressesYet: "هنوز آدرسی ثبت نکرده‌اید.",
+    noFavouritesYet: "هنوز چیزی به علاقه‌مندی‌ها اضافه نکرده‌اید.",
+    setDefault: "تنظیم به‌عنوان پیش‌فرض",
+    defaultBadge: "پیش‌فرض",
+    addNewAddress: "افزودن آدرس جدید",
   },
   orders: {
     title: "سفارش‌های من",
@@ -1633,6 +1671,11 @@ const ar: Messages = {
     heroDesktopTitle: "أساسيات طازجة، تصلك إلى بابك",
     heroDesktopSubtitle: "وفّر حتى {highlight} على المستلزمات اليومية",
     allCategories: "كل الفئات",
+    filtersTitle: "التصفية",
+    resetAll: "إعادة ضبط الكل",
+    clear: "مسح",
+    showResults: "عرض {count} نتيجة",
+    collectionsLabel: "المجموعات",
   },
   product: {
     inStock: "متوفر",
@@ -1764,6 +1807,20 @@ const ar: Messages = {
     getCode: "استلام الرمز",
     otpPlaceholder: "رمز ٦ أرقام",
     confirm: "تأكيد",
+    ordersLabel: "الطلبات",
+    addressesLabel: "العناوين",
+    favouritesLabel: "المفضلة",
+    deliveryAddresses: "عناوين التوصيل",
+    favourites: "المفضلة",
+    language: "اللغة",
+    theme: "المظهر",
+    addressesTitle: "عناويني",
+    favouritesTitle: "مفضلتي",
+    noAddressesYet: "لم تُضِف أي عنوان بعد.",
+    noFavouritesYet: "لم تُضِف أي شيء إلى المفضلة بعد.",
+    setDefault: "تعيين كافتراضي",
+    defaultBadge: "افتراضي",
+    addNewAddress: "إضافة عنوان جديد",
   },
   orders: {
     title: "طلباتي",
@@ -2436,6 +2493,11 @@ const en: Messages = {
     heroDesktopTitle: "Fresh essentials, delivered to you",
     heroDesktopSubtitle: "Save up to {highlight} on daily basics.",
     allCategories: "All categories",
+    filtersTitle: "Filters",
+    resetAll: "Reset all",
+    clear: "Clear",
+    showResults: "Show {count} results",
+    collectionsLabel: "Collections",
   },
   product: {
     inStock: "In stock",
@@ -2567,6 +2629,20 @@ const en: Messages = {
     getCode: "Get code",
     otpPlaceholder: "6-digit code",
     confirm: "Confirm",
+    ordersLabel: "Orders",
+    addressesLabel: "Addresses",
+    favouritesLabel: "Favourites",
+    deliveryAddresses: "Delivery addresses",
+    favourites: "Favourites",
+    language: "Language",
+    theme: "Theme",
+    addressesTitle: "My addresses",
+    favouritesTitle: "My favourites",
+    noAddressesYet: "You haven't added any addresses yet.",
+    noFavouritesYet: "You haven't added anything to favourites yet.",
+    setDefault: "Set as default",
+    defaultBadge: "Default",
+    addNewAddress: "Add new address",
   },
   orders: {
     title: "My orders",
