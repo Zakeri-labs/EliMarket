@@ -210,21 +210,29 @@ export function HeroCarousel() {
           <>
             <button
               type="button"
-              className="absolute start-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition-colors hover:bg-black/65 disabled:opacity-40"
+              className="absolute start-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-transparent text-white transition-colors hover:bg-black/45 hover:backdrop-blur-sm disabled:opacity-40"
               aria-label={t("home.heroPrev")}
               disabled={isSkeleton}
               onClick={() => goTo(index - 1)}
             >
-              <AppIcon icon={ChevronLeft} size="md" className="rtl:rotate-180" />
+              <AppIcon
+                icon={ChevronLeft}
+                size="md"
+                className="rtl:rotate-180 drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]"
+              />
             </button>
             <button
               type="button"
-              className="absolute end-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition-colors hover:bg-black/65 disabled:opacity-40"
+              className="absolute end-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-transparent text-white transition-colors hover:bg-black/45 hover:backdrop-blur-sm disabled:opacity-40"
               aria-label={t("home.heroNext")}
               disabled={isSkeleton}
               onClick={() => goTo(index + 1)}
             >
-              <AppIcon icon={ChevronRight} size="md" className="rtl:rotate-180" />
+              <AppIcon
+                icon={ChevronRight}
+                size="md"
+                className="rtl:rotate-180 drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]"
+              />
             </button>
           </>
         )}
