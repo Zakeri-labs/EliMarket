@@ -32,7 +32,6 @@ import { resolveProductDescription } from "@/lib/i18n/product-description";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 import { productCover } from "@/lib/products/gallery";
 import { productCompareAtPrice, productDiscountBadge } from "@/lib/products/pricing";
-import { inventoryUnitMessageKey, productInventoryUnit } from "@/lib/products/inventory";
 import { getProductReviewsAction } from "@/app/_actions/review-actions";
 import { getProductQuestionsAction } from "@/app/_actions/question-actions";
 import { ProductGallery } from "@/app/(storefront)/_components/ProductGallery";
@@ -191,12 +190,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const compareAt = productCompareAtPrice(product);
   const discountBadge = productDiscountBadge(product, formatPrice);
   const badgeLabel = product.campaign?.badge?.trim() || null;
-  const unitLabel = t(`product.${inventoryUnitMessageKey(productInventoryUnit(product))}`);
-  const addToCartLabel = showPrices
-    ? t("product.addToCart", {
-        price: formatPrice(lineTotal, product.currency),
-      })
-    : t("product.addToCartSimple");
+  const addToCartLabel = inStock ? t("product.addToCartSimple") : t("product.outOfStock");
   const buyNowLabel = t("product.buyNow", {
     price: formatPrice(lineTotal, product.currency),
   });
@@ -588,7 +582,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           <span className="truncate text-foreground">{product.name}</span>
         </nav>
 
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+        <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr_0.82fr] lg:gap-8">
+          {/* Column 1: gallery */}
           <div className="relative lg:sticky lg:top-24 lg:self-start">
             {!isSkeleton && discountBadge && (
               <span className="absolute start-2 top-2 z-10 rounded-md bg-accent-gold px-2 py-1 text-xs font-bold text-bg-main">
@@ -604,111 +599,104 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             />
           </div>
 
-          <div className="flex flex-col">
-            <div className="space-y-4">
-              <div>
-                {(badgeLabel || product.sku) && (
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    {badgeLabel && (
-                      <span className="inline-block rounded-md border border-gold-wash-border bg-gold-wash-bg px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-accent-gold">
-                        {badgeLabel}
-                      </span>
-                    )}
-                    {product.sku && (
-                      <span className="font-mono text-[10.5px] text-text-dim">
-                        {t("product.sku", { sku: product.sku })}
-                      </span>
-                    )}
-                  </div>
-                )}
-                <h1 className="font-logo text-3xl font-bold">{product.name}</h1>
-                {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
-                <div className="mt-1.5">
-                  <RatingSummary
+          {/* Column 2: title, meta, size, at-a-glance, description */}
+          <div className="flex flex-col gap-4">
+            <div>
+              {(badgeLabel || product.sku) && (
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  {badgeLabel && (
+                    <span className="inline-block rounded-md border border-gold-wash-border bg-gold-wash-bg px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-accent-gold">
+                      {badgeLabel}
+                    </span>
+                  )}
+                  {product.sku && (
+                    <span className="font-mono text-[10.5px] text-text-dim">
+                      {t("product.sku", { sku: product.sku })}
+                    </span>
+                  )}
+                </div>
+              )}
+              <h1 className="font-logo text-3xl font-bold">{product.name}</h1>
+              {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+              <div className="mt-1.5">
+                <RatingSummary
                   average={reviewsSummary?.average ?? 0}
                   count={reviewsCount}
                   questionsCount={questionsCount}
                 />
-                </div>
-              </div>
-
-              <SizeVariantChips productId={product.id} currentProductId={product.id} />
-
-              <div className="flex items-center justify-between">
-                {showPrices ? (
-                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                    <Price
-                      amount={Number(product.price)}
-                      currency={product.currency}
-                      className="text-3xl font-bold text-accent"
-                    />
-                    {compareAt != null && (
-                      <span className="price-num text-sm text-muted line-through tabular-nums">
-                        {formatPrice(compareAt, product.currency)}
-                      </span>
-                    )}
-                    {discountBadge && (
-                      <span className="rounded-md bg-accent-gold px-1.5 py-0.5 text-xs font-semibold text-bg-main">
-                        {discountBadge}
-                      </span>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted">{t("store.pricesHidden")}</p>
-                )}
-                {inStock ? (
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-accent">
-                    <AppIcon icon={CheckCircle2} size="sm" />
-                    {t("product.inStock")}
-                  </span>
-                ) : (
-                  <span className="text-sm text-danger">{t("product.outOfStock")}</span>
-                )}
-              </div>
-
-              {showPrices && (
-                <p className="text-xs text-muted">{t("product.vatIncluded")}</p>
-              )}
-
-              {glanceFeatures.length > 0 && (
-                <div>
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">
-                    {t("product.atAGlance")}
-                  </p>
-                  <AtAGlanceGrid features={glanceFeatures} />
-                </div>
-              )}
-
-              <div>
-                <p className="mb-1.5 text-sm font-medium">{t("product.description")}</p>
-                <p className="text-base leading-7 text-muted">{description}</p>
               </div>
             </div>
 
-            <div className="mt-8 space-y-4 rounded-2xl border border-gold-hairline bg-card p-4 lg:sticky lg:bottom-6 lg:mt-auto lg:shadow-lg">
-              {inStock && (
-                <div className="space-y-1.5 border-b border-line-soft pb-3.5">
+            <SizeVariantChips productId={product.id} currentProductId={product.id} />
+
+            {glanceFeatures.length > 0 && (
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                  {t("product.atAGlance")}
+                </p>
+                <AtAGlanceGrid features={glanceFeatures} />
+              </div>
+            )}
+
+            <div className="border-t border-line-soft pt-4">
+              <p className="mb-1.5 text-sm font-medium">{t("product.description")}</p>
+              <p className="text-base leading-7 text-muted">{description}</p>
+            </div>
+          </div>
+
+          {/* Column 3: price + buy box + delivery & service */}
+          <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
+            <div className="space-y-4 rounded-2xl border border-gold-hairline bg-card p-4">
+              {showPrices ? (
+                <div>
+                  {compareAt != null && (
+                    <div className="mb-1 flex items-center gap-2">
+                      <span className="price-num text-[13px] text-muted line-through tabular-nums">
+                        {formatPrice(compareAt, product.currency)}
+                      </span>
+                      {discountBadge && (
+                        <span className="rounded-md bg-accent-gold px-1.5 py-0.5 text-[10px] font-bold text-bg-main">
+                          {discountBadge}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  <Price
+                    amount={Number(product.price)}
+                    currency={product.currency}
+                    className="text-[26px] font-bold text-accent-teal"
+                  />
+                  <p className="mt-0.5 text-[10.5px] text-text-faint">{t("product.vatIncluded")}</p>
+                </div>
+              ) : (
+                <p className="text-sm text-muted">{t("store.pricesHidden")}</p>
+              )}
+
+              <div className="space-y-1.5 border-b border-line-soft pb-3.5">
+                {inStock ? (
                   <p className="flex items-center gap-2 text-sm font-medium text-accent-teal">
                     <AppIcon icon={CheckCircle2} size="sm" />
                     {t("product.inStockCount", { count: product.stock })}
                   </p>
-                  <p className="flex items-center gap-2 text-xs text-text-faint">
-                    <AppIcon icon={Truck} size="xs" className="text-accent-gold" />
-                    {t("product.freeDeliveryOver", {
-                      amount: formatPrice(FREE_DELIVERY_THRESHOLD),
-                    })}
+                ) : (
+                  <p className="flex items-center gap-2 text-sm font-medium text-danger">
+                    {t("product.outOfStock")}
                   </p>
-                </div>
-              )}
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-sm font-medium">
-                  {t("product.quantity")} ({unitLabel})
-                </span>
-                <div className="inline-flex overflow-hidden rounded-xl border border-border bg-surface-elevated">
+                )}
+                <p className="flex items-center gap-2 text-xs text-text-faint">
+                  <AppIcon icon={Truck} size="xs" className="text-accent-gold" />
+                  {t("product.freeDeliveryOver", {
+                    amount: formatPrice(FREE_DELIVERY_THRESHOLD),
+                  })}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div className="inline-flex shrink-0 overflow-hidden rounded-xl border border-border bg-surface-elevated">
                   <button
                     type="button"
                     disabled={isSkeleton}
-                    className="flex h-11 w-11 items-center justify-center border-e border-border"
+                    className="flex h-11 w-10 items-center justify-center border-e border-border"
                     onClick={() => {
                       if (isSkeleton) return;
                       setQty(Math.max(1, qty - 1));
@@ -716,13 +704,13 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   >
                     <AppIcon icon={Minus} size="sm" />
                   </button>
-                  <span className="flex h-11 min-w-11 items-center justify-center px-2 text-lg font-bold">
+                  <span className="flex h-11 min-w-9 items-center justify-center px-1 text-base font-bold">
                     {qty}
                   </span>
                   <button
                     type="button"
                     disabled={isSkeleton}
-                    className="flex h-11 w-11 items-center justify-center border-s border-border"
+                    className="flex h-11 w-10 items-center justify-center border-s border-border"
                     onClick={() => {
                       if (isSkeleton) return;
                       setQty(Math.min(product.stock || 1, qty + 1));
@@ -731,16 +719,17 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                     <AppIcon icon={Plus} size="sm" />
                   </button>
                 </div>
+                <Button
+                  type="button"
+                  fullWidth
+                  size="md"
+                  className="flex-1"
+                  disabled={isSkeleton || !inStock}
+                  onClick={addToCart}
+                >
+                  <span className="truncate">{addToCartLabel}</span>
+                </Button>
               </div>
-              <Button
-                type="button"
-                fullWidth
-                size="md"
-                disabled={isSkeleton || !inStock}
-                onClick={addToCart}
-              >
-                <span>{addToCartLabel}</span>
-              </Button>
               {showPrices && (
                 <button
                   type="button"
