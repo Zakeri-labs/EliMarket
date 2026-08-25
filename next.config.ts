@@ -129,27 +129,30 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
-      {
-        source: "/products/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, s-maxage=3600, stale-while-revalidate=86400",
-          },
-        ],
-      },
     ];
 
     // Dev builds reuse chunk filenames across recompiles (no content hash per
     // edit), so a 1-year immutable cache here makes the browser keep serving
     // JS from before your last change forever. Only safe once filenames are
-    // truly content-hashed, i.e. a production build.
+    // truly content-hashed, i.e. a production build. The /products s-maxage
+    // rule is production-only for the same reason: in dev it made browsers
+    // and proxies serve an hour-old (or day-old stale) product page after
+    // every edit, masking real code changes behind a phantom cache.
     if (process.env.NODE_ENV === "production") {
       rules.push(
         { source: "/icon.png", headers: longCache },
         { source: "/apple-icon.png", headers: longCache },
         { source: "/favicon.ico", headers: longCache },
         { source: "/_next/static/:path*", headers: longCache },
+        {
+          source: "/products/:path*",
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "public, s-maxage=3600, stale-while-revalidate=86400",
+            },
+          ],
+        },
       );
     } else {
       // No Cache-Control at all still lets browsers apply heuristic freshness
