@@ -1,6 +1,8 @@
-/** Shared layout widths for storefront — mobile-first, scales on desktop */
-export const STOREFRONT_CONTAINER =
-  "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 xl:max-w-[1440px] xl:px-8";
+/** Shared layout widths for storefront — mobile-first, scales on desktop.
+ * Uncapped (no max-width) from lg upward so it matches the desktop header's
+ * own `w-full px-8` row exactly, instead of centering narrower with extra
+ * side margin on wide screens. */
+export const STOREFRONT_CONTAINER = "mx-auto w-full px-4 sm:px-6 lg:px-8";
 
 /** Cancel STOREFRONT_CONTAINER horizontal padding — edge-to-edge within the column */
 export const STOREFRONT_CONTAINER_BLEED =

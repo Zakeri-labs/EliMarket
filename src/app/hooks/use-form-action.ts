@@ -67,8 +67,13 @@ export function useFormAction() {
             options?.onError?.(msg);
           }
         } catch (err) {
-          const msg =
-            err instanceof Error ? err.message : t("errors.unexpectedError");
+          const isNetworkError =
+            err instanceof TypeError && /fetch/i.test(err.message);
+          const msg = isNetworkError
+            ? t("errors.networkError")
+            : err instanceof Error
+              ? err.message
+              : t("errors.unexpectedError");
           notifyError(msg);
           options?.onError?.(msg);
         } finally {

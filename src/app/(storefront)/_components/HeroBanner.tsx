@@ -76,15 +76,15 @@ export function HeroBanner() {
         <StripePlaceholder className="absolute inset-0" label="produce basket photo" />
       )}
 
-      {/* Two stacked gradients: bottom-to-top for edge legibility, plus a stronger
-          scrim behind the text block on the language's reading-start side. */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+      {/* Light bottom vignette for carousel dot legibility, plus a scrim confined
+          to the text column's side so the rest of the banner artwork stays visible. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
       <div
         className={cn(
-          "absolute inset-0",
+          "absolute inset-y-0 w-3/5 sm:w-2/5",
           isRtl
-            ? "bg-gradient-to-l from-black/85 via-black/50 to-transparent"
-            : "bg-gradient-to-r from-black/85 via-black/50 to-transparent",
+            ? "end-0 bg-gradient-to-l from-black/60 via-black/15 to-transparent"
+            : "start-0 bg-gradient-to-r from-black/60 via-black/15 to-transparent",
         )}
       />
 

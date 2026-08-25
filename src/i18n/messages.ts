@@ -233,6 +233,7 @@ export type Messages = {
     signOut: string;
     loginTitle: string;
     loginSubtitle: string;
+    signInToContinue: string;
     phonePlaceholder: string;
     getCode: string;
     otpPlaceholder: string;
@@ -317,6 +318,7 @@ export type Messages = {
   errors: {
     operationFailed: string;
     unexpectedError: string;
+    networkError: string;
     done: string;
     warning: string;
     otpSendFailed: string;
@@ -1089,6 +1091,7 @@ const fa: Messages = {
     signOut: "خروج از حساب",
     loginTitle: "ورود / ثبت‌نام",
     loginSubtitle: "ورود با شماره موبایل و کد یکبار مصرف",
+    signInToContinue: "برای مشاهده این صفحه ابتدا وارد حساب کاربری خود شوید",
     phonePlaceholder: "۰۹۱۲۳۴۵۶۷۸۹",
     getCode: "دریافت کد",
     otpPlaceholder: "کد ۶ رقمی",
@@ -1201,6 +1204,7 @@ const fa: Messages = {
   errors: {
     operationFailed: "عملیات ناموفق بود",
     unexpectedError: "خطای غیرمنتظره",
+    networkError: "ارتباط با سرور برقرار نشد. اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.",
     done: "انجام شد",
     warning: "هشدار",
     otpSendFailed: "ارسال کد تأیید ناموفق بود",
@@ -1982,6 +1986,7 @@ const ar: Messages = {
     signOut: "تسجيل الخروج",
     loginTitle: "تسجيل الدخول / التسجيل",
     loginSubtitle: "الدخول برقم الجوال ورمز لمرة واحدة",
+    signInToContinue: "لعرض هذه الصفحة، يرجى تسجيل الدخول أولاً",
     phonePlaceholder: "٠٩١٢٣٤٥٦٧٨٩",
     getCode: "استلام الرمز",
     otpPlaceholder: "رمز ٦ أرقام",
@@ -2094,6 +2099,7 @@ const ar: Messages = {
   errors: {
     operationFailed: "فشلت العملية",
     unexpectedError: "خطأ غير متوقع",
+    networkError: "تعذّر الاتصال بالخادم. تحقق من اتصال الإنترنت وحاول مرة أخرى.",
     done: "تم",
     warning: "تحذير",
     otpSendFailed: "فشل إرسال رمز التحقق",
@@ -2875,6 +2881,7 @@ const en: Messages = {
     signOut: "Sign out",
     loginTitle: "Sign in / Register",
     loginSubtitle: "Sign in with mobile number and one-time code",
+    signInToContinue: "Please sign in first to view this page",
     phonePlaceholder: "09123456789",
     getCode: "Get code",
     otpPlaceholder: "6-digit code",
@@ -2987,6 +2994,7 @@ const en: Messages = {
   errors: {
     operationFailed: "Operation failed",
     unexpectedError: "Unexpected error",
+    networkError: "Could not reach the server. Check your internet connection and try again.",
     done: "Done",
     warning: "Warning",
     otpSendFailed: "Failed to send verification code",

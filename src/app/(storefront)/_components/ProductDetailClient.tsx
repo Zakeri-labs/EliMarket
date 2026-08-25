@@ -336,7 +336,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             <div className="absolute inset-x-0 top-0 flex items-center justify-between px-4 pb-2 pt-3">
               <Link
                 href={isSkeleton ? "#" : "/"}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-black/35 text-white backdrop-blur-sm"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-black/60 text-white"
                 onClick={(e) => {
                   if (isSkeleton) e.preventDefault();
                 }}
@@ -344,11 +344,11 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               >
                 <AppIcon icon={ChevronLeft} size="md" className="rtl:rotate-180" />
               </Link>
-              <div className="flex gap-2">
+              <div className="flex shrink-0 gap-2">
                 <button
                   type="button"
                   disabled={isSkeleton}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-black/35 text-white backdrop-blur-sm"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-black/60 text-white"
                   aria-label={t("product.share")}
                   onClick={() => void shareProduct()}
                 >
@@ -357,7 +357,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 <button
                   type="button"
                   disabled={isSkeleton}
-                  className={`flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-black/35 backdrop-blur-sm ${wishlisted ? "text-red-400" : "text-white"}`}
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-black/60 ${wishlisted ? "text-red-400" : "text-white"}`}
                   aria-label={t("product.wishlist")}
                   onClick={() =>
                     toggleWishlist({
@@ -615,6 +615,36 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               <span className="absolute start-2 top-2 z-10 rounded-md bg-accent-gold px-2 py-1 text-xs font-bold text-bg-main">
                 {discountBadge}
               </span>
+            )}
+            {!isSkeleton && (
+              <div className="absolute end-2 top-2 z-10 flex flex-col gap-2">
+                <button
+                  type="button"
+                  aria-label={t("product.wishlist")}
+                  className={cn(
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line-field bg-black/60",
+                    wishlisted ? "text-red-400" : "text-accent-gold",
+                  )}
+                  onClick={() =>
+                    toggleWishlist({
+                      productId: product.id,
+                      name: product.name,
+                      slug: product.slug,
+                      imageUrl: cover?.image_url ?? product.image_url,
+                    })
+                  }
+                >
+                  <AppIcon icon={Heart} size="sm" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={t("product.share")}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line-field bg-black/60 text-text-dim"
+                  onClick={() => void shareProduct()}
+                >
+                  <AppIcon icon={Share2} size="sm" />
+                </button>
+              </div>
             )}
             <ProductGallery
               product={product}

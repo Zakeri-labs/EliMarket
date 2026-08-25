@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/core/supabase/server";
+import { createServiceRoleClient } from "@/core/supabase/service";
 import {
   getCurrentProfile,
   getCurrentUser,
@@ -18,10 +19,77 @@ import { resolveAdminEmail } from "@/config/admin-auth";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
 
+// TEMPORARY: no SMS provider is wired up yet, so real OTP delivery isn't
+// possible. Until that's configured, any phone number can be "verified"
+// with this fixed code so the login flow can be tested end-to-end. This is
+// hard-gated to non-production builds — remove this whole block once the
+// real SMS provider is configured in Supabase.
+const DEV_OTP_CODE = "123456";
+const DEV_OTP_PASSWORD = "dev-otp-bypass-a1f3c9";
+const isDevOtpBypassEnabled = process.env.NODE_ENV !== "production";
+
+async function devOtpSignIn(phone: string) {
+  const admin = createServiceRoleClient();
+  // The project's Supabase "Phone" auth provider is off (no SMS provider
+  // configured), so even signInWithPassword({phone}) is rejected with
+  // "Phone logins are disabled". Route through a synthetic email instead —
+  // email/password auth is already enabled (used by admin login) — while
+  // still keeping the real phone number on the user record.
+  const devEmail = `otp-bypass-${phone.replace(/[^0-9]/g, "")}@dev.local`;
+
+  // Look up by phone directly against auth.users (via listUsers) rather than
+  // the profiles table — a phone can exist on an auth user without a
+  // matching profile row (e.g. left over from an earlier test), and
+  // createUser() then fails with "Phone number already registered".
+  const { data: userList, error: listError } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  });
+  if (listError) throw listError;
+  const existingUser = userList.users.find((u) => u.phone === phone.replace(/^\+/, ""));
+
+  if (existingUser) {
+    const { error: updateError } = await admin.auth.admin.updateUserById(existingUser.id, {
+      email: devEmail,
+      password: DEV_OTP_PASSWORD,
+      email_confirm: true,
+    });
+    if (updateError) throw updateError;
+  } else {
+    const { error: createError } = await admin.auth.admin.createUser({
+      phone,
+      email: devEmail,
+      password: DEV_OTP_PASSWORD,
+      phone_confirm: true,
+      email_confirm: true,
+    });
+    if (createError) throw createError;
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: devEmail,
+    password: DEV_OTP_PASSWORD,
+  });
+  if (error) throw error;
+  if (!data.user) throw new Error(await serverT("errors.loginFailed"));
+
+  const profile = await getCurrentProfile();
+  const session = mapProfileToSession(data.user.id, profile, phone, undefined);
+  return { success: true as const, data: session };
+}
+
 export async function sendOtpAction(model: SendOtpModel) {
   try {
-    const supabase = await createClient();
     const phone = normalizePhone(model.phone);
+
+    if (isDevOtpBypassEnabled) {
+      // No SMS provider configured yet — skip the real send and let the
+      // caller continue straight to the code step with DEV_OTP_CODE.
+      return { success: true as const, data: { phone } };
+    }
+
+    const supabase = await createClient();
     const { error } = await supabase.auth.signInWithOtp({ phone });
     if (error) throw error;
     return { success: true as const, data: { phone } };
@@ -35,8 +103,13 @@ export async function sendOtpAction(model: SendOtpModel) {
 
 export async function verifyOtpAction(model: VerifyOtpModel) {
   try {
-    const supabase = await createClient();
     const phone = normalizePhone(model.phone);
+
+    if (isDevOtpBypassEnabled && model.token === DEV_OTP_CODE) {
+      return await devOtpSignIn(phone);
+    }
+
+    const supabase = await createClient();
     const { data, error } = await supabase.auth.verifyOtp({
       phone,
       token: model.token,

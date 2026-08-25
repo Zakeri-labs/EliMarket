@@ -82,13 +82,13 @@ function HeroSlidePanel({
             withBlur
             className="object-cover object-center md:object-[center_35%]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
           <div
             className={cn(
-              "absolute inset-0",
+              "absolute inset-y-0 w-3/5 sm:w-2/5",
               isRtl
-                ? "bg-gradient-to-l from-black/65 via-black/25 to-transparent"
-                : "bg-gradient-to-r from-black/65 via-black/25 to-transparent",
+                ? "end-0 bg-gradient-to-l from-black/55 via-black/15 to-transparent"
+                : "start-0 bg-gradient-to-r from-black/55 via-black/15 to-transparent",
             )}
           />
         </div>

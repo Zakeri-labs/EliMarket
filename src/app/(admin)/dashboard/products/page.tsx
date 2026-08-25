@@ -338,6 +338,16 @@ export default function AdminProductsPage() {
         });
         remaining -= 1;
       }
+    } catch (err) {
+      const isNetworkError = err instanceof TypeError && /fetch/i.test(err.message);
+      notifyFormError(
+        isNetworkError
+          ? t("errors.networkError")
+          : err instanceof Error
+            ? err.message
+            : t("errors.imageUploadFailed"),
+        { title: t("notifications.errorTitle") },
+      );
     } finally {
       setGalleryBusy(false);
     }

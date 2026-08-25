@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getCurrentUser } from "@/core/supabase/auth-helpers";
 import { getProductBySlugAction } from "@/app/_actions/product-actions";
 import { getProductReviewsAction } from "@/app/_actions/review-actions";
 import { ProductDetailPageClient } from "@/app/(storefront)/_components/ProductDetailPageClient";
@@ -54,6 +55,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect(`/account?next=${encodeURIComponent(`/products/${slug}`)}`);
+  }
+
   const locale = await getRequestLocale();
   const result = await getProductBySlugAction(slug);
   if (!result.success || !result.data) notFound();

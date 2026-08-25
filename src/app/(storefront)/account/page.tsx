@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   ChevronRight,
@@ -20,7 +22,6 @@ import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LanguageTabs } from "@/components/i18n/LanguageTabs";
-import { useState } from "react";
 import { useTranslations } from "@/i18n/use-translations";
 
 function AccountRow({
@@ -47,13 +48,22 @@ function AccountRow({
   );
 }
 
-export default function AccountPage() {
+function AccountPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = searchParams.get("next");
   const { session, status, updateSession, clearSession } = useAuthStore();
   const { runAction, isPending } = useFormAction();
   const { t } = useTranslations();
   const [otpStep, setOtpStep] = useState<"phone" | "code">("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+
+  useEffect(() => {
+    if (status === "authenticated" && session && nextPath) {
+      router.replace(nextPath);
+    }
+  }, [status, session, nextPath, router]);
 
   const { data: orders } = useOrders();
   const { data: addresses } = useAddresses();
@@ -148,7 +158,9 @@ export default function AccountPage() {
   return (
     <main className="py-4 md:mx-auto md:max-w-md md:py-6">
       <h1 className="mb-2 text-xl font-bold">{t("account.loginTitle")}</h1>
-      <p className="mb-6 text-sm text-muted">{t("account.loginSubtitle")}</p>
+      <p className="mb-6 text-sm text-muted">
+        {nextPath ? t("account.signInToContinue") : t("account.loginSubtitle")}
+      </p>
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <ThemeToggle />
         <LanguageTabs />
@@ -194,9 +206,22 @@ export default function AccountPage() {
             onChange={(e) => setOtp(e.target.value)}
             dir="ltr"
           />
+          {process.env.NODE_ENV !== "production" && (
+            <p className="text-xs text-muted" dir="ltr">
+              Dev/test mode — no SMS is sent yet. Use code: <strong>123456</strong>
+            </p>
+          )}
           <Button type="submit" fullWidth loading={isPending} loadingLabel={t("common.processing")}>{t("account.confirm")}</Button>
         </form>
       )}
     </main>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={null}>
+      <AccountPageContent />
+    </Suspense>
   );
 }
