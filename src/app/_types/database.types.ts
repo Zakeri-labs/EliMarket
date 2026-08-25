@@ -131,11 +131,45 @@ export type Product = {
   blur_hash: string | null;
   is_active: boolean;
   created_at: string;
+  sku: string | null;
+  parent_product_id: string | null;
+  variant_label: string | null;
   category?: Category | null;
   brand?: Brand | null;
   features?: ProductFeature[];
   images?: ProductImage[];
   campaign?: ProductCampaign | null;
+};
+
+export type ProductVariantOption = {
+  id: string;
+  slug: string;
+  variant_label: string | null;
+  price: number;
+  compare_at_price: number | null;
+  stock: number;
+  currency: string;
+};
+
+export type ProductReview = {
+  id: string;
+  product_id: string;
+  user_id: string;
+  reviewer_name: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+};
+
+export type ProductQuestion = {
+  id: string;
+  product_id: string;
+  user_id: string;
+  asker_name: string;
+  question: string;
+  answer: string | null;
+  answered_at: string | null;
+  created_at: string;
 };
 
 export type Store = {

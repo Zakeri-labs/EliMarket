@@ -81,6 +81,9 @@ export function mockAdminTableProducts(): Product[] {
     blur_hash: null,
     is_active: row.is_active,
     created_at: MOCK_TIMESTAMP,
+    sku: null,
+    parent_product_id: null,
+    variant_label: null,
     category: MOCK_CATEGORY,
   }));
 }

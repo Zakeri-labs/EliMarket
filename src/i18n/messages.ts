@@ -95,6 +95,31 @@ export type Messages = {
     share: string;
     wishlist: string;
     zoom: string;
+    atAGlance: string;
+    similarProducts: string;
+    noSimilarProducts: string;
+    inStockCount: string;
+    freeDeliveryOver: string;
+    breadcrumbHome: string;
+    sku: string;
+    size: string;
+    reviewsTab: string;
+    questionsTab: string;
+    writeReview: string;
+    yourRating: string;
+    reviewPlaceholder: string;
+    submitReview: string;
+    signInToReview: string;
+    noReviewsYet: string;
+    reviewsCount: string;
+    anonymousReviewer: string;
+    askQuestion: string;
+    questionPlaceholder: string;
+    submitQuestion: string;
+    signInToAsk: string;
+    noQuestionsYet: string;
+    awaitingAnswer: string;
+    storeAnswer: string;
   };
   cart: {
     title: string;
@@ -351,6 +376,14 @@ export type Messages = {
     smartProductNoImages: string;
     storeLoadFailed: string;
     coverageSaveFailed: string;
+    reviewsLoadFailed: string;
+    reviewCreateFailed: string;
+    reviewAlreadyExists: string;
+    reviewDeleteFailed: string;
+    questionsLoadFailed: string;
+    questionCreateFailed: string;
+    questionAnswerFailed: string;
+    questionDeleteFailed: string;
   };
   store: {
     cartDisabled: string;
@@ -376,6 +409,8 @@ export type Messages = {
       coverage: string;
       customers: string;
       smartProduct: string;
+      reviews: string;
+      questions: string;
     };
     navGroups: {
       overview: string;
@@ -473,6 +508,10 @@ export type Messages = {
       noCategory: string;
       brandLabel: string;
       noBrand: string;
+      skuPlaceholder: string;
+      variantOfLabel: string;
+      noVariantParent: string;
+      variantLabelPlaceholder: string;
       featuresSection: string;
       featureLabelPlaceholder: string;
       featureValuePlaceholder: string;
@@ -569,6 +608,26 @@ export type Messages = {
       empty: string;
       validationName: string;
       validationSlug: string;
+    };
+    reviews: {
+      title: string;
+      subtitle: string;
+      empty: string;
+      delete: string;
+      byLabel: string;
+    };
+    questions: {
+      title: string;
+      subtitle: string;
+      empty: string;
+      answer: string;
+      delete: string;
+      answerModalTitle: string;
+      answerPlaceholder: string;
+      submitAnswer: string;
+      awaitingBadge: string;
+      answeredBadge: string;
+      askedByLabel: string;
     };
     categories: {
       title: string;
@@ -875,6 +934,31 @@ const fa: Messages = {
     share: "اشتراک‌گذاری",
     wishlist: "علاقه‌مندی",
     zoom: "بزرگ‌نمایی تصویر",
+    atAGlance: "نگاهی سریع",
+    similarProducts: "محصولات مشابه",
+    noSimilarProducts: "محصول مشابهی یافت نشد.",
+    inStockCount: "موجود — {count} عدد",
+    freeDeliveryOver: "ارسال رایگان برای سفارش‌های بالای {amount}",
+    breadcrumbHome: "خانه",
+    sku: "کد کالا: {sku}",
+    size: "سایز",
+    reviewsTab: "نظرات ({count})",
+    questionsTab: "پرسش‌ها ({count})",
+    writeReview: "ثبت نظر",
+    yourRating: "امتیاز شما",
+    reviewPlaceholder: "نظر خود را درباره این محصول بنویسید...",
+    submitReview: "ارسال نظر",
+    signInToReview: "برای ثبت نظر وارد شوید",
+    noReviewsYet: "هنوز نظری ثبت نشده است.",
+    reviewsCount: "{average} · {count} نظر",
+    anonymousReviewer: "مشتری",
+    askQuestion: "پرسیدن سوال",
+    questionPlaceholder: "سوال خود را درباره این محصول بپرسید...",
+    submitQuestion: "ارسال سوال",
+    signInToAsk: "برای پرسیدن سوال وارد شوید",
+    noQuestionsYet: "هنوز سوالی ثبت نشده است.",
+    awaitingAnswer: "در انتظار پاسخ فروشگاه",
+    storeAnswer: "پاسخ فروشگاه",
   },
   cart: {
     title: "سبد خرید من",
@@ -1164,6 +1248,14 @@ const fa: Messages = {
     smartProductNoImages: "هیچ تصویری برای پردازش وجود ندارد",
     storeLoadFailed: "بارگذاری فروشگاه ناموفق بود",
     coverageSaveFailed: "ذخیره محدوده پوشش ناموفق بود",
+    reviewsLoadFailed: "بارگذاری نظرات ناموفق بود",
+    reviewCreateFailed: "ثبت نظر ناموفق بود",
+    reviewAlreadyExists: "شما قبلاً برای این محصول نظر ثبت کرده‌اید",
+    reviewDeleteFailed: "حذف نظر ناموفق بود",
+    questionsLoadFailed: "بارگذاری سوالات ناموفق بود",
+    questionCreateFailed: "ثبت سوال ناموفق بود",
+    questionAnswerFailed: "ثبت پاسخ ناموفق بود",
+    questionDeleteFailed: "حذف سوال ناموفق بود",
   },
   store: {
     cartDisabled: "سبد خرید در حال حاضر غیرفعال است — نمایش قیمت توسط فروشگاه خاموش شده است.",
@@ -1189,6 +1281,8 @@ const fa: Messages = {
       coverage: "محدوده پوشش",
       customers: "مشتریان",
       smartProduct: "ثبت هوشمند",
+      reviews: "نظرات مشتریان",
+      questions: "پرسش و پاسخ",
     },
     navGroups: {
       overview: "کلی",
@@ -1286,6 +1380,10 @@ const fa: Messages = {
       noCategory: "بدون دسته",
       brandLabel: "برند",
       noBrand: "بدون برند",
+      skuPlaceholder: "کد کالا (SKU) — اختیاری",
+      variantOfLabel: "سایز دیگری از",
+      noVariantParent: "محصول مستقل (بدون سایز دیگر)",
+      variantLabelPlaceholder: "برچسب سایز، مثلاً «۷۵۰ گرم»",
       featuresSection: "ویژگی‌های محصول",
       featureLabelPlaceholder: "نام ویژگی (مثلاً وزن)",
       featureValuePlaceholder: "مقدار (مثلاً ۱ کیلوگرم)",
@@ -1382,6 +1480,26 @@ const fa: Messages = {
       empty: "برندی ثبت نشده است.",
       validationName: "نام برند الزامی است",
       validationSlug: "اسلاگ برند الزامی است",
+    },
+    reviews: {
+      title: "نظرات مشتریان",
+      subtitle: "مدیریت نظرات ثبت‌شده روی محصولات",
+      empty: "هنوز نظری ثبت نشده است.",
+      delete: "حذف نظر",
+      byLabel: "توسط {name}",
+    },
+    questions: {
+      title: "پرسش و پاسخ",
+      subtitle: "پاسخ به سوالات مشتریان درباره محصولات",
+      empty: "هنوز سوالی ثبت نشده است.",
+      answer: "پاسخ دادن",
+      delete: "حذف سوال",
+      answerModalTitle: "پاسخ به سوال",
+      answerPlaceholder: "پاسخ خود را بنویسید...",
+      submitAnswer: "ثبت پاسخ",
+      awaitingBadge: "در انتظار پاسخ",
+      answeredBadge: "پاسخ داده شده",
+      askedByLabel: "پرسیده شده توسط {name}",
     },
     categories: {
       title: "دسته‌بندی محصولات",
@@ -1697,6 +1815,31 @@ const ar: Messages = {
     share: "مشاركة",
     wishlist: "المفضلة",
     zoom: "تكبير الصورة",
+    atAGlance: "نظرة سريعة",
+    similarProducts: "منتجات مشابهة",
+    noSimilarProducts: "لا توجد منتجات مشابهة.",
+    inStockCount: "متوفر — {count} وحدة",
+    freeDeliveryOver: "توصيل مجاني للطلبات فوق {amount}",
+    breadcrumbHome: "الرئيسية",
+    sku: "رمز المنتج: {sku}",
+    size: "الحجم",
+    reviewsTab: "التقييمات ({count})",
+    questionsTab: "الأسئلة ({count})",
+    writeReview: "إضافة تقييم",
+    yourRating: "تقييمك",
+    reviewPlaceholder: "اكتب رأيك في هذا المنتج...",
+    submitReview: "إرسال التقييم",
+    signInToReview: "سجّل الدخول لإضافة تقييم",
+    noReviewsYet: "لا توجد تقييمات بعد.",
+    reviewsCount: "{average} · {count} تقييم",
+    anonymousReviewer: "عميل",
+    askQuestion: "اطرح سؤالاً",
+    questionPlaceholder: "اكتب سؤالك عن هذا المنتج...",
+    submitQuestion: "إرسال السؤال",
+    signInToAsk: "سجّل الدخول لطرح سؤال",
+    noQuestionsYet: "لا توجد أسئلة بعد.",
+    awaitingAnswer: "بانتظار رد المتجر",
+    storeAnswer: "رد المتجر",
   },
   cart: {
     title: "سلة التسوق",
@@ -1986,6 +2129,14 @@ const ar: Messages = {
     smartProductNoImages: "لا توجد صور للمعالجة",
     storeLoadFailed: "فشل تحميل المتجر",
     coverageSaveFailed: "فشل حفظ نطاق التغطية",
+    reviewsLoadFailed: "فشل تحميل التقييمات",
+    reviewCreateFailed: "فشل إرسال التقييم",
+    reviewAlreadyExists: "لقد قمت بتقييم هذا المنتج من قبل",
+    reviewDeleteFailed: "فشل حذف التقييم",
+    questionsLoadFailed: "فشل تحميل الأسئلة",
+    questionCreateFailed: "فشل إرسال السؤال",
+    questionAnswerFailed: "فشل إرسال الإجابة",
+    questionDeleteFailed: "فشل حذف السؤال",
   },
   store: {
     cartDisabled: "سلة التسوق معطلة حالياً — تم إيقاف عرض الأسعار.",
@@ -2011,6 +2162,8 @@ const ar: Messages = {
       coverage: "نطاق التغطية",
       customers: "العملاء",
       smartProduct: "تسجيل ذكي",
+      reviews: "تقييمات العملاء",
+      questions: "الأسئلة والأجوبة",
     },
     navGroups: {
       overview: "عام",
@@ -2108,6 +2261,10 @@ const ar: Messages = {
       noCategory: "بدون فئة",
       brandLabel: "العلامة التجارية",
       noBrand: "بدون علامة",
+      skuPlaceholder: "رمز المنتج (SKU) — اختياري",
+      variantOfLabel: "حجم آخر من",
+      noVariantParent: "منتج مستقل (بدون أحجام أخرى)",
+      variantLabelPlaceholder: "تسمية الحجم، مثل «750 غ»",
       featuresSection: "مواصفات المنتج",
       featureLabelPlaceholder: "اسم المواصفة (مثل الوزن)",
       featureValuePlaceholder: "القيمة (مثل 1 كجم)",
@@ -2204,6 +2361,26 @@ const ar: Messages = {
       empty: "لا توجد علامات مسجلة.",
       validationName: "اسم العلامة مطلوب",
       validationSlug: "الرابط التعريفي مطلوب",
+    },
+    reviews: {
+      title: "تقييمات العملاء",
+      subtitle: "إدارة التقييمات المضافة على المنتجات",
+      empty: "لا توجد تقييمات بعد.",
+      delete: "حذف التقييم",
+      byLabel: "بواسطة {name}",
+    },
+    questions: {
+      title: "الأسئلة والأجوبة",
+      subtitle: "الرد على أسئلة العملاء حول المنتجات",
+      empty: "لا توجد أسئلة بعد.",
+      answer: "الرد",
+      delete: "حذف السؤال",
+      answerModalTitle: "الرد على السؤال",
+      answerPlaceholder: "اكتب ردك...",
+      submitAnswer: "إرسال الرد",
+      awaitingBadge: "بانتظار الرد",
+      answeredBadge: "تم الرد",
+      askedByLabel: "سأل {name}",
     },
     categories: {
       title: "فئات المنتجات",
@@ -2519,6 +2696,31 @@ const en: Messages = {
     share: "Share",
     wishlist: "Wishlist",
     zoom: "Zoom image",
+    atAGlance: "At a glance",
+    similarProducts: "Similar products",
+    noSimilarProducts: "No similar products found.",
+    inStockCount: "In stock — {count} units",
+    freeDeliveryOver: "Free delivery over {amount}",
+    breadcrumbHome: "Home",
+    sku: "SKU: {sku}",
+    size: "Size",
+    reviewsTab: "Reviews ({count})",
+    questionsTab: "Questions ({count})",
+    writeReview: "Write a review",
+    yourRating: "Your rating",
+    reviewPlaceholder: "Share your thoughts about this product...",
+    submitReview: "Submit review",
+    signInToReview: "Sign in to write a review",
+    noReviewsYet: "No reviews yet.",
+    reviewsCount: "{average} · {count} ratings",
+    anonymousReviewer: "Customer",
+    askQuestion: "Ask a question",
+    questionPlaceholder: "Ask a question about this product...",
+    submitQuestion: "Submit question",
+    signInToAsk: "Sign in to ask a question",
+    noQuestionsYet: "No questions yet.",
+    awaitingAnswer: "Awaiting an answer from the store",
+    storeAnswer: "Store answer",
   },
   cart: {
     title: "My cart",
@@ -2808,6 +3010,14 @@ const en: Messages = {
     smartProductNoImages: "No images to process",
     storeLoadFailed: "Failed to load store",
     coverageSaveFailed: "Failed to save coverage area",
+    reviewsLoadFailed: "Failed to load reviews",
+    reviewCreateFailed: "Failed to submit review",
+    reviewAlreadyExists: "You've already reviewed this product",
+    reviewDeleteFailed: "Failed to delete review",
+    questionsLoadFailed: "Failed to load questions",
+    questionCreateFailed: "Failed to submit question",
+    questionAnswerFailed: "Failed to submit answer",
+    questionDeleteFailed: "Failed to delete question",
   },
   store: {
     cartDisabled: "Cart is currently disabled — price display has been turned off.",
@@ -2833,6 +3043,8 @@ const en: Messages = {
       coverage: "Coverage area",
       customers: "Customers",
       smartProduct: "Smart listing",
+      reviews: "Customer reviews",
+      questions: "Questions & answers",
     },
     navGroups: {
       overview: "Overview",
@@ -2930,6 +3142,10 @@ const en: Messages = {
       noCategory: "No category",
       brandLabel: "Brand",
       noBrand: "No brand",
+      skuPlaceholder: "SKU (optional)",
+      variantOfLabel: "Size variant of",
+      noVariantParent: "Standalone product (no other sizes)",
+      variantLabelPlaceholder: "Size label, e.g. \"750 g\"",
       featuresSection: "Product specifications",
       featureLabelPlaceholder: "Spec name (e.g. Weight)",
       featureValuePlaceholder: "Value (e.g. 1 kg)",
@@ -3026,6 +3242,26 @@ const en: Messages = {
       empty: "No brands yet.",
       validationName: "Brand name is required",
       validationSlug: "Brand slug is required",
+    },
+    reviews: {
+      title: "Customer reviews",
+      subtitle: "Manage reviews left on products",
+      empty: "No reviews yet.",
+      delete: "Delete review",
+      byLabel: "by {name}",
+    },
+    questions: {
+      title: "Questions & answers",
+      subtitle: "Answer customer questions about products",
+      empty: "No questions yet.",
+      answer: "Answer",
+      delete: "Delete question",
+      answerModalTitle: "Answer the question",
+      answerPlaceholder: "Write your answer...",
+      submitAnswer: "Submit answer",
+      awaitingBadge: "Awaiting answer",
+      answeredBadge: "Answered",
+      askedByLabel: "Asked by {name}",
     },
     categories: {
       title: "Product categories",

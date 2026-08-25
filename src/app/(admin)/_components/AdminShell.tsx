@@ -17,6 +17,8 @@ import {
   MapPin,
   BarChart3,
   Users,
+  Star,
+  MessageCircleQuestion,
   type LucideIcon,
 } from "lucide-react";
 import { signOutAction } from "@/app/_actions/auth-actions";
@@ -45,6 +47,8 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/dashboard/products/smart", key: "admin.nav.smartProduct", icon: Sparkles },
       { href: "/dashboard/categories", key: "admin.nav.categories", icon: FolderTree },
       { href: "/dashboard/brands", key: "admin.nav.brands", icon: Tag },
+      { href: "/dashboard/reviews", key: "admin.nav.reviews", icon: Star },
+      { href: "/dashboard/questions", key: "admin.nav.questions", icon: MessageCircleQuestion },
     ],
   },
   {

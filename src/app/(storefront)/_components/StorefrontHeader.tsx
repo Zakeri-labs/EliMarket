@@ -26,7 +26,6 @@ export function StorefrontHeader() {
   const pathname = usePathname();
   const items = useCartStore((s) => s.items);
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const cartTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const { t, messages, locale } = useTranslations();
   const setLocale = useLocaleStore((s) => s.setLocale);
   const [mounted, setMounted] = useState(false);
@@ -41,7 +40,6 @@ export function StorefrontHeader() {
       : "font-logo font-semibold tracking-wide";
 
   const countBadge = mounted ? cartCount : 0;
-  const totalLabel = mounted ? cartTotal.toFixed(3) : "0.000";
 
   return (
     <header className="sticky top-0 z-40 bg-bg-main">
@@ -138,15 +136,18 @@ export function StorefrontHeader() {
             </Link>
             <Link
               href="/cart"
-              className="relative rounded-lg bg-accent-teal px-5 py-2.5 text-sm font-semibold text-on-accent"
+              className="relative flex h-11 w-11 items-center justify-center rounded-lg bg-accent-teal text-on-accent"
+              aria-label={t("nav.cart")}
             >
-              Cart · OMR {totalLabel}
-              <span
-                suppressHydrationWarning
-                className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-gold px-1 text-[11px] font-bold text-bg-main"
-              >
-                {countBadge}
-              </span>
+              <AppIcon icon={ShoppingCart} size="md" />
+              {countBadge > 0 ? (
+                <span
+                  suppressHydrationWarning
+                  className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-gold px-1 text-[11px] font-bold text-bg-main"
+                >
+                  {countBadge}
+                </span>
+              ) : null}
             </Link>
           </div>
         </div>

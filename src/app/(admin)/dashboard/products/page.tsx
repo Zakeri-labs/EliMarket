@@ -89,6 +89,9 @@ type FormValues = {
   image_url?: string;
   blur_hash?: string;
   is_active: boolean;
+  sku?: string;
+  parent_product_id?: string;
+  variant_label?: string;
 };
 
 const DEFAULT_FORM_VALUES: FormValues = {
@@ -107,6 +110,9 @@ const DEFAULT_FORM_VALUES: FormValues = {
   image_url: "",
   blur_hash: "",
   is_active: true,
+  sku: "",
+  parent_product_id: "",
+  variant_label: "",
 };
 
 export default function AdminProductsPage() {
@@ -143,6 +149,9 @@ export default function AdminProductsPage() {
         image_url: z.string().optional(),
         blur_hash: z.string().optional(),
         is_active: z.boolean(),
+        sku: z.string().optional(),
+        parent_product_id: z.string().optional(),
+        variant_label: z.string().optional(),
       }).superRefine((data, ctx) => {
         if (data.price == null || !Number.isFinite(data.price) || data.price <= 0) {
           ctx.addIssue({
@@ -223,6 +232,9 @@ export default function AdminProductsPage() {
       image_url: product.image_url ?? "",
       blur_hash: product.blur_hash ?? "",
       is_active: product.is_active,
+      sku: product.sku ?? "",
+      parent_product_id: product.parent_product_id ?? "",
+      variant_label: product.variant_label ?? "",
     });
     setFeatures(
       product.features?.length
@@ -253,6 +265,9 @@ export default function AdminProductsPage() {
       price: values.price as number,
       category_id: values.category_id || null,
       brand_id: values.brand_id || null,
+      sku: values.sku?.trim() || null,
+      parent_product_id: values.parent_product_id || null,
+      variant_label: values.variant_label?.trim() || null,
       description_fa: values.description_fa?.trim() || null,
       description_ar: values.description_ar?.trim() || null,
       description_en: values.description_en?.trim() || null,
@@ -728,6 +743,33 @@ export default function AdminProductsPage() {
               </option>
             ))}
           </select>
+
+          <input
+            {...form.register("sku")}
+            placeholder={t("admin.products.skuPlaceholder")}
+            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+            dir="ltr"
+          />
+
+          <select
+            {...form.register("parent_product_id")}
+            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+          >
+            <option value="">{t("admin.products.noVariantParent")}</option>
+            {(products ?? [])
+              .filter((p) => p.id !== editing?.id)
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+          </select>
+
+          <input
+            {...form.register("variant_label")}
+            placeholder={t("admin.products.variantLabelPlaceholder")}
+            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+          />
 
           <div className="space-y-2 rounded-xl border border-[#e4e4e7] p-3">
             <div className="flex items-center justify-between gap-2">

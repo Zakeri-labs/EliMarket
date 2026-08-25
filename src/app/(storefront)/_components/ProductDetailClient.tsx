@@ -7,10 +7,14 @@ import {
   ChevronDown,
   ChevronLeft,
   Heart,
+  Info,
   Minus,
   Plus,
   Share2,
+  Star,
+  Truck,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import type { Product } from "@/app/_types/database.types";
 import type { Locale } from "@/i18n/config";
 import { useCartStore } from "@/app/_store/cart-store";
@@ -21,6 +25,7 @@ import { Button } from "@/components/ui/Button";
 import { Price } from "@/components/ui/Price";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { STOREFRONT_CONTAINER_BLEED } from "@/config/layout";
+import { FREE_DELIVERY_THRESHOLD } from "@/config/brand";
 import { notifyFormSuccess } from "@/app/utils/form-notify";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
@@ -28,7 +33,13 @@ import { resolveCategoryName } from "@/lib/i18n/category-name";
 import { productCover } from "@/lib/products/gallery";
 import { productCompareAtPrice, productDiscountBadge } from "@/lib/products/pricing";
 import { inventoryUnitMessageKey, productInventoryUnit } from "@/lib/products/inventory";
+import { getProductReviewsAction } from "@/app/_actions/review-actions";
+import { getProductQuestionsAction } from "@/app/_actions/question-actions";
 import { ProductGallery } from "@/app/(storefront)/_components/ProductGallery";
+import { SimilarProductsSection } from "@/app/(storefront)/_components/SimilarProductsSection";
+import { SizeVariantChips } from "@/app/(storefront)/_components/SizeVariantChips";
+import { ProductReviewsSection } from "@/app/(storefront)/_components/ProductReviewsSection";
+import { ProductQuestionsSection } from "@/app/(storefront)/_components/ProductQuestionsSection";
 
 type Props = {
   product: Product;
@@ -48,15 +59,89 @@ function resolveProductSubtitle(product: Product, locale: Locale): string | null
   return null;
 }
 
+function AtAGlanceGrid({ features }: { features: NonNullable<Product["features"]> }) {
+  return (
+    <div className="grid grid-cols-2 gap-2.5">
+      {features.map((feature) => (
+        <div
+          key={feature.id}
+          className="flex items-start gap-2.5 rounded-xl border border-border bg-surface p-3"
+        >
+          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface-elevated text-muted">
+            <AppIcon icon={Info} size="xs" />
+          </span>
+          <div className="min-w-0 text-start">
+            <p className="truncate text-[11px] font-medium uppercase tracking-wide text-muted">
+              {feature.label}
+            </p>
+            <p className="mt-0.5 truncate text-sm font-semibold">{feature.value}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RatingSummary({ average, count }: { average: number; count: number }) {
+  const { t } = useTranslations();
+  if (count <= 0) return null;
+  return (
+    <div className="flex items-center gap-1.5 text-sm">
+      <AppIcon icon={Star} size="xs" className="fill-current text-[#d4a72c]" />
+      <span className="font-medium">
+        {t("product.reviewsCount", { average: average.toFixed(1), count })}
+      </span>
+    </div>
+  );
+}
+
+function SpecificationsTable({ features }: { features: NonNullable<Product["features"]> }) {
+  return (
+    <dl>
+      {features.map((feature) => (
+        <div
+          key={feature.id}
+          className="flex items-center justify-between gap-4 border-b border-border py-3 text-sm last:border-b-0"
+        >
+          <dt className="text-muted">{feature.label}</dt>
+          <dd className="text-start font-medium">{feature.value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const wishlisted = useWishlistStore((s) => s.has(product.id));
   const toggleWishlist = useWishlistStore((s) => s.toggle);
   const [qty, setQty] = useState(1);
   const [descOpen, setDescOpen] = useState(true);
+  const [tab, setTab] = useState<"specs" | "reviews" | "questions" | "similar">("specs");
   const { t, locale, dir } = useTranslations();
   const formatPrice = useFormatPrice();
   const { showPrices } = useStoreSettings();
+
+  const { data: reviewsSummary } = useQuery({
+    queryKey: ["product-reviews", product.id],
+    enabled: !isSkeleton,
+    queryFn: async () => {
+      const result = await getProductReviewsAction(product.id);
+      if (!result.success) throw new Error(result.error);
+      return result.data;
+    },
+  });
+  const { data: questionsList } = useQuery({
+    queryKey: ["product-questions", product.id],
+    enabled: !isSkeleton,
+    queryFn: async () => {
+      const result = await getProductQuestionsAction(product.id);
+      if (!result.success) throw new Error(result.error);
+      return result.data;
+    },
+  });
+  const reviewsCount = reviewsSummary?.count ?? 0;
+  const questionsCount = questionsList?.length ?? 0;
 
   const lineTotal = Number(product.price) * qty;
   const description =
@@ -66,12 +151,16 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const cover = productCover(product);
   const compareAt = productCompareAtPrice(product);
   const discountBadge = productDiscountBadge(product, formatPrice);
+  const badgeLabel = product.campaign?.badge?.trim() || null;
   const unitLabel = t(`product.${inventoryUnitMessageKey(productInventoryUnit(product))}`);
   const addToCartLabel = showPrices
     ? t("product.addToCart", {
         price: formatPrice(lineTotal, product.currency),
       })
     : t("product.addToCartSimple");
+  const features = product.features ?? [];
+  const glanceFeatures = features.slice(0, 6);
+  const categoryName = product.category ? resolveCategoryName(product.category, locale) : null;
 
   const shareProduct = async () => {
     if (isSkeleton || typeof window === "undefined") return;
@@ -117,6 +206,11 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             >
             <ProductGallery product={product} isSkeleton={isSkeleton} sizes="100vw" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+            {!isSkeleton && discountBadge && (
+              <span className="absolute start-3 top-14 z-10 rounded-md bg-accent-gold px-2 py-1 text-xs font-bold text-bg-main">
+                {discountBadge}
+              </span>
+            )}
             </div>
 
             <div className="absolute inset-x-0 top-0 flex items-center justify-between px-4 pb-2 pt-3">
@@ -164,9 +258,28 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           <div className="relative z-10 -mt-5 rounded-t-[1.75rem] bg-background px-4 pb-4 pt-5">
             <div className="space-y-4">
             <div>
+              {(badgeLabel || product.sku) && (
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  {badgeLabel && (
+                    <span className="inline-block rounded-md bg-accent-gold/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-bg-main">
+                      {badgeLabel}
+                    </span>
+                  )}
+                  {product.sku && (
+                    <span className="text-[11px] text-muted">
+                      {t("product.sku", { sku: product.sku })}
+                    </span>
+                  )}
+                </div>
+              )}
               <h1 className="font-logo text-start text-2xl font-bold leading-tight">{product.name}</h1>
               {subtitle && <p className="mt-1 text-start text-sm text-muted">{subtitle}</p>}
+              <div className="mt-1.5">
+                <RatingSummary average={reviewsSummary?.average ?? 0} count={reviewsCount} />
+              </div>
             </div>
+
+            <SizeVariantChips productId={product.id} currentProductId={product.id} />
 
             <div>
               <div className="flex items-start justify-between gap-4">
@@ -205,6 +318,30 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               )}
             </div>
 
+            {inStock && (
+              <div className="space-y-1.5 rounded-2xl border border-border bg-surface p-3.5">
+                <p className="flex items-center gap-2 text-start text-xs font-medium text-accent">
+                  <AppIcon icon={CheckCircle2} size="xs" />
+                  {t("product.inStockCount", { count: product.stock })}
+                </p>
+                <p className="flex items-center gap-2 text-start text-xs text-muted">
+                  <AppIcon icon={Truck} size="xs" />
+                  {t("product.freeDeliveryOver", {
+                    amount: formatPrice(FREE_DELIVERY_THRESHOLD),
+                  })}
+                </p>
+              </div>
+            )}
+
+            {glanceFeatures.length > 0 && (
+              <div>
+                <p className="mb-2 text-start text-[11px] font-semibold uppercase tracking-wide text-muted">
+                  {t("product.atAGlance")}
+                </p>
+                <AtAGlanceGrid features={glanceFeatures} />
+              </div>
+            )}
+
             <div className="h-px bg-border" />
 
             <div>
@@ -229,53 +366,68 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               )}
             </div>
 
-            {product.features && product.features.length > 0 && (
-              <div className="rounded-2xl border border-border bg-surface p-4">
-                <p className="mb-3 text-start text-sm font-semibold">{t("product.features")}</p>
-                <dl className="space-y-2">
-                  {product.features.map((feature) => (
-                    <div
-                      key={feature.id}
-                      className="flex items-start justify-between gap-4 text-sm"
-                    >
-                      <dt className="text-muted">{feature.label}</dt>
-                      <dd className="text-start font-medium">{feature.value}</dd>
-                    </div>
-                  ))}
-                </dl>
+            <div>
+              <div className="flex gap-5 overflow-x-auto whitespace-nowrap border-b border-border text-sm font-medium">
+                <button
+                  type="button"
+                  className={cn(
+                    "-mb-px shrink-0 border-b-2 pb-2.5",
+                    tab === "specs" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                  )}
+                  onClick={() => setTab("specs")}
+                >
+                  {t("product.features")}
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    "-mb-px shrink-0 border-b-2 pb-2.5",
+                    tab === "reviews" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                  )}
+                  onClick={() => setTab("reviews")}
+                >
+                  {t("product.reviewsTab", { count: reviewsCount })}
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    "-mb-px shrink-0 border-b-2 pb-2.5",
+                    tab === "questions" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                  )}
+                  onClick={() => setTab("questions")}
+                >
+                  {t("product.questionsTab", { count: questionsCount })}
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    "-mb-px shrink-0 border-b-2 pb-2.5",
+                    tab === "similar" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                  )}
+                  onClick={() => setTab("similar")}
+                >
+                  {t("product.similarProducts")}
+                </button>
               </div>
-            )}
-
-            <div className="flex items-center justify-between gap-4 pt-1">
-              <span className="text-sm font-medium">
-                {t("product.quantity")} ({unitLabel})
-              </span>
-              <div className="inline-flex overflow-hidden rounded-xl border border-border bg-surface-elevated">
-                <button
-                  type="button"
-                  disabled={isSkeleton}
-                  className="flex h-11 w-11 items-center justify-center border-e border-border text-muted"
-                  onClick={() => {
-                    if (isSkeleton) return;
-                    setQty(Math.max(1, qty - 1));
-                  }}
-                >
-                  <AppIcon icon={Minus} size="sm" />
-                </button>
-                <span className="flex h-11 min-w-11 items-center justify-center px-2 text-base font-semibold">
-                  {qty}
-                </span>
-                <button
-                  type="button"
-                  disabled={isSkeleton}
-                  className="flex h-11 w-11 items-center justify-center border-s border-border text-muted"
-                  onClick={() => {
-                    if (isSkeleton) return;
-                    setQty(Math.min(product.stock || 1, qty + 1));
-                  }}
-                >
-                  <AppIcon icon={Plus} size="sm" />
-                </button>
+              <div className="pt-4">
+                {tab === "specs" &&
+                  (features.length > 0 ? (
+                    <SpecificationsTable features={features} />
+                  ) : (
+                    <p className="py-4 text-center text-sm text-muted">{t("product.noFeatures")}</p>
+                  ))}
+                {tab === "reviews" && (
+                  <ProductReviewsSection productId={product.id} productSlug={product.slug} />
+                )}
+                {tab === "questions" && (
+                  <ProductQuestionsSection productId={product.id} productSlug={product.slug} />
+                )}
+                {tab === "similar" && (
+                  <SimilarProductsSection
+                    categoryId={product.category_id}
+                    excludeProductId={product.id}
+                  />
+                )}
               </div>
             </div>
             </div>
@@ -283,158 +435,291 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         </div>
 
         <div className="shrink-0 border-t border-border bg-background px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <Button
-            type="button"
-            fullWidth
-            size="lg"
-            disabled={isSkeleton || !inStock}
-            onClick={addToCart}
-          >
-            <span>{addToCartLabel}</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Desktop layout */}
-      <div
-        className={cn(
-          "hidden gap-8 md:grid lg:grid-cols-2 lg:gap-12 lg:pt-4",
-          isSkeleton && "skeleton",
-        )}
-        aria-busy={isSkeleton}
-      >
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          <ProductGallery
-            product={product}
-            isSkeleton={isSkeleton}
-            sizes="50vw"
-            showThumbs
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <div className="space-y-4">
-            <div>
-              <h1 className="font-logo text-3xl font-bold">{product.name}</h1>
-              {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
-            </div>
-
-            <div className="flex items-center justify-between">
-              {showPrices ? (
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                  <Price
-                    amount={Number(product.price)}
-                    currency={product.currency}
-                    className="text-3xl font-bold text-accent"
-                  />
-                  {compareAt != null && (
-                    <span className="price-num text-sm text-muted line-through tabular-nums">
-                      {formatPrice(compareAt, product.currency)}
-                    </span>
-                  )}
-                  {discountBadge && (
-                    <span className="rounded-md bg-accent-gold px-1.5 py-0.5 text-xs font-semibold text-bg-main">
-                      {discountBadge}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <p className="text-sm text-muted">{t("store.pricesHidden")}</p>
-              )}
-              {inStock ? (
-                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-accent">
-                  <AppIcon icon={CheckCircle2} size="sm" />
-                  {t("product.inStock")}
-                </span>
-              ) : (
-                <span className="text-sm text-danger">{t("product.outOfStock")}</span>
-              )}
-            </div>
-
-            {showPrices && (
-              <p className="text-xs text-muted">{t("product.vatIncluded")}</p>
-            )}
-
-            <button
-              type="button"
-              disabled={isSkeleton}
-              className="flex w-full items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3 text-sm"
-              onClick={() => {
-                if (isSkeleton) return;
-                setDescOpen(!descOpen);
-              }}
-            >
-              <span>{t("product.description")}</span>
-              <AppIcon
-                icon={ChevronDown}
-                size="sm"
-                className={cn("text-muted transition-transform", descOpen && "rotate-180")}
-              />
-            </button>
-            {descOpen && (
-              <p className="text-base leading-7 text-muted">{description}</p>
-            )}
-
-            {product.features && product.features.length > 0 && (
-              <div className="rounded-2xl border border-border bg-surface p-4">
-                <p className="mb-3 text-sm font-semibold">{t("product.features")}</p>
-                <dl className="space-y-2">
-                  {product.features.map((feature) => (
-                    <div
-                      key={feature.id}
-                      className="flex items-start justify-between gap-4 text-sm"
-                    >
-                      <dt className="text-muted">{feature.label}</dt>
-                      <dd className="font-medium">{feature.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-8 space-y-4 rounded-2xl border border-border bg-surface p-4 lg:sticky lg:bottom-6 lg:mt-auto lg:shadow-lg">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-sm font-medium">
-                {t("product.quantity")} ({unitLabel})
+          <div className="flex items-center gap-3">
+            <div className="inline-flex shrink-0 overflow-hidden rounded-xl border border-border bg-surface-elevated">
+              <button
+                type="button"
+                disabled={isSkeleton}
+                className="flex h-11 w-9 items-center justify-center border-e border-border text-muted"
+                onClick={() => {
+                  if (isSkeleton) return;
+                  setQty(Math.max(1, qty - 1));
+                }}
+              >
+                <AppIcon icon={Minus} size="xs" />
+              </button>
+              <span className="flex h-11 min-w-9 items-center justify-center px-1 text-sm font-semibold">
+                {qty}
               </span>
-              <div className="inline-flex overflow-hidden rounded-xl border border-border bg-surface-elevated">
-                <button
-                  type="button"
-                  disabled={isSkeleton}
-                  className="flex h-11 w-11 items-center justify-center border-e border-border"
-                  onClick={() => {
-                    if (isSkeleton) return;
-                    setQty(Math.max(1, qty - 1));
-                  }}
-                >
-                  <AppIcon icon={Minus} size="sm" />
-                </button>
-                <span className="flex h-11 min-w-11 items-center justify-center px-2 text-lg font-bold">
-                  {qty}
-                </span>
-                <button
-                  type="button"
-                  disabled={isSkeleton}
-                  className="flex h-11 w-11 items-center justify-center border-s border-border"
-                  onClick={() => {
-                    if (isSkeleton) return;
-                    setQty(Math.min(product.stock || 1, qty + 1));
-                  }}
-                >
-                  <AppIcon icon={Plus} size="sm" />
-                </button>
-              </div>
+              <button
+                type="button"
+                disabled={isSkeleton}
+                className="flex h-11 w-9 items-center justify-center border-s border-border text-muted"
+                onClick={() => {
+                  if (isSkeleton) return;
+                  setQty(Math.min(product.stock || 1, qty + 1));
+                }}
+              >
+                <AppIcon icon={Plus} size="xs" />
+              </button>
             </div>
             <Button
               type="button"
               fullWidth
-              size="lg"
+              size="md"
+              className="flex-1"
               disabled={isSkeleton || !inStock}
               onClick={addToCart}
             >
-              <span>{addToCartLabel}</span>
+              <span className="truncate">
+                {inStock ? t("product.addToCartSimple") : t("product.outOfStock")}
+              </span>
             </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop layout */}
+      <div className={cn("hidden md:block", isSkeleton && "skeleton")} aria-busy={isSkeleton}>
+        <nav className="mb-4 flex items-center gap-1.5 text-xs text-muted lg:pt-4">
+          <Link href={isSkeleton ? "#" : "/"} className="hover:text-foreground">
+            {t("product.breadcrumbHome")}
+          </Link>
+          {categoryName && product.category && (
+            <>
+              <AppIcon icon={ChevronLeft} size="xs" className="rotate-180 rtl:rotate-0" />
+              <Link
+                href={isSkeleton ? "#" : `/categories/${product.category.slug}`}
+                className="hover:text-foreground"
+              >
+                {categoryName}
+              </Link>
+            </>
+          )}
+          <AppIcon icon={ChevronLeft} size="xs" className="rotate-180 rtl:rotate-0" />
+          <span className="truncate text-foreground">{product.name}</span>
+        </nav>
+
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+          <div className="relative lg:sticky lg:top-24 lg:self-start">
+            {!isSkeleton && discountBadge && (
+              <span className="absolute start-2 top-2 z-10 rounded-md bg-accent-gold px-2 py-1 text-xs font-bold text-bg-main">
+                {discountBadge}
+              </span>
+            )}
+            <ProductGallery
+              product={product}
+              isSkeleton={isSkeleton}
+              sizes="50vw"
+              showThumbs
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <div className="space-y-4">
+              <div>
+                {(badgeLabel || product.sku) && (
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    {badgeLabel && (
+                      <span className="inline-block rounded-md bg-accent-gold/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-bg-main">
+                        {badgeLabel}
+                      </span>
+                    )}
+                    {product.sku && (
+                      <span className="text-[11px] text-muted">
+                        {t("product.sku", { sku: product.sku })}
+                      </span>
+                    )}
+                  </div>
+                )}
+                <h1 className="font-logo text-3xl font-bold">{product.name}</h1>
+                {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+                <div className="mt-1.5">
+                  <RatingSummary average={reviewsSummary?.average ?? 0} count={reviewsCount} />
+                </div>
+              </div>
+
+              <SizeVariantChips productId={product.id} currentProductId={product.id} />
+
+              <div className="flex items-center justify-between">
+                {showPrices ? (
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <Price
+                      amount={Number(product.price)}
+                      currency={product.currency}
+                      className="text-3xl font-bold text-accent"
+                    />
+                    {compareAt != null && (
+                      <span className="price-num text-sm text-muted line-through tabular-nums">
+                        {formatPrice(compareAt, product.currency)}
+                      </span>
+                    )}
+                    {discountBadge && (
+                      <span className="rounded-md bg-accent-gold px-1.5 py-0.5 text-xs font-semibold text-bg-main">
+                        {discountBadge}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted">{t("store.pricesHidden")}</p>
+                )}
+                {inStock ? (
+                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-accent">
+                    <AppIcon icon={CheckCircle2} size="sm" />
+                    {t("product.inStock")}
+                  </span>
+                ) : (
+                  <span className="text-sm text-danger">{t("product.outOfStock")}</span>
+                )}
+              </div>
+
+              {showPrices && (
+                <p className="text-xs text-muted">{t("product.vatIncluded")}</p>
+              )}
+
+              {glanceFeatures.length > 0 && (
+                <div>
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                    {t("product.atAGlance")}
+                  </p>
+                  <AtAGlanceGrid features={glanceFeatures} />
+                </div>
+              )}
+
+              <div>
+                <p className="mb-1.5 text-sm font-medium">{t("product.description")}</p>
+                <p className="text-base leading-7 text-muted">{description}</p>
+              </div>
+            </div>
+
+            <div className="mt-8 space-y-4 rounded-2xl border border-border bg-surface p-4 lg:sticky lg:bottom-6 lg:mt-auto lg:shadow-lg">
+              {inStock && (
+                <div className="space-y-1.5 border-b border-border pb-3.5">
+                  <p className="flex items-center gap-2 text-sm font-medium text-accent">
+                    <AppIcon icon={CheckCircle2} size="sm" />
+                    {t("product.inStockCount", { count: product.stock })}
+                  </p>
+                  <p className="flex items-center gap-2 text-xs text-muted">
+                    <AppIcon icon={Truck} size="xs" />
+                    {t("product.freeDeliveryOver", {
+                      amount: formatPrice(FREE_DELIVERY_THRESHOLD),
+                    })}
+                  </p>
+                </div>
+              )}
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-sm font-medium">
+                  {t("product.quantity")} ({unitLabel})
+                </span>
+                <div className="inline-flex overflow-hidden rounded-xl border border-border bg-surface-elevated">
+                  <button
+                    type="button"
+                    disabled={isSkeleton}
+                    className="flex h-11 w-11 items-center justify-center border-e border-border"
+                    onClick={() => {
+                      if (isSkeleton) return;
+                      setQty(Math.max(1, qty - 1));
+                    }}
+                  >
+                    <AppIcon icon={Minus} size="sm" />
+                  </button>
+                  <span className="flex h-11 min-w-11 items-center justify-center px-2 text-lg font-bold">
+                    {qty}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={isSkeleton}
+                    className="flex h-11 w-11 items-center justify-center border-s border-border"
+                    onClick={() => {
+                      if (isSkeleton) return;
+                      setQty(Math.min(product.stock || 1, qty + 1));
+                    }}
+                  >
+                    <AppIcon icon={Plus} size="sm" />
+                  </button>
+                </div>
+              </div>
+              <Button
+                type="button"
+                fullWidth
+                size="md"
+                disabled={isSkeleton || !inStock}
+                onClick={addToCart}
+              >
+                <span>{addToCartLabel}</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 lg:mt-14">
+          <div className="flex gap-6 border-b border-border text-sm font-medium">
+            <button
+              type="button"
+              className={cn(
+                "-mb-px border-b-2 pb-3",
+                tab === "specs" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+              )}
+              onClick={() => setTab("specs")}
+            >
+              {t("product.features")}
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "-mb-px border-b-2 pb-3",
+                tab === "reviews" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+              )}
+              onClick={() => setTab("reviews")}
+            >
+              {t("product.reviewsTab", { count: reviewsCount })}
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "-mb-px border-b-2 pb-3",
+                tab === "questions" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+              )}
+              onClick={() => setTab("questions")}
+            >
+              {t("product.questionsTab", { count: questionsCount })}
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "-mb-px border-b-2 pb-3",
+                tab === "similar" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+              )}
+              onClick={() => setTab("similar")}
+            >
+              {t("product.similarProducts")}
+            </button>
+          </div>
+          <div className="pt-6">
+            {tab === "specs" &&
+              (features.length > 0 ? (
+                <div className="max-w-xl">
+                  <SpecificationsTable features={features} />
+                </div>
+              ) : (
+                <p className="py-4 text-sm text-muted">{t("product.noFeatures")}</p>
+              ))}
+            {tab === "reviews" && (
+              <div className="max-w-xl">
+                <ProductReviewsSection productId={product.id} productSlug={product.slug} />
+              </div>
+            )}
+            {tab === "questions" && (
+              <div className="max-w-xl">
+                <ProductQuestionsSection productId={product.id} productSlug={product.slug} />
+              </div>
+            )}
+            {tab === "similar" && (
+              <SimilarProductsSection
+                categoryId={product.category_id}
+                excludeProductId={product.id}
+              />
+            )}
           </div>
         </div>
       </div>

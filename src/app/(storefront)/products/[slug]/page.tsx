@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductBySlugAction } from "@/app/_actions/product-actions";
+import { getProductReviewsAction } from "@/app/_actions/review-actions";
 import { ProductDetailPageClient } from "@/app/(storefront)/_components/ProductDetailPageClient";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { productJsonLd } from "@/lib/seo/schemas";
@@ -57,9 +58,14 @@ export default async function ProductDetailPage({ params }: Props) {
   const result = await getProductBySlugAction(slug);
   if (!result.success || !result.data) notFound();
 
+  const reviewsResult = await getProductReviewsAction(result.data.id);
+  const reviewStats = reviewsResult.success
+    ? { average: reviewsResult.data.average, count: reviewsResult.data.count }
+    : undefined;
+
   return (
     <>
-      <JsonLd data={productJsonLd(result.data, locale)} />
+      <JsonLd data={productJsonLd(result.data, locale, reviewStats)} />
       <ProductDetailPageClient slug={slug} initialProduct={result.data} />
     </>
   );

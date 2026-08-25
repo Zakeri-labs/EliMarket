@@ -163,6 +163,9 @@ function buildMockProduct(
     blur_hash: null,
     is_active: true,
     created_at: MOCK_TIMESTAMP,
+    sku: null,
+    parent_product_id: null,
+    variant_label: null,
     category,
     ...overrides,
   };

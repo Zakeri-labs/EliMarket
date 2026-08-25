@@ -37,7 +37,11 @@ export function websiteJsonLd() {
   };
 }
 
-export function productJsonLd(product: Product, locale: Locale = "fa") {
+export function productJsonLd(
+  product: Product,
+  locale: Locale = "fa",
+  reviewStats?: { average: number; count: number },
+) {
   const availability =
     product.stock > 0
       ? "https://schema.org/InStock"
@@ -51,7 +55,15 @@ export function productJsonLd(product: Product, locale: Locale = "fa") {
     name: product.name,
     description: resolveProductDescription(product, locale) ?? undefined,
     image: galleryImages.length ? galleryImages : undefined,
-    sku: product.id,
+    sku: product.sku ?? product.id,
+    aggregateRating:
+      reviewStats && reviewStats.count > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: reviewStats.average,
+            reviewCount: reviewStats.count,
+          }
+        : undefined,
     offers: {
       "@type": "Offer",
       url: absoluteUrl(`/products/${product.slug}`),

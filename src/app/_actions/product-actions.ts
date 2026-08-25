@@ -10,6 +10,7 @@ import type {
   Product,
   ProductFeatureInput,
   ProductImageInput,
+  ProductVariantOption,
   InventoryUnit,
 } from "@/app/_types/database.types";
 import { generateBlurHashFromFile } from "@/lib/images/generate-blur-hash";
@@ -185,6 +186,34 @@ export async function getProductBySlugAction(slug: string) {
   }
 }
 
+export async function getProductVariantsAction(productId: string) {
+  try {
+    const supabase = await createClient();
+    const { data: current, error: currentError } = await supabase
+      .from("products")
+      .select("id, parent_product_id")
+      .eq("id", productId)
+      .maybeSingle();
+    if (currentError) throw currentError;
+    if (!current) return { success: true as const, data: [] as ProductVariantOption[] };
+
+    const anchorId = current.parent_product_id ?? current.id;
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, slug, variant_label, price, compare_at_price, stock, currency")
+      .or(`id.eq.${anchorId},parent_product_id.eq.${anchorId}`)
+      .eq("is_active", true)
+      .order("price", { ascending: true });
+    if (error) throw error;
+    return { success: true as const, data: (data ?? []) as ProductVariantOption[] };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.productsLoadFailed", err),
+    };
+  }
+}
+
 export async function getAdminProductsAction() {
   try {
     const { supabase } = await requireAdmin();
@@ -223,6 +252,9 @@ export async function createProductAction(input: {
   image_url?: string | null;
   blur_hash?: string | null;
   is_active?: boolean;
+  sku?: string | null;
+  parent_product_id?: string | null;
+  variant_label?: string | null;
   features?: ProductFeatureInput[];
   images?: ProductImageInput[];
 }) {
@@ -252,6 +284,9 @@ export async function createProductAction(input: {
         image_url: cover.image_url ?? input.image_url ?? null,
         blur_hash: cover.blur_hash ?? input.blur_hash ?? null,
         is_active: input.is_active ?? true,
+        sku: input.sku?.trim() || null,
+        parent_product_id: input.parent_product_id ?? null,
+        variant_label: input.variant_label?.trim() || null,
       })
       .select(PRODUCT_SELECT)
       .single();
@@ -299,6 +334,9 @@ export async function updateProductAction(
     image_url: string | null;
     blur_hash: string | null;
     is_active: boolean;
+    sku: string | null;
+    parent_product_id: string | null;
+    variant_label: string | null;
     features: ProductFeatureInput[];
     images: ProductImageInput[];
   }>,
