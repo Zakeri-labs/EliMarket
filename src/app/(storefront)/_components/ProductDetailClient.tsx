@@ -12,6 +12,7 @@ import {
   Plus,
   Share2,
   Star,
+  Trash2,
   Truck,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -148,12 +149,92 @@ function SpecificationsTable({ features }: { features: NonNullable<Product["feat
   );
 }
 
+function ProductCartControl({
+  product,
+  isSkeleton,
+  cover,
+}: {
+  product: Product;
+  isSkeleton?: boolean;
+  cover: ReturnType<typeof productCover>;
+}) {
+  const { t } = useTranslations();
+  const addItem = useCartStore((s) => s.addItem);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const cartQuantity = useCartStore(
+    (s) => s.items.find((i) => i.productId === product.id)?.quantity ?? 0,
+  );
+  const inStock = product.stock > 0;
+
+  if (cartQuantity <= 0) {
+    return (
+      <Button
+        type="button"
+        fullWidth
+        size="md"
+        disabled={isSkeleton || !inStock}
+        onClick={() => {
+          if (isSkeleton || !inStock) return;
+          addItem(
+            {
+              productId: product.id,
+              name: product.name,
+              slug: product.slug,
+              price: Number(product.price),
+              currency: product.currency,
+              imageUrl: cover?.image_url ?? product.image_url,
+              blurHash: cover?.blur_hash ?? product.blur_hash,
+              stock: product.stock,
+            },
+            1,
+          );
+          notifyFormSuccess(t("notifications.addedToCart"));
+        }}
+      >
+        <span className="truncate">
+          {inStock ? t("product.addToCartSimple") : t("product.outOfStock")}
+        </span>
+      </Button>
+    );
+  }
+
+  return (
+    <div className="flex h-11 w-full items-center justify-between rounded-xl border border-border bg-surface-elevated px-2">
+      <button
+        type="button"
+        disabled={isSkeleton}
+        aria-label={cartQuantity <= 1 ? t("product.removeFromCart") : undefined}
+        onClick={() => {
+          if (isSkeleton) return;
+          if (cartQuantity <= 1) removeItem(product.id);
+          else updateQuantity(product.id, cartQuantity - 1);
+        }}
+        className="flex h-8 w-9 items-center justify-center text-danger"
+      >
+        <AppIcon icon={cartQuantity <= 1 ? Trash2 : Minus} size="sm" />
+      </button>
+      <span className="price-num text-base font-bold">{cartQuantity}</span>
+      <button
+        type="button"
+        disabled={isSkeleton || cartQuantity >= product.stock}
+        onClick={() => {
+          if (isSkeleton) return;
+          updateQuantity(product.id, Math.min(cartQuantity + 1, product.stock || cartQuantity + 1));
+        }}
+        className="flex h-8 w-9 items-center justify-center text-accent-teal disabled:opacity-40"
+      >
+        <AppIcon icon={Plus} size="sm" />
+      </button>
+    </div>
+  );
+}
+
 export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const wishlisted = useWishlistStore((s) => s.has(product.id));
   const toggleWishlist = useWishlistStore((s) => s.toggle);
-  const [qty, setQty] = useState(1);
   const [descOpen, setDescOpen] = useState(true);
   const [tab, setTab] = useState<"specs" | "reviews" | "questions" | "similar">("specs");
   const { t, locale, dir } = useTranslations();
@@ -181,7 +262,6 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const reviewsCount = reviewsSummary?.count ?? 0;
   const questionsCount = questionsList?.length ?? 0;
 
-  const lineTotal = Number(product.price) * qty;
   const description =
     resolveProductDescription(product, locale) ?? t("product.noDescription");
   const subtitle = resolveProductSubtitle(product, locale);
@@ -190,9 +270,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const compareAt = productCompareAtPrice(product);
   const discountBadge = productDiscountBadge(product, formatPrice);
   const badgeLabel = product.campaign?.badge?.trim() || null;
-  const addToCartLabel = inStock ? t("product.addToCartSimple") : t("product.outOfStock");
   const buyNowLabel = t("product.buyNow", {
-    price: formatPrice(lineTotal, product.currency),
+    price: formatPrice(Number(product.price), product.currency),
   });
   const features = product.features ?? [];
   const glanceFeatures = features.slice(0, 6);
@@ -212,39 +291,26 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
     await navigator.clipboard.writeText(url);
   };
 
-  const addToCart = () => {
-    if (isSkeleton || !inStock) return;
-    addItem(
-      {
-        productId: product.id,
-        name: product.name,
-        slug: product.slug,
-        price: Number(product.price),
-        currency: product.currency,
-        imageUrl: cover?.image_url ?? product.image_url,
-        blurHash: cover?.blur_hash ?? product.blur_hash,
-        stock: product.stock,
-      },
-      qty,
-    );
-    notifyFormSuccess(t("notifications.addedToCart"));
-  };
-
   const buyNow = () => {
     if (isSkeleton || !inStock) return;
-    addItem(
-      {
-        productId: product.id,
-        name: product.name,
-        slug: product.slug,
-        price: Number(product.price),
-        currency: product.currency,
-        imageUrl: cover?.image_url ?? product.image_url,
-        blurHash: cover?.blur_hash ?? product.blur_hash,
-        stock: product.stock,
-      },
-      qty,
-    );
+    const alreadyInCart = useCartStore
+      .getState()
+      .items.some((i) => i.productId === product.id);
+    if (!alreadyInCart) {
+      addItem(
+        {
+          productId: product.id,
+          name: product.name,
+          slug: product.slug,
+          price: Number(product.price),
+          currency: product.currency,
+          imageUrl: cover?.image_url ?? product.image_url,
+          blurHash: cover?.blur_hash ?? product.blur_hash,
+          stock: product.stock,
+        },
+        1,
+      );
+    }
     router.push("/checkout");
   };
 
@@ -517,47 +583,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         </div>
 
         <div className="shrink-0 border-t border-border bg-background px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <div className="flex items-center gap-3">
-            <div className="inline-flex shrink-0 overflow-hidden rounded-xl border border-border bg-surface-elevated">
-              <button
-                type="button"
-                disabled={isSkeleton}
-                className="flex h-11 w-9 items-center justify-center border-e border-border text-muted"
-                onClick={() => {
-                  if (isSkeleton) return;
-                  setQty(Math.max(1, qty - 1));
-                }}
-              >
-                <AppIcon icon={Minus} size="xs" />
-              </button>
-              <span className="flex h-11 min-w-9 items-center justify-center px-1 text-sm font-semibold">
-                {qty}
-              </span>
-              <button
-                type="button"
-                disabled={isSkeleton}
-                className="flex h-11 w-9 items-center justify-center border-s border-border text-muted"
-                onClick={() => {
-                  if (isSkeleton) return;
-                  setQty(Math.min(product.stock || 1, qty + 1));
-                }}
-              >
-                <AppIcon icon={Plus} size="xs" />
-              </button>
-            </div>
-            <Button
-              type="button"
-              fullWidth
-              size="md"
-              className="flex-1"
-              disabled={isSkeleton || !inStock}
-              onClick={addToCart}
-            >
-              <span className="truncate">
-                {inStock ? t("product.addToCartSimple") : t("product.outOfStock")}
-              </span>
-            </Button>
-          </div>
+          <ProductCartControl product={product} isSkeleton={isSkeleton} cover={cover} />
         </div>
       </div>
 
@@ -691,45 +717,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2.5">
-                <div className="inline-flex shrink-0 overflow-hidden rounded-xl border border-border bg-surface-elevated">
-                  <button
-                    type="button"
-                    disabled={isSkeleton}
-                    className="flex h-11 w-10 items-center justify-center border-e border-border"
-                    onClick={() => {
-                      if (isSkeleton) return;
-                      setQty(Math.max(1, qty - 1));
-                    }}
-                  >
-                    <AppIcon icon={Minus} size="sm" />
-                  </button>
-                  <span className="flex h-11 min-w-9 items-center justify-center px-1 text-base font-bold">
-                    {qty}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={isSkeleton}
-                    className="flex h-11 w-10 items-center justify-center border-s border-border"
-                    onClick={() => {
-                      if (isSkeleton) return;
-                      setQty(Math.min(product.stock || 1, qty + 1));
-                    }}
-                  >
-                    <AppIcon icon={Plus} size="sm" />
-                  </button>
-                </div>
-                <Button
-                  type="button"
-                  fullWidth
-                  size="md"
-                  className="flex-1"
-                  disabled={isSkeleton || !inStock}
-                  onClick={addToCart}
-                >
-                  <span className="truncate">{addToCartLabel}</span>
-                </Button>
-              </div>
+              <ProductCartControl product={product} isSkeleton={isSkeleton} cover={cover} />
               {showPrices && (
                 <button
                   type="button"

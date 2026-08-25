@@ -17,8 +17,23 @@ export function PwaProvider() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
+    // Dev-mode Next.js reuses static chunk filenames across recompiles, so a
+    // cache-first service worker here would keep serving old JS/pages forever
+    // regardless of server restarts. Only register it in production, and
+    // actively clean up any copy a dev browser already registered earlier.
+    if (!("serviceWorker" in navigator)) {
+      // no-op
+    } else if (process.env.NODE_ENV === "production") {
       void navigator.serviceWorker.register("/sw.js");
+    } else {
+      void navigator.serviceWorker.getRegistrations().then((regs) => {
+        for (const reg of regs) void reg.unregister();
+      });
+      if ("caches" in window) {
+        void caches.keys().then((keys) => {
+          for (const key of keys) void caches.delete(key);
+        });
+      }
     }
 
     const onPrompt = (event: Event) => {

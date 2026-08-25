@@ -131,6 +131,7 @@ export type Messages = {
     pickupInStoreNote: string;
     frequentlyBoughtTogether: string;
     seeAll: string;
+    removeFromCart: string;
   };
   cart: {
     title: string;
@@ -981,6 +982,7 @@ const fa: Messages = {
     pickupInStoreNote: "آماده در ۲ ساعت · شعبه الخوض",
     frequentlyBoughtTogether: "معمولاً با هم خریداری می‌شوند",
     seeAll: "مشاهده همه",
+    removeFromCart: "حذف از سبد خرید",
   },
   cart: {
     title: "سبد خرید من",
@@ -1873,6 +1875,7 @@ const ar: Messages = {
     pickupInStoreNote: "جاهز خلال ساعتين · فرع الخوض",
     frequentlyBoughtTogether: "غالباً ما تُشترى معاً",
     seeAll: "عرض الكل",
+    removeFromCart: "إزالة من السلة",
   },
   cart: {
     title: "سلة التسوق",
@@ -2765,6 +2768,7 @@ const en: Messages = {
     pickupInStoreNote: "Ready in 2 hours · Al Khoudh branch",
     frequentlyBoughtTogether: "Frequently bought together",
     seeAll: "See all",
+    removeFromCart: "Remove from cart",
   },
   cart: {
     title: "My cart",

@@ -1,18 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
 import type { Product } from "@/app/_types/database.types";
-import { useCartStore } from "@/app/_store/cart-store";
-import { useStoreSettings } from "@/app/_hooks/use-store-settings";
-import { notifyFormSuccess } from "@/app/utils/form-notify";
 import { cn } from "@/app/utils/cn";
-import { AppIcon } from "@/components/icons/AppIcon";
 import { StripePlaceholder } from "@/components/ui/StripePlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
-import { Button } from "@/components/ui/Button";
 import { Price } from "@/components/ui/Price";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
@@ -39,34 +32,10 @@ export function ProductDealCard({
 }: Props) {
   const formatPrice = useFormatPrice();
   const { locale, dir, t } = useTranslations();
-  const addItem = useCartStore((s) => s.addItem);
-  const { showPrices } = useStoreSettings();
-  const [mounted, setMounted] = useState(false);
   const discountBadge = productDiscountBadge(product, formatPrice);
   const compareAt = productCompareAtPrice(product);
   const excerpt = resolveProductCardExcerpt(product, locale);
   const cover = productCover(product);
-  const inStock = product.stock > 0;
-  const hideAddButton = mounted && !showPrices;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const addToCart = () => {
-    if (isSkeleton || !inStock || !showPrices) return;
-    addItem({
-      productId: product.id,
-      name: product.name,
-      slug: product.slug,
-      price: Number(product.price),
-      currency: product.currency,
-        imageUrl: cover?.image_url ?? product.image_url,
-        blurHash: cover?.blur_hash ?? product.blur_hash,
-      stock: product.stock,
-    });
-    notifyFormSuccess(t("notifications.addedToCart"));
-  };
 
   return (
     <article
@@ -143,28 +112,8 @@ export function ProductDealCard({
             </span>
           )}
         </div>
-        <div className="mt-auto pt-2">
-          <Button
-            type="button"
-            size="sm"
-            fullWidth
-            disabled={isSkeleton || !inStock || hideAddButton}
-            className={cn(
-              "target md:rounded-lg md:border md:border-accent-teal md:bg-transparent md:text-accent-teal md:shadow-none md:hover:bg-accent-teal/10",
-              hideAddButton && "invisible",
-            )}
-            onClick={addToCart}
-          >
-            <AppIcon icon={ShoppingCart} size="xs" className="me-1 lg:hidden" />
-            <span className="lg:hidden">
-              {inStock ? t("product.addToCartSimple") : t("product.outOfStock")}
-            </span>
-            <span className="hidden lg:inline">
-              {inStock ? t("product.addShort") : t("product.outOfStock")}
-            </span>
-          </Button>
-        </div>
       </div>
     </article>
   );
 }
+
