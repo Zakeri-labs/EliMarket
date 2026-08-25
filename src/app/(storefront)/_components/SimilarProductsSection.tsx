@@ -8,9 +8,10 @@ import { useTranslations } from "@/i18n/use-translations";
 type Props = {
   categoryId: string | null;
   excludeProductId: string;
+  limit?: number;
 };
 
-export function SimilarProductsSection({ categoryId, excludeProductId }: Props) {
+export function SimilarProductsSection({ categoryId, excludeProductId, limit = 10 }: Props) {
   const { t } = useTranslations();
   const { data: products, isPending } = useProducts();
 
@@ -18,13 +19,13 @@ export function SimilarProductsSection({ categoryId, excludeProductId }: Props) 
     if (!categoryId || !products) return [];
     return products
       .filter((product) => product.category_id === categoryId && product.id !== excludeProductId)
-      .slice(0, 10);
-  }, [products, categoryId, excludeProductId]);
+      .slice(0, limit);
+  }, [products, categoryId, excludeProductId, limit]);
 
   if (isPending) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
+        {Array.from({ length: Math.min(limit, 4) }).map((_, index) => (
           <ProductDealCard key={index} product={PLACEHOLDER} isSkeleton layout="grid" />
         ))}
       </div>

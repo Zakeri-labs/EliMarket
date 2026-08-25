@@ -4,7 +4,7 @@
 html.theme-dark {
   /* Hills Eli Mart desktop palette */
   --bg-main: #0b1210;
-  --bg-card: #101915;
+  --bg-card: #111414;
   --border-subtle: #1e2a24;
   --text-primary: #f5f5f0;
   --text-secondary: #8a9490;
@@ -21,11 +21,11 @@ html.theme-dark {
   --muted-foreground: var(--text-secondary);
   --card: var(--bg-card);
   --card-foreground: var(--text-primary);
-  --accent: var(--accent-teal);
-  --accent-dark: #14b8a6;
-  --accent-foreground: #0b1210;
-  --accent-glow: rgba(45, 212, 191, 0.22);
-  --on-accent: #0b1210;
+  --accent: #0f9e93;
+  --accent-dark: #12b3a6;
+  --accent-foreground: #04211f;
+  --accent-glow: rgba(15, 158, 147, 0.22);
+  --on-accent: #04211f;
   --gold: var(--accent-gold);
   --danger: #f87171;
   --destructive: #f87171;
@@ -34,6 +34,15 @@ html.theme-dark {
   --radius: 16px;
   --radius-sm: 12px;
   --max-mobile: 480px;
+  --bg-tile: #1b2120;
+  --bg-field: #131616;
+  --line-soft: rgba(255, 255, 255, 0.06);
+  --line-field: rgba(255, 255, 255, 0.07);
+  --text-dim: #8b9694;
+  --text-faint: #7c8785;
+  --gold-wash-bg: rgba(196, 164, 106, 0.14);
+  --gold-wash-border: rgba(196, 164, 106, 0.35);
+  --gold-hairline: rgba(196, 164, 106, 0.26);
   color-scheme: dark;
 }
 
@@ -66,6 +75,15 @@ html.theme-light {
   --destructive: #dc2626;
   --success: #16a34a;
   --skeleton: #e4e4e7;
+  --bg-tile: #eeeeee;
+  --bg-field: #fafafa;
+  --line-soft: #e4e4e7;
+  --line-field: #e4e4e7;
+  --text-dim: #71717a;
+  --text-faint: #a1a1aa;
+  --gold-wash-bg: rgba(138, 109, 59, 0.1);
+  --gold-wash-border: rgba(138, 109, 59, 0.3);
+  --gold-hairline: rgba(138, 109, 59, 0.2);
   color-scheme: light;
 }
 
@@ -95,24 +113,35 @@ html.theme-light {
   --color-danger: var(--danger);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
+  --color-bg-tile: var(--bg-tile);
+  --color-bg-field: var(--bg-field);
+  --color-line-soft: var(--line-soft);
+  --color-line-field: var(--line-field);
+  --color-text-dim: var(--text-dim);
+  --color-text-faint: var(--text-faint);
+  --color-gold-wash-bg: var(--gold-wash-bg);
+  --color-gold-wash-border: var(--gold-wash-border);
+  --color-gold-hairline: var(--gold-hairline);
   /* Indirection so the per-locale overrides below also reach `font-sans` /
      `font-logo` utilities — `@theme inline` bakes the value into each utility. */
   --font-sans: var(--font-app-sans);
   --font-logo: var(--font-app-logo);
+  --font-mono: var(--font-app-mono);
 }
 
 :root {
   --font-app-sans: var(--font-vazirmatn), system-ui, sans-serif;
-  --font-app-logo: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-app-logo: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-app-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* English body text uses Inter; fa/ar stay on Vazirmatn until those fonts are chosen. */
+/* English body text uses Manrope (Hills Eli Mart brand type); fa/ar stay on Vazirmatn. */
 html[lang="en"] {
-  --font-app-sans: var(--font-inter), system-ui, sans-serif;
+  --font-app-sans: var(--font-manrope), var(--font-inter), system-ui, sans-serif;
 }
 
 html[lang="en"] h1 {
@@ -178,7 +207,7 @@ body {
 /* Storefront default (dark) Hills palette. */
 .storefront-hills {
   --bg-main: #0b1210;
-  --bg-card: #101915;
+  --bg-card: #111414;
   --border-subtle: #1e2a24;
   --text-primary: #f5f5f0;
   --text-secondary: #8a9490;
@@ -194,10 +223,19 @@ body {
   --muted-foreground: var(--text-secondary);
   --card: var(--bg-card);
   --card-foreground: var(--text-primary);
-  --accent: var(--accent-teal);
-  --accent-foreground: #0b1210;
-  --on-accent: #0b1210;
+  --accent: #0f9e93;
+  --accent-foreground: #04211f;
+  --on-accent: #04211f;
   --gold: var(--accent-gold);
+  --bg-tile: #1b2120;
+  --bg-field: #131616;
+  --line-soft: rgba(255, 255, 255, 0.06);
+  --line-field: rgba(255, 255, 255, 0.07);
+  --text-dim: #8b9694;
+  --text-faint: #7c8785;
+  --gold-wash-bg: rgba(196, 164, 106, 0.14);
+  --gold-wash-border: rgba(196, 164, 106, 0.35);
+  --gold-hairline: rgba(196, 164, 106, 0.26);
   background: var(--bg-main);
   color: var(--text-primary);
   color-scheme: dark;
@@ -226,6 +264,15 @@ html.theme-light .storefront-hills {
   --accent-foreground: #ffffff;
   --on-accent: #ffffff;
   --gold: var(--accent-gold);
+  --bg-tile: #eeeeee;
+  --bg-field: #fafafa;
+  --line-soft: #e4e4e7;
+  --line-field: #e4e4e7;
+  --text-dim: #71717a;
+  --text-faint: #a1a1aa;
+  --gold-wash-bg: rgba(138, 109, 59, 0.1);
+  --gold-wash-border: rgba(138, 109, 59, 0.3);
+  --gold-hairline: rgba(138, 109, 59, 0.2);
   background: var(--bg-main);
   color: var(--text-primary);
   color-scheme: light;

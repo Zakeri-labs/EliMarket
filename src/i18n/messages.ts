@@ -120,6 +120,17 @@ export type Messages = {
     noQuestionsYet: string;
     awaitingAnswer: string;
     storeAnswer: string;
+    questionsCount: string;
+    buyNow: string;
+    deliveryServiceTitle: string;
+    sameDayDelivery: string;
+    sameDayDeliveryNote: string;
+    easyReturns: string;
+    easyReturnsNote: string;
+    pickupInStore: string;
+    pickupInStoreNote: string;
+    frequentlyBoughtTogether: string;
+    seeAll: string;
   };
   cart: {
     title: string;
@@ -959,6 +970,17 @@ const fa: Messages = {
     noQuestionsYet: "هنوز سوالی ثبت نشده است.",
     awaitingAnswer: "در انتظار پاسخ فروشگاه",
     storeAnswer: "پاسخ فروشگاه",
+    questionsCount: "{count} سوال",
+    buyNow: "خرید سریع — {price}",
+    deliveryServiceTitle: "ارسال و خدمات",
+    sameDayDelivery: "ارسال همان روز",
+    sameDayDeliveryNote: "سفارش قبل از ساعت ۱۶ · تحویل ۲۰ تا ۲۲",
+    easyReturns: "بازگشت آسان",
+    easyReturnsNote: "در صورت آسیب‌دیدگی، هنگام تحویل مرجوع کنید",
+    pickupInStore: "دریافت حضوری از فروشگاه",
+    pickupInStoreNote: "آماده در ۲ ساعت · شعبه الخوض",
+    frequentlyBoughtTogether: "معمولاً با هم خریداری می‌شوند",
+    seeAll: "مشاهده همه",
   },
   cart: {
     title: "سبد خرید من",
@@ -1840,6 +1862,17 @@ const ar: Messages = {
     noQuestionsYet: "لا توجد أسئلة بعد.",
     awaitingAnswer: "بانتظار رد المتجر",
     storeAnswer: "رد المتجر",
+    questionsCount: "{count} سؤال",
+    buyNow: "الشراء الآن — {price}",
+    deliveryServiceTitle: "التوصيل والخدمة",
+    sameDayDelivery: "توصيل في نفس اليوم",
+    sameDayDeliveryNote: "اطلب قبل الساعة 4 مساءً · التسليم 8–10 مساءً",
+    easyReturns: "إرجاع سهل",
+    easyReturnsNote: "أرجع عند التسليم إذا كان تالفاً",
+    pickupInStore: "استلام من المتجر",
+    pickupInStoreNote: "جاهز خلال ساعتين · فرع الخوض",
+    frequentlyBoughtTogether: "غالباً ما تُشترى معاً",
+    seeAll: "عرض الكل",
   },
   cart: {
     title: "سلة التسوق",
@@ -2721,6 +2754,17 @@ const en: Messages = {
     noQuestionsYet: "No questions yet.",
     awaitingAnswer: "Awaiting an answer from the store",
     storeAnswer: "Store answer",
+    questionsCount: "{count} questions",
+    buyNow: "Buy now — {price}",
+    deliveryServiceTitle: "Delivery & Service",
+    sameDayDelivery: "Same-day delivery",
+    sameDayDeliveryNote: "Order before 4 PM · 8–10 PM slot",
+    easyReturns: "Easy returns",
+    easyReturnsNote: "Return on delivery if damaged",
+    pickupInStore: "Pick up in store",
+    pickupInStoreNote: "Ready in 2 hours · Al Khoudh branch",
+    frequentlyBoughtTogether: "Frequently bought together",
+    seeAll: "See all",
   },
   cart: {
     title: "My cart",

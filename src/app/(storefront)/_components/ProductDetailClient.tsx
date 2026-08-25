@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   CheckCircle2,
   ChevronDown,
   ChevronLeft,
   Heart,
-  Info,
   Minus,
   Plus,
   Share2,
@@ -61,20 +61,16 @@ function resolveProductSubtitle(product: Product, locale: Locale): string | null
 
 function AtAGlanceGrid({ features }: { features: NonNullable<Product["features"]> }) {
   return (
-    <div className="grid grid-cols-2 gap-2.5">
+    <div className="grid grid-cols-2 gap-2">
       {features.map((feature) => (
         <div
           key={feature.id}
-          className="flex items-start gap-2.5 rounded-xl border border-border bg-surface p-3"
+          className="flex items-center gap-2.5 rounded-xl border border-line-soft bg-card p-3"
         >
-          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface-elevated text-muted">
-            <AppIcon icon={Info} size="xs" />
-          </span>
+          <span className="h-[22px] w-[22px] shrink-0 rounded-[7px] bg-bg-tile" />
           <div className="min-w-0 text-start">
-            <p className="truncate text-[11px] font-medium uppercase tracking-wide text-muted">
-              {feature.label}
-            </p>
-            <p className="mt-0.5 truncate text-sm font-semibold">{feature.value}</p>
+            <p className="truncate text-[10px] text-text-faint">{feature.label}</p>
+            <p className="mt-0.5 truncate text-[11.5px] font-semibold">{feature.value}</p>
           </div>
         </div>
       ))}
@@ -82,15 +78,57 @@ function AtAGlanceGrid({ features }: { features: NonNullable<Product["features"]
   );
 }
 
-function RatingSummary({ average, count }: { average: number; count: number }) {
+function RatingSummary({
+  average,
+  count,
+  questionsCount,
+}: {
+  average: number;
+  count: number;
+  questionsCount: number;
+}) {
   const { t } = useTranslations();
-  if (count <= 0) return null;
+  if (count <= 0 && questionsCount <= 0) return null;
   return (
-    <div className="flex items-center gap-1.5 text-sm">
-      <AppIcon icon={Star} size="xs" className="fill-current text-[#d4a72c]" />
-      <span className="font-medium">
-        {t("product.reviewsCount", { average: average.toFixed(1), count })}
-      </span>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-text-dim">
+      {count > 0 && (
+        <span className="inline-flex items-center gap-1.5">
+          <AppIcon icon={Star} size="xs" className="fill-current text-accent-gold" />
+          {t("product.reviewsCount", { average: average.toFixed(1), count })}
+        </span>
+      )}
+      {questionsCount > 0 && <span>{t("product.questionsCount", { count: questionsCount })}</span>}
+    </div>
+  );
+}
+
+function DeliveryServiceCard() {
+  const { t } = useTranslations();
+  const rows = [
+    { title: t("product.sameDayDelivery"), note: t("product.sameDayDeliveryNote") },
+    { title: t("product.easyReturns"), note: t("product.easyReturnsNote") },
+    { title: t("product.pickupInStore"), note: t("product.pickupInStoreNote") },
+  ];
+  return (
+    <div className="flex flex-col gap-2.5 rounded-2xl border border-line-soft bg-card p-3.5">
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-text-faint">
+        {t("product.deliveryServiceTitle")}
+      </p>
+      {rows.map((row, index) => (
+        <div
+          key={row.title}
+          className={cn(
+            "flex items-center gap-2.5",
+            index > 0 && "border-t border-line-soft pt-2.5",
+          )}
+        >
+          <span className="h-6 w-6 shrink-0 rounded-lg bg-bg-tile" />
+          <div className="min-w-0 text-start">
+            <p className="truncate text-[11.5px] font-semibold">{row.title}</p>
+            <p className="truncate text-[10px] text-text-faint">{row.note}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -112,6 +150,7 @@ function SpecificationsTable({ features }: { features: NonNullable<Product["feat
 }
 
 export function ProductDetailClient({ product, isSkeleton = false }: Props) {
+  const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const wishlisted = useWishlistStore((s) => s.has(product.id));
   const toggleWishlist = useWishlistStore((s) => s.toggle);
@@ -158,6 +197,9 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         price: formatPrice(lineTotal, product.currency),
       })
     : t("product.addToCartSimple");
+  const buyNowLabel = t("product.buyNow", {
+    price: formatPrice(lineTotal, product.currency),
+  });
   const features = product.features ?? [];
   const glanceFeatures = features.slice(0, 6);
   const categoryName = product.category ? resolveCategoryName(product.category, locale) : null;
@@ -192,6 +234,24 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
       qty,
     );
     notifyFormSuccess(t("notifications.addedToCart"));
+  };
+
+  const buyNow = () => {
+    if (isSkeleton || !inStock) return;
+    addItem(
+      {
+        productId: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: Number(product.price),
+        currency: product.currency,
+        imageUrl: cover?.image_url ?? product.image_url,
+        blurHash: cover?.blur_hash ?? product.blur_hash,
+        stock: product.stock,
+      },
+      qty,
+    );
+    router.push("/checkout");
   };
 
   return (
@@ -261,12 +321,12 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               {(badgeLabel || product.sku) && (
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   {badgeLabel && (
-                    <span className="inline-block rounded-md bg-accent-gold/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-bg-main">
+                    <span className="inline-block rounded-md border border-gold-wash-border bg-gold-wash-bg px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-accent-gold">
                       {badgeLabel}
                     </span>
                   )}
                   {product.sku && (
-                    <span className="text-[11px] text-muted">
+                    <span className="font-mono text-[10.5px] text-text-dim">
                       {t("product.sku", { sku: product.sku })}
                     </span>
                   )}
@@ -275,7 +335,11 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               <h1 className="font-logo text-start text-2xl font-bold leading-tight">{product.name}</h1>
               {subtitle && <p className="mt-1 text-start text-sm text-muted">{subtitle}</p>}
               <div className="mt-1.5">
-                <RatingSummary average={reviewsSummary?.average ?? 0} count={reviewsCount} />
+                <RatingSummary
+                  average={reviewsSummary?.average ?? 0}
+                  count={reviewsCount}
+                  questionsCount={questionsCount}
+                />
               </div>
             </div>
 
@@ -319,19 +383,21 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             </div>
 
             {inStock && (
-              <div className="space-y-1.5 rounded-2xl border border-border bg-surface p-3.5">
-                <p className="flex items-center gap-2 text-start text-xs font-medium text-accent">
+              <div className="space-y-1.5 rounded-2xl border border-gold-hairline bg-card p-3.5">
+                <p className="flex items-center gap-2 text-start text-xs font-medium text-accent-teal">
                   <AppIcon icon={CheckCircle2} size="xs" />
                   {t("product.inStockCount", { count: product.stock })}
                 </p>
-                <p className="flex items-center gap-2 text-start text-xs text-muted">
-                  <AppIcon icon={Truck} size="xs" />
+                <p className="flex items-center gap-2 text-start text-xs text-text-faint">
+                  <AppIcon icon={Truck} size="xs" className="text-accent-gold" />
                   {t("product.freeDeliveryOver", {
                     amount: formatPrice(FREE_DELIVERY_THRESHOLD),
                   })}
                 </p>
               </div>
             )}
+
+            <DeliveryServiceCard />
 
             {glanceFeatures.length > 0 && (
               <div>
@@ -430,6 +496,28 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 )}
               </div>
             </div>
+
+            {product.category_id && (
+              <div>
+                <div className="mb-2 flex items-baseline gap-3">
+                  <p className="text-start text-sm font-bold">
+                    {t("product.frequentlyBoughtTogether")}
+                  </p>
+                  <button
+                    type="button"
+                    className="ms-auto text-xs text-accent-teal"
+                    onClick={() => setTab("similar")}
+                  >
+                    {t("product.seeAll")}
+                  </button>
+                </div>
+                <SimilarProductsSection
+                  categoryId={product.category_id}
+                  excludeProductId={product.id}
+                  limit={3}
+                />
+              </div>
+            )}
             </div>
           </div>
         </div>
@@ -512,6 +600,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               isSkeleton={isSkeleton}
               sizes="50vw"
               showThumbs
+              thumbsLayout="start"
             />
           </div>
 
@@ -521,12 +610,12 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 {(badgeLabel || product.sku) && (
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     {badgeLabel && (
-                      <span className="inline-block rounded-md bg-accent-gold/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-bg-main">
+                      <span className="inline-block rounded-md border border-gold-wash-border bg-gold-wash-bg px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-accent-gold">
                         {badgeLabel}
                       </span>
                     )}
                     {product.sku && (
-                      <span className="text-[11px] text-muted">
+                      <span className="font-mono text-[10.5px] text-text-dim">
                         {t("product.sku", { sku: product.sku })}
                       </span>
                     )}
@@ -535,7 +624,11 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 <h1 className="font-logo text-3xl font-bold">{product.name}</h1>
                 {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
                 <div className="mt-1.5">
-                  <RatingSummary average={reviewsSummary?.average ?? 0} count={reviewsCount} />
+                  <RatingSummary
+                  average={reviewsSummary?.average ?? 0}
+                  count={reviewsCount}
+                  questionsCount={questionsCount}
+                />
                 </div>
               </div>
 
@@ -592,15 +685,15 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               </div>
             </div>
 
-            <div className="mt-8 space-y-4 rounded-2xl border border-border bg-surface p-4 lg:sticky lg:bottom-6 lg:mt-auto lg:shadow-lg">
+            <div className="mt-8 space-y-4 rounded-2xl border border-gold-hairline bg-card p-4 lg:sticky lg:bottom-6 lg:mt-auto lg:shadow-lg">
               {inStock && (
-                <div className="space-y-1.5 border-b border-border pb-3.5">
-                  <p className="flex items-center gap-2 text-sm font-medium text-accent">
+                <div className="space-y-1.5 border-b border-line-soft pb-3.5">
+                  <p className="flex items-center gap-2 text-sm font-medium text-accent-teal">
                     <AppIcon icon={CheckCircle2} size="sm" />
                     {t("product.inStockCount", { count: product.stock })}
                   </p>
-                  <p className="flex items-center gap-2 text-xs text-muted">
-                    <AppIcon icon={Truck} size="xs" />
+                  <p className="flex items-center gap-2 text-xs text-text-faint">
+                    <AppIcon icon={Truck} size="xs" className="text-accent-gold" />
                     {t("product.freeDeliveryOver", {
                       amount: formatPrice(FREE_DELIVERY_THRESHOLD),
                     })}
@@ -648,7 +741,19 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               >
                 <span>{addToCartLabel}</span>
               </Button>
+              {showPrices && (
+                <button
+                  type="button"
+                  disabled={isSkeleton || !inStock}
+                  onClick={buyNow}
+                  className="flex h-10 w-full items-center justify-center rounded-xl border border-gold-wash-border text-[13px] font-semibold text-[#e0d6bd] disabled:opacity-50"
+                >
+                  {buyNowLabel}
+                </button>
+              )}
             </div>
+
+            <DeliveryServiceCard />
           </div>
         </div>
 
@@ -722,6 +827,26 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             )}
           </div>
         </div>
+
+        {product.category_id && (
+          <div className="mt-10 lg:mt-14">
+            <div className="mb-3 flex items-baseline gap-3">
+              <p className="text-sm font-bold">{t("product.frequentlyBoughtTogether")}</p>
+              <button
+                type="button"
+                className="ms-auto text-xs text-accent-teal"
+                onClick={() => setTab("similar")}
+              >
+                {t("product.seeAll")}
+              </button>
+            </div>
+            <SimilarProductsSection
+              categoryId={product.category_id}
+              excludeProductId={product.id}
+              limit={3}
+            />
+          </div>
+        )}
       </div>
     </main>
   );

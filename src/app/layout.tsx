@@ -1,5 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Playfair_Display, Vazirmatn } from "next/font/google";
+import {
+  Cormorant_Garamond,
+  IBM_Plex_Mono,
+  Inter,
+  Manrope,
+  Playfair_Display,
+  Vazirmatn,
+} from "next/font/google";
 import { cookies } from "next/headers";
 import { Notifications } from "@/components/notification/Notifications";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
@@ -34,6 +41,27 @@ const inter = Inter({
 const vazirmatn = Vazirmatn({
   subsets: ["arabic"],
   variable: "--font-vazirmatn",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -83,7 +111,7 @@ export default async function RootLayout({
       lang={locale}
       dir={getDirection(locale)}
       suppressHydrationWarning
-      className={`${playfair.variable} ${inter.variable} ${vazirmatn.variable} theme-${theme} flex h-full flex-col antialiased`}
+      className={`${playfair.variable} ${inter.variable} ${vazirmatn.variable} ${manrope.variable} ${cormorant.variable} ${plexMono.variable} theme-${theme} flex h-full flex-col antialiased`}
     >
       <body className="flex min-h-0 flex-1 flex-col bg-background text-foreground">
         <QueryProvider>

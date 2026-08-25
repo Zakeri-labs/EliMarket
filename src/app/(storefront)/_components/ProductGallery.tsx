@@ -19,6 +19,9 @@ type Props = {
   className?: string;
   imageClassName?: string;
   showThumbs?: boolean;
+  /** "below" (default) stacks thumbs under the main image; "start" puts a
+   * vertical thumb rail before the main image, side by side. */
+  thumbsLayout?: "below" | "start";
 };
 
 export function ProductGallery({
@@ -28,6 +31,7 @@ export function ProductGallery({
   className,
   imageClassName,
   showThumbs = false,
+  thumbsLayout = "below",
 }: Props) {
   const { t } = useTranslations();
   const images = productGallery(product);
@@ -35,13 +39,56 @@ export function ProductGallery({
   const [zoomOpen, setZoomOpen] = useState(false);
   const current = images[Math.min(index, Math.max(images.length - 1, 0))] ?? null;
   const hasMultiple = images.length > 1;
+  const rail = thumbsLayout === "start";
 
   function step(delta: number) {
     setIndex((current) => (current + delta + images.length) % images.length);
   }
 
+  const thumbRail = showThumbs && hasMultiple && !isSkeleton && (
+    <div
+      className={cn(
+        rail ? "flex flex-col gap-2" : "flex gap-2 overflow-x-auto",
+      )}
+    >
+      {images.map((image, imageIndex) => (
+        <button
+          key={image.id}
+          type="button"
+          onClick={() => setIndex(imageIndex)}
+          className={cn(
+            "relative shrink-0 overflow-hidden rounded-[10px] border",
+            rail ? "h-14 w-14" : "h-16 w-16",
+            imageIndex === index
+              ? rail
+                ? "border-line-soft ring-2 ring-accent-gold"
+                : "border-accent"
+              : "border-border",
+          )}
+        >
+          <StorefrontImage
+            src={image.image_url}
+            blurHash={image.blur_hash}
+            alt=""
+            fill
+            sizes="64px"
+            withBlur={false}
+            className="bg-transparent object-contain"
+          />
+        </button>
+      ))}
+    </div>
+  );
+
   return (
-    <div className={cn(showThumbs ? "flex flex-col gap-3" : "relative h-full", className)}>
+    <div
+      className={cn(
+        rail ? "flex gap-3" : showThumbs ? "flex flex-col gap-3" : "relative h-full",
+        className,
+      )}
+    >
+      {rail && thumbRail}
+      <div className={rail ? "flex flex-1 flex-col gap-2" : "contents"}>
       <div className={cn("relative", showThumbs ? "aspect-square overflow-hidden rounded-2xl" : "h-full w-full")}>
         {isSkeleton ? (
           <SkeletonImage className="absolute inset-0 p-8" />
@@ -94,31 +141,23 @@ export function ProductGallery({
         )}
       </div>
 
-      {showThumbs && hasMultiple && !isSkeleton && (
-        <div className="flex gap-2 overflow-x-auto">
-          {images.map((image, imageIndex) => (
-            <button
-              key={image.id}
-              type="button"
-              onClick={() => setIndex(imageIndex)}
-              className={cn(
-                "relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border",
-                imageIndex === index ? "border-accent" : "border-border",
-              )}
-            >
-              <StorefrontImage
-                src={image.image_url}
-                blurHash={image.blur_hash}
-                alt=""
-                fill
-                sizes="64px"
-                withBlur={false}
-                className="bg-transparent object-contain"
-              />
-            </button>
-          ))}
+      {rail && hasMultiple && !isSkeleton && (
+        <div className="flex items-center gap-2 text-[10.5px] text-text-faint">
+          <button
+            type="button"
+            onClick={() => setZoomOpen(true)}
+            className="text-accent-teal"
+          >
+            {t("product.zoom")}
+          </button>
+          <span className="font-mono ms-auto">
+            {index + 1} / {images.length}
+          </span>
         </div>
       )}
+
+      {!rail && thumbRail}
+      </div>
 
       {current && !isSkeleton ? (
         <Dialog.Root open={zoomOpen} onOpenChange={setZoomOpen}>
