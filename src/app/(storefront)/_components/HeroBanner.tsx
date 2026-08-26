@@ -15,7 +15,6 @@ const AUTO_INTERVAL_MS = 6000;
 export function HeroBanner() {
   const { slides, isSkeleton } = useHeroSlides();
   const { t, dir, locale } = useTranslations();
-  const isRtl = dir === "rtl";
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -75,18 +74,6 @@ export function HeroBanner() {
       ) : (
         <StripePlaceholder className="absolute inset-0" label="produce basket photo" />
       )}
-
-      {/* Light bottom vignette for carousel dot legibility, plus a scrim confined
-          to the text column's side so the rest of the banner artwork stays visible. */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
-      <div
-        className={cn(
-          "absolute inset-y-0 w-3/5 sm:w-2/5",
-          isRtl
-            ? "end-0 bg-gradient-to-l from-black/60 via-black/15 to-transparent"
-            : "start-0 bg-gradient-to-r from-black/60 via-black/15 to-transparent",
-        )}
-      />
 
       <div
         className="relative z-10 flex h-full flex-col justify-center px-10"

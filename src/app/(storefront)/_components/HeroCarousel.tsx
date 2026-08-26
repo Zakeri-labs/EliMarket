@@ -50,7 +50,6 @@ function HeroSlidePanel({
   dir: "rtl" | "ltr";
   locale: Locale;
 }) {
-  const isRtl = dir === "rtl";
   const imageSrc = slide.imageUrl ?? null;
   const hasImage = Boolean(imageSrc);
 
@@ -81,15 +80,6 @@ function HeroSlidePanel({
             sizes="(max-width: 1280px) 100vw, 1280px"
             withBlur
             className="object-cover object-center md:object-[center_35%]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
-          <div
-            className={cn(
-              "absolute inset-y-0 w-3/5 sm:w-2/5",
-              isRtl
-                ? "end-0 bg-gradient-to-l from-black/55 via-black/15 to-transparent"
-                : "start-0 bg-gradient-to-r from-black/55 via-black/15 to-transparent",
-            )}
           />
         </div>
       ) : (
