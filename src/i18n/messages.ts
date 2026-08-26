@@ -939,11 +939,18 @@ export type Messages = {
     readyTitle: string;
     readyEmpty: string;
     activeTitle: string;
+    activeHint: string;
     activeEmpty: string;
     recentTitle: string;
+    historyEmpty: string;
     accept: string;
     markDelivered: string;
     markUndelivered: string;
+    tabs: {
+      assigned: string;
+      ready: string;
+      history: string;
+    };
     nav: {
       orders: string;
       finance: string;
@@ -1952,14 +1959,21 @@ const fa: Messages = {
     loginSubtitle: "با شماره موبایل و کد یکبارمصرف وارد شوید",
     ordersTitle: "سفارش‌های پیک",
     financeTitle: "مدیریت مالی",
-    readyTitle: "آماده تحویل",
+    readyTitle: "آماده تحویل (بدون پیک)",
     readyEmpty: "سفارش آماده‌ای در صف نیست",
-    activeTitle: "در مسیر من",
-    activeEmpty: "سفارش فعالی ندارید",
-    recentTitle: "اخیر",
+    activeTitle: "سفارش‌های تخصیص‌شده به من",
+    activeHint: "سفارش‌هایی که ادمین به شما داده یا خودتان قبول کرده‌اید — وضعیت تحویل را مشخص کنید.",
+    activeEmpty: "سفارش فعالی برای تحویل ندارید",
+    recentTitle: "تاریخچه تحویل‌شده",
+    historyEmpty: "هنوز سفارشی تحویل نداده‌اید",
     accept: "قبول سفارش",
     markDelivered: "تحویل شد",
     markUndelivered: "تحویل نشد",
+    tabs: {
+      assigned: "تخصیص‌شده",
+      ready: "آماده",
+      history: "تاریخچه",
+    },
     nav: { orders: "سفارش‌ها", finance: "مالی" },
     finance: {
       deliveredCount: "تعداد تحویل",
@@ -2965,14 +2979,21 @@ const ar: Messages = {
     loginSubtitle: "سجّل الدخول برقم الجوال ورمز التحقق",
     ordersTitle: "طلبات السائق",
     financeTitle: "الإدارة المالية",
-    readyTitle: "جاهز للتسليم",
+    readyTitle: "جاهز للتسليم (بدون سائق)",
     readyEmpty: "لا توجد طلبات جاهزة في القائمة",
-    activeTitle: "في طريقي",
-    activeEmpty: "لا توجد طلبات نشطة",
-    recentTitle: "الأخيرة",
+    activeTitle: "الطلبات المعيّنة لي",
+    activeHint: "الطلبات التي عيّنها المشرف أو قبلتها — حدّد حالة التسليم.",
+    activeEmpty: "لا توجد طلبات نشطة للتسليم",
+    recentTitle: "سجل التسليمات",
+    historyEmpty: "لم تُسلّم أي طلبات بعد",
     accept: "قبول الطلب",
     markDelivered: "تم التسليم",
     markUndelivered: "لم يتم التسليم",
+    tabs: {
+      assigned: "معيّنة",
+      ready: "جاهزة",
+      history: "السجل",
+    },
     nav: { orders: "الطلبات", finance: "المالية" },
     finance: {
       deliveredCount: "عدد التسليمات",
@@ -3978,14 +3999,21 @@ const en: Messages = {
     loginSubtitle: "Sign in with phone number and one-time code",
     ordersTitle: "Rider orders",
     financeTitle: "Finance",
-    readyTitle: "Ready for pickup",
+    readyTitle: "Ready (unassigned)",
     readyEmpty: "No ready orders in the queue",
-    activeTitle: "On my route",
+    activeTitle: "Assigned to me",
+    activeHint: "Orders assigned by admin or accepted by you — mark delivered or not.",
     activeEmpty: "No active deliveries",
-    recentTitle: "Recent",
+    recentTitle: "Delivery history",
+    historyEmpty: "No delivered orders yet",
     accept: "Accept order",
     markDelivered: "Delivered",
     markUndelivered: "Not delivered",
+    tabs: {
+      assigned: "Assigned",
+      ready: "Ready",
+      history: "History",
+    },
     nav: { orders: "Orders", finance: "Finance" },
     finance: {
       deliveredCount: "Deliveries",

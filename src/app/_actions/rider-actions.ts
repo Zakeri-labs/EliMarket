@@ -2,17 +2,21 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/core/supabase/auth-helpers";
+import { createServiceRoleClient } from "@/core/supabase/service";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
 import { DELIVERY_FEE } from "@/config/brand";
 import type { Order } from "@/app/_types/database.types";
+
+const ORDER_SELECT =
+  "*, order_items(*, product:products(*)), address:addresses(*)";
 
 export async function getReadyOrdersAction() {
   try {
     const { supabase } = await requireRole("rider");
     const { data, error } = await supabase
       .from("orders")
-      .select("*, order_items(*, product:products(*)), address:addresses(*)")
+      .select(ORDER_SELECT)
       .eq("status", "preparing")
       .is("rider_id", null)
       .order("created_at", { ascending: true });
@@ -26,15 +30,17 @@ export async function getReadyOrdersAction() {
   }
 }
 
+/** Orders assigned to this rider (active + history). */
 export async function getMyRiderOrdersAction() {
   try {
     const { supabase, user } = await requireRole("rider");
     const { data, error } = await supabase
       .from("orders")
-      .select("*, order_items(*, product:products(*)), address:addresses(*)")
+      .select(ORDER_SELECT)
       .eq("rider_id", user.id)
+      .in("status", ["out_for_delivery", "delivered"])
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(80);
     if (error) throw error;
     return { success: true as const, data: (data ?? []) as Order[] };
   } catch (err) {
@@ -47,14 +53,16 @@ export async function getMyRiderOrdersAction() {
 
 export async function acceptOrderAction(orderId: string) {
   try {
-    const { supabase, user } = await requireRole("rider");
-    const { data, error } = await supabase
+    const { user } = await requireRole("rider");
+    const admin = createServiceRoleClient();
+
+    const { data, error } = await admin
       .from("orders")
       .update({ rider_id: user.id, status: "out_for_delivery" })
       .eq("id", orderId)
       .eq("status", "preparing")
       .is("rider_id", null)
-      .select("*, order_items(*, product:products(*)), address:addresses(*)")
+      .select(ORDER_SELECT)
       .maybeSingle();
     if (error) throw error;
     if (!data) throw new Error(await serverT("errors.orderAcceptFailed"));
@@ -70,19 +78,22 @@ export async function acceptOrderAction(orderId: string) {
 
 export async function riderMarkDeliveredAction(orderId: string) {
   try {
-    const { supabase, user } = await requireRole("rider");
-    const { data, error } = await supabase
+    const { user } = await requireRole("rider");
+    const admin = createServiceRoleClient();
+
+    const { data, error } = await admin
       .from("orders")
       .update({ status: "delivered" })
       .eq("id", orderId)
       .eq("rider_id", user.id)
       .eq("status", "out_for_delivery")
-      .select("*")
+      .select(ORDER_SELECT)
       .maybeSingle();
     if (error) throw error;
     if (!data) throw new Error(await serverT("errors.statusUpdateFailed"));
     revalidatePath("/rider");
     revalidatePath("/rider/finance");
+    revalidatePath("/dashboard/orders");
     return { success: true as const, data: data as Order };
   } catch (err) {
     return {
@@ -94,18 +105,21 @@ export async function riderMarkDeliveredAction(orderId: string) {
 
 export async function riderMarkUndeliveredAction(orderId: string) {
   try {
-    const { supabase, user } = await requireRole("rider");
-    const { data, error } = await supabase
+    const { user } = await requireRole("rider");
+    const admin = createServiceRoleClient();
+
+    const { data, error } = await admin
       .from("orders")
       .update({ status: "preparing", rider_id: null })
       .eq("id", orderId)
       .eq("rider_id", user.id)
       .eq("status", "out_for_delivery")
-      .select("*")
+      .select(ORDER_SELECT)
       .maybeSingle();
     if (error) throw error;
     if (!data) throw new Error(await serverT("errors.statusUpdateFailed"));
     revalidatePath("/rider");
+    revalidatePath("/dashboard/orders");
     return { success: true as const, data: data as Order };
   } catch (err) {
     return {

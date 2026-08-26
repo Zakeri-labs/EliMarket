@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Bike, LogOut, Wallet } from "lucide-react";
@@ -12,12 +13,22 @@ import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { Button } from "@/components/ui/Button";
 import { useTranslations } from "@/i18n/use-translations";
 
+const NAV = [
+  { href: "/rider", key: "rider.nav.orders" as const, icon: Bike, match: (p: string) => p === "/rider" },
+  {
+    href: "/rider/finance",
+    key: "rider.nav.finance" as const,
+    icon: Wallet,
+    match: (p: string) => p.startsWith("/rider/finance"),
+  },
+];
+
 export function RiderShell({
   title,
   children,
 }: {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -26,69 +37,121 @@ export function RiderShell({
   const { runAction, isPending } = useFormAction();
   const { t } = useTranslations();
 
+  const logout = () =>
+    runAction(() => signOutAction(), {
+      onSuccess: () => {
+        clearSession();
+        router.push("/rider/login");
+        router.refresh();
+      },
+    });
+
   return (
-    <div className="min-h-full bg-background text-foreground">
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-4 py-3">
-          <div className="min-w-0">
-            <p className="text-xs text-muted">{t("rider.panelLabel")}</p>
-            <h1 className="truncate text-lg font-bold">{title}</h1>
-            {session?.fullName || session?.phone ? (
-              <p className="truncate text-xs text-muted" dir="ltr">
-                {session.fullName || session.phone}
-              </p>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2">
-            <LanguageTabs compact />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              loading={isPending}
-              loadingLabel={t("common.processing")}
-              onClick={() =>
-                runAction(() => signOutAction(), {
-                  onSuccess: () => {
-                    clearSession();
-                    router.push("/rider/login");
-                    router.refresh();
-                  },
-                })
-              }
-            >
-              <AppIcon icon={LogOut} size="xs" />
-            </Button>
-          </div>
+    <div className="flex min-h-full bg-background text-foreground">
+      {/* Desktop sidebar */}
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-e border-border bg-surface md:flex">
+        <div className="border-b border-border px-5 py-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
+            {t("rider.panelLabel")}
+          </p>
+          {(session?.fullName || session?.phone) && (
+            <p className="mt-2 truncate text-sm font-medium" dir="ltr">
+              {session.fullName || session.phone}
+            </p>
+          )}
         </div>
-        <nav className="mx-auto flex w-full max-w-3xl gap-1 px-4 pb-3">
-          <Link
-            href="/rider"
-            className={cn(
-              "inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium",
-              pathname === "/rider"
-                ? "border-accent bg-accent/10 text-accent"
-                : "border-border bg-surface text-muted",
-            )}
-          >
-            <AppIcon icon={Bike} size="sm" />
-            {t("rider.nav.orders")}
-          </Link>
-          <Link
-            href="/rider/finance"
-            className={cn(
-              "inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium",
-              pathname.startsWith("/rider/finance")
-                ? "border-accent bg-accent/10 text-accent"
-                : "border-border bg-surface text-muted",
-            )}
-          >
-            <AppIcon icon={Wallet} size="sm" />
-            {t("rider.nav.finance")}
-          </Link>
+
+        <nav className="flex flex-1 flex-col gap-1 p-3">
+          {NAV.map((item) => {
+            const active = item.match(pathname);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "inline-flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-accent/15 text-accent"
+                    : "text-muted hover:bg-surface-elevated hover:text-foreground",
+                )}
+              >
+                <AppIcon icon={item.icon} size="sm" />
+                {t(item.key)}
+              </Link>
+            );
+          })}
         </nav>
-      </header>
-      <main className="mx-auto w-full max-w-3xl px-4 py-5">{children}</main>
+
+        <div className="space-y-3 border-t border-border p-3">
+          <LanguageTabs compact />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            fullWidth
+            loading={isPending}
+            loadingLabel={t("common.processing")}
+            onClick={logout}
+          >
+            <AppIcon icon={LogOut} size="xs" />
+            {t("account.signOut")}
+          </Button>
+        </div>
+      </aside>
+
+      {/* Main column */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-20 border-b border-border bg-surface/95 backdrop-blur-sm">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
+            <div className="min-w-0">
+              <p className="text-xs text-muted md:hidden">{t("rider.panelLabel")}</p>
+              <h1 className="truncate text-lg font-bold">{title}</h1>
+              {(session?.fullName || session?.phone) && (
+                <p className="truncate text-xs text-muted md:hidden" dir="ltr">
+                  {session.fullName || session.phone}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 md:hidden">
+              <LanguageTabs compact />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                loading={isPending}
+                loadingLabel={t("common.processing")}
+                onClick={logout}
+              >
+                <AppIcon icon={LogOut} size="xs" />
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 px-4 py-5 pb-24 md:px-6 md:pb-8">{children}</main>
+
+        {/* Mobile bottom nav — thumb-friendly for riders on the road */}
+        <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm md:hidden">
+          <div className="mx-auto grid max-w-lg grid-cols-2 gap-1 px-2 py-2">
+            {NAV.map((item) => {
+              const active = item.match(pathname);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "inline-flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium",
+                    active ? "bg-accent/15 text-accent" : "text-muted",
+                  )}
+                >
+                  <AppIcon icon={item.icon} size="sm" />
+                  {t(item.key)}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
     </div>
   );
 }
