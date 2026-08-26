@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "setup-admin": "node --env-file=.env.local scripts/setup-admin.mjs"
+    "setup-admin": "node --env-file=.env.local scripts/setup-admin.mjs",
+    "process-icon": "node scripts/process-icon.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

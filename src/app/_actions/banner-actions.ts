@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/core/supabase/server";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
-import { loadLiveCampaignBanners } from "@/lib/campaigns/load";
 import type { HeroBanner } from "@/app/_types/database.types";
 
 export type HeroBannerInput = {
@@ -42,21 +41,17 @@ function toPayload(input: HeroBannerInput) {
 export async function getHeroBannersAction() {
   try {
     const supabase = await createClient();
-    const [{ data, error }, campaigns] = await Promise.all([
-      supabase
-        .from("hero_banners")
-        .select("*")
-        .eq("is_active", true)
-        .order("sort_order")
-        .order("created_at"),
-      loadLiveCampaignBanners(supabase),
-    ]);
+    const { data, error } = await supabase
+      .from("hero_banners")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order")
+      .order("created_at");
 
     if (error) throw error;
     return {
       success: true as const,
       data: (data ?? []) as HeroBanner[],
-      campaigns,
     };
   } catch (err) {
     return {

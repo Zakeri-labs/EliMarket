@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { AddressGateModal } from "@/app/(storefront)/_components/AddressGateModal";
 import { BottomNav } from "@/app/(storefront)/_components/BottomNav";
 import { PwaProvider } from "@/app/(storefront)/_components/PwaProvider";
 import { StorefrontHeader } from "@/app/(storefront)/_components/StorefrontHeader";
@@ -51,6 +52,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
       </div>
       {!hideMobileNav && <BottomNav />}
       <PwaProvider />
+      <AddressGateModal />
     </div>
   );
 }

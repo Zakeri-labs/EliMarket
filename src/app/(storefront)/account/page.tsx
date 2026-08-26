@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
   ChevronRight,
@@ -52,6 +53,7 @@ function AccountPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next");
+  const queryClient = useQueryClient();
   const { session, status, updateSession, clearSession } = useAuthStore();
   const { runAction, isPending } = useFormAction();
   const { t } = useTranslations();
@@ -194,6 +196,7 @@ function AccountPageContent() {
               successMessage: t("notifications.loginSuccess"),
               onSuccess: async () => {
                 await updateSession();
+                await queryClient.invalidateQueries({ queryKey: ["addresses"] });
                 setOtpStep("phone");
               },
             });

@@ -190,6 +190,11 @@ export type Messages = {
     total: string;
     submitOrder: string;
   };
+  addressGate: {
+    title: string;
+    description: string;
+    later: string;
+  };
   search: {
     title: string;
     placeholder: string;
@@ -1048,6 +1053,11 @@ const fa: Messages = {
     total: "جمع کل",
     submitOrder: "ثبت سفارش — {price}",
   },
+  addressGate: {
+    title: "آدرس محل تحویل خود را مشخص کنید",
+    description: "برای ثبت سفارش، آدرس شما باید در محدوده پوشش ارسال ما باشد. لطفاً موقعیت خود را روی نقشه انتخاب کنید.",
+    later: "بعداً",
+  },
   search: {
     title: "جستجو",
     placeholder: "نام محصول را بنویسید…",
@@ -1588,7 +1598,7 @@ const fa: Messages = {
       editCampaign: "ویرایش کمپین",
       namePlaceholder: "نام کمپین (مثلاً جمعه ویژه)",
       badgePlaceholder: "برچسب روی کارت (مثلاً فروش ویژه)",
-      bannerHint: "این تصویر فقط وقتی کمپین فعال و در بازه زمانی باشد در بنرهای صفحه اصلی نمایش داده می‌شود.",
+      bannerHint: "اختیاری — فقط برای مدیریت کمپین. بنرهای اسلایدر صفحه اصلی از بخش «بنرها» تنظیم می‌شوند.",
       bannerLabel: "تصویر بنر صفحه اصلی",
       uploadImage: "آپلود تصویر بنر",
       removeImage: "حذف تصویر بنر",
@@ -1942,6 +1952,11 @@ const ar: Messages = {
     vat: "الضريبة",
     total: "الإجمالي",
     submitOrder: "تأكيد الطلب — {price}",
+  },
+  addressGate: {
+    title: "حدد عنوان التوصيل الخاص بك",
+    description: "لإتمام الطلب، يجب أن يكون عنوانك ضمن نطاق التوصيل الخاص بنا. الرجاء تحديد موقعك على الخريطة.",
+    later: "لاحقًا",
   },
   search: {
     title: "بحث",
@@ -2483,7 +2498,7 @@ const ar: Messages = {
       editCampaign: "تعديل الحملة",
       namePlaceholder: "اسم الحملة",
       badgePlaceholder: "الشارة على البطاقة (مثلاً عرض خاص)",
-      bannerHint: "تظهر هذه الصورة في بانرات الصفحة الرئيسية فقط عندما تكون الحملة نشطة وضمن مدتها.",
+      bannerHint: "اختياري — للإدارة فقط. بانرات الصفحة الرئيسية تُدار من قسم «البانرات».",
       bannerLabel: "صورة بانر الصفحة الرئيسية",
       uploadImage: "رفع صورة البانر",
       removeImage: "إزالة صورة البانر",
@@ -2837,6 +2852,11 @@ const en: Messages = {
     vat: "VAT",
     total: "Total",
     submitOrder: "Place order — {price}",
+  },
+  addressGate: {
+    title: "Set your delivery address",
+    description: "To place an order, your address must be inside our delivery coverage area. Please pick your location on the map.",
+    later: "Later",
   },
   search: {
     title: "Search",
@@ -3378,7 +3398,7 @@ const en: Messages = {
       editCampaign: "Edit campaign",
       namePlaceholder: "Campaign name (e.g. Friday sale)",
       badgePlaceholder: "Card badge (e.g. Special sale)",
-      bannerHint: "This image appears in homepage banners only while the campaign is active and within its time window.",
+      bannerHint: "Optional — for campaign records only. Homepage carousel banners are managed under Banners.",
       bannerLabel: "Homepage banner image",
       uploadImage: "Upload banner image",
       removeImage: "Remove banner image",

@@ -79,21 +79,27 @@ export function HeroBanner() {
         className="relative z-10 flex h-full flex-col justify-center px-10"
         dir={dir}
       >
-        <p className="mb-4 w-full max-w-md text-start text-xs font-medium tracking-[0.15em] text-accent-gold uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-          {slide.badge}
-        </p>
-        <h2
-          className={cn(
-            "mb-5 w-full max-w-md text-start font-logo text-[42px] leading-[1.15] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]",
-            locale === "en" ? "font-semibold" : "font-bold",
-          )}
-        >
-          {slide.title}
-        </h2>
-        <p className="mb-7 w-full max-w-md text-start text-base text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
-          {slide.subtitle}
-        </p>
-        <div className="flex w-full">
+        {!slide.imageOnly && slide.badge ? (
+          <p className="mb-4 w-full max-w-md text-start text-xs font-medium tracking-[0.15em] text-accent-gold uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+            {slide.badge}
+          </p>
+        ) : null}
+        {!slide.imageOnly && slide.title ? (
+          <h2
+            className={cn(
+              "mb-5 w-full max-w-md text-start font-logo text-[42px] leading-[1.15] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]",
+              locale === "en" ? "font-semibold" : "font-bold",
+            )}
+          >
+            {slide.title}
+          </h2>
+        ) : null}
+        {!slide.imageOnly && slide.subtitle ? (
+          <p className="mb-7 w-full max-w-md text-start text-base text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+            {slide.subtitle}
+          </p>
+        ) : null}
+        <div className={cn("flex w-full", slide.imageOnly && "mt-auto justify-end pb-8")}>
           <Link
             href={isSkeleton ? "#" : slide.ctaHref}
             className="rounded-lg bg-accent-teal px-6 py-3 text-sm font-semibold text-bg-main"

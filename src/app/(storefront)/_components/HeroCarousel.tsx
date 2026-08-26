@@ -100,23 +100,32 @@ function HeroSlidePanel({
         dir={dir}
         style={{ minHeight: frameHeight }}
       >
-        <p className="w-full text-start text-xs font-medium uppercase tracking-wide opacity-90">
-          {slide.badge}
-        </p>
-        <h2
-          className={cn(
-            "mt-1 w-full max-w-lg text-start text-2xl leading-tight sm:text-3xl md:text-4xl",
-            locale === "en" ? "font-logo font-semibold" : "font-bold",
-          )}
-        >
-          {slide.title}
-        </h2>
-        <p className="mt-2 w-full max-w-md text-start text-sm opacity-90 sm:text-base">
-          {slide.subtitle}
-        </p>
+        {!slide.imageOnly && slide.badge ? (
+          <p className="w-full text-start text-xs font-medium uppercase tracking-wide opacity-90">
+            {slide.badge}
+          </p>
+        ) : null}
+        {!slide.imageOnly && slide.title ? (
+          <h2
+            className={cn(
+              "mt-1 w-full max-w-lg text-start text-2xl leading-tight sm:text-3xl md:text-4xl",
+              locale === "en" ? "font-logo font-semibold" : "font-bold",
+            )}
+          >
+            {slide.title}
+          </h2>
+        ) : null}
+        {!slide.imageOnly && slide.subtitle ? (
+          <p className="mt-2 w-full max-w-md text-start text-sm opacity-90 sm:text-base">
+            {slide.subtitle}
+          </p>
+        ) : null}
         <Link
           href={isSkeleton ? "#" : slide.ctaHref}
-          className="mt-4 inline-flex shrink-0 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90"
+          className={cn(
+            "inline-flex shrink-0 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90",
+            slide.imageOnly ? "mt-auto" : "mt-4",
+          )}
           onClick={(e) => {
             if (isSkeleton) e.preventDefault();
           }}

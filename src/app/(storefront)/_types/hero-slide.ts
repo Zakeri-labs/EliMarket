@@ -7,4 +7,6 @@ export type HeroSlide = {
   ctaHref: string;
   imageUrl?: string | null;
   blurHash?: string | null;
+  /** Full-bleed banner graphic — hide text overlay when true */
+  imageOnly?: boolean;
 };

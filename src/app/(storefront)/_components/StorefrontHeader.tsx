@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, ShoppingCart } from "lucide-react";
+import { useAuthStore } from "@/app/_store/auth-store";
 import { useCartStore } from "@/app/_store/cart-store";
 import { useLocaleStore } from "@/app/_store/locale-store";
 import { cn } from "@/app/utils/cn";
@@ -26,6 +27,8 @@ export function StorefrontHeader() {
   const pathname = usePathname();
   const items = useCartStore((s) => s.items);
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const session = useAuthStore((s) => s.session);
+  const authStatus = useAuthStore((s) => s.status);
   const { t, messages, locale } = useTranslations();
   const setLocale = useLocaleStore((s) => s.setLocale);
   const [mounted, setMounted] = useState(false);
@@ -40,6 +43,10 @@ export function StorefrontHeader() {
       : "font-logo font-semibold tracking-wide";
 
   const countBadge = mounted ? cartCount : 0;
+  const isLoggedIn = mounted && authStatus === "authenticated" && Boolean(session);
+  const accountPrimary = isLoggedIn
+    ? (session?.fullName?.trim() || t("account.defaultUser"))
+    : t("nav.signIn");
 
   return (
     <header className="sticky top-0 z-40 bg-bg-main">
@@ -128,11 +135,16 @@ export function StorefrontHeader() {
             />
           </div>
 
-          {/* 4) Account + Cart */}
+          {/* 4) Account + Cart — hide "Sign in" when authenticated */}
           <div className="flex w-[260px] shrink-0 items-center justify-end gap-4">
-            <Link href="/account" className="shrink-0 text-start leading-tight">
-              <span className="block text-[11px] text-text-secondary">Account</span>
-              <span className="block text-[14px] font-bold text-text-primary">Sign in</span>
+            <Link href="/account" className="min-w-0 shrink-0 text-start leading-tight">
+              <span className="block text-[11px] text-text-secondary">{t("nav.account")}</span>
+              <span
+                suppressHydrationWarning
+                className="block max-w-[9rem] truncate text-[14px] font-bold text-text-primary"
+              >
+                {accountPrimary}
+              </span>
             </Link>
             <Link
               href="/cart"
