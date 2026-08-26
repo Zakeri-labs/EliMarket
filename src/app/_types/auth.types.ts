@@ -6,6 +6,8 @@ export type ClientSession = {
   email?: string;
   fullName?: string;
   role?: UserRole;
+  avatarUrl?: string;
+  avatarBlurHash?: string;
 };
 
 export type AuthStatus = "authenticated" | "unauthenticated" | "loading";

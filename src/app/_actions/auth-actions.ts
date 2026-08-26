@@ -135,6 +135,83 @@ export async function verifyOtpAction(model: VerifyOtpModel) {
   }
 }
 
+/**
+ * Rider-panel OTP login. Same OTP flow as customers, but requires (or in
+ * non-production, auto-promotes) the rider role so /rider proxy gates pass.
+ */
+export async function verifyRiderOtpAction(model: VerifyOtpModel) {
+  try {
+    const verified = await verifyOtpAction(model);
+    if (!verified.success) return verified;
+
+    const user = await getCurrentUser();
+    if (!user) {
+      return {
+        success: false as const,
+        error: await serverT("errors.loginFailed"),
+      };
+    }
+
+    let profile = await getCurrentProfile();
+
+    if (profile?.role !== "rider") {
+      if (!isDevOtpBypassEnabled) {
+        const supabase = await createClient();
+        await supabase.auth.signOut();
+        return {
+          success: false as const,
+          error: await serverT("errors.riderForbidden"),
+        };
+      }
+
+      // Dev only: promote whoever signs into the rider panel so local
+      // testing works without an admin registration step first.
+      const admin = createServiceRoleClient();
+      const phone = normalizePhone(model.phone);
+      const phoneDigits = phone.replace(/\D/g, "");
+      const civilId = phoneDigits.slice(-10).padStart(8, "0");
+
+      const { data: updated, error: roleError } = await admin
+        .from("profiles")
+        .upsert(
+          {
+            id: user.id,
+            phone,
+            full_name: profile?.full_name || "Test Rider",
+            role: "rider",
+          },
+          { onConflict: "id" },
+        )
+        .select("*")
+        .single();
+      if (roleError) throw roleError;
+      profile = updated as Profile;
+
+      // Best-effort KYC stub (migration may not be applied yet in local DB)
+      await admin.from("rider_profiles").upsert(
+        {
+          profile_id: user.id,
+          first_name: "Test",
+          last_name: "Rider",
+          civil_id: civilId,
+          phone,
+          address_line: "Dev test address",
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "profile_id" },
+      );
+    }
+
+    const session = mapProfileToSession(user.id, profile, model.phone, user.email);
+    return { success: true as const, data: session };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.riderForbidden", err),
+    };
+  }
+}
+
 export async function verifyAdminAccessAction() {
   try {
     const supabase = await createClient();

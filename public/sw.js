@@ -1,5 +1,5 @@
-const CACHE = "elimarket-v1";
-const PRECACHE = ["/", "/icon.png"];
+const CACHE = "elimarket-v2";
+const PRECACHE = ["/", "/icon.png", "/icon-192.png", "/apple-icon.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -31,6 +31,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/dashboard") ||
     url.pathname.startsWith("/login") ||
+    url.pathname.startsWith("/rider") ||
     url.pathname.startsWith("/pay/")
   ) {
     return;
@@ -46,7 +47,11 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/products/") ||
     url.pathname.startsWith("/categories/") ||
     url.pathname === "/icon.png" ||
-    url.pathname === "/apple-icon.png";
+    url.pathname === "/icon-192.png" ||
+    url.pathname === "/icon-maskable-192.png" ||
+    url.pathname === "/icon-maskable-512.png" ||
+    url.pathname === "/apple-icon.png" ||
+    url.pathname === "/manifest.webmanifest";
 
   if (!cacheable) return;
 

@@ -7,6 +7,7 @@ import type { StoreSettings } from "@/app/_types/database.types";
 const FALLBACK_SETTINGS: StoreSettings = {
   id: "default",
   show_prices: true,
+  show_product_detail_extras: true,
   updated_at: "",
   hero_badge: null,
   hero_title: null,
@@ -31,6 +32,7 @@ export function useStoreSettings() {
   return {
     ...query,
     showPrices: query.data?.show_prices ?? true,
+    showProductDetailExtras: query.data?.show_product_detail_extras ?? true,
     hero: query.data ?? FALLBACK_SETTINGS,
   };
 }

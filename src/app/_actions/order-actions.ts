@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { requireAdmin, requireAuth } from "@/core/supabase/auth-helpers";
 import { getStoreSettingsAction } from "@/app/_actions/settings-actions";
 import { createPaymentForOrder } from "@/app/_actions/payment-actions";
@@ -207,6 +208,8 @@ export async function assignRiderAction(orderId: string, riderId: string) {
       .select("*")
       .single();
     if (error) throw error;
+    revalidatePath("/dashboard/orders");
+    revalidatePath(`/orders/${orderId}`);
     return { success: true as const, data: data as Order };
   } catch (err) {
     return {
@@ -219,13 +222,36 @@ export async function assignRiderAction(orderId: string, riderId: string) {
 export async function getRidersAction() {
   try {
     const { supabase } = await requireAdmin();
-    const { data, error } = await supabase
+    const { data: profiles, error } = await supabase
       .from("profiles")
       .select("id, full_name, phone")
       .eq("role", "rider")
       .order("full_name");
     if (error) throw error;
-    return { success: true as const, data: data ?? [] };
+
+    const ids = (profiles ?? []).map((p) => p.id);
+    const { data: details } = ids.length
+      ? await supabase
+          .from("rider_profiles")
+          .select("profile_id, first_name, last_name, phone")
+          .in("profile_id", ids)
+      : { data: [] as { profile_id: string; first_name: string; last_name: string; phone: string }[] };
+
+    const detailsMap = new Map((details ?? []).map((d) => [d.profile_id, d]));
+
+    const data = (profiles ?? []).map((profile) => {
+      const d = detailsMap.get(profile.id);
+      const fullName = d
+        ? `${d.first_name} ${d.last_name}`.trim()
+        : profile.full_name;
+      return {
+        id: profile.id,
+        full_name: fullName,
+        phone: d?.phone || profile.phone,
+      };
+    });
+
+    return { success: true as const, data };
   } catch (err) {
     return {
       success: false as const,
@@ -260,6 +286,8 @@ export async function updateOrderStatusAction(
       await restoreOrderStock(supabase, current as Order);
     }
 
+    revalidatePath("/dashboard/orders");
+    revalidatePath(`/orders/${orderId}`);
     return { success: true as const, data: data as Order };
   } catch (err) {
     return {

@@ -15,7 +15,7 @@ import { STOREFRONT_CONTAINER } from "@/config/layout";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
 
-/** Mobile only — desktop uses header nav */
+/** Mobile / tablet app bar — mirrors hamburger destinations; desktop uses header nav */
 export function BottomNav() {
   const pathname = usePathname();
   const { t } = useTranslations();
@@ -29,11 +29,14 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/95 backdrop-blur-md md:hidden">
+    <nav
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-bg-main/95 backdrop-blur-md lg:hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
       <div
         className={cn(
           STOREFRONT_CONTAINER,
-          "flex items-center justify-around py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]",
+          "grid grid-cols-5 items-stretch gap-0.5 py-1.5",
         )}
       >
         {TABS.map((tab) => {
@@ -45,12 +48,18 @@ export function BottomNav() {
               key={tab.href}
               href={tab.href}
               className={cn(
-                "flex min-w-[3rem] flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[10px] transition-colors",
-                active ? "text-accent" : "text-muted",
+                "relative flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-[10px] font-medium transition-colors",
+                active ? "text-accent-teal" : "text-text-secondary",
               )}
             >
+              {active ? (
+                <span
+                  className="absolute inset-x-2 top-0 h-0.5 rounded-full bg-accent-teal"
+                  aria-hidden
+                />
+              ) : null}
               <AppIcon icon={tab.icon} size="md" />
-              <span>{tab.label}</span>
+              <span className="truncate">{tab.label}</span>
             </Link>
           );
         })}

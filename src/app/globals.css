@@ -139,9 +139,13 @@ html.theme-light {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* English body text uses Manrope (Hills Eli Mart brand type); fa/ar stay on Vazirmatn. */
+/* English body text uses Manrope (Hills Eli Mart brand type); fa stays on Vazirmatn. */
 html[lang="en"] {
   --font-app-sans: var(--font-manrope), var(--font-inter), system-ui, sans-serif;
+}
+
+html[lang="ar"] {
+  --font-app-sans: var(--font-plex-sans-arabic), var(--font-manrope), system-ui, sans-serif;
 }
 
 html[lang="en"] h1 {

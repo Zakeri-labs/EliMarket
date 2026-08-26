@@ -3,13 +3,19 @@ import { BRAND_NAME } from "@/config/brand";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: BRAND_NAME,
+    id: "/",
+    name: "Hills Eli Mart",
     short_name: BRAND_NAME,
-    description: "Online supermarket — EliMarket",
+    description: "Online supermarket — Hills Eli Mart",
     start_url: "/",
+    scope: "/",
     display: "standalone",
-    background_color: "#0f0f0f",
-    theme_color: "#0f0f0f",
+    orientation: "portrait-primary",
+    background_color: "#0b1210",
+    theme_color: "#0b1210",
+    lang: "en",
+    dir: "auto",
+    categories: ["shopping", "food"],
     icons: [
       {
         src: "/icon-192.png",
@@ -19,6 +25,18 @@ export default function manifest(): MetadataRoute.Manifest {
       },
       {
         src: "/icon.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/icon-maskable-192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
+        src: "/icon-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

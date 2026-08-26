@@ -4,6 +4,7 @@ import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { generateBlurHashFromBuffer } from "@/lib/images/generate-blur-hash";
 import { removeStudioBackground } from "@/lib/images/remove-studio-background";
+import { enhanceProductImageWithOpenAi } from "@/lib/ai/enhance-product-image";
 import {
   draftCatalogFromImages,
   matchCategoryId,
@@ -85,7 +86,15 @@ export async function processSmartProductDraftAction(input: {
       let processedUrl = originalUrl;
       let blurSource: Buffer = Buffer.from(original.bytes);
       try {
-        const png = await removeStudioBackground(original.bytes);
+        let png: Buffer | null = null;
+        try {
+          png = await enhanceProductImageWithOpenAi(original);
+        } catch {
+          png = null;
+        }
+        if (!png) {
+          png = await removeStudioBackground(original.bytes);
+        }
         processedUrl = await uploadProcessedPng(supabase, png);
         blurSource = Buffer.from(png);
       } catch {
@@ -133,9 +142,19 @@ export async function enhanceProductImageAction(imageUrl: string) {
   try {
     const { supabase } = await requireAdmin();
     const original = await fetchImage(imageUrl);
-    const png = await removeStudioBackground(original.bytes);
-    const url = await uploadProcessedPng(supabase, png);
-    const blurHash = await generateBlurHashFromBuffer(Buffer.from(png));
+
+    let output: Buffer | null = null;
+    try {
+      output = await enhanceProductImageWithOpenAi(original);
+    } catch {
+      output = null;
+    }
+    if (!output) {
+      output = await removeStudioBackground(original.bytes);
+    }
+
+    const url = await uploadProcessedPng(supabase, output);
+    const blurHash = await generateBlurHashFromBuffer(Buffer.from(output));
     return { success: true as const, data: { url, blurHash } };
   } catch (err) {
     return {

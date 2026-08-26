@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Minus, Plus, ShoppingCart, Trash2, Truck } from "lucide-react";
 import { useCartStore } from "@/app/_store/cart-store";
 import { CartGate } from "@/app/(storefront)/_components/CartGate";
+import { StorefrontBreadcrumbs } from "@/app/(storefront)/_components/StorefrontBreadcrumbs";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -73,7 +74,7 @@ function CartPageContent() {
   if (items.length === 0) {
     return (
       <main className="flex flex-1 flex-col py-4 md:py-6" dir={dir}>
-        <h1 className="mb-4 hidden text-xl font-bold md:block">{t("cart.title")}</h1>
+        <h1 className="mb-4 hidden text-xl font-bold lg:block">{t("cart.title")}</h1>
         <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border p-8 text-center">
           <AppIcon icon={ShoppingCart} size="2xl" className="text-muted" />
           <p className="mt-4 text-muted">{t("cart.empty")}</p>
@@ -88,7 +89,7 @@ function CartPageContent() {
   return (
     <main className="flex min-h-0 flex-1 flex-col md:py-6" dir={dir}>
       {/* Mobile layout */}
-      <div className="flex min-h-0 flex-1 flex-col md:hidden">
+      <div className="flex min-h-0 flex-1 flex-col lg:hidden">
         <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-1">
           <h1 className="truncate text-base font-bold">
             {t("cart.titleWithCount", { count: itemCount })}
@@ -225,8 +226,14 @@ function CartPageContent() {
       </div>
 
       {/* Desktop layout */}
-      <div className="hidden md:block">
-        <h1 className="mb-4 text-xl font-bold">{t("cart.title")}</h1>
+      <div className="hidden lg:block">
+        <StorefrontBreadcrumbs
+          items={[
+            { label: t("product.breadcrumbHome"), href: "/" },
+            { label: t("cart.title") },
+          ]}
+        />
+        <h1 className="mb-4 text-xl font-bold md:text-2xl">{t("cart.title")}</h1>
         <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
           <div className="lg:col-span-2">
             {!hasFreeDelivery && (

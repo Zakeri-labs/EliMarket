@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import {
   Cormorant_Garamond,
   IBM_Plex_Mono,
+  IBM_Plex_Sans_Arabic,
   Inter,
   Manrope,
   Playfair_Display,
@@ -44,6 +45,13 @@ const vazirmatn = Vazirmatn({
   display: "swap",
 });
 
+const plexSansArabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-sans-arabic",
+  display: "swap",
+});
+
 const manrope = Manrope({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -71,6 +79,9 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: dark)", color: "#0b1210" },
   ],
   colorScheme: "dark light",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -87,6 +98,7 @@ export async function generateMetadata(): Promise<Metadata> {
     icons: {
       icon: [
         { url: "/favicon.ico", sizes: "any" },
+        { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
         { url: "/icon.png", sizes: "512x512", type: "image/png" },
       ],
       apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
@@ -94,7 +106,11 @@ export async function generateMetadata(): Promise<Metadata> {
     appleWebApp: {
       capable: true,
       statusBarStyle: "black-translucent",
-      title: BRAND_NAME_FA,
+      title: "Hills Eli Mart",
+    },
+    applicationName: "Hills Eli Mart",
+    formatDetection: {
+      telephone: false,
     },
   };
 }
@@ -111,7 +127,7 @@ export default async function RootLayout({
       lang={locale}
       dir={getDirection(locale)}
       suppressHydrationWarning
-      className={`${playfair.variable} ${inter.variable} ${vazirmatn.variable} ${manrope.variable} ${cormorant.variable} ${plexMono.variable} theme-${theme} flex h-full flex-col antialiased`}
+      className={`${playfair.variable} ${inter.variable} ${vazirmatn.variable} ${plexSansArabic.variable} ${manrope.variable} ${cormorant.variable} ${plexMono.variable} theme-${theme} flex h-full flex-col antialiased`}
     >
       <body className="flex min-h-0 flex-1 flex-col bg-background text-foreground">
         <QueryProvider>

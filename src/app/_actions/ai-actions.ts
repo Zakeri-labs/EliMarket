@@ -1,13 +1,15 @@
 "use server";
 
-import { publicEnv } from "@/config/env";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
 import {
   buildProductDescriptionStub,
   type ProductDescriptionsI18n,
 } from "@/lib/ai/product-description-stub";
+import { generateProductDescriptionsWithOpenAi } from "@/lib/ai/generate-product-description";
+import { hasOpenAiApiKey } from "@/lib/ai/openai-client";
 import { enhanceProductImageAction } from "@/app/_actions/smart-product-actions";
+import { publicEnv } from "@/config/env";
 
 async function callEdgeFunction(
   name: string,
@@ -50,12 +52,12 @@ function normalizeAiDescriptions(
   };
 }
 
-/** Enhance product photo: strip studio background when possible. */
+/** Enhance product photo via OpenAI (when configured) or local background cleanup. */
 export async function editProductImageWithAiAction(imageUrl: string) {
   return enhanceProductImageAction(imageUrl);
 }
 
-/** Generate product descriptions in FA, AR, and EN */
+/** Generate product descriptions in FA, AR, and EN (OpenAI first). */
 export async function generateProductDescriptionAction(input: {
   name: string;
   category?: string;
@@ -63,6 +65,17 @@ export async function generateProductDescriptionAction(input: {
   try {
     await requireAdmin();
     const fallback = buildProductDescriptionStub(input);
+
+    if (hasOpenAiApiKey()) {
+      try {
+        const fromOpenAi = await generateProductDescriptionsWithOpenAi(input);
+        if (fromOpenAi) {
+          return { success: true as const, data: fromOpenAi };
+        }
+      } catch {
+        // fall through
+      }
+    }
 
     try {
       const result = (await callEdgeFunction("generate-product-description", input)) as Record<

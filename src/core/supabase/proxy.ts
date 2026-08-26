@@ -31,46 +31,60 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Refresh session via JWT claims (recommended for Next.js proxy).
   const { data: claimsData } = await supabase.auth.getClaims();
   const userId = claimsData?.claims?.sub ?? null;
 
   const pathname = request.nextUrl.pathname;
   const isAdminRoute =
     pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+  const isRiderRoute = pathname.startsWith("/rider");
+  const isRiderLogin = pathname === "/rider/login";
   const isLoginPage = pathname === "/login";
 
-  if (isAdminRoute && !userId) {
+  if ((isAdminRoute || (isRiderRoute && !isRiderLogin)) && !userId) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = isRiderRoute ? "/rider/login" : "/login";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 
-  if (isLoginPage && userId) {
+  if (userId && (isLoginPage || isRiderLogin || isAdminRoute || isRiderRoute)) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", userId)
       .maybeSingle();
+    const role = profile?.role;
 
-    if (profile?.role === "admin") {
+    if (isLoginPage) {
+      if (role === "admin") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        return NextResponse.redirect(url);
+      }
+      if (role === "rider") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/rider";
+        return NextResponse.redirect(url);
+      }
+    }
+
+    if (isRiderLogin && role === "rider") {
       const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
+      url.pathname = "/rider";
       return NextResponse.redirect(url);
     }
-  }
 
-  if (isAdminRoute && userId) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .maybeSingle();
-
-    if (profile?.role !== "admin") {
+    if (isAdminRoute && role !== "admin") {
       const url = request.nextUrl.clone();
-      url.pathname = "/login";
+      url.pathname = role === "rider" ? "/rider" : "/login";
+      url.searchParams.set("error", "forbidden");
+      return NextResponse.redirect(url);
+    }
+
+    if (isRiderRoute && !isRiderLogin && role !== "rider") {
+      const url = request.nextUrl.clone();
+      url.pathname = role === "admin" ? "/dashboard" : "/rider/login";
       url.searchParams.set("error", "forbidden");
       return NextResponse.redirect(url);
     }

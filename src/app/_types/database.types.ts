@@ -26,7 +26,21 @@ export type Profile = {
   phone: string | null;
   full_name: string | null;
   role: UserRole;
+  avatar_url: string | null;
+  avatar_blur_hash: string | null;
   created_at: string;
+};
+
+/** Oman rider KYC — civil_id is رقم مدني (Civil Number) */
+export type RiderProfile = {
+  profile_id: string;
+  first_name: string;
+  last_name: string;
+  civil_id: string;
+  phone: string;
+  address_line: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Category = {
@@ -182,6 +196,8 @@ export type Store = {
 export type StoreSettings = {
   id: string;
   show_prices: boolean;
+  /** Tabs + frequently-bought block on product detail pages */
+  show_product_detail_extras: boolean;
   updated_at: string;
   hero_badge: string | null;
   hero_title: string | null;
@@ -234,6 +250,17 @@ export type Order = {
   order_items?: OrderItem[];
   address?: Address | null;
   customer?: Pick<Profile, "id" | "full_name" | "phone"> | null;
+};
+
+export type AdminNotification = {
+  id: string;
+  recipient_id: string;
+  type: string;
+  title: string;
+  body: string;
+  order_id: string | null;
+  read_at: string | null;
+  created_at: string;
 };
 
 export type Payment = {

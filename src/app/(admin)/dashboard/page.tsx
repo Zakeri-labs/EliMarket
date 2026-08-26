@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AlertTriangle, ShoppingBag } from "lucide-react";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { PriceVisibilityToggle } from "@/app/(admin)/_components/PriceVisibilityToggle";
+import { ProductDetailExtrasToggle } from "@/app/(admin)/_components/ProductDetailExtrasToggle";
 import { DashboardCharts } from "@/app/(admin)/dashboard/_components/DashboardCharts";
 import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -170,8 +171,9 @@ export default function AdminDashboardPage() {
           </>
         ) : null}
 
-        <div className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+        <div className="space-y-4 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
           <PriceVisibilityToggle />
+          <ProductDetailExtrasToggle />
         </div>
       </div>
     </AdminShell>

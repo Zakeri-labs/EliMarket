@@ -7,6 +7,7 @@ import { StripePlaceholder } from "@/components/ui/StripePlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { Price } from "@/components/ui/Price";
+import { ProductCartQtyControl } from "@/app/(storefront)/_components/ProductCartQtyControl";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
 import { productCover } from "@/lib/products/gallery";
@@ -50,42 +51,54 @@ export function ProductDealCard({
       )}
       aria-busy={isSkeleton}
     >
-      <Link
-        href={isSkeleton ? "#" : `/products/${product.slug}`}
-        className="relative block shrink-0"
-        onClick={(e) => {
-          if (isSkeleton) e.preventDefault();
-        }}
-      >
-        {!isSkeleton && discountBadge && (
-          <span className="absolute start-0 top-0 z-10 rounded-md bg-accent-gold px-1.5 py-0.5 text-[10px] font-semibold text-bg-main">
-            {discountBadge}
-          </span>
-        )}
-        <div
-          className={cn(
-            "relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl",
-            testWhiteBg ? "bg-white" : "bg-transparent",
-          )}
+      <div className="relative shrink-0">
+        <Link
+          href={isSkeleton ? "#" : `/products/${product.slug}`}
+          className="relative block"
+          onClick={(e) => {
+            if (isSkeleton) e.preventDefault();
+          }}
         >
-          {isSkeleton ? (
-            <SkeletonImage />
-          ) : cover ? (
-            <StorefrontImage
-              src={cover.image_url}
-              blurHash={cover.blur_hash}
-              alt={product.name}
-              fill
-              priority={priority}
-              sizes={layout === "grid" ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" : "160px"}
-              withBlur={false}
-              className="bg-transparent object-contain"
-            />
-          ) : (
-            <StripePlaceholder className="absolute inset-0" />
+          {!isSkeleton && discountBadge && (
+            <span className="absolute start-0 top-0 z-10 rounded-md bg-accent-gold px-1.5 py-0.5 text-[10px] font-semibold text-bg-main">
+              {discountBadge}
+            </span>
           )}
-        </div>
-      </Link>
+          <div
+            className={cn(
+              "relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl",
+              testWhiteBg ? "bg-white" : "bg-transparent",
+            )}
+          >
+            {isSkeleton ? (
+              <SkeletonImage />
+            ) : cover ? (
+              <StorefrontImage
+                src={cover.image_url}
+                blurHash={cover.blur_hash}
+                alt={product.name}
+                fill
+                priority={priority}
+                sizes={
+                  layout === "grid"
+                    ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    : "160px"
+                }
+                withBlur={false}
+                className="bg-transparent object-contain"
+              />
+            ) : (
+              <StripePlaceholder className="absolute inset-0" />
+            )}
+          </div>
+        </Link>
+
+        {!isSkeleton ? (
+          <div className="absolute bottom-1.5 end-1.5 z-20">
+            <ProductCartQtyControl product={product} />
+          </div>
+        ) : null}
+      </div>
 
       <div className="mt-2 flex min-h-0 flex-1 flex-col text-start">
         <p className="line-clamp-2 min-h-8 text-xs font-medium leading-4 lg:text-sm lg:font-semibold">
@@ -123,4 +136,3 @@ export function ProductDealCard({
     </article>
   );
 }
-

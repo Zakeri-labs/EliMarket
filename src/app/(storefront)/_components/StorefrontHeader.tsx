@@ -13,15 +13,17 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { CategoryNav } from "@/app/(storefront)/_components/CategoryNav";
 import { DeliverToDropdown } from "@/app/(storefront)/_components/DeliverToDropdown";
+import { MobileMenuDrawer } from "@/app/(storefront)/_components/MobileMenuDrawer";
 import { StorefrontSearchBar } from "@/app/(storefront)/_components/StorefrontSearchBar";
 import { UtilityBar } from "@/app/(storefront)/_components/UtilityBar";
+import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { useTranslations } from "@/i18n/use-translations";
 import { LOCALE_SHORT, LOCALES } from "@/i18n/config";
 
 /**
  * Main storefront header.
  * Desktop (≥1024px): UtilityBar → one 80px main row (logo | deliver | search | account/cart) → CategoryNav.
- * Mobile: compact bar only. Never duplicates the desktop main row.
+ * Mobile: compact bar + hamburger drawer. Never duplicates the desktop main row.
  */
 export function StorefrontHeader() {
   const pathname = usePathname();
@@ -32,10 +34,15 @@ export function StorefrontHeader() {
   const { t, messages, locale } = useTranslations();
   const setLocale = useLocaleStore((s) => s.setLocale);
   const [mounted, setMounted] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   const brandClass =
     locale === "ar"
@@ -53,13 +60,15 @@ export function StorefrontHeader() {
       {/* Mobile only */}
       <div className={cn(STOREFRONT_CONTAINER, "border-b border-border-subtle py-3 lg:hidden")}>
         <div className="flex items-center justify-between gap-3">
-          <Link
-            href="/categories"
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-border-subtle bg-bg-card"
-            aria-label={t("nav.categories")}
+            aria-label={t("nav.menu")}
+            aria-expanded={menuOpen}
           >
             <AppIcon icon={Menu} size="md" />
-          </Link>
+          </button>
           <Link href="/" className="min-w-0 flex-1 text-center">
             <p className={cn("truncate text-base", brandClass)}>
               {messages.brand.nameLocal}
@@ -107,6 +116,8 @@ export function StorefrontHeader() {
         </div>
       </div>
 
+      <MobileMenuDrawer open={menuOpen} onOpenChange={setMenuOpen} />
+
       {/* Desktop only — min-width 1024px (lg) */}
       <div className="hidden lg:block">
         <UtilityBar />
@@ -137,13 +148,27 @@ export function StorefrontHeader() {
 
           {/* 4) Account + Cart — hide "Sign in" when authenticated */}
           <div className="flex w-[260px] shrink-0 items-center justify-end gap-4">
-            <Link href="/account" className="min-w-0 shrink-0 text-start leading-tight">
-              <span className="block text-[11px] text-text-secondary">{t("nav.account")}</span>
-              <span
-                suppressHydrationWarning
-                className="block max-w-[9rem] truncate text-[14px] font-bold text-text-primary"
-              >
-                {accountPrimary}
+            <Link href="/account" className="flex min-w-0 shrink-0 items-center gap-2.5 text-start leading-tight">
+              {isLoggedIn && session?.avatarUrl ? (
+                <span className="relative hidden h-9 w-9 shrink-0 overflow-hidden rounded-full bg-accent/20 sm:block">
+                  <StorefrontImage
+                    src={session.avatarUrl}
+                    blurHash={session.avatarBlurHash}
+                    alt=""
+                    fill
+                    sizes="36px"
+                    className="object-cover"
+                  />
+                </span>
+              ) : null}
+              <span className="min-w-0">
+                <span className="block text-[11px] text-text-secondary">{t("nav.account")}</span>
+                <span
+                  suppressHydrationWarning
+                  className="block max-w-[9rem] truncate text-[14px] font-bold text-text-primary"
+                >
+                  {accountPrimary}
+                </span>
               </span>
             </Link>
             <Link

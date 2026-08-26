@@ -19,6 +19,7 @@ import {
   Users,
   Star,
   MessageCircleQuestion,
+  Bike,
   type LucideIcon,
 } from "lucide-react";
 import { signOutAction } from "@/app/_actions/auth-actions";
@@ -27,6 +28,8 @@ import { useUiStore } from "@/app/_store/ui-store";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { cn } from "@/app/utils/cn";
 import { PriceVisibilityToggle } from "@/app/(admin)/_components/PriceVisibilityToggle";
+import { ProductDetailExtrasToggle } from "@/app/(admin)/_components/ProductDetailExtrasToggle";
+import { AdminNotificationBell } from "@/app/(admin)/_components/AdminNotificationBell";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { LanguageTabs } from "@/components/i18n/LanguageTabs";
 import { Button } from "@/components/ui/Button";
@@ -62,6 +65,7 @@ const NAV_GROUPS: NavGroup[] = [
     groupKey: "admin.navGroups.operations",
     items: [
       { href: "/dashboard/orders", key: "admin.nav.orders", icon: ClipboardList },
+      { href: "/dashboard/riders", key: "admin.nav.riders", icon: Bike },
       { href: "/dashboard/coverage-area", key: "admin.nav.coverage", icon: MapPin },
     ],
   },
@@ -198,7 +202,9 @@ export function AdminShell({
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-3">
+              <AdminNotificationBell />
               <PriceVisibilityToggle compact />
+              <ProductDetailExtrasToggle compact />
               <LanguageTabs
                 compact
                 className="border-[#e4e4e7] bg-[#fafafa] [&_button[aria-selected=true]]:bg-[#6b8f71] [&_button[aria-selected=true]]:text-white"

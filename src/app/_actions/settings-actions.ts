@@ -15,6 +15,7 @@ const SETTINGS_ID = "default";
 const DEFAULT_SETTINGS: StoreSettings = {
   id: SETTINGS_ID,
   show_prices: true,
+  show_product_detail_extras: true,
   updated_at: new Date().toISOString(),
   hero_badge: null,
   hero_title: null,
@@ -46,6 +47,7 @@ async function updateStoreSettingsRow(
       .insert({
         id: SETTINGS_ID,
         show_prices: true,
+        show_product_detail_extras: true,
         ...patch,
         updated_at,
       })
@@ -115,6 +117,24 @@ export async function toggleShowPricesAction() {
     return {
       success: false as const,
       error: await actionErrorMessage("errors.priceToggleFailed", err),
+    };
+  }
+}
+
+export async function setShowProductDetailExtrasAction(show: boolean) {
+  try {
+    const { supabase } = await requireAdmin();
+    const data = await updateStoreSettingsRow(supabase, {
+      show_product_detail_extras: show,
+    });
+
+    revalidatePath("/");
+    revalidatePath("/products", "layout");
+    return { success: true as const, data };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.settingsUpdateFailed", err),
     };
   }
 }

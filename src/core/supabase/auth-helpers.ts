@@ -38,6 +38,8 @@ export function mapProfileToSession(
     email: email ?? undefined,
     fullName: profile?.full_name ?? undefined,
     role: profile?.role,
+    avatarUrl: profile?.avatar_url ?? undefined,
+    avatarBlurHash: profile?.avatar_blur_hash ?? undefined,
   };
 }
 

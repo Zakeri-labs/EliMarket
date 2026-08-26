@@ -9,6 +9,7 @@ export type Messages = {
     orders: string;
     account: string;
     cart: string;
+    menu: string;
     searchShortcut: string;
     trackOrder: string;
     help: string;
@@ -223,6 +224,9 @@ export type Messages = {
     installTitle: string;
     installDesc: string;
     dismiss: string;
+    gotIt: string;
+    iosHint: string;
+    iosShare: string;
   };
   categories: {
     title: string;
@@ -257,6 +261,9 @@ export type Messages = {
     setDefault: string;
     defaultBadge: string;
     addNewAddress: string;
+    changeAvatar: string;
+    removeAvatar: string;
+    avatarHint: string;
   };
   orders: {
     title: string;
@@ -304,6 +311,8 @@ export type Messages = {
     coverageSaved: string;
     priceEnabled: string;
     priceDisabled: string;
+    productExtrasShown: string;
+    productExtrasHidden: string;
     riderAssigned: string;
     categoryUpdated: string;
     categoryCreated: string;
@@ -319,6 +328,15 @@ export type Messages = {
     campaignUpdated: string;
     campaignDeleted: string;
     smartProductReady: string;
+    avatarUpdated: string;
+    avatarRemoved: string;
+    orderStatusUpdated: string;
+    orderAccepted: string;
+    orderDelivered: string;
+    orderReturned: string;
+    riderRegistered: string;
+    riderApproved: string;
+    riderRevoked: string;
   };
   errors: {
     operationFailed: string;
@@ -330,6 +348,7 @@ export type Messages = {
     loginFailed: string;
     invalidOtp: string;
     adminForbidden: string;
+    riderForbidden: string;
     invalidCredentials: string;
     signOutFailed: string;
     productsLoadFailed: string;
@@ -341,6 +360,11 @@ export type Messages = {
     productDeleteFailed: string;
     noFileSelected: string;
     imageUploadFailed: string;
+    avatarUploadFailed: string;
+    avatarRemoveFailed: string;
+    avatarRequired: string;
+    avatarInvalidType: string;
+    avatarTooLarge: string;
     fileTooLarge: string;
     ordersLoadFailed: string;
     orderNotFound: string;
@@ -353,6 +377,15 @@ export type Messages = {
     riderAssignFailed: string;
     ridersLoadFailed: string;
     statusUpdateFailed: string;
+    notificationsLoadFailed: string;
+    notificationUpdateFailed: string;
+    notificationDeleteFailed: string;
+    orderAcceptFailed: string;
+    financeLoadFailed: string;
+    riderRegisterFailed: string;
+    riderApproveFailed: string;
+    riderRevokeFailed: string;
+    riderCivilIdInvalid: string;
     reportLoadFailed: string;
     settingsLoadFailed: string;
     settingsUpdateFailed: string;
@@ -427,6 +460,7 @@ export type Messages = {
       reports: string;
       coverage: string;
       customers: string;
+      riders: string;
       smartProduct: string;
       reviews: string;
       questions: string;
@@ -751,6 +785,13 @@ export type Messages = {
       payment: string;
       status: Record<string, string>;
     };
+    notifCenter: {
+      title: string;
+      empty: string;
+      markAllRead: string;
+      clearRead: string;
+      newOrderToast: string;
+    };
     reports: {
       title: string;
       subtitle: string;
@@ -790,6 +831,36 @@ export type Messages = {
       colJoined: string;
       entityName: string;
     };
+    riders: {
+      title: string;
+      subtitle: string;
+      registerTitle: string;
+      registerHint: string;
+      register: string;
+      firstName: string;
+      lastName: string;
+      civilId: string;
+      civilIdPlaceholder: string;
+      civilIdHint: string;
+      phone: string;
+      phonePlaceholder: string;
+      address: string;
+      addressPlaceholder: string;
+      approveFormHint: string;
+      listTitle: string;
+      entityName: string;
+      colName: string;
+      colCivilId: string;
+      colPhone: string;
+      colAddress: string;
+      colJoined: string;
+      colActions: string;
+      revoke: string;
+      approveTitle: string;
+      approveHint: string;
+      approveEmpty: string;
+      approve: string;
+    };
     coverage: {
       title: string;
       hint: string;
@@ -808,6 +879,13 @@ export type Messages = {
       confirmOffTitle: string;
       confirmOffDesc: string;
       confirmOffAction: string;
+    };
+    productExtrasToggle: {
+      title: string;
+      onDesc: string;
+      offDesc: string;
+      on: string;
+      off: string;
     };
     payment: {
       cash: string;
@@ -845,6 +923,32 @@ export type Messages = {
   validation: {
     required: string;
   };
+  rider: {
+    panelLabel: string;
+    loginTitle: string;
+    loginSubtitle: string;
+    ordersTitle: string;
+    financeTitle: string;
+    readyTitle: string;
+    readyEmpty: string;
+    activeTitle: string;
+    activeEmpty: string;
+    recentTitle: string;
+    accept: string;
+    markDelivered: string;
+    markUndelivered: string;
+    nav: {
+      orders: string;
+      finance: string;
+    };
+    finance: {
+      deliveredCount: string;
+      totalSales: string;
+      deliveryFees: string;
+      cashCollected: string;
+      hint: string;
+    };
+  };
   meta: {
     siteDescription: string;
     storefrontTitle: string;
@@ -867,6 +971,7 @@ const fa: Messages = {
     orders: "سفارش‌ها",
     account: "حساب",
     cart: "سبد خرید",
+    menu: "منو",
     searchShortcut: "جستجو",
     trackOrder: "پیگیری سفارش",
     help: "راهنما",
@@ -1084,8 +1189,12 @@ const fa: Messages = {
   pwa: {
     install: "نصب برنامه",
     installTitle: "EliMarket را نصب کنید",
-    installDesc: "دسترسی سریع‌تر به فروشگاه، حتی بدون مرورگر",
+    installDesc: "برای دسترسی سریع‌تر مثل یک اپلیکیشن، فروشگاه را روی گوشی نصب کنید.",
     dismiss: "الان نه",
+    gotIt: "متوجه شدم",
+    iosHint:
+      "در Safari روی Share بزنید و گزینه Add to Home Screen را انتخاب کنید تا مثل اپ نصب شود.",
+    iosShare: "Share → Add to Home Screen",
   },
   categories: {
     title: "دسته‌بندی‌ها",
@@ -1120,6 +1229,9 @@ const fa: Messages = {
     setDefault: "تنظیم به‌عنوان پیش‌فرض",
     defaultBadge: "پیش‌فرض",
     addNewAddress: "افزودن آدرس جدید",
+    changeAvatar: "تغییر تصویر",
+    removeAvatar: "حذف تصویر",
+    avatarHint: "برای بهترین کیفیت، تصویر مربعی انتخاب کنید",
   },
   orders: {
     title: "سفارش‌های من",
@@ -1145,8 +1257,11 @@ const fa: Messages = {
       help: "راهنما",
       orderNumber: "سفارش #{id}",
       estimatedDelivery: "تحویل تقریبی: {slot}",
+      onTheWay: "سفارش شما در مسیر است",
+      orderDetails: "جزئیات سفارش",
       itemCount: "{count} قلم سفارش",
       callDriver: "تماس با پیک",
+      contactRider: "تماس با پیک",
       loading: "در حال بارگذاری…",
       error: "خطا",
       back: "بازگشت",
@@ -1195,6 +1310,8 @@ const fa: Messages = {
     coverageSaved: "محدوده ذخیره شد",
     priceEnabled: "نمایش قیمت فعال شد",
     priceDisabled: "نمایش قیمت غیرفعال شد",
+    productExtrasShown: "بخش جزئیات محصول (تب‌ها و خرید همزمان) نمایش داده می‌شود",
+    productExtrasHidden: "بخش جزئیات محصول (تب‌ها و خرید همزمان) مخفی شد",
     riderAssigned: "پیک تخصیص یافت",
     categoryUpdated: "دسته به‌روز شد",
     categoryCreated: "دسته ایجاد شد",
@@ -1210,6 +1327,15 @@ const fa: Messages = {
     campaignUpdated: "کمپین به‌روز شد",
     campaignDeleted: "کمپین حذف شد",
     smartProductReady: "پیش‌نویس محصول آماده شد",
+    avatarUpdated: "تصویر پروفایل به‌روز شد",
+    avatarRemoved: "تصویر پروفایل حذف شد",
+    orderStatusUpdated: "وضعیت سفارش به‌روز شد",
+    orderAccepted: "سفارش پذیرفته شد",
+    orderDelivered: "تحویل ثبت شد",
+    orderReturned: "سفارش به صف آماده برگشت",
+    riderRegistered: "پیک ثبت شد",
+    riderApproved: "پیک تأیید شد",
+    riderRevoked: "دسترسی پیک لغو شد",
   },
   errors: {
     operationFailed: "عملیات ناموفق بود",
@@ -1221,6 +1347,7 @@ const fa: Messages = {
     loginFailed: "ورود ناموفق بود",
     invalidOtp: "کد تأیید نامعتبر است",
     adminForbidden: "این حساب دسترسی ادمین ندارد",
+    riderForbidden: "این حساب دسترسی پیک ندارد",
     invalidCredentials: "نام کاربری یا رمز عبور اشتباه است",
     signOutFailed: "خروج ناموفق بود",
     productsLoadFailed: "بارگذاری محصولات ناموفق بود",
@@ -1232,6 +1359,11 @@ const fa: Messages = {
     productDeleteFailed: "حذف محصول ناموفق بود",
     noFileSelected: "فایلی انتخاب نشده است",
     imageUploadFailed: "آپلود تصویر ناموفق بود",
+    avatarUploadFailed: "آپلود تصویر پروفایل ناموفق بود",
+    avatarRemoveFailed: "حذف تصویر پروفایل ناموفق بود",
+    avatarRequired: "لطفاً یک تصویر انتخاب کنید",
+    avatarInvalidType: "فرمت تصویر پشتیبانی نمی‌شود",
+    avatarTooLarge: "حجم تصویر نباید بیشتر از ۸ مگابایت باشد",
     fileTooLarge: "حجم تصویر بیش از ۱۵ مگابایت است",
     ordersLoadFailed: "بارگذاری سفارش‌ها ناموفق بود",
     orderNotFound: "سفارش یافت نشد",
@@ -1244,6 +1376,15 @@ const fa: Messages = {
     riderAssignFailed: "تخصیص پیک ناموفق بود",
     ridersLoadFailed: "بارگذاری پیک‌ها ناموفق بود",
     statusUpdateFailed: "به‌روزرسانی وضعیت ناموفق بود",
+    notificationsLoadFailed: "بارگذاری اعلان‌ها ناموفق بود",
+    notificationUpdateFailed: "به‌روزرسانی اعلان ناموفق بود",
+    notificationDeleteFailed: "حذف اعلان ناموفق بود",
+    orderAcceptFailed: "قبول سفارش ناموفق بود (شاید قبلاً گرفته شده)",
+    financeLoadFailed: "بارگذاری مالی ناموفق بود",
+    riderRegisterFailed: "ثبت پیک ناموفق بود",
+    riderApproveFailed: "تأیید پیک ناموفق بود",
+    riderCivilIdInvalid: "شماره مدنی نامعتبر است (باید ۸ تا ۱۴ رقم باشد)",
+    riderRevokeFailed: "لغو دسترسی پیک ناموفق بود",
     reportLoadFailed: "بارگذاری گزارش مالی ناموفق بود",
     settingsLoadFailed: "بارگذاری تنظیمات ناموفق بود",
     settingsUpdateFailed: "به‌روزرسانی تنظیمات ناموفق بود",
@@ -1318,6 +1459,7 @@ const fa: Messages = {
       reports: "گزارشات مالی",
       coverage: "محدوده پوشش",
       customers: "مشتریان",
+      riders: "پیک‌ها",
       smartProduct: "ثبت هوشمند",
       reviews: "نظرات مشتریان",
       questions: "پرسش و پاسخ",
@@ -1636,7 +1778,7 @@ const fa: Messages = {
       loading: "بارگذاری…",
       empty: "سفارشی یافت نشد.",
       orderPrefix: "سفارش",
-      riderPlaceholder: "UUID پیک",
+      riderPlaceholder: "انتخاب پیک",
       assignRider: "تخصیص پیک",
       customer: "مشتری",
       payment: "پرداخت",
@@ -1648,6 +1790,13 @@ const fa: Messages = {
         delivered: "تحویل",
         cancelled: "لغو",
       },
+    },
+    notifCenter: {
+      title: "اعلان‌ها",
+      empty: "اعلانی نیست",
+      markAllRead: "همه را خواندم",
+      clearRead: "پاک کردن خوانده‌شده‌ها",
+      newOrderToast: "سفارش جدید",
     },
     reports: {
       title: "گزارشات مالی",
@@ -1688,6 +1837,37 @@ const fa: Messages = {
       colJoined: "عضویت",
       entityName: "مشتریان",
     },
+    riders: {
+      title: "مدیریت پیک‌ها",
+      subtitle: "ثبت پیک جدید یا تأیید مشتریان برای نقش پیک",
+      registerTitle: "ثبت‌نام پیک",
+      registerHint:
+        "اطلاعات کامل هویت پیک را وارد کنید؛ بعداً با OTP وارد پنل پیک می‌شود.",
+      register: "ثبت پیک",
+      firstName: "نام",
+      lastName: "نام خانوادگی",
+      civilId: "شماره مدنی (رقم مدني)",
+      civilIdPlaceholder: "مثلاً ۱۲۳۴۵۶۷۸",
+      civilIdHint: "معادل کد ملی در عمان — Civil Number روی کارت شناسایی",
+      phone: "شماره تماس",
+      phonePlaceholder: "مثلاً +9689xxxxxxx",
+      address: "آدرس",
+      addressPlaceholder: "آدرس محل سکونت یا محل کار پیک",
+      approveFormHint: "قبل از تأیید، همه فیلدهای هویت پیک الزامی است.",
+      listTitle: "پیک‌های فعال",
+      entityName: "پیک‌ها",
+      colName: "نام",
+      colCivilId: "شماره مدنی",
+      colPhone: "تلفن",
+      colAddress: "آدرس",
+      colJoined: "عضویت",
+      colActions: "عملیات",
+      revoke: "لغو نقش پیک",
+      approveTitle: "تأیید از بین مشتریان",
+      approveHint: "مشتریانی که قبلاً وارد شده‌اند را می‌توانید به پیک تبدیل کنید.",
+      approveEmpty: "مشتری قابل تأییدی نیست.",
+      approve: "تأیید به‌عنوان پیک",
+    },
     coverage: {
       title: "محدوده پوشش",
       hint: "روی نقشه کلیک کنید تا رئوس چندضلعی را اضافه کنید. حداقل ۳ نقطه لازم است.",
@@ -1706,6 +1886,13 @@ const fa: Messages = {
       confirmOffTitle: "قیمت‌ها در کل فروشگاه مخفی بشه؟",
       confirmOffDesc: "با این کار قیمت محصولات برای همه‌ی مشتریان مخفی و سبد خرید غیرفعال می‌شود.",
       confirmOffAction: "بله، مخفی کن",
+    },
+    productExtrasToggle: {
+      title: "تب‌ها و خرید همزمان در صفحه محصول",
+      onDesc: "مشخصات، نظرات، سوالات، محصولات مشابه و خرید همزمان نمایش داده می‌شود",
+      offDesc: "این بخش‌ها در صفحه جزئیات محصول مخفی هستند",
+      on: "جزئیات: روشن",
+      off: "جزئیات: خاموش",
     },
     payment: { cash: "نقدی", online: "آنلاین" },
     status: {
@@ -1745,6 +1932,29 @@ const fa: Messages = {
     defaultEntity: "داده",
   },
   validation: { required: "این فیلد الزامی است" },
+  rider: {
+    panelLabel: "پنل پیک",
+    loginTitle: "ورود پیک",
+    loginSubtitle: "با شماره موبایل و کد یکبارمصرف وارد شوید",
+    ordersTitle: "سفارش‌های پیک",
+    financeTitle: "مدیریت مالی",
+    readyTitle: "آماده تحویل",
+    readyEmpty: "سفارش آماده‌ای در صف نیست",
+    activeTitle: "در مسیر من",
+    activeEmpty: "سفارش فعالی ندارید",
+    recentTitle: "اخیر",
+    accept: "قبول سفارش",
+    markDelivered: "تحویل شد",
+    markUndelivered: "تحویل نشد",
+    nav: { orders: "سفارش‌ها", finance: "مالی" },
+    finance: {
+      deliveredCount: "تعداد تحویل",
+      totalSales: "جمع مبلغ سفارش‌ها",
+      deliveryFees: "جمع هزینه ارسال",
+      cashCollected: "نقدی وصول‌شده",
+      hint: "فقط سفارش‌های تحویل‌شدهٔ همین حساب پیک محاسبه می‌شوند.",
+    },
+  },
   meta: {
     siteDescription: "خرید آنلاین — EliMarket",
     storefrontTitle: "فروشگاه",
@@ -1767,6 +1977,7 @@ const ar: Messages = {
     orders: "الطلبات",
     account: "الحساب",
     cart: "سلة التسوق",
+    menu: "القائمة",
     searchShortcut: "بحث",
     trackOrder: "تتبع الطلب",
     help: "مساعدة",
@@ -1984,8 +2195,12 @@ const ar: Messages = {
   pwa: {
     install: "تثبيت التطبيق",
     installTitle: "ثبّت إلي ماركت",
-    installDesc: "وصول أسرع إلى المتجر حتى بدون المتصفح",
+    installDesc: "ثبّت المتجر على هاتفك للوصول السريع مثل تطبيق حقيقي.",
     dismiss: "لاحقاً",
+    gotIt: "حسناً",
+    iosHint:
+      "في Safari اضغط مشاركة ثم اختر Add to Home Screen لتثبيته كتطبيق.",
+    iosShare: "Share → Add to Home Screen",
   },
   categories: {
     title: "الفئات",
@@ -2020,6 +2235,9 @@ const ar: Messages = {
     setDefault: "تعيين كافتراضي",
     defaultBadge: "افتراضي",
     addNewAddress: "إضافة عنوان جديد",
+    changeAvatar: "تغيير الصورة",
+    removeAvatar: "حذف الصورة",
+    avatarHint: "لأفضل جودة، اختر صورة مربعة",
   },
   orders: {
     title: "طلباتي",
@@ -2045,8 +2263,11 @@ const ar: Messages = {
       help: "مساعدة",
       orderNumber: "طلب #{id}",
       estimatedDelivery: "التوصيل المتوقع: {slot}",
+      onTheWay: "طلبك في الطريق",
+      orderDetails: "تفاصيل الطلب",
       itemCount: "{count} عناصر",
       callDriver: "اتصل بالسائق",
+      contactRider: "اتصل بالسائق",
       loading: "جاري التحميل…",
       error: "خطأ",
       back: "رجوع",
@@ -2095,6 +2316,8 @@ const ar: Messages = {
     coverageSaved: "تم حفظ نطاق التغطية",
     priceEnabled: "تم تفعيل عرض الأسعار",
     priceDisabled: "تم إيقاف عرض الأسعار",
+    productExtrasShown: "يظهر قسم تفاصيل المنتج (التبويبات والمنتجات المقترنة)",
+    productExtrasHidden: "تم إخفاء قسم تفاصيل المنتج (التبويبات والمنتجات المقترنة)",
     riderAssigned: "تم تعيين السائق",
     categoryUpdated: "تم تحديث الفئة",
     categoryCreated: "تم إنشاء الفئة",
@@ -2110,6 +2333,15 @@ const ar: Messages = {
     campaignUpdated: "تم تحديث الحملة",
     campaignDeleted: "تم حذف الحملة",
     smartProductReady: "أصبحت مسودة المنتج جاهزة",
+    avatarUpdated: "تم تحديث صورة الملف الشخصي",
+    avatarRemoved: "تم حذف صورة الملف الشخصي",
+    orderStatusUpdated: "تم تحديث حالة الطلب",
+    orderAccepted: "تم قبول الطلب",
+    orderDelivered: "تم تسجيل التسليم",
+    orderReturned: "أُعيد الطلب إلى قائمة الجاهز",
+    riderRegistered: "تم تسجيل السائق",
+    riderApproved: "تم اعتماد السائق",
+    riderRevoked: "تم إلغاء صلاحية السائق",
   },
   errors: {
     operationFailed: "فشلت العملية",
@@ -2121,6 +2353,7 @@ const ar: Messages = {
     loginFailed: "فشل تسجيل الدخول",
     invalidOtp: "رمز التحقق غير صالح",
     adminForbidden: "هذا الحساب لا يملك صلاحية الإدارة",
+    riderForbidden: "هذا الحساب لا يملك صلاحية السائق",
     invalidCredentials: "اسم المستخدم أو كلمة المرور غير صحيحة",
     signOutFailed: "فشل تسجيل الخروج",
     productsLoadFailed: "فشل تحميل المنتجات",
@@ -2132,6 +2365,11 @@ const ar: Messages = {
     productDeleteFailed: "فشل حذف المنتج",
     noFileSelected: "لم يتم اختيار ملف",
     imageUploadFailed: "فشل رفع الصورة",
+    avatarUploadFailed: "فشل رفع صورة الملف الشخصي",
+    avatarRemoveFailed: "فشل حذف صورة الملف الشخصي",
+    avatarRequired: "يرجى اختيار صورة",
+    avatarInvalidType: "صيغة الصورة غير مدعومة",
+    avatarTooLarge: "يجب ألا يتجاوز حجم الصورة ٨ ميغابايت",
     fileTooLarge: "حجم الصورة يتجاوز 15 ميغابايت",
     ordersLoadFailed: "فشل تحميل الطلبات",
     orderNotFound: "الطلب غير موجود",
@@ -2144,6 +2382,15 @@ const ar: Messages = {
     riderAssignFailed: "فشل تعيين السائق",
     ridersLoadFailed: "فشل تحميل السائقين",
     statusUpdateFailed: "فشل تحديث الحالة",
+    notificationsLoadFailed: "فشل تحميل الإشعارات",
+    notificationUpdateFailed: "فشل تحديث الإشعار",
+    notificationDeleteFailed: "فشل حذف الإشعار",
+    orderAcceptFailed: "فشل قبول الطلب (ربما سبق استلامه)",
+    financeLoadFailed: "فشل تحميل البيانات المالية",
+    riderRegisterFailed: "فشل تسجيل السائق",
+    riderApproveFailed: "فشل اعتماد السائق",
+    riderCivilIdInvalid: "الرقم المدني غير صالح (يجب أن يكون من ٨ إلى ١٤ رقماً)",
+    riderRevokeFailed: "فشل إلغاء صلاحية السائق",
     reportLoadFailed: "فشل تحميل التقرير المالي",
     settingsLoadFailed: "فشل تحميل الإعدادات",
     settingsUpdateFailed: "فشل تحديث الإعدادات",
@@ -2218,6 +2465,7 @@ const ar: Messages = {
       reports: "التقارير المالية",
       coverage: "نطاق التغطية",
       customers: "العملاء",
+      riders: "السائقون",
       smartProduct: "تسجيل ذكي",
       reviews: "تقييمات العملاء",
       questions: "الأسئلة والأجوبة",
@@ -2536,7 +2784,7 @@ const ar: Messages = {
       loading: "جاري التحميل…",
       empty: "لا توجد طلبات.",
       orderPrefix: "طلب",
-      riderPlaceholder: "UUID السائق",
+      riderPlaceholder: "اختر السائق",
       assignRider: "تعيين سائق",
       customer: "العميل",
       payment: "الدفع",
@@ -2548,6 +2796,13 @@ const ar: Messages = {
         delivered: "تم التسليم",
         cancelled: "ملغى",
       },
+    },
+    notifCenter: {
+      title: "الإشعارات",
+      empty: "لا توجد إشعارات",
+      markAllRead: "تعليم الكل كمقروء",
+      clearRead: "حذف المقروءة",
+      newOrderToast: "طلب جديد",
     },
     reports: {
       title: "التقارير المالية",
@@ -2588,6 +2843,37 @@ const ar: Messages = {
       colJoined: "الانضمام",
       entityName: "العملاء",
     },
+    riders: {
+      title: "إدارة السائقين",
+      subtitle: "تسجيل سائق جديد أو اعتماد العملاء كسائقين",
+      registerTitle: "تسجيل سائق",
+      registerHint:
+        "أدخل بيانات هوية السائق كاملة؛ سيدخل لاحقاً بلوحة السائق عبر رمز التحقق.",
+      register: "تسجيل السائق",
+      firstName: "الاسم الأول",
+      lastName: "اسم العائلة",
+      civilId: "الرقم المدني",
+      civilIdPlaceholder: "مثال: 12345678",
+      civilIdHint: "رقم الهوية المدنية في عُمان (Civil Number)",
+      phone: "رقم الاتصال",
+      phonePlaceholder: "مثال: +9689xxxxxxx",
+      address: "العنوان",
+      addressPlaceholder: "عنوان السكن أو العمل",
+      approveFormHint: "جميع حقول هوية السائق مطلوبة قبل الاعتماد.",
+      listTitle: "السائقون النشطون",
+      entityName: "السائقون",
+      colName: "الاسم",
+      colCivilId: "الرقم المدني",
+      colPhone: "الهاتف",
+      colAddress: "العنوان",
+      colJoined: "الانضمام",
+      colActions: "إجراءات",
+      revoke: "إلغاء دور السائق",
+      approveTitle: "الاعتماد من العملاء",
+      approveHint: "يمكن تحويل العملاء المسجّلين مسبقاً إلى سائقين.",
+      approveEmpty: "لا يوجد عملاء لل اعتماد.",
+      approve: "اعتماد كسائق",
+    },
     coverage: {
       title: "نطاق التغطية",
       hint: "انقر على الخريطة لإضافة رؤوس المضلع. يلزم ٣ نقاط على الأقل.",
@@ -2606,6 +2892,13 @@ const ar: Messages = {
       confirmOffTitle: "هل تريد إخفاء الأسعار في كل المتجر؟",
       confirmOffDesc: "سيؤدي هذا إلى إخفاء أسعار المنتجات لجميع العملاء وتعطيل سلة التسوق.",
       confirmOffAction: "نعم، أخفِ الأسعار",
+    },
+    productExtrasToggle: {
+      title: "التبويبات والمنتجات المقترنة في صفحة المنتج",
+      onDesc: "تظهر المواصفات والتقييمات والأسئلة والمنتجات المشابهة والمقترنة",
+      offDesc: "هذه الأقسام مخفية في صفحة تفاصيل المنتج",
+      on: "التفاصيل: تشغيل",
+      off: "التفاصيل: إيقاف",
     },
     payment: { cash: "نقدي", online: "إلكتروني" },
     status: {
@@ -2645,6 +2938,29 @@ const ar: Messages = {
     defaultEntity: "بيانات",
   },
   validation: { required: "هذا الحقل مطلوب" },
+  rider: {
+    panelLabel: "لوحة السائق",
+    loginTitle: "دخول السائق",
+    loginSubtitle: "سجّل الدخول برقم الجوال ورمز التحقق",
+    ordersTitle: "طلبات السائق",
+    financeTitle: "الإدارة المالية",
+    readyTitle: "جاهز للتسليم",
+    readyEmpty: "لا توجد طلبات جاهزة في القائمة",
+    activeTitle: "في طريقي",
+    activeEmpty: "لا توجد طلبات نشطة",
+    recentTitle: "الأخيرة",
+    accept: "قبول الطلب",
+    markDelivered: "تم التسليم",
+    markUndelivered: "لم يتم التسليم",
+    nav: { orders: "الطلبات", finance: "المالية" },
+    finance: {
+      deliveredCount: "عدد التسليمات",
+      totalSales: "إجمالي مبالغ الطلبات",
+      deliveryFees: "إجمالي رسوم التوصيل",
+      cashCollected: "النقد المحصّل",
+      hint: "تُحسب فقط الطلبات المسلّمة لهذا السائق.",
+    },
+  },
   meta: {
     siteDescription: "تسوق إلكتروني — إلي ماركت",
     storefrontTitle: "المتجر",
@@ -2667,6 +2983,7 @@ const en: Messages = {
     orders: "Orders",
     account: "Account",
     cart: "Cart",
+    menu: "Menu",
     searchShortcut: "Search",
     trackOrder: "Track order",
     help: "Help",
@@ -2884,8 +3201,12 @@ const en: Messages = {
   pwa: {
     install: "Install app",
     installTitle: "Install EliMarket",
-    installDesc: "Faster access to the store, even without the browser",
+    installDesc: "Install the store on your phone for faster access like a real app.",
     dismiss: "Not now",
+    gotIt: "Got it",
+    iosHint:
+      "In Safari, tap Share and choose Add to Home Screen to install it like an app.",
+    iosShare: "Share → Add to Home Screen",
   },
   categories: {
     title: "Categories",
@@ -2920,6 +3241,9 @@ const en: Messages = {
     setDefault: "Set as default",
     defaultBadge: "Default",
     addNewAddress: "Add new address",
+    changeAvatar: "Change photo",
+    removeAvatar: "Remove photo",
+    avatarHint: "For best results, choose a square photo",
   },
   orders: {
     title: "My orders",
@@ -2945,8 +3269,11 @@ const en: Messages = {
       help: "Help",
       orderNumber: "Order #{id}",
       estimatedDelivery: "Estimated delivery: {slot}",
+      onTheWay: "Your order is on the way",
+      orderDetails: "Order Details",
       itemCount: "{count} items",
       callDriver: "Call driver",
+      contactRider: "Contact Rider",
       loading: "Loading…",
       error: "Error",
       back: "Back",
@@ -2995,6 +3322,8 @@ const en: Messages = {
     coverageSaved: "Coverage area saved",
     priceEnabled: "Price display enabled",
     priceDisabled: "Price display disabled",
+    productExtrasShown: "Product detail tabs and frequently-bought section are visible",
+    productExtrasHidden: "Product detail tabs and frequently-bought section are hidden",
     riderAssigned: "Rider assigned",
     categoryUpdated: "Category updated",
     categoryCreated: "Category created",
@@ -3010,6 +3339,15 @@ const en: Messages = {
     campaignUpdated: "Campaign updated",
     campaignDeleted: "Campaign deleted",
     smartProductReady: "Product draft is ready",
+    avatarUpdated: "Profile photo updated",
+    avatarRemoved: "Profile photo removed",
+    orderStatusUpdated: "Order status updated",
+    orderAccepted: "Order accepted",
+    orderDelivered: "Delivery recorded",
+    orderReturned: "Order returned to ready pool",
+    riderRegistered: "Rider registered",
+    riderApproved: "Rider approved",
+    riderRevoked: "Rider access revoked",
   },
   errors: {
     operationFailed: "Operation failed",
@@ -3021,6 +3359,7 @@ const en: Messages = {
     loginFailed: "Sign-in failed",
     invalidOtp: "Invalid verification code",
     adminForbidden: "This account does not have admin access",
+    riderForbidden: "This account does not have rider access",
     invalidCredentials: "Invalid username or password",
     signOutFailed: "Sign-out failed",
     productsLoadFailed: "Failed to load products",
@@ -3032,6 +3371,11 @@ const en: Messages = {
     productDeleteFailed: "Failed to delete product",
     noFileSelected: "No file selected",
     imageUploadFailed: "Image upload failed",
+    avatarUploadFailed: "Failed to upload profile photo",
+    avatarRemoveFailed: "Failed to remove profile photo",
+    avatarRequired: "Please choose a photo",
+    avatarInvalidType: "Unsupported image format",
+    avatarTooLarge: "Image must be 8 MB or smaller",
     fileTooLarge: "Image exceeds the 15 MB limit",
     ordersLoadFailed: "Failed to load orders",
     orderNotFound: "Order not found",
@@ -3044,6 +3388,15 @@ const en: Messages = {
     riderAssignFailed: "Failed to assign rider",
     ridersLoadFailed: "Failed to load riders",
     statusUpdateFailed: "Failed to update status",
+    notificationsLoadFailed: "Failed to load notifications",
+    notificationUpdateFailed: "Failed to update notification",
+    notificationDeleteFailed: "Failed to delete notification",
+    orderAcceptFailed: "Could not accept order (it may already be taken)",
+    financeLoadFailed: "Failed to load finance summary",
+    riderRegisterFailed: "Failed to register rider",
+    riderApproveFailed: "Failed to approve rider",
+    riderCivilIdInvalid: "Invalid Civil Number (must be 8–14 digits)",
+    riderRevokeFailed: "Failed to revoke rider access",
     reportLoadFailed: "Failed to load financial report",
     settingsLoadFailed: "Failed to load settings",
     settingsUpdateFailed: "Failed to update settings",
@@ -3118,6 +3471,7 @@ const en: Messages = {
       reports: "Financial reports",
       coverage: "Coverage area",
       customers: "Customers",
+      riders: "Riders",
       smartProduct: "Smart listing",
       reviews: "Customer reviews",
       questions: "Questions & answers",
@@ -3436,7 +3790,7 @@ const en: Messages = {
       loading: "Loading…",
       empty: "No orders found.",
       orderPrefix: "Order",
-      riderPlaceholder: "Rider UUID",
+      riderPlaceholder: "Select rider",
       assignRider: "Assign rider",
       customer: "Customer",
       payment: "Payment",
@@ -3448,6 +3802,13 @@ const en: Messages = {
         delivered: "Delivered",
         cancelled: "Cancelled",
       },
+    },
+    notifCenter: {
+      title: "Notifications",
+      empty: "No notifications",
+      markAllRead: "Mark all read",
+      clearRead: "Clear read",
+      newOrderToast: "New order",
     },
     reports: {
       title: "Financial reports",
@@ -3488,6 +3849,37 @@ const en: Messages = {
       colJoined: "Joined",
       entityName: "Customers",
     },
+    riders: {
+      title: "Manage riders",
+      subtitle: "Register a new rider or approve customers as riders",
+      registerTitle: "Register rider",
+      registerHint:
+        "Enter full rider identity details; they sign in later on the rider panel with OTP.",
+      register: "Register rider",
+      firstName: "First name",
+      lastName: "Last name",
+      civilId: "Civil Number",
+      civilIdPlaceholder: "e.g. 12345678",
+      civilIdHint: "Omani Civil Number (رقم مدني) — national ID equivalent",
+      phone: "Phone",
+      phonePlaceholder: "e.g. +9689xxxxxxx",
+      address: "Address",
+      addressPlaceholder: "Home or work address",
+      approveFormHint: "All rider identity fields are required before approval.",
+      listTitle: "Active riders",
+      entityName: "Riders",
+      colName: "Name",
+      colCivilId: "Civil No.",
+      colPhone: "Phone",
+      colAddress: "Address",
+      colJoined: "Joined",
+      colActions: "Actions",
+      revoke: "Revoke rider role",
+      approveTitle: "Approve from customers",
+      approveHint: "Promote existing signed-up customers to riders.",
+      approveEmpty: "No customers available to approve.",
+      approve: "Approve as rider",
+    },
     coverage: {
       title: "Coverage area",
       hint: "Click on the map to add polygon vertices. At least 3 points required.",
@@ -3506,6 +3898,13 @@ const en: Messages = {
       confirmOffTitle: "Hide prices storewide?",
       confirmOffDesc: "This hides product prices for every customer and disables the cart.",
       confirmOffAction: "Yes, hide prices",
+    },
+    productExtrasToggle: {
+      title: "Tabs & bought-together on product page",
+      onDesc: "Specs, reviews, Q&A, similar products, and bought-together are shown",
+      offDesc: "These sections are hidden on the product detail page",
+      on: "Extras: on",
+      off: "Extras: off",
     },
     payment: { cash: "Cash", online: "Online" },
     status: {
@@ -3545,6 +3944,29 @@ const en: Messages = {
     defaultEntity: "Data",
   },
   validation: { required: "This field is required" },
+  rider: {
+    panelLabel: "Rider panel",
+    loginTitle: "Rider sign-in",
+    loginSubtitle: "Sign in with phone number and one-time code",
+    ordersTitle: "Rider orders",
+    financeTitle: "Finance",
+    readyTitle: "Ready for pickup",
+    readyEmpty: "No ready orders in the queue",
+    activeTitle: "On my route",
+    activeEmpty: "No active deliveries",
+    recentTitle: "Recent",
+    accept: "Accept order",
+    markDelivered: "Delivered",
+    markUndelivered: "Not delivered",
+    nav: { orders: "Orders", finance: "Finance" },
+    finance: {
+      deliveredCount: "Deliveries",
+      totalSales: "Order totals",
+      deliveryFees: "Delivery fees",
+      cashCollected: "Cash collected",
+      hint: "Only delivered orders for this rider account are counted.",
+    },
+  },
   meta: {
     siteDescription: "Online shopping — EliMarket",
     storefrontTitle: "Store",

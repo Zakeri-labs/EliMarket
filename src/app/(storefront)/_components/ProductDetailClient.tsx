@@ -239,7 +239,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const [tab, setTab] = useState<"specs" | "reviews" | "questions" | "similar">("specs");
   const { t, locale, dir } = useTranslations();
   const formatPrice = useFormatPrice();
-  const { showPrices } = useStoreSettings();
+  const { showPrices, showProductDetailExtras } = useStoreSettings();
 
   const { data: reviewsSummary } = useQuery({
     queryKey: ["product-reviews", product.id],
@@ -317,7 +317,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   return (
     <main className="flex min-h-0 flex-1 flex-col md:min-h-full md:pb-12" dir={dir}>
       {/* Mobile layout */}
-      <div className="flex min-h-0 flex-1 flex-col md:hidden">
+      <div className="flex min-h-0 flex-1 flex-col lg:hidden">
         <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain">
           <div className={cn("relative", STOREFRONT_CONTAINER_BLEED, isSkeleton && "skeleton")}>
             <div
@@ -492,91 +492,95 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               )}
             </div>
 
-            <div>
-              <div className="flex gap-5 overflow-x-auto whitespace-nowrap border-b border-border text-sm font-medium">
-                <button
-                  type="button"
-                  className={cn(
-                    "-mb-px shrink-0 border-b-2 pb-2.5",
-                    tab === "specs" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
-                  )}
-                  onClick={() => setTab("specs")}
-                >
-                  {t("product.features")}
-                </button>
-                <button
-                  type="button"
-                  className={cn(
-                    "-mb-px shrink-0 border-b-2 pb-2.5",
-                    tab === "reviews" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
-                  )}
-                  onClick={() => setTab("reviews")}
-                >
-                  {t("product.reviewsTab", { count: reviewsCount })}
-                </button>
-                <button
-                  type="button"
-                  className={cn(
-                    "-mb-px shrink-0 border-b-2 pb-2.5",
-                    tab === "questions" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
-                  )}
-                  onClick={() => setTab("questions")}
-                >
-                  {t("product.questionsTab", { count: questionsCount })}
-                </button>
-                <button
-                  type="button"
-                  className={cn(
-                    "-mb-px shrink-0 border-b-2 pb-2.5",
-                    tab === "similar" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
-                  )}
-                  onClick={() => setTab("similar")}
-                >
-                  {t("product.similarProducts")}
-                </button>
-              </div>
-              <div className="pt-4">
-                {tab === "specs" &&
-                  (features.length > 0 ? (
-                    <SpecificationsTable features={features} />
-                  ) : (
-                    <p className="py-4 text-center text-sm text-muted">{t("product.noFeatures")}</p>
-                  ))}
-                {tab === "reviews" && (
-                  <ProductReviewsSection productId={product.id} productSlug={product.slug} />
-                )}
-                {tab === "questions" && (
-                  <ProductQuestionsSection productId={product.id} productSlug={product.slug} />
-                )}
-                {tab === "similar" && (
-                  <SimilarProductsSection
-                    categoryId={product.category_id}
-                    excludeProductId={product.id}
-                  />
-                )}
-              </div>
-            </div>
-
-            {product.category_id && (
-              <div>
-                <div className="mb-2 flex items-baseline gap-3">
-                  <p className="text-start text-sm font-bold">
-                    {t("product.frequentlyBoughtTogether")}
-                  </p>
-                  <button
-                    type="button"
-                    className="ms-auto text-xs text-accent-teal"
-                    onClick={() => setTab("similar")}
-                  >
-                    {t("product.seeAll")}
-                  </button>
+            {showProductDetailExtras && (
+              <>
+                <div>
+                  <div className="flex gap-5 overflow-x-auto whitespace-nowrap border-b border-border text-sm font-medium">
+                    <button
+                      type="button"
+                      className={cn(
+                        "-mb-px shrink-0 border-b-2 pb-2.5",
+                        tab === "specs" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                      )}
+                      onClick={() => setTab("specs")}
+                    >
+                      {t("product.features")}
+                    </button>
+                    <button
+                      type="button"
+                      className={cn(
+                        "-mb-px shrink-0 border-b-2 pb-2.5",
+                        tab === "reviews" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                      )}
+                      onClick={() => setTab("reviews")}
+                    >
+                      {t("product.reviewsTab", { count: reviewsCount })}
+                    </button>
+                    <button
+                      type="button"
+                      className={cn(
+                        "-mb-px shrink-0 border-b-2 pb-2.5",
+                        tab === "questions" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                      )}
+                      onClick={() => setTab("questions")}
+                    >
+                      {t("product.questionsTab", { count: questionsCount })}
+                    </button>
+                    <button
+                      type="button"
+                      className={cn(
+                        "-mb-px shrink-0 border-b-2 pb-2.5",
+                        tab === "similar" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                      )}
+                      onClick={() => setTab("similar")}
+                    >
+                      {t("product.similarProducts")}
+                    </button>
+                  </div>
+                  <div className="pt-4">
+                    {tab === "specs" &&
+                      (features.length > 0 ? (
+                        <SpecificationsTable features={features} />
+                      ) : (
+                        <p className="py-4 text-center text-sm text-muted">{t("product.noFeatures")}</p>
+                      ))}
+                    {tab === "reviews" && (
+                      <ProductReviewsSection productId={product.id} productSlug={product.slug} />
+                    )}
+                    {tab === "questions" && (
+                      <ProductQuestionsSection productId={product.id} productSlug={product.slug} />
+                    )}
+                    {tab === "similar" && (
+                      <SimilarProductsSection
+                        categoryId={product.category_id}
+                        excludeProductId={product.id}
+                      />
+                    )}
+                  </div>
                 </div>
-                <SimilarProductsSection
-                  categoryId={product.category_id}
-                  excludeProductId={product.id}
-                  limit={3}
-                />
-              </div>
+
+                {product.category_id && (
+                  <div>
+                    <div className="mb-2 flex items-baseline gap-3">
+                      <p className="text-start text-sm font-bold">
+                        {t("product.frequentlyBoughtTogether")}
+                      </p>
+                      <button
+                        type="button"
+                        className="ms-auto text-xs text-accent-teal"
+                        onClick={() => setTab("similar")}
+                      >
+                        {t("product.seeAll")}
+                      </button>
+                    </div>
+                    <SimilarProductsSection
+                      categoryId={product.category_id}
+                      excludeProductId={product.id}
+                      limit={3}
+                    />
+                  </div>
+                )}
+              </>
             )}
             </div>
           </div>
@@ -588,7 +592,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
       </div>
 
       {/* Desktop layout */}
-      <div className={cn("hidden md:block", isSkeleton && "skeleton")} aria-busy={isSkeleton}>
+      <div className={cn("hidden lg:block", isSkeleton && "skeleton")} aria-busy={isSkeleton}>
         <nav className="mb-4 flex items-center gap-1.5 text-xs text-muted lg:pt-4">
           <Link href={isSkeleton ? "#" : "/"} className="hover:text-foreground">
             {t("product.breadcrumbHome")}
@@ -764,95 +768,99 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           </div>
         </div>
 
-        <div className="mt-10 lg:mt-14">
-          <div className="flex gap-6 border-b border-border text-sm font-medium">
-            <button
-              type="button"
-              className={cn(
-                "-mb-px border-b-2 pb-3",
-                tab === "specs" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
-              )}
-              onClick={() => setTab("specs")}
-            >
-              {t("product.features")}
-            </button>
-            <button
-              type="button"
-              className={cn(
-                "-mb-px border-b-2 pb-3",
-                tab === "reviews" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
-              )}
-              onClick={() => setTab("reviews")}
-            >
-              {t("product.reviewsTab", { count: reviewsCount })}
-            </button>
-            <button
-              type="button"
-              className={cn(
-                "-mb-px border-b-2 pb-3",
-                tab === "questions" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
-              )}
-              onClick={() => setTab("questions")}
-            >
-              {t("product.questionsTab", { count: questionsCount })}
-            </button>
-            <button
-              type="button"
-              className={cn(
-                "-mb-px border-b-2 pb-3",
-                tab === "similar" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
-              )}
-              onClick={() => setTab("similar")}
-            >
-              {t("product.similarProducts")}
-            </button>
-          </div>
-          <div className="pt-6">
-            {tab === "specs" &&
-              (features.length > 0 ? (
-                <div className="max-w-xl">
-                  <SpecificationsTable features={features} />
-                </div>
-              ) : (
-                <p className="py-4 text-sm text-muted">{t("product.noFeatures")}</p>
-              ))}
-            {tab === "reviews" && (
-              <div className="max-w-xl">
-                <ProductReviewsSection productId={product.id} productSlug={product.slug} />
+        {showProductDetailExtras && (
+          <>
+            <div className="mt-10 lg:mt-14">
+              <div className="flex gap-6 border-b border-border text-sm font-medium">
+                <button
+                  type="button"
+                  className={cn(
+                    "-mb-px border-b-2 pb-3",
+                    tab === "specs" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                  )}
+                  onClick={() => setTab("specs")}
+                >
+                  {t("product.features")}
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    "-mb-px border-b-2 pb-3",
+                    tab === "reviews" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                  )}
+                  onClick={() => setTab("reviews")}
+                >
+                  {t("product.reviewsTab", { count: reviewsCount })}
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    "-mb-px border-b-2 pb-3",
+                    tab === "questions" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                  )}
+                  onClick={() => setTab("questions")}
+                >
+                  {t("product.questionsTab", { count: questionsCount })}
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    "-mb-px border-b-2 pb-3",
+                    tab === "similar" ? "border-accent-teal text-accent-teal" : "border-transparent text-muted",
+                  )}
+                  onClick={() => setTab("similar")}
+                >
+                  {t("product.similarProducts")}
+                </button>
               </div>
-            )}
-            {tab === "questions" && (
-              <div className="max-w-xl">
-                <ProductQuestionsSection productId={product.id} productSlug={product.slug} />
+              <div className="pt-6">
+                {tab === "specs" &&
+                  (features.length > 0 ? (
+                    <div className="max-w-xl">
+                      <SpecificationsTable features={features} />
+                    </div>
+                  ) : (
+                    <p className="py-4 text-sm text-muted">{t("product.noFeatures")}</p>
+                  ))}
+                {tab === "reviews" && (
+                  <div className="max-w-xl">
+                    <ProductReviewsSection productId={product.id} productSlug={product.slug} />
+                  </div>
+                )}
+                {tab === "questions" && (
+                  <div className="max-w-xl">
+                    <ProductQuestionsSection productId={product.id} productSlug={product.slug} />
+                  </div>
+                )}
+                {tab === "similar" && (
+                  <SimilarProductsSection
+                    categoryId={product.category_id}
+                    excludeProductId={product.id}
+                  />
+                )}
               </div>
-            )}
-            {tab === "similar" && (
-              <SimilarProductsSection
-                categoryId={product.category_id}
-                excludeProductId={product.id}
-              />
-            )}
-          </div>
-        </div>
-
-        {product.category_id && (
-          <div className="mt-10 lg:mt-14">
-            <div className="mb-3 flex items-baseline gap-3">
-              <p className="text-sm font-bold">{t("product.frequentlyBoughtTogether")}</p>
-              <button
-                type="button"
-                className="ms-auto text-xs text-accent-teal"
-                onClick={() => setTab("similar")}
-              >
-                {t("product.seeAll")}
-              </button>
             </div>
-            <SimilarProductsSection
-              categoryId={product.category_id}
-              excludeProductId={product.id}
-              limit={3}
-            />
-          </div>
+
+            {product.category_id && (
+              <div className="mt-10 lg:mt-14">
+                <div className="mb-3 flex items-baseline gap-3">
+                  <p className="text-sm font-bold">{t("product.frequentlyBoughtTogether")}</p>
+                  <button
+                    type="button"
+                    className="ms-auto text-xs text-accent-teal"
+                    onClick={() => setTab("similar")}
+                  >
+                    {t("product.seeAll")}
+                  </button>
+                </div>
+                <SimilarProductsSection
+                  categoryId={product.category_id}
+                  excludeProductId={product.id}
+                  limit={3}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>

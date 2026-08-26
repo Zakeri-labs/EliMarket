@@ -159,14 +159,15 @@ export async function draftCatalogFromImages(input: {
   }));
 
   let parsed: Record<string, unknown> | null = null;
+  // Prefer OpenAI when configured (user .env), then Gemini.
   try {
-    parsed = await analyzeWithGemini(payloads, prompt);
+    parsed = await analyzeWithOpenAi(payloads, prompt);
   } catch {
     parsed = null;
   }
   if (!parsed) {
     try {
-      parsed = await analyzeWithOpenAi(payloads, prompt);
+      parsed = await analyzeWithGemini(payloads, prompt);
     } catch {
       parsed = null;
     }
