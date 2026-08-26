@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin, requireAuth } from "@/core/supabase/auth-helpers";
+import { createServiceRoleClient } from "@/core/supabase/service";
 import { getStoreSettingsAction } from "@/app/_actions/settings-actions";
 import { createPaymentForOrder } from "@/app/_actions/payment-actions";
 import { actionErrorMessage } from "@/i18n/action-error";
@@ -16,6 +17,41 @@ import type {
   PaymentMethod,
   Product,
 } from "@/app/_types/database.types";
+
+/** Ensures admin inbox rows exist even if DB trigger/migration is missing. */
+async function notifyAdminsOfNewOrder(order: Order) {
+  try {
+    const admin = createServiceRoleClient();
+    const shortId = order.id.replace(/-/g, "").slice(0, 8).toUpperCase();
+    const { data: admins, error: adminsError } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("role", "admin");
+    if (adminsError || !admins?.length) return;
+
+    const { data: existing } = await admin
+      .from("admin_notifications")
+      .select("recipient_id")
+      .eq("order_id", order.id)
+      .eq("type", "new_order");
+    const already = new Set((existing ?? []).map((row) => row.recipient_id));
+
+    const rows = admins
+      .filter((a) => !already.has(a.id))
+      .map((a) => ({
+        recipient_id: a.id,
+        type: "new_order",
+        title: `New order #${shortId}`,
+        body: `A new order was placed. Total: ${order.total} ${order.currency ?? "OMR"}`,
+        order_id: order.id,
+      }));
+
+    if (!rows.length) return;
+    await admin.from("admin_notifications").insert(rows);
+  } catch {
+    /* never fail checkout because of notifications */
+  }
+}
 
 export async function getOrdersAction() {
   try {
@@ -186,6 +222,8 @@ export async function createOrderAction(payload: {
       checkoutUrl = payment.checkoutUrl;
     }
 
+    await notifyAdminsOfNewOrder(order as Order);
+
     return {
       success: true as const,
       data: { order: order as Order, checkoutUrl },
@@ -201,17 +239,37 @@ export async function createOrderAction(payload: {
 export async function assignRiderAction(orderId: string, riderId: string) {
   try {
     const { supabase } = await requireAdmin();
+    const { data: current, error: currentError } = await supabase
+      .from("orders")
+      .select("id, status")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (currentError) throw currentError;
+    if (!current) throw new Error(await serverT("errors.orderNotFound"));
+    if (current.status !== "preparing") {
+      throw new Error(await serverT("errors.riderAssignNotReady"));
+    }
+
     const { data, error } = await supabase
       .from("orders")
       .update({ rider_id: riderId, status: "out_for_delivery" })
       .eq("id", orderId)
+      .eq("status", "preparing")
       .select("*")
-      .single();
+      .maybeSingle();
     if (error) throw error;
+    if (!data) throw new Error(await serverT("errors.riderAssignNotReady"));
+
     revalidatePath("/dashboard/orders");
     revalidatePath(`/orders/${orderId}`);
     return { success: true as const, data: data as Order };
   } catch (err) {
+    if (err instanceof Error && err.message) {
+      const notReady = await serverT("errors.riderAssignNotReady");
+      if (err.message === notReady) {
+        return { success: false as const, error: notReady };
+      }
+    }
     return {
       success: false as const,
       error: await actionErrorMessage("errors.riderAssignFailed", err),

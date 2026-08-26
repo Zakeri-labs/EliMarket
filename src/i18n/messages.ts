@@ -375,6 +375,7 @@ export type Messages = {
     insufficientStock: string;
     orderCreateFailed: string;
     riderAssignFailed: string;
+    riderAssignNotReady: string;
     ridersLoadFailed: string;
     statusUpdateFailed: string;
     notificationsLoadFailed: string;
@@ -776,11 +777,17 @@ export type Messages = {
     };
     orders: {
       title: string;
+      subtitle: string;
       loading: string;
       empty: string;
       orderPrefix: string;
       riderPlaceholder: string;
+      riderLabel: string;
       assignRider: string;
+      assignAfterPreparing: string;
+      assignedRider: string;
+      statusLabel: string;
+      statusHint: string;
       customer: string;
       payment: string;
       status: Record<string, string>;
@@ -1374,6 +1381,7 @@ const fa: Messages = {
     insufficientStock: "موجودی کافی نیست",
     orderCreateFailed: "ثبت سفارش ناموفق بود",
     riderAssignFailed: "تخصیص پیک ناموفق بود",
+    riderAssignNotReady: "فقط سفارش‌های در وضعیت آماده‌سازی را می‌توان به پیک تخصیص داد",
     ridersLoadFailed: "بارگذاری پیک‌ها ناموفق بود",
     statusUpdateFailed: "به‌روزرسانی وضعیت ناموفق بود",
     notificationsLoadFailed: "بارگذاری اعلان‌ها ناموفق بود",
@@ -1775,11 +1783,17 @@ const fa: Messages = {
     },
     orders: {
       title: "سفارش‌ها",
+      subtitle: "وضعیت را مرحله‌به‌مرحله جلو ببرید؛ بعد از آماده‌سازی می‌توانید پیک تخصیص دهید.",
       loading: "بارگذاری…",
       empty: "سفارشی یافت نشد.",
       orderPrefix: "سفارش",
       riderPlaceholder: "انتخاب پیک",
-      assignRider: "تخصیص پیک",
+      riderLabel: "پیک",
+      assignRider: "تخصیص پیک و ارسال",
+      assignAfterPreparing: "ابتدا وضعیت را به «آماده‌سازی» برسانید؛ سپس پیک را انتخاب و تخصیص دهید.",
+      assignedRider: "پیک فعلی",
+      statusLabel: "وضعیت سفارش",
+      statusHint: "ترتیب پیشنهادی: در انتظار → تأیید → آماده‌سازی → تخصیص پیک → ارسال → تحویل",
       customer: "مشتری",
       payment: "پرداخت",
       status: {
@@ -2380,6 +2394,7 @@ const ar: Messages = {
     insufficientStock: "المخزون غير كافٍ",
     orderCreateFailed: "فشل تسجيل الطلب",
     riderAssignFailed: "فشل تعيين السائق",
+    riderAssignNotReady: "يمكن تعيين السائق فقط للطلبات في حالة التحضير",
     ridersLoadFailed: "فشل تحميل السائقين",
     statusUpdateFailed: "فشل تحديث الحالة",
     notificationsLoadFailed: "فشل تحميل الإشعارات",
@@ -2781,11 +2796,17 @@ const ar: Messages = {
     },
     orders: {
       title: "الطلبات",
+      subtitle: "حدّث الحالة خطوة بخطوة؛ بعد التحضير يمكنك تعيين سائق.",
       loading: "جاري التحميل…",
       empty: "لا توجد طلبات.",
       orderPrefix: "طلب",
       riderPlaceholder: "اختر السائق",
-      assignRider: "تعيين سائق",
+      riderLabel: "السائق",
+      assignRider: "تعيين السائق والإرسال",
+      assignAfterPreparing: "أولاً انقل الحالة إلى «قيد التحضير»، ثم اختر السائق وعيّنه.",
+      assignedRider: "السائق الحالي",
+      statusLabel: "حالة الطلب",
+      statusHint: "الترتيب المقترح: انتظار → تأكيد → تحضير → تعيين سائق → إرسال → تسليم",
       customer: "العميل",
       payment: "الدفع",
       status: {
@@ -3386,6 +3407,7 @@ const en: Messages = {
     insufficientStock: "Insufficient stock",
     orderCreateFailed: "Failed to place order",
     riderAssignFailed: "Failed to assign rider",
+    riderAssignNotReady: "Rider can only be assigned when the order is Preparing",
     ridersLoadFailed: "Failed to load riders",
     statusUpdateFailed: "Failed to update status",
     notificationsLoadFailed: "Failed to load notifications",
@@ -3787,11 +3809,17 @@ const en: Messages = {
     },
     orders: {
       title: "Orders",
+      subtitle: "Advance status step by step; assign a rider after Preparing.",
       loading: "Loading…",
       empty: "No orders found.",
       orderPrefix: "Order",
       riderPlaceholder: "Select rider",
-      assignRider: "Assign rider",
+      riderLabel: "Rider",
+      assignRider: "Assign rider & ship",
+      assignAfterPreparing: "First set status to Preparing, then select and assign a rider.",
+      assignedRider: "Current rider",
+      statusLabel: "Order status",
+      statusHint: "Suggested flow: Pending → Confirmed → Preparing → Assign rider → Shipping → Delivered",
       customer: "Customer",
       payment: "Payment",
       status: {

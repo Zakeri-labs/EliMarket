@@ -45,6 +45,7 @@ export function AdminNotificationBell() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const alertedOrdersRef = useRef<Set<string>>(new Set());
 
   const query = useQuery({
     queryKey: ["admin-notifications"],
@@ -54,7 +55,7 @@ export function AdminNotificationBell() {
       return result.data;
     },
     enabled: Boolean(session?.id),
-    refetchInterval: 60_000,
+    refetchInterval: 12_000,
   });
 
   const items = query.data ?? [];
@@ -68,11 +69,42 @@ export function AdminNotificationBell() {
     void queryClient.invalidateQueries({ queryKey: ["orders"] });
   }, [queryClient]);
 
+  const alertNewOrder = useCallback(
+    (opts: { orderId?: string | null; title: string; body: string }) => {
+      const key = opts.orderId || `${opts.title}:${opts.body}`;
+      if (alertedOrdersRef.current.has(key)) return;
+      alertedOrdersRef.current.add(key);
+      // Bound memory for long-lived admin sessions
+      if (alertedOrdersRef.current.size > 200) {
+        alertedOrdersRef.current = new Set(
+          [...alertedOrdersRef.current].slice(-100),
+        );
+      }
+      invalidate();
+      playNewOrderSound();
+      notifyFormSuccess(opts.body || opts.title, {
+        title: t("admin.notifCenter.newOrderToast"),
+      });
+      if (typeof window !== "undefined" && "Notification" in window) {
+        if (Notification.permission === "granted") {
+          try {
+            new Notification(opts.title, { body: opts.body });
+          } catch {
+            /* ignore */
+          }
+        } else if (Notification.permission === "default") {
+          void Notification.requestPermission();
+        }
+      }
+    },
+    [invalidate, t],
+  );
+
   useEffect(() => {
     if (!session?.id) return;
     const supabase = createClient();
     const channel = supabase
-      .channel(`admin-notifications-${session.id}-${crypto.randomUUID()}`)
+      .channel(`admin-live-${session.id}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         {
@@ -83,21 +115,14 @@ export function AdminNotificationBell() {
         },
         (payload: { new: AdminNotification }) => {
           const row = payload.new;
-          invalidate();
-          playNewOrderSound();
-          notifyFormSuccess(row.body || row.title, {
-            title: t("admin.notifCenter.newOrderToast"),
-          });
-          if (typeof window !== "undefined" && "Notification" in window) {
-            if (Notification.permission === "granted") {
-              try {
-                new Notification(row.title, { body: row.body });
-              } catch {
-                /* ignore */
-              }
-            } else if (Notification.permission === "default") {
-              void Notification.requestPermission();
-            }
+          if (row.type === "new_order") {
+            alertNewOrder({
+              orderId: row.order_id,
+              title: row.title,
+              body: row.body,
+            });
+          } else {
+            invalidate();
           }
         },
       )
@@ -109,14 +134,31 @@ export function AdminNotificationBell() {
           table: "admin_notifications",
           filter: `recipient_id=eq.${session.id}`,
         },
-        () => invalidate(),
+        (payload: { eventType?: string }) => {
+          if (payload.eventType === "INSERT") return;
+          invalidate();
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "orders" },
+        (payload: { new: { id?: string; total?: number; currency?: string } }) => {
+          const order = payload.new;
+          if (!order?.id) return;
+          const currency = order.currency || "OMR";
+          alertNewOrder({
+            orderId: order.id,
+            title: t("admin.notifCenter.newOrderToast"),
+            body: `${t("admin.orders.orderPrefix")} ${String(order.id).slice(0, 8)}… — ${order.total ?? ""} ${currency}`,
+          });
+        },
       )
       .subscribe();
 
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [session?.id, invalidate, t]);
+  }, [session?.id, alertNewOrder, invalidate, t]);
 
   useEffect(() => {
     if (!open) return;
@@ -200,7 +242,11 @@ export function AdminNotificationBell() {
                 >
                   <div className="flex gap-1">
                     <Link
-                      href={n.order_id ? `/dashboard/orders?highlight=${n.order_id}` : "/dashboard/orders"}
+                      href={
+                        n.order_id
+                          ? `/dashboard/orders?highlight=${n.order_id}`
+                          : "/dashboard/orders"
+                      }
                       className="min-w-0 flex-1 px-3 py-2.5 text-start hover:bg-[#fafafa]"
                       onClick={() => void onOpenItem(n)}
                     >
