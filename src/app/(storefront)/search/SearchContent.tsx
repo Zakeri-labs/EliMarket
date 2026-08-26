@@ -12,8 +12,8 @@ import { CategorySideNav } from "@/app/(storefront)/_components/CategorySideNav"
 import { FilterPanel } from "@/app/(storefront)/_components/FilterPanel";
 import { StableProductGrid } from "@/app/(storefront)/_components/StableProductGrid";
 import { useTranslations } from "@/i18n/use-translations";
-import { productDescriptionSearchText } from "@/lib/i18n/product-description";
 import { categoryAndDescendantSlugs } from "@/lib/categories/tree";
+import { matchesProductQuery } from "@/lib/products/search";
 import { productCompareAtPrice } from "@/lib/products/pricing";
 import type { LiveCampaignOption } from "@/lib/campaigns/load";
 
@@ -85,12 +85,7 @@ export function SearchContent() {
       : null;
 
     const list = (products ?? []).filter((p) => {
-      const matchesQuery =
-        !q.trim() ||
-        p.name.includes(q) ||
-        productDescriptionSearchText(p).includes(q) ||
-        (p.category?.name.includes(q) ?? false);
-      if (!matchesQuery) return false;
+      if (!matchesProductQuery(p, q)) return false;
       if (slugs && (!p.category || !slugs.includes(p.category.slug))) return false;
       if (min != null && !Number.isNaN(min) && Number(p.price) < min) return false;
       if (max != null && !Number.isNaN(max) && Number(p.price) > max) return false;

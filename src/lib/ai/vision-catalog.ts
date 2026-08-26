@@ -1,5 +1,6 @@
 import { slugifyProductName } from "@/lib/products/slug";
 import { buildProductDescriptionStub } from "@/lib/ai/product-description-stub";
+import type { ProductFeatureInput } from "@/app/_types/database.types";
 
 export type VisionCatalogDraft = {
   name: string;
@@ -7,7 +8,7 @@ export type VisionCatalogDraft = {
   description_fa: string;
   description_ar: string;
   description_en: string;
-  features: { label: string; value: string }[];
+  features: ProductFeatureInput[];
   suggestedCategoryName?: string;
   usedModel: boolean;
 };
@@ -30,18 +31,25 @@ function asString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function asFeatures(value: unknown): { label: string; value: string }[] {
+function asFeatures(value: unknown): ProductFeatureInput[] {
   if (!Array.isArray(value)) return [];
   return value
     .map((item) => {
       if (!item || typeof item !== "object") return null;
-      const row = item as { label?: unknown; value?: unknown };
-      const label = asString(row.label);
-      const val = asString(row.value);
-      if (!label || !val) return null;
-      return { label, value: val };
+      const row = item as Record<string, unknown>;
+      const label_fa = asString(row.label_fa);
+      const value_fa = asString(row.value_fa);
+      if (!label_fa || !value_fa) return null;
+      return {
+        label_fa,
+        label_ar: asString(row.label_ar) || label_fa,
+        label_en: asString(row.label_en) || label_fa,
+        value_fa,
+        value_ar: asString(row.value_ar) || value_fa,
+        value_en: asString(row.value_en) || value_fa,
+      };
     })
-    .filter((item): item is { label: string; value: string } => item != null)
+    .filter((item): item is ProductFeatureInput => item != null)
     .slice(0, 8);
 }
 
@@ -54,20 +62,34 @@ function promptFor(input: {
     .slice(0, 20)
     .map((c) => c.name)
     .join(", ");
-  return `You are a grocery catalog assistant for EliMarket, a supermarket in Iran.
-Look at the product photo(s) and return JSON only with:
+  return `You are a grocery catalog copywriter for EliMarket, a supermarket in Iran/Oman.
+Look closely at the product photo(s), especially the label/packaging text (brand, ingredients, net weight, claims like organic/halal/sugar-free, usage), and return JSON only with:
 {
   "name": "sellable product title, preferably Persian if the pack is Persian, otherwise the common store name",
   "slug": "english-kebab-case-slug",
-  "description_fa": "2-3 sentence Persian store description",
-  "description_ar": "2-3 sentence Arabic store description",
-  "description_en": "2-3 sentence English store description",
+  "description_fa": "persuasive 2-4 sentence marketing/ad copy in Persian, written natively for a Persian shopper, based on what you actually read on the label",
+  "description_ar": "persuasive 2-4 sentence marketing/ad copy in Arabic, written natively for an Arabic shopper (NOT a translation of the Persian text — phrase it the way a native Arabic ad would), based on what you actually read on the label",
+  "description_en": "persuasive 2-4 sentence marketing/ad copy in English, written natively for an English shopper (NOT a translation of the other two — phrase it the way a native English ad would), based on what you actually read on the label",
   "category_name": "best matching category from this list or empty: ${categoryList}",
-  "features": [{"label":"وزن","value":"..."}]
+  "features": [
+    {
+      "label_fa": "spec name in Persian, e.g. وزن",
+      "label_ar": "the same spec name in Arabic (not transliteration, a real Arabic word)",
+      "label_en": "the same spec name in English",
+      "value_fa": "spec value in Persian",
+      "value_ar": "the same spec value in Arabic",
+      "value_en": "the same spec value in English"
+    }
+  ]
 }
 Hint name: ${input.hintName || "none"}
 Hint category: ${input.categoryName || "none"}
-Do not invent medical claims. Be specific about what is visible on the pack.`;
+
+Rules:
+- Each of description_fa/description_ar/description_en must be independently well-written ad copy in that language, not a mechanical translation of one shared sentence — vary the wording, sentence structure, and emphasis naturally between languages while keeping the same facts.
+- Do not invent medical claims or certifications that are not visible on the pack.
+- features/specification must be genuinely derived from what is visible on the label (weight/volume, ingredients, brand, count, usage) — return as many as are visible, up to 8. Every feature needs all six label/value fields filled for fa, ar, and en.
+- Keep each language self-contained (do not mix scripts within one field).`;
 }
 
 async function analyzeWithGemini(

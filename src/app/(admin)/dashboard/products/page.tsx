@@ -29,7 +29,14 @@ import { flattenCategoryTree, categoryDepth } from "@/lib/categories/tree";
 import { isLowStock, INVENTORY_UNITS } from "@/lib/products/inventory";
 import { notifyFormError } from "@/app/utils/form-notify";
 import { uploadImageFileToStorage } from "@/lib/storage/upload-image-client";
-import type { Brand, Category, InventoryUnit, Product, ProductImageInput } from "@/app/_types/database.types";
+import type {
+  Brand,
+  Category,
+  InventoryUnit,
+  Product,
+  ProductFeatureInput,
+  ProductImageInput,
+} from "@/app/_types/database.types";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -44,10 +51,17 @@ import { formatPrice } from "@/config/brand";
 import { mockAdminTableProducts } from "@/app/(admin)/dashboard/_mocks/product-table-mock";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 
-type FeatureDraft = { label: string; value: string };
+type FeatureDraft = ProductFeatureInput;
 type GalleryItem = ProductImageInput;
 
-const EMPTY_FEATURE: FeatureDraft = { label: "", value: "" };
+const EMPTY_FEATURE: FeatureDraft = {
+  label_fa: "",
+  label_ar: "",
+  label_en: "",
+  value_fa: "",
+  value_ar: "",
+  value_en: "",
+};
 const MAX_GALLERY_IMAGES = 8;
 
 function galleryFromProduct(product: Product): GalleryItem[] {
@@ -126,6 +140,7 @@ export default function AdminProductsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [stockDrafts, setStockDrafts] = useState<Record<string, string>>({});
   const [descriptionTab, setDescriptionTab] = useState<DescriptionLocale>("fa");
+  const [featuresTab, setFeaturesTab] = useState<DescriptionLocale>("fa");
   const [features, setFeatures] = useState<FeatureDraft[]>([{ ...EMPTY_FEATURE }]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [galleryBusy, setGalleryBusy] = useState(false);
@@ -211,6 +226,7 @@ export default function AdminProductsPage() {
     setGallery([]);
     setImageUrlDraft("");
     setDescriptionTab("fa");
+    setFeaturesTab("fa");
     setFormOpen(true);
   };
 
@@ -239,14 +255,19 @@ export default function AdminProductsPage() {
     setFeatures(
       product.features?.length
         ? product.features.map((feature) => ({
-            label: feature.label,
-            value: feature.value,
+            label_fa: feature.label_fa ?? feature.label,
+            label_ar: feature.label_ar ?? feature.label,
+            label_en: feature.label_en ?? feature.label,
+            value_fa: feature.value_fa ?? feature.value,
+            value_ar: feature.value_ar ?? feature.value,
+            value_en: feature.value_en ?? feature.value,
           }))
         : [{ ...EMPTY_FEATURE }],
     );
     setGallery(galleryFromProduct(product));
     setImageUrlDraft("");
     setDescriptionTab("fa");
+    setFeaturesTab("fa");
     setFormOpen(true);
   };
 
@@ -277,10 +298,14 @@ export default function AdminProductsPage() {
       images: gallery.filter((image) => image.image_url.trim()),
       features: features
         .map((feature) => ({
-          label: feature.label.trim(),
-          value: feature.value.trim(),
+          label_fa: feature.label_fa.trim(),
+          label_ar: feature.label_ar.trim(),
+          label_en: feature.label_en.trim(),
+          value_fa: feature.value_fa.trim(),
+          value_ar: feature.value_ar.trim(),
+          value_en: feature.value_en.trim(),
         }))
-        .filter((feature) => feature.label && feature.value),
+        .filter((feature) => feature.label_fa && feature.value_fa),
     };
 
     if (editing) {
@@ -435,7 +460,7 @@ export default function AdminProductsPage() {
               type="button"
               title={t("admin.products.saveStock")}
               aria-label={t("admin.products.saveStock")}
-              className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-[#6b8f71] text-white transition-colors hover:bg-[#527559] disabled:opacity-50"
+              className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-[#0d9488] text-white transition-colors hover:bg-[#0f766e] disabled:opacity-50"
               disabled={isActionPending}
               onClick={() => saveStock(row.original.id)}
             >
@@ -525,13 +550,13 @@ export default function AdminProductsPage() {
       <div className="space-y-4">
         <Link
           href="/dashboard/products/smart"
-          className="flex items-center justify-between gap-3 rounded-2xl border border-[#6b8f71]/40 bg-[#6b8f71]/8 px-4 py-3"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-[#0d9488]/40 bg-[#0d9488]/8 px-4 py-3"
         >
           <div>
-            <p className="text-sm font-semibold text-[#527559]">{t("admin.products.smartRegister")}</p>
+            <p className="text-sm font-semibold text-[#0f766e]">{t("admin.products.smartRegister")}</p>
             <p className="text-xs text-[#71717a]">{t("admin.smartProduct.subtitle")}</p>
           </div>
-          <span className="shrink-0 text-sm font-medium text-[#6b8f71]">→</span>
+          <span className="shrink-0 text-sm font-medium text-[#0d9488]">→</span>
         </Link>
         <Modal
           open={formOpen}
@@ -795,52 +820,74 @@ export default function AdminProductsPage() {
                 {t("admin.products.addFeature")}
               </Button>
             </div>
-            <div className="space-y-2">
-              {features.map((feature, index) => (
-                <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
-                  <input
-                    value={feature.label}
-                    onChange={(event) =>
-                      setFeatures((current) =>
-                        current.map((item, itemIndex) =>
-                          itemIndex === index
-                            ? { ...item, label: event.target.value }
-                            : item,
-                        ),
-                      )
-                    }
-                    placeholder={t("admin.products.featureLabelPlaceholder")}
-                    className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2 text-sm"
-                  />
-                  <input
-                    value={feature.value}
-                    onChange={(event) =>
-                      setFeatures((current) =>
-                        current.map((item, itemIndex) =>
-                          itemIndex === index
-                            ? { ...item, value: event.target.value }
-                            : item,
-                        ),
-                      )
-                    }
-                    placeholder={t("admin.products.featureValuePlaceholder")}
-                    className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2 text-sm"
-                  />
-                  <button
-                    type="button"
-                    className="rounded-xl border border-[#e4e4e7] px-3 py-2 text-xs text-red-600"
-                    onClick={() =>
-                      setFeatures((current) =>
-                        current.length <= 1
-                          ? [{ ...EMPTY_FEATURE }]
-                          : current.filter((_, itemIndex) => itemIndex !== index),
-                      )
-                    }
-                  >
-                    {t("admin.products.removeFeature")}
-                  </button>
-                </div>
+            <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+              {DESCRIPTION_TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
+                    featuresTab === tab.key
+                      ? "bg-white text-[#18181b] shadow-sm"
+                      : "text-[#71717a] hover:text-[#18181b]"
+                  }`}
+                  onClick={() => setFeaturesTab(tab.key)}
+                >
+                  {t(`admin.products.${tab.labelKey}`)}
+                </button>
               ))}
+            </div>
+            <div className="space-y-2">
+              {features.map((feature, index) => {
+                const labelKey = `label_${featuresTab}` as const;
+                const valueKey = `value_${featuresTab}` as const;
+                return (
+                  <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                    <input
+                      value={feature[labelKey]}
+                      onChange={(event) =>
+                        setFeatures((current) =>
+                          current.map((item, itemIndex) =>
+                            itemIndex === index
+                              ? { ...item, [labelKey]: event.target.value }
+                              : item,
+                          ),
+                        )
+                      }
+                      placeholder={t("admin.products.featureLabelPlaceholder")}
+                      className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2 text-sm"
+                      dir={featuresTab === "en" ? "ltr" : "rtl"}
+                    />
+                    <input
+                      value={feature[valueKey]}
+                      onChange={(event) =>
+                        setFeatures((current) =>
+                          current.map((item, itemIndex) =>
+                            itemIndex === index
+                              ? { ...item, [valueKey]: event.target.value }
+                              : item,
+                          ),
+                        )
+                      }
+                      placeholder={t("admin.products.featureValuePlaceholder")}
+                      className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2 text-sm"
+                      dir={featuresTab === "en" ? "ltr" : "rtl"}
+                    />
+                    <button
+                      type="button"
+                      className="rounded-xl border border-[#e4e4e7] px-3 py-2 text-xs text-red-600"
+                      onClick={() =>
+                        setFeatures((current) =>
+                          current.length <= 1
+                            ? [{ ...EMPTY_FEATURE }]
+                            : current.filter((_, itemIndex) => itemIndex !== index),
+                        )
+                      }
+                    >
+                      {t("admin.products.removeFeature")}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -860,13 +907,13 @@ export default function AdminProductsPage() {
                   <li
                     key={`${image.image_url}-${index}`}
                     className={`relative overflow-hidden rounded-xl border ${
-                      index === 0 ? "border-[#6b8f71] ring-2 ring-[#6b8f71]/30" : "border-[#e4e4e7]"
+                      index === 0 ? "border-[#0d9488] ring-2 ring-[#0d9488]/30" : "border-[#e4e4e7]"
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={image.image_url} alt="" className="aspect-square w-full bg-[#f4f4f5] object-contain" />
                     {index === 0 && (
-                      <span className="absolute start-1 top-1 rounded-md bg-[#6b8f71] px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      <span className="absolute start-1 top-1 rounded-md bg-[#0d9488] px-1.5 py-0.5 text-[10px] font-medium text-white">
                         {t("admin.products.primaryImage")}
                       </span>
                     )}
@@ -875,7 +922,7 @@ export default function AdminProductsPage() {
                         <button
                           type="button"
                           title={t("admin.products.setPrimaryImage")}
-                          className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-[#527559]"
+                          className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-[#0f766e]"
                           onClick={() =>
                             setGallery((current) => {
                               const next = [...current];
@@ -890,7 +937,7 @@ export default function AdminProductsPage() {
                       <button
                         type="button"
                         title={t("admin.products.aiImage")}
-                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-[#527559]"
+                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-[#0f766e]"
                         onClick={() =>
                           runAction(() => editProductImageWithAiAction(image.image_url), {
                             successMessage: t("admin.products.aiImage"),

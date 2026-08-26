@@ -71,13 +71,23 @@ export type ProductFeature = {
   product_id: string;
   label: string;
   value: string;
+  label_fa: string | null;
+  label_ar: string | null;
+  label_en: string | null;
+  value_fa: string | null;
+  value_ar: string | null;
+  value_en: string | null;
   sort_order: number;
   created_at: string;
 };
 
 export type ProductFeatureInput = {
-  label: string;
-  value: string;
+  label_fa: string;
+  label_ar: string;
+  label_en: string;
+  value_fa: string;
+  value_ar: string;
+  value_en: string;
 };
 
 export type ProductImage = {

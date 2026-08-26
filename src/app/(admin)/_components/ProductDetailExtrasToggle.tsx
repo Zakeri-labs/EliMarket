@@ -51,7 +51,7 @@ export function ProductDetailExtrasToggle({ className, compact }: Props) {
         loadingLabel={t("common.saving")}
         onClick={toggle}
         className={cn(
-          !showProductDetailExtras && "bg-[#527559] text-white hover:opacity-90",
+          !showProductDetailExtras && "bg-[#0f766e] text-white hover:opacity-90",
           showProductDetailExtras && "border-[#e4e4e7]",
         )}
         title={t("admin.productExtrasToggle.title")}

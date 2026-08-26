@@ -87,7 +87,7 @@ export default function AdminQuestionsPage() {
                         className={cn(
                           "rounded-md px-1.5 py-0.5 text-[10px] font-medium",
                           question.answer
-                            ? "bg-[#6b8f71]/12 text-[#527559]"
+                            ? "bg-[#0d9488]/12 text-[#0f766e]"
                             : "bg-amber-100 text-amber-700",
                         )}
                       >

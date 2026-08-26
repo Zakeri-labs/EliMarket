@@ -20,8 +20,8 @@ import type { FinancialReport, PeriodBucket } from "@/app/_actions/report-action
 import { getNumberLocale, type Locale } from "@/i18n/config";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 
-const SAGE = "#6b8f71";
-const SAGE_DARK = "#527559";
+const SAGE = "#0d9488";
+const SAGE_DARK = "#0f766e";
 const AMBER = "#d97706";
 const RED = "#dc2626";
 const MUTED = "#a1a1aa";

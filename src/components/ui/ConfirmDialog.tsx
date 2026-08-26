@@ -41,11 +41,11 @@ export function ConfirmDialog({
             top: "50%",
             transform: "translate(-50%, -50%)",
             width: "min(24rem, calc(100vw - 1.5rem))",
-            border: "1px solid #6b8f71",
+            border: "1px solid #0d9488",
             boxShadow: "0 24px 60px rgba(82, 117, 89, 0.22)",
           }}
         >
-          <div className="border-b border-[#6b8f71]/30 bg-[#6b8f71] px-4 py-3 text-white">
+          <div className="border-b border-[#0d9488]/30 bg-[#0d9488] px-4 py-3 text-white">
             <Dialog.Title className="text-lg font-semibold tracking-tight">
               {title}
             </Dialog.Title>
@@ -53,7 +53,7 @@ export function ConfirmDialog({
           <Dialog.Description className="px-4 py-4 text-sm leading-6 text-[#3f3f46]">
             {description}
           </Dialog.Description>
-          <div className="flex flex-col-reverse gap-2 border-t border-[#6b8f71]/25 bg-[#fafafa] px-4 py-3 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-2 border-t border-[#0d9488]/25 bg-[#fafafa] px-4 py-3 sm:flex-row sm:justify-end">
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
               {cancelLabel}
             </Button>

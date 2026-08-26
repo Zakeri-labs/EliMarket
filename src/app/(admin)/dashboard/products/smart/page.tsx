@@ -16,7 +16,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
-import type { Category } from "@/app/_types/database.types";
+import type { Category, ProductFeatureInput } from "@/app/_types/database.types";
 import type { SmartProductDraft } from "@/app/_actions/smart-product-actions";
 
 const MAX_PHOTOS = 6;
@@ -29,7 +29,24 @@ const STEPS = [
   "stepPublish",
 ] as const;
 
-type FeatureDraft = { label: string; value: string };
+type FeatureDraft = ProductFeatureInput;
+
+const EMPTY_FEATURE: FeatureDraft = {
+  label_fa: "",
+  label_ar: "",
+  label_en: "",
+  value_fa: "",
+  value_ar: "",
+  value_en: "",
+};
+
+type LangLocale = "fa" | "ar" | "en";
+
+const LANG_TABS: { key: LangLocale; labelKey: "descriptionFa" | "descriptionAr" | "descriptionEn"; dir: "rtl" | "ltr" }[] = [
+  { key: "fa", labelKey: "descriptionFa", dir: "rtl" },
+  { key: "ar", labelKey: "descriptionAr", dir: "rtl" },
+  { key: "en", labelKey: "descriptionEn", dir: "ltr" },
+];
 
 export default function SmartProductPage() {
   const { t } = useTranslations();
@@ -52,6 +69,7 @@ export default function SmartProductPage() {
   const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(undefined);
   const [stock, setStock] = useState(0);
   const [features, setFeatures] = useState<FeatureDraft[]>([]);
+  const [specTab, setSpecTab] = useState<LangLocale>("fa");
 
   useEffect(() => {
     getCategoriesAction().then((result) => {
@@ -183,7 +201,7 @@ export default function SmartProductPage() {
           image_url: primary?.processedUrl ?? null,
           blur_hash: primary?.blurHash ?? null,
           is_active: true,
-          features: features.filter((item) => item.label.trim() && item.value.trim()),
+          features: features.filter((item) => item.label_fa.trim() && item.value_fa.trim()),
           images: ordered.map((image) => ({
             image_url: image.processedUrl,
             blur_hash: image.blurHash,
@@ -209,7 +227,7 @@ export default function SmartProductPage() {
             key={key}
             className={`rounded-xl border px-3 py-2 text-xs font-medium ${
               index <= activeStep
-                ? "border-[#6b8f71] bg-[#6b8f71]/10 text-[#527559]"
+                ? "border-[#0d9488] bg-[#0d9488]/10 text-[#0f766e]"
                 : "border-[#e4e4e7] bg-white text-[#71717a]"
             }`}
           >
@@ -226,9 +244,9 @@ export default function SmartProductPage() {
               {t("admin.smartProduct.uploadTitle")}
             </h2>
             <p className="mt-1 text-sm text-[#71717a]">{t("admin.smartProduct.uploadHint")}</p>
-            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#6b8f71] bg-[#f7faf7] px-4 py-10">
-              <AppIcon icon={Upload} size="lg" className="text-[#6b8f71]" />
-              <span className="mt-2 text-sm font-medium text-[#527559]">
+            <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#0d9488] bg-[#f7faf7] px-4 py-10">
+              <AppIcon icon={Upload} size="lg" className="text-[#0d9488]" />
+              <span className="mt-2 text-sm font-medium text-[#0f766e]">
                 {t("admin.smartProduct.uploadButton")}
               </span>
               <span className="mt-1 text-xs text-[#71717a]">
@@ -315,8 +333,8 @@ export default function SmartProductPage() {
 
       {phase === "processing" && (
         <div className="rounded-2xl border border-[#e4e4e7] bg-white p-8 text-center shadow-sm">
-          <Spinner size="lg" className="mx-auto text-[#6b8f71]" label={t("admin.smartProduct.processing")} />
-          <p className="mt-4 text-sm font-medium text-[#527559]">{t("admin.smartProduct.processing")}</p>
+          <Spinner size="lg" className="mx-auto text-[#0d9488]" label={t("admin.smartProduct.processing")} />
+          <p className="mt-4 text-sm font-medium text-[#0f766e]">{t("admin.smartProduct.processing")}</p>
           <p className="mt-2 text-sm text-[#71717a]">{t("admin.smartProduct.processingEnhance")}</p>
           <p className="mt-1 text-sm text-[#71717a]">{t("admin.smartProduct.processingContent")}</p>
         </div>
@@ -339,7 +357,7 @@ export default function SmartProductPage() {
                   type="button"
                   onClick={() => setPrimaryIndex(index)}
                   className={`overflow-hidden rounded-2xl border p-2 text-start ${
-                    primaryIndex === index ? "border-[#6b8f71] ring-2 ring-[#6b8f71]/30" : "border-[#e4e4e7]"
+                    primaryIndex === index ? "border-[#0d9488] ring-2 ring-[#0d9488]/30" : "border-[#e4e4e7]"
                   }`}
                 >
                   <div className="grid grid-cols-2 gap-2">
@@ -355,7 +373,7 @@ export default function SmartProductPage() {
                     </div>
                   </div>
                   {primaryIndex === index && (
-                    <p className="mt-2 text-xs font-medium text-[#527559]">
+                    <p className="mt-2 text-xs font-medium text-[#0f766e]">
                       {t("admin.smartProduct.primaryBadge")}
                     </p>
                   )}
@@ -436,6 +454,84 @@ export default function SmartProductPage() {
                   </option>
                 ))}
               </select>
+            </div>
+          </section>
+
+          <section className="space-y-3 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold">{t("admin.products.featuresSection")}</h2>
+              <Button
+                type="button"
+                variant="secondary"
+                className="text-xs"
+                onClick={() => setFeatures((current) => [...current, { ...EMPTY_FEATURE }])}
+              >
+                {t("admin.products.addFeature")}
+              </Button>
+            </div>
+            <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+              {LANG_TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
+                    specTab === tab.key
+                      ? "bg-white text-[#18181b] shadow-sm"
+                      : "text-[#71717a] hover:text-[#18181b]"
+                  }`}
+                  onClick={() => setSpecTab(tab.key)}
+                >
+                  {t(`admin.products.${tab.labelKey}`)}
+                </button>
+              ))}
+            </div>
+            <div className="space-y-2">
+              {features.map((feature, index) => {
+                const labelKey = `label_${specTab}` as const;
+                const valueKey = `value_${specTab}` as const;
+                return (
+                  <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                    <input
+                      value={feature[labelKey]}
+                      onChange={(event) =>
+                        setFeatures((current) =>
+                          current.map((item, itemIndex) =>
+                            itemIndex === index ? { ...item, [labelKey]: event.target.value } : item,
+                          ),
+                        )
+                      }
+                      placeholder={t("admin.products.featureLabelPlaceholder")}
+                      className={inputClass}
+                      dir={specTab === "en" ? "ltr" : "rtl"}
+                    />
+                    <input
+                      value={feature[valueKey]}
+                      onChange={(event) =>
+                        setFeatures((current) =>
+                          current.map((item, itemIndex) =>
+                            itemIndex === index ? { ...item, [valueKey]: event.target.value } : item,
+                          ),
+                        )
+                      }
+                      placeholder={t("admin.products.featureValuePlaceholder")}
+                      className={inputClass}
+                      dir={specTab === "en" ? "ltr" : "rtl"}
+                    />
+                    <button
+                      type="button"
+                      className="rounded-xl border border-[#e4e4e7] px-3 py-2 text-xs text-red-600"
+                      onClick={() =>
+                        setFeatures((current) => current.filter((_, itemIndex) => itemIndex !== index))
+                      }
+                    >
+                      {t("admin.products.removeFeature")}
+                    </button>
+                  </div>
+                );
+              })}
+              {features.length === 0 && (
+                <p className="text-sm text-[#71717a]">{t("product.noFeatures")}</p>
+              )}
             </div>
           </section>
 

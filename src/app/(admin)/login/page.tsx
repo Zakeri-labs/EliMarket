@@ -12,7 +12,7 @@ import { BRAND_NAME } from "@/config/brand";
 import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
-  "admin-login-input w-full rounded-xl border border-[#e4e4e7] !bg-white px-4 py-3 text-sm !text-[#18181b] outline-none caret-[#18181b] placeholder:text-[#a1a1aa] focus:border-[#6b8f71]";
+  "admin-login-input w-full rounded-xl border border-[#e4e4e7] !bg-white px-4 py-3 text-sm !text-[#18181b] outline-none caret-[#18181b] placeholder:text-[#a1a1aa] focus:border-[#0d9488]";
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -127,11 +127,11 @@ export default function AdminLoginPage() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
       <div className="flex justify-center">
-        <LanguageTabs className="border-[#e4e4e7] bg-white [&_button[aria-selected=true]]:bg-[#6b8f71] [&_button[aria-selected=true]]:text-white" />
+        <LanguageTabs className="border-[#e4e4e7] bg-white [&_button[aria-selected=true]]:bg-[#0d9488] [&_button[aria-selected=true]]:text-white" />
       </div>
 
       <div className="text-center">
-        <h1 className="font-logo text-2xl font-semibold tracking-wide text-[#527559]">
+        <h1 className="font-logo text-2xl font-semibold tracking-wide text-[#0f766e]">
           {BRAND_NAME}
         </h1>
         <p className="mt-2 text-sm text-[#71717a]">{t("admin.login.title")}</p>

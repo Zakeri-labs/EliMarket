@@ -28,7 +28,8 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
       <div
         dir={dir}
         className={cn(
-          "flex items-center gap-3 rounded-2xl border border-border bg-surface p-3",
+          "relative flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 transition-all duration-300 ease-out",
+          !isSkeleton && "hover:z-10 hover:-translate-y-1 hover:shadow-xl",
           isSkeleton && "skeleton",
         )}
         aria-busy={isSkeleton}

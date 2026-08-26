@@ -31,6 +31,7 @@ import { notifyFormSuccess } from "@/app/utils/form-notify";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
+import { resolveFeatureText } from "@/lib/i18n/product-feature";
 import { productCover } from "@/lib/products/gallery";
 import { productCompareAtPrice, productDiscountBadge } from "@/lib/products/pricing";
 import { getProductReviewsAction } from "@/app/_actions/review-actions";
@@ -51,29 +52,39 @@ const SIZE_LABEL_PATTERN =
 
 function resolveProductSubtitle(product: Product, locale: Locale): string | null {
   const sizeFeature = product.features?.find((feature) =>
-    SIZE_LABEL_PATTERN.test(feature.label.trim()),
+    SIZE_LABEL_PATTERN.test(resolveFeatureText(feature, locale).label.trim()),
   );
-  if (sizeFeature?.value.trim()) return sizeFeature.value.trim();
+  const sizeValue = sizeFeature ? resolveFeatureText(sizeFeature, locale).value.trim() : "";
+  if (sizeValue) return sizeValue;
   if (product.brand?.name) return product.brand.name;
   if (product.category) return resolveCategoryName(product.category, locale);
   return null;
 }
 
-function AtAGlanceGrid({ features }: { features: NonNullable<Product["features"]> }) {
+function AtAGlanceGrid({
+  features,
+  locale,
+}: {
+  features: NonNullable<Product["features"]>;
+  locale: Locale;
+}) {
   return (
     <div className="grid grid-cols-2 gap-2">
-      {features.map((feature) => (
-        <div
-          key={feature.id}
-          className="flex items-center gap-2.5 rounded-xl border border-line-soft bg-card p-3"
-        >
-          <span className="h-[22px] w-[22px] shrink-0 rounded-[7px] bg-bg-tile" />
-          <div className="min-w-0 text-start">
-            <p className="truncate text-[10px] text-text-faint">{feature.label}</p>
-            <p className="mt-0.5 truncate text-[11.5px] font-semibold">{feature.value}</p>
+      {features.map((feature) => {
+        const { label, value } = resolveFeatureText(feature, locale);
+        return (
+          <div
+            key={feature.id}
+            className="flex items-center gap-2.5 rounded-xl border border-line-soft bg-card p-3"
+          >
+            <span className="h-[22px] w-[22px] shrink-0 rounded-[7px] bg-bg-tile" />
+            <div className="min-w-0 text-start">
+              <p className="truncate text-[10px] text-text-faint">{label}</p>
+              <p className="mt-0.5 truncate text-[11.5px] font-semibold">{value}</p>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -133,18 +144,27 @@ function DeliveryServiceCard() {
   );
 }
 
-function SpecificationsTable({ features }: { features: NonNullable<Product["features"]> }) {
+function SpecificationsTable({
+  features,
+  locale,
+}: {
+  features: NonNullable<Product["features"]>;
+  locale: Locale;
+}) {
   return (
     <dl>
-      {features.map((feature) => (
+      {features.map((feature) => {
+        const { label, value } = resolveFeatureText(feature, locale);
+        return (
         <div
           key={feature.id}
           className="flex items-center justify-between gap-4 border-b border-border py-3 text-sm last:border-b-0"
         >
-          <dt className="text-muted">{feature.label}</dt>
-          <dd className="text-start font-medium">{feature.value}</dd>
+          <dt className="text-muted">{label}</dt>
+          <dd className="text-start font-medium">{value}</dd>
         </div>
-      ))}
+        );
+      })}
     </dl>
   );
 }
@@ -222,7 +242,7 @@ function ProductCartControl({
           if (isSkeleton) return;
           updateQuantity(product.id, Math.min(cartQuantity + 1, product.stock || cartQuantity + 1));
         }}
-        className="flex h-8 w-9 items-center justify-center text-accent-teal disabled:opacity-40"
+        className="flex h-8 w-9 items-center justify-center text-accent-teal transition-transform duration-200 ease-out hover:scale-110 active:scale-90 disabled:opacity-40 disabled:hover:scale-100"
       >
         <AppIcon icon={Plus} size="sm" />
       </button>
@@ -327,7 +347,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             <ProductGallery product={product} isSkeleton={isSkeleton} sizes="100vw" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
             {!isSkeleton && discountBadge && (
-              <span className="absolute start-3 top-14 z-10 rounded-md bg-accent-gold px-2 py-1 text-xs font-bold text-bg-main">
+              <span className="absolute start-3 top-14 z-10 rounded-md bg-accent-teal px-2 py-1 text-xs font-bold text-bg-main">
                 {discountBadge}
               </span>
             )}
@@ -420,7 +440,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                       </span>
                     )}
                     {discountBadge && (
-                      <span className="rounded-md bg-accent-gold px-1.5 py-0.5 text-xs font-semibold text-bg-main">
+                      <span className="rounded-md bg-accent-teal px-1.5 py-0.5 text-xs font-semibold text-bg-main">
                         {discountBadge}
                       </span>
                     )}
@@ -464,7 +484,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 <p className="mb-2 text-start text-[11px] font-semibold uppercase tracking-wide text-muted">
                   {t("product.atAGlance")}
                 </p>
-                <AtAGlanceGrid features={glanceFeatures} />
+                <AtAGlanceGrid features={glanceFeatures} locale={locale} />
               </div>
             )}
 
@@ -540,7 +560,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   <div className="pt-4">
                     {tab === "specs" &&
                       (features.length > 0 ? (
-                        <SpecificationsTable features={features} />
+                        <SpecificationsTable features={features} locale={locale} />
                       ) : (
                         <p className="py-4 text-center text-sm text-muted">{t("product.noFeatures")}</p>
                       ))}
@@ -616,7 +636,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           {/* Column 1: gallery */}
           <div className="relative lg:sticky lg:top-24 lg:self-start">
             {!isSkeleton && discountBadge && (
-              <span className="absolute start-2 top-2 z-10 rounded-md bg-accent-gold px-2 py-1 text-xs font-bold text-bg-main">
+              <span className="absolute start-2 top-2 z-10 rounded-md bg-accent-teal px-2 py-1 text-xs font-bold text-bg-main">
                 {discountBadge}
               </span>
             )}
@@ -694,7 +714,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">
                   {t("product.atAGlance")}
                 </p>
-                <AtAGlanceGrid features={glanceFeatures} />
+                <AtAGlanceGrid features={glanceFeatures} locale={locale} />
               </div>
             )}
 
@@ -715,7 +735,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                         {formatPrice(compareAt, product.currency)}
                       </span>
                       {discountBadge && (
-                        <span className="rounded-md bg-accent-gold px-1.5 py-0.5 text-[10px] font-bold text-bg-main">
+                        <span className="rounded-md bg-accent-teal px-1.5 py-0.5 text-[10px] font-bold text-bg-main">
                           {discountBadge}
                         </span>
                       )}
@@ -817,7 +837,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 {tab === "specs" &&
                   (features.length > 0 ? (
                     <div className="max-w-xl">
-                      <SpecificationsTable features={features} />
+                      <SpecificationsTable features={features} locale={locale} />
                     </div>
                   ) : (
                     <p className="py-4 text-sm text-muted">{t("product.noFeatures")}</p>

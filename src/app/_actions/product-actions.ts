@@ -57,18 +57,28 @@ async function syncProductFeatures(
 
   const rows = (features ?? [])
     .map((feature) => ({
-      label: feature.label.trim(),
-      value: feature.value.trim(),
+      label_fa: feature.label_fa.trim(),
+      label_ar: feature.label_ar.trim(),
+      label_en: feature.label_en.trim(),
+      value_fa: feature.value_fa.trim(),
+      value_ar: feature.value_ar.trim(),
+      value_en: feature.value_en.trim(),
     }))
-    .filter((feature) => feature.label && feature.value);
+    .filter((feature) => feature.label_fa && feature.value_fa);
 
   if (rows.length === 0) return;
 
   const { error: insertError } = await supabase.from("product_features").insert(
     rows.map((row, index) => ({
       product_id: productId,
-      label: row.label,
-      value: row.value,
+      label: row.label_fa,
+      value: row.value_fa,
+      label_fa: row.label_fa,
+      label_ar: row.label_ar,
+      label_en: row.label_en,
+      value_fa: row.value_fa,
+      value_ar: row.value_ar,
+      value_en: row.value_en,
       sort_order: index,
     })),
   );

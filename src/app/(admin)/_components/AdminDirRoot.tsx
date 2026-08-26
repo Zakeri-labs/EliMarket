@@ -27,7 +27,7 @@ body.admin-lock-scroll {
 .app-modal-scroll,
 .admin-page-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #6b8f71 #f4f4f5;
+  scrollbar-color: #0d9488 #f4f4f5;
 }
 .admin-thin-scroll::-webkit-scrollbar,
 .app-modal-scroll::-webkit-scrollbar,
@@ -50,13 +50,13 @@ body.admin-lock-scroll {
 .admin-thin-scroll::-webkit-scrollbar-thumb,
 .app-modal-scroll::-webkit-scrollbar-thumb,
 .admin-page-scroll::-webkit-scrollbar-thumb {
-  background: #6b8f71;
+  background: #0d9488;
   border-radius: 8px;
 }
 .admin-thin-scroll::-webkit-scrollbar-thumb:hover,
 .app-modal-scroll::-webkit-scrollbar-thumb:hover,
 .admin-page-scroll::-webkit-scrollbar-thumb:hover {
-  background: #527559;
+  background: #0f766e;
 }
 `;
 

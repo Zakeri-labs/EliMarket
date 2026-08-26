@@ -23,7 +23,7 @@ import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
-  "w-full rounded-xl border border-[#e4e4e7] bg-[#fafafa] px-3 py-2.5 text-sm outline-none focus:border-[#527559]";
+  "w-full rounded-xl border border-[#e4e4e7] bg-[#fafafa] px-3 py-2.5 text-sm outline-none focus:border-[#0f766e]";
 
 const EMPTY_FORM: RiderDetailsInput = {
   firstName: "",

@@ -535,9 +535,9 @@ export function DataTable<T>({
           className="admin-thin-scroll max-w-full overflow-auto overscroll-contain rounded-xl bg-white"
           style={{
             maxHeight: maxBodyHeight,
-            border: "2px solid #6b8f71",
+            border: "2px solid #0d9488",
             scrollbarWidth: "thin",
-            scrollbarColor: "#6b8f71 #f4f4f5",
+            scrollbarColor: "#0d9488 #f4f4f5",
           }}
         >
           <table
@@ -571,7 +571,7 @@ export function DataTable<T>({
                       <th
                         key={header.id}
                         className={cn(
-                          "relative border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-2.5 text-start text-xs whitespace-nowrap text-[#527559]",
+                          "relative border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-2.5 text-start text-xs whitespace-nowrap text-[#0f766e]",
                           enableColumnResizing && "border-e border-[#e4e4e7]",
                         )}
                         style={
@@ -632,13 +632,13 @@ export function DataTable<T>({
                             onTouchStart={header.getResizeHandler()}
                             onDoubleClick={() => header.column.resetSize()}
                             className={cn(
-                              "absolute top-0 bottom-0 end-0 z-10 w-2 cursor-col-resize touch-none select-none bg-transparent hover:bg-[#6b8f71]/25 active:bg-[#6b8f71]/40",
+                              "absolute top-0 bottom-0 end-0 z-10 w-2 cursor-col-resize touch-none select-none bg-transparent hover:bg-[#0d9488]/25 active:bg-[#0d9488]/40",
                               // Straddling the border (translate-x-1/2) makes the handle
                               // easier to grab, but on the last column it pushes 4px past
                               // the table's own edge — enough for the scroll container to
                               // treat it as real overflow and show a phantom scrollbar.
                               !isLastHeader && "translate-x-1/2",
-                              header.column.getIsResizing() && "bg-[#6b8f71]/40",
+                              header.column.getIsResizing() && "bg-[#0d9488]/40",
                             )}
                           />
                         )}
@@ -661,7 +661,7 @@ export function DataTable<T>({
                   <tr
                     key={row.id}
                     className={cn(
-                      "border-b border-[#e4e4e7]/80 transition-colors even:bg-[#fafafa] hover:bg-[#6b8f71]/5",
+                      "border-b border-[#e4e4e7]/80 transition-colors even:bg-[#fafafa] hover:bg-[#0d9488]/5",
                       isSkeleton && "pointer-events-none",
                     )}
                     aria-busy={isSkeleton}
@@ -697,7 +697,7 @@ export function DataTable<T>({
         style={{
           maxHeight: maxBodyHeight,
           scrollbarWidth: "thin",
-          scrollbarColor: "#6b8f71 #f4f4f5",
+          scrollbarColor: "#0d9488 #f4f4f5",
         }}
       >
         {table.getRowModel().rows.length === 0 && !isSkeleton ? (

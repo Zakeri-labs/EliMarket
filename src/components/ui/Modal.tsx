@@ -70,11 +70,11 @@ export function Modal({
             maxHeight: "min(88dvh, 52rem)",
             display: "grid",
             gridTemplateRows: footer ? "auto minmax(0, 1fr) auto" : "auto minmax(0, 1fr)",
-            border: "1px solid #6b8f71",
+            border: "1px solid #0d9488",
             boxShadow: "0 24px 60px rgba(82, 117, 89, 0.22)",
           }}
         >
-          <div className="flex shrink-0 items-start justify-between gap-2 border-b border-[#6b8f71]/30 bg-[#6b8f71] px-4 py-3 text-white">
+          <div className="flex shrink-0 items-start justify-between gap-2 border-b border-[#0d9488]/30 bg-[#0d9488] px-4 py-3 text-white">
             <div className="min-w-0 flex-1 pe-1">
               <Dialog.Title className="flex items-center gap-2 text-lg font-semibold tracking-tight sm:text-xl">
                 {busy ? <Spinner size="sm" className="text-white" label={busyLabel} /> : null}
@@ -106,13 +106,13 @@ export function Modal({
 
           <div
             className="app-modal-scroll relative min-h-0 overflow-y-auto overscroll-contain px-4 py-3"
-            style={{ scrollbarWidth: "thin", scrollbarColor: "#6b8f71 #f4f4f5" }}
+            style={{ scrollbarWidth: "thin", scrollbarColor: "#0d9488 #f4f4f5" }}
           >
             {children}
           </div>
 
           {footer ? (
-            <div className="relative flex shrink-0 flex-col gap-2 border-t border-[#6b8f71]/25 bg-[#fafafa] px-4 py-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-3 [&_button]:w-full sm:[&_button]:w-auto sm:[&_button]:min-w-32">
+            <div className="relative flex shrink-0 flex-col gap-2 border-t border-[#0d9488]/25 bg-[#fafafa] px-4 py-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-3 [&_button]:w-full sm:[&_button]:w-auto sm:[&_button]:min-w-32">
               {footer}
             </div>
           ) : null}

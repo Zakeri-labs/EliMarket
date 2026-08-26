@@ -71,9 +71,9 @@ export function ProductCartQtyControl({ product, disabled = false, className }: 
         }}
         onPointerDown={stop}
         className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-full border border-accent-teal/50 bg-bg-card text-accent-teal shadow-sm transition-colors",
-          "hover:bg-accent-teal hover:text-on-accent",
-          "disabled:pointer-events-none disabled:opacity-40",
+          "flex h-8 w-8 items-center justify-center rounded-full border border-accent-teal/50 bg-accent-teal text-on-accent shadow-sm transition-transform duration-200 ease-out",
+          "hover:scale-110 active:scale-90",
+          "disabled:pointer-events-none disabled:opacity-40 disabled:hover:scale-100",
           className,
         )}
       >
@@ -119,7 +119,7 @@ export function ProductCartQtyControl({ product, disabled = false, className }: 
           if (disabled || atMax) return;
           updateQuantity(product.id, quantity + 1);
         }}
-        className="flex h-8 w-8 items-center justify-center hover:bg-accent-teal/20 disabled:opacity-40"
+        className="flex h-8 w-8 items-center justify-center transition-transform duration-200 ease-out hover:scale-110 hover:bg-accent-teal/20 active:scale-90 disabled:opacity-40 disabled:hover:scale-100"
       >
         <AppIcon icon={Plus} size="xs" />
       </button>

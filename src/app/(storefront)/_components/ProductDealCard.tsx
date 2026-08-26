@@ -44,7 +44,8 @@ export function ProductDealCard({
     <article
       dir={dir}
       className={cn(
-        "flex h-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-2.5 lg:rounded-lg",
+        "relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-2.5 transition-all duration-300 ease-out lg:rounded-lg",
+        !isSkeleton && "hover:z-10 hover:-translate-y-1.5 hover:shadow-xl",
         layout === "rail" ? "w-36 sm:w-40" : "w-full",
         isSkeleton && "skeleton",
         className,
@@ -60,7 +61,7 @@ export function ProductDealCard({
           }}
         >
           {!isSkeleton && discountBadge && (
-            <span className="absolute start-0 top-0 z-10 rounded-md bg-accent-gold px-1.5 py-0.5 text-[10px] font-semibold text-bg-main">
+            <span className="absolute start-0 top-0 z-10 rounded-md bg-accent-teal px-1.5 py-0.5 text-[10px] font-semibold text-bg-main">
               {discountBadge}
             </span>
           )}

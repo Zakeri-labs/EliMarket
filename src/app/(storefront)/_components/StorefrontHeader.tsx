@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, ShoppingCart } from "lucide-react";
@@ -35,6 +35,8 @@ export function StorefrontHeader() {
   const setLocale = useLocaleStore((s) => s.setLocale);
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartBump, setCartBump] = useState(false);
+  const prevCartCountRef = useRef(cartCount);
 
   useEffect(() => {
     setMounted(true);
@@ -43,6 +45,16 @@ export function StorefrontHeader() {
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (mounted && cartCount > prevCartCountRef.current) {
+      setCartBump(true);
+      const timeout = setTimeout(() => setCartBump(false), 500);
+      prevCartCountRef.current = cartCount;
+      return () => clearTimeout(timeout);
+    }
+    prevCartCountRef.current = cartCount;
+  }, [cartCount, mounted]);
 
   const brandClass =
     locale === "ar"
@@ -106,7 +118,7 @@ export function StorefrontHeader() {
             )}
             aria-label={t("nav.cart")}
           >
-            <AppIcon icon={ShoppingCart} size="md" />
+            <AppIcon icon={ShoppingCart} size="md" className={cn(cartBump && "animate-cart-bump")} />
             {countBadge > 0 ? (
               <span className="absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-gold px-1 text-[10px] font-bold text-bg-main">
                 {countBadge}
@@ -176,7 +188,7 @@ export function StorefrontHeader() {
               className="relative flex h-11 w-11 items-center justify-center rounded-lg bg-accent-teal text-on-accent"
               aria-label={t("nav.cart")}
             >
-              <AppIcon icon={ShoppingCart} size="md" />
+              <AppIcon icon={ShoppingCart} size="md" className={cn(cartBump && "animate-cart-bump")} />
               {countBadge > 0 ? (
                 <span
                   suppressHydrationWarning

@@ -4,7 +4,10 @@ import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { generateBlurHashFromBuffer } from "@/lib/images/generate-blur-hash";
 import { removeStudioBackground } from "@/lib/images/remove-studio-background";
-import { enhanceProductImageWithOpenAi } from "@/lib/ai/enhance-product-image";
+import {
+  enhanceProductImageVariants,
+  enhanceProductImageWithOpenAi,
+} from "@/lib/ai/enhance-product-image";
 import {
   draftCatalogFromImages,
   matchCategoryId,
@@ -80,31 +83,44 @@ export async function processSmartProductDraftAction(input: {
     const originals = await Promise.all(urls.map(fetchImage));
     const images: SmartProductImage[] = [];
 
+    // Generate at least 3 high-quality catalog variants overall, spreading
+    // them across however many source photos were uploaded (capped at 6).
+    const totalTarget = Math.min(6, Math.max(3, originals.length));
+    const variantsPerImage = Math.max(1, Math.ceil(totalTarget / originals.length));
+
     for (let i = 0; i < originals.length; i += 1) {
       const original = originals[i]!;
       const originalUrl = urls[i]!;
-      let processedUrl = originalUrl;
-      let blurSource: Buffer = Buffer.from(original.bytes);
+      let variants: Buffer[] = [];
       try {
-        let png: Buffer | null = null;
-        try {
-          png = await enhanceProductImageWithOpenAi(original);
-        } catch {
-          png = null;
-        }
-        if (!png) {
-          png = await removeStudioBackground(original.bytes);
-        }
-        processedUrl = await uploadProcessedPng(supabase, png);
-        blurSource = Buffer.from(png);
+        variants = await enhanceProductImageVariants({ ...original, count: variantsPerImage });
       } catch {
-        processedUrl = originalUrl;
+        variants = [];
       }
-      images.push({
-        originalUrl,
-        processedUrl,
-        blurHash: await generateBlurHashFromBuffer(blurSource),
-      });
+      if (variants.length === 0) {
+        try {
+          const fallback = await removeStudioBackground(original.bytes);
+          variants = Array.from({ length: variantsPerImage }, () => fallback);
+        } catch {
+          variants = [];
+        }
+      }
+      if (variants.length === 0) {
+        images.push({
+          originalUrl,
+          processedUrl: originalUrl,
+          blurHash: await generateBlurHashFromBuffer(Buffer.from(original.bytes)),
+        });
+        continue;
+      }
+      for (const png of variants) {
+        const processedUrl = await uploadProcessedPng(supabase, png);
+        images.push({
+          originalUrl,
+          processedUrl,
+          blurHash: await generateBlurHashFromBuffer(Buffer.from(png)),
+        });
+      }
     }
 
     const catalog = await draftCatalogFromImages({

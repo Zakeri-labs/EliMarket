@@ -405,7 +405,13 @@ export default function AdminCampaignsPage() {
                   step={form.type === "percent" ? 1 : 0.001}
                   max={form.type === "percent" ? 90 : undefined}
                   value={form.discount_value}
-                  onChange={(e) => setForm((s) => ({ ...s, discount_value: Number(e.target.value) }))}
+                  onChange={(e) => {
+                    const raw = Number(e.target.value);
+                    setForm((s) => ({
+                      ...s,
+                      discount_value: s.type === "percent" ? Math.round(raw) : raw,
+                    }));
+                  }}
                   required
                 />
               </label>

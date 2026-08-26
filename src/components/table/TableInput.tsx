@@ -8,7 +8,7 @@ export function TableInput({
   return (
     <input
       className={cn(
-        "h-9 w-full rounded-xl border border-[#e4e4e7] bg-white px-3 text-sm outline-none focus:border-[#6b8f71]",
+        "h-9 w-full rounded-xl border border-[#e4e4e7] bg-white px-3 text-sm outline-none focus:border-[#0d9488]",
         className,
       )}
       {...props}

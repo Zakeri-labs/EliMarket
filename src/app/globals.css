@@ -131,7 +131,11 @@ html.theme-light {
 
 :root {
   --font-app-sans: var(--font-vazirmatn), system-ui, sans-serif;
-  --font-app-logo: var(--font-cormorant), ui-serif, Georgia, serif;
+  /* Cormorant is Latin-only. Persian/Arabic glyphs in `font-logo` text
+     (e.g. localized headings that reuse the brand font) fall through
+     per-character to Vazirmatn/Plex Sans Arabic instead of the browser's
+     generic serif, which renders those scripts badly. */
+  --font-app-logo: var(--font-cormorant), var(--font-vazirmatn), var(--font-plex-sans-arabic), ui-serif, Georgia, serif;
   --font-app-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
@@ -333,10 +337,10 @@ html.theme-light .storefront-hills {
   --muted-foreground: #71717a;
   --card: #ffffff;
   --card-foreground: #18181b;
-  --accent: #6b8f71;
-  --accent-dark: #527559;
+  --accent: #0d9488;
+  --accent-dark: #0f766e;
   --accent-foreground: #ffffff;
-  --accent-glow: rgba(107, 143, 113, 0.12);
+  --accent-glow: rgba(13, 148, 136, 0.12);
   --on-accent: #ffffff;
   --gold: #8a6d3b;
   --skeleton: #e4e4e7;
@@ -405,7 +409,7 @@ html.admin-lock-scroll body {
 .app-modal-scroll,
 .admin-page-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #6b8f71 #f4f4f5;
+  scrollbar-color: #0d9488 #f4f4f5;
 }
 
 .admin-thin-scroll::-webkit-scrollbar,
@@ -432,14 +436,14 @@ html.admin-lock-scroll body {
 .admin-thin-scroll::-webkit-scrollbar-thumb,
 .app-modal-scroll::-webkit-scrollbar-thumb,
 .admin-page-scroll::-webkit-scrollbar-thumb {
-  background: #6b8f71;
+  background: #0d9488;
   border-radius: 8px;
 }
 
 .admin-thin-scroll::-webkit-scrollbar-thumb:hover,
 .app-modal-scroll::-webkit-scrollbar-thumb:hover,
 .admin-page-scroll::-webkit-scrollbar-thumb:hover {
-  background: #527559;
+  background: #0f766e;
 }
 
 @keyframes app-spin {
@@ -451,6 +455,25 @@ html.admin-lock-scroll body {
 .app-spinner {
   animation: app-spin 0.65s linear infinite !important;
   pointer-events: none;
+}
+
+@keyframes cart-bump {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  30% {
+    transform: scale(1.35) rotate(-8deg);
+  }
+  55% {
+    transform: scale(0.92) rotate(6deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.animate-cart-bump {
+  animation: cart-bump 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @layer base {

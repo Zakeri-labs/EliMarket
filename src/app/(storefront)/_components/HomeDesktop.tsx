@@ -122,10 +122,7 @@ export function HomeDesktop() {
           onSort={setSort}
           isSkeleton={isPending}
         />
-        {/* Keep flash-deals footprint even when a category filter is active */}
-        <div className={selectedCategoryId ? "invisible pointer-events-none" : undefined} aria-hidden={Boolean(selectedCategoryId)}>
-          <FlashDeals limit={5} />
-        </div>
+        {!selectedCategoryId && <FlashDeals limit={5} />}
         <section id="home-product-grid">
           <h2 className="mb-4 min-h-7 text-start text-lg font-semibold">
             {selectedCategoryName ?? t("home.allProducts")}

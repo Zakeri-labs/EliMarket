@@ -20,13 +20,16 @@ CREATE INDEX IF NOT EXISTS admin_notifications_recipient_unread_idx
 
 ALTER TABLE public.admin_notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS admin_notifications_select_own ON public.admin_notifications;
 CREATE POLICY admin_notifications_select_own ON public.admin_notifications
   FOR SELECT USING (auth.uid() = recipient_id AND public.is_admin());
 
+DROP POLICY IF EXISTS admin_notifications_update_own ON public.admin_notifications;
 CREATE POLICY admin_notifications_update_own ON public.admin_notifications
   FOR UPDATE USING (auth.uid() = recipient_id AND public.is_admin())
   WITH CHECK (auth.uid() = recipient_id AND public.is_admin());
 
+DROP POLICY IF EXISTS admin_notifications_delete_own ON public.admin_notifications;
 CREATE POLICY admin_notifications_delete_own ON public.admin_notifications
   FOR DELETE USING (auth.uid() = recipient_id AND public.is_admin());
 
@@ -63,6 +66,7 @@ CREATE TRIGGER orders_notify_admins
 -- Riders can read addresses of orders assigned to them (or ready pool via order join in app;
 -- for ready orders they need address before accept — allow select when order is preparing & unassigned
 -- or assigned to this rider)
+DROP POLICY IF EXISTS addresses_select_for_rider ON public.addresses;
 CREATE POLICY addresses_select_for_rider ON public.addresses
   FOR SELECT USING (
     EXISTS (

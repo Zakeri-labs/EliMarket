@@ -45,7 +45,7 @@ function toCampaignPayload(input: CampaignInput) {
     throw new Error("DATES_REQUIRED");
   }
   if (endsAt.getTime() <= startsAt.getTime()) throw new Error("WINDOW_INVALID");
-  const discount = Number(input.discount_value);
+  const discount = input.type === "percent" ? Math.round(Number(input.discount_value)) : Number(input.discount_value);
   if (!Number.isFinite(discount) || discount <= 0) throw new Error("DISCOUNT_REQUIRED");
   if (input.type === "percent" && discount > 90) throw new Error("PERCENT_MAX");
   const productIds = [...new Set(input.product_ids.filter(Boolean))];

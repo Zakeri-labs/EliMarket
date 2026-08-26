@@ -15,12 +15,15 @@ CREATE INDEX IF NOT EXISTS rider_profiles_phone_idx ON public.rider_profiles (ph
 
 ALTER TABLE public.rider_profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS rider_profiles_admin_all ON public.rider_profiles;
 CREATE POLICY rider_profiles_admin_all ON public.rider_profiles
   FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS rider_profiles_select_own ON public.rider_profiles;
 CREATE POLICY rider_profiles_select_own ON public.rider_profiles
   FOR SELECT USING (auth.uid() = profile_id);
 
+DROP POLICY IF EXISTS rider_profiles_select_for_order_context ON public.rider_profiles;
 CREATE POLICY rider_profiles_select_for_order_context ON public.rider_profiles
   FOR SELECT USING (
     public.is_admin()

@@ -44,7 +44,7 @@ export function ColumnFilter({
         size="sm"
         className={cn(
           "!h-7 !w-7 !rounded-lg !p-0",
-          isActive && "!text-[#527559]",
+          isActive && "!text-[#0f766e]",
         )}
         onClick={() => setOpen((v) => !v)}
         aria-label={resolvedTitle}

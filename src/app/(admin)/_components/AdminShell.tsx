@@ -122,8 +122,8 @@ export function AdminShell({
       >
         <div className="mb-6 flex shrink-0 items-start justify-between gap-2">
           <div>
-            <p className="text-xs text-[#6b8f71]">{t("admin.panelLabel")}</p>
-            <p className="font-logo text-lg font-semibold tracking-wide text-[#527559]">
+            <p className="text-xs text-[#0d9488]">{t("admin.panelLabel")}</p>
+            <p className="font-logo text-lg font-semibold tracking-wide text-[#0f766e]">
               {t("admin.brandAdmin")}
             </p>
           </div>
@@ -152,14 +152,14 @@ export function AdminShell({
                     className={cn(
                       "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-colors",
                       active
-                        ? "bg-[#6b8f71]/15 font-medium text-[#527559]"
+                        ? "bg-[#0d9488]/15 font-medium text-[#0f766e]"
                         : "text-[#71717a] hover:bg-[#f4f4f5]",
                     )}
                   >
                     <AppIcon
                       icon={item.icon}
                       size="sm"
-                      className={active ? "text-[#527559]" : "text-[#a1a1aa]"}
+                      className={active ? "text-[#0f766e]" : "text-[#a1a1aa]"}
                     />
                     {t(item.key)}
                   </Link>
@@ -207,7 +207,7 @@ export function AdminShell({
               <ProductDetailExtrasToggle compact />
               <LanguageTabs
                 compact
-                className="border-[#e4e4e7] bg-[#fafafa] [&_button[aria-selected=true]]:bg-[#6b8f71] [&_button[aria-selected=true]]:text-white"
+                className="border-[#e4e4e7] bg-[#fafafa] [&_button[aria-selected=true]]:bg-[#0d9488] [&_button[aria-selected=true]]:text-white"
               />
             </div>
           </div>

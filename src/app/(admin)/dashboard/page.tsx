@@ -32,7 +32,7 @@ function StatCard({
           "mt-2 text-2xl font-bold",
           tone === "danger" && "text-red-600",
           tone === "warn" && "text-amber-700",
-          tone === "default" && "text-[#527559]",
+          tone === "default" && "text-[#0f766e]",
         )}
       >
         {value}
@@ -104,7 +104,7 @@ export default function AdminDashboardPage() {
                     <AppIcon icon={AlertTriangle} size="sm" className="text-amber-600" />
                     {t("admin.dashboard.lowStockTitle")}
                   </h2>
-                  <Link href="/dashboard/products" className="text-xs text-[#527559]">
+                  <Link href="/dashboard/products" className="text-xs text-[#0f766e]">
                     {t("admin.dashboard.viewProducts")}
                   </Link>
                 </div>
@@ -135,10 +135,10 @@ export default function AdminDashboardPage() {
               <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <h2 className="flex items-center gap-2 font-semibold text-[#18181b]">
-                    <AppIcon icon={ShoppingBag} size="sm" className="text-[#6b8f71]" />
+                    <AppIcon icon={ShoppingBag} size="sm" className="text-[#0d9488]" />
                     {t("admin.reports.recentOrders")}
                   </h2>
-                  <Link href="/dashboard/orders" className="text-xs text-[#527559]">
+                  <Link href="/dashboard/orders" className="text-xs text-[#0f766e]">
                     {t("admin.dashboard.viewOrders")}
                   </Link>
                 </div>

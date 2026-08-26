@@ -165,8 +165,8 @@ export default function AdminBrandsPage() {
                   className={cn(
                     "group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all",
                     editing?.id === brand.id
-                      ? "border-[#6b8f71] shadow-[0_8px_24px_rgba(107,143,113,0.18)]"
-                      : "border-[#e4e4e7] hover:-translate-y-0.5 hover:border-[#6b8f71]/50 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
+                      ? "border-[#0d9488] shadow-[0_8px_24px_rgba(107,143,113,0.18)]"
+                      : "border-[#e4e4e7] hover:-translate-y-0.5 hover:border-[#0d9488]/50 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
                   )}
                 >
                   <button
@@ -184,7 +184,7 @@ export default function AdminBrandsPage() {
                           className="max-h-full max-w-full object-contain"
                         />
                       ) : (
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#6b8f71]/12 text-sm font-semibold text-[#527559]">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0d9488]/12 text-sm font-semibold text-[#0f766e]">
                           {brand.name.slice(0, 2)}
                         </span>
                       )}
