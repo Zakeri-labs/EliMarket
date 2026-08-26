@@ -8,9 +8,14 @@ import { useAuthStore } from "@/app/_store/auth-store";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { Button } from "@/components/ui/Button";
 import { LanguageTabs } from "@/components/i18n/LanguageTabs";
+import {
+  isOtpBypassEnabledPublic,
+  otpBypassCodePublic,
+} from "@/config/otp-bypass";
 import { useTranslations } from "@/i18n/use-translations";
 
-const isDev = process.env.NODE_ENV !== "production";
+const otpBypass = isOtpBypassEnabledPublic();
+const bypassCode = otpBypassCodePublic();
 
 export default function RiderLoginPage() {
   const router = useRouter();
@@ -19,8 +24,8 @@ export default function RiderLoginPage() {
   const { runAction, isPending } = useFormAction();
   const { t, dir } = useTranslations();
   const [step, setStep] = useState<"phone" | "code">("phone");
-  const [phone, setPhone] = useState(isDev ? "09121234567" : "");
-  const [otp, setOtp] = useState(isDev ? "123456" : "");
+  const [phone, setPhone] = useState(otpBypass ? "09121234567" : "");
+  const [otp, setOtp] = useState(otpBypass ? bypassCode : "");
 
   return (
     <main className="mx-auto flex min-h-full w-full max-w-md flex-col justify-center px-4 py-10" dir={dir}>
@@ -81,10 +86,9 @@ export default function RiderLoginPage() {
               dir="ltr"
               required
             />
-            {isDev && (
+            {otpBypass && (
               <p className="text-xs text-muted" dir="ltr">
-                Dev/test — phone <strong>09121234567</strong>, code{" "}
-                <strong>123456</strong>
+                Temporary OTP — any phone, code: <strong>{bypassCode}</strong>
               </p>
             )}
             <Button type="submit" fullWidth loading={isPending} loadingLabel={t("common.processing")}>

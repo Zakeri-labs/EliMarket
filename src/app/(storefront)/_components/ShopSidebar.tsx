@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Category, Product } from "@/app/_types/database.types";
 import { CategoryListItem } from "@/app/(storefront)/_components/CategoryListItem";
+import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
 import {
   childCategories,
@@ -37,6 +38,7 @@ type Props = {
   onRefineChange: (next: ShopRefine) => void;
   selectedCategoryId: string | null;
   onSelectCategory: (categoryId: string | null) => void;
+  isSkeleton?: boolean;
 };
 
 export function ShopSidebar({
@@ -46,6 +48,7 @@ export function ShopSidebar({
   onRefineChange,
   selectedCategoryId,
   onSelectCategory,
+  isSkeleton = false,
 }: Props) {
   const { t, locale } = useTranslations();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
@@ -104,8 +107,8 @@ export function ShopSidebar({
 
   return (
     <aside className="w-[260px] shrink-0 grow-0 basis-[260px] self-stretch">
-      <div className="flex w-[260px] flex-col">
-        <p className="mb-4 text-[11px] tracking-[0.1em] text-text-secondary uppercase">
+      <div className={cn("flex w-[260px] flex-col", isSkeleton && "skeleton")}>
+        <p className="mb-4 min-h-4 text-[11px] tracking-[0.1em] text-text-secondary uppercase">
           {t("home.shopByCategory")}
         </p>
 

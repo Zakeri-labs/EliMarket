@@ -38,14 +38,23 @@ export function HeroBanner() {
     return () => window.clearInterval(timer);
   }, [paused, isSkeleton, slides.length]);
 
-  if (slides.length === 0) return null;
+  if (slides.length === 0) {
+    return (
+      <section
+        className="relative h-[340px] overflow-hidden rounded-2xl border border-border-subtle"
+        aria-hidden
+      >
+        <StripePlaceholder className="absolute inset-0" label="produce basket photo" />
+      </section>
+    );
+  }
 
   const slide = slides[index];
   const showControls = slides.length > 1;
 
   return (
     <section
-      className="relative h-[340px] overflow-hidden rounded-2xl border border-border-subtle"
+      className="relative h-[340px] w-full overflow-hidden rounded-2xl border border-border-subtle"
       aria-roledescription="carousel"
       aria-label={t("home.heroCarouselLabel")}
       onMouseEnter={() => setPaused(true)}
@@ -66,7 +75,7 @@ export function HeroBanner() {
             alt=""
             fill
             priority
-            sizes="(max-width: 1280px) 100vw, 1280px"
+            sizes="(max-width: 1023px) 100vw, calc(100vw - 320px)"
             withBlur
             className="object-cover object-center"
           />

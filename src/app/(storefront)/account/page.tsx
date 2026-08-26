@@ -283,9 +283,10 @@ function AccountPageContent() {
                 onChange={(e) => setOtp(e.target.value)}
                 dir="ltr"
               />
-              {process.env.NODE_ENV !== "production" && (
+              {process.env.NEXT_PUBLIC_OTP_BYPASS_ENABLED !== "false" && (
                 <p className="text-xs text-muted" dir="ltr">
-                  Dev/test mode — no SMS is sent yet. Use code: <strong>123456</strong>
+                  Temporary OTP — any phone, code:{" "}
+                  <strong>{process.env.NEXT_PUBLIC_OTP_BYPASS_CODE || "213141"}</strong>
                 </p>
               )}
               <Button

@@ -18,8 +18,27 @@ type Props = {
   onOpenFilters?: () => void;
   /** Badge count shown on the filters button (e.g. active refine toggles). */
   filterCount?: number;
+  isSkeleton?: boolean;
 };
 
+function pillLabelKey(id: HomePill) {
+  switch (id) {
+    case "campaigns":
+      return "home.pillCampaigns" as const;
+    case "newest":
+      return "home.pillNewest" as const;
+    case "bestsellers":
+      return "home.pillBestSellers" as const;
+    case "discounted":
+      return "home.pillDiscounted" as const;
+    case "under1":
+      return "home.pillUnderOne" as const;
+    case "local":
+      return "home.pillLocal" as const;
+  }
+}
+
+/** Fixed-height filter row — badge/X/count never change layout width. */
 export function HomeFilterBar({
   pills,
   active,
@@ -28,31 +47,36 @@ export function HomeFilterBar({
   onSort,
   onOpenFilters,
   filterCount = 0,
+  isSkeleton = false,
 }: Props) {
   const { t } = useTranslations();
 
   return (
-    <div className="flex items-center gap-3">
+    <div className={cn("flex h-9 items-center gap-3", isSkeleton && "skeleton")}>
       {onOpenFilters ? (
         <button
           type="button"
           onClick={onOpenFilters}
-          className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-medium text-foreground"
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-medium text-foreground"
         >
           <AppIcon icon={SlidersHorizontal} size="xs" />
           {t("home.filterLabel")}
-          {filterCount > 0 ? (
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground">
-              {filterCount}
-            </span>
-          ) : null}
+          <span
+            className={cn(
+              "flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground tabular-nums",
+              filterCount <= 0 && "invisible",
+            )}
+            aria-hidden={filterCount <= 0}
+          >
+            {filterCount > 0 ? filterCount : 0}
+          </span>
         </button>
       ) : (
-        <span className="text-[11px] font-medium tracking-[0.16em] text-muted uppercase">
+        <span className="shrink-0 text-[11px] font-medium tracking-[0.16em] text-muted uppercase">
           {t("home.filterLabel")}
         </span>
       )}
-      <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
+      <div className="no-scrollbar flex h-8 min-w-0 flex-1 items-center gap-2 overflow-x-auto">
         {pills.map((pill) => {
           const selected = active === pill.id;
           return (
@@ -61,35 +85,28 @@ export function HomeFilterBar({
               type="button"
               onClick={() => onToggle(pill.id)}
               className={cn(
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs",
+                "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs",
                 selected
                   ? "border-accent bg-accent/15 text-accent"
                   : "border-border text-foreground hover:border-accent/40",
               )}
             >
-              {t(
-                pill.id === "campaigns"
-                  ? "home.pillCampaigns"
-                  : pill.id === "newest"
-                    ? "home.pillNewest"
-                    : pill.id === "bestsellers"
-                      ? "home.pillBestSellers"
-                      : pill.id === "discounted"
-                        ? "home.pillDiscounted"
-                        : pill.id === "under1"
-                          ? "home.pillUnderOne"
-                          : "home.pillLocal",
-              )}{" "}
-              {pill.count}
-              {selected ? <AppIcon icon={X} size="xs" /> : null}
+              <span>{t(pillLabelKey(pill.id))}</span>
+              <span className="min-w-[1.5rem] text-end tabular-nums">{pill.count}</span>
+              <AppIcon
+                icon={X}
+                size="xs"
+                className={cn(!selected && "invisible")}
+                aria-hidden={!selected}
+              />
             </button>
           );
         })}
       </div>
-      <label className="hidden shrink-0 items-center gap-2 text-xs text-muted sm:flex">
-        <span>{t("search.sortLabel")}</span>
+      <label className="hidden h-8 shrink-0 items-center gap-2 text-xs text-muted sm:flex">
+        <span className="whitespace-nowrap">{t("search.sortLabel")}</span>
         <select
-          className="rounded-lg border border-border bg-surface px-2 py-1 text-xs text-foreground outline-none"
+          className="h-8 rounded-lg border border-border bg-surface px-2 text-xs text-foreground outline-none"
           value={sort}
           onChange={(e) => onSort(e.target.value as SortKey)}
         >

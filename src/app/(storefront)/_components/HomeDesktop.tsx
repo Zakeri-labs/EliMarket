@@ -7,8 +7,8 @@ import { useProducts } from "@/app/(storefront)/_hooks/use-products";
 import { FlashDeals } from "@/app/(storefront)/_components/FlashDeals";
 import { HeroBanner } from "@/app/(storefront)/_components/HeroBanner";
 import { HomeFilterBar } from "@/app/(storefront)/_components/HomeFilterBar";
-import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
 import { ShopSidebar, type ShopRefine } from "@/app/(storefront)/_components/ShopSidebar";
+import { StableProductGrid } from "@/app/(storefront)/_components/StableProductGrid";
 import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { mockProducts } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
@@ -25,7 +25,7 @@ type SortKey = "newest" | "price-asc" | "price-desc";
 export function HomeDesktop() {
   const { t, locale } = useTranslations();
   const { data: products, isPending } = useProducts();
-  const { data: categories } = useQuery({
+  const { data: categories, isPending: categoriesPending } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
       const result = await getCategoriesAction();
@@ -110,6 +110,7 @@ export function HomeDesktop() {
         onRefineChange={setRefine}
         selectedCategoryId={selectedCategoryId}
         onSelectCategory={setSelectedCategoryId}
+        isSkeleton={categoriesPending}
       />
       <div className="min-w-0 flex-1 space-y-8">
         <HeroBanner />
@@ -119,26 +120,23 @@ export function HomeDesktop() {
           onToggle={(id) => setPill((current) => (current === id ? null : id))}
           sort={sort}
           onSort={setSort}
+          isSkeleton={isPending}
         />
-        {!selectedCategoryId ? <FlashDeals limit={5} /> : null}
+        {/* Keep flash-deals footprint even when a category filter is active */}
+        <div className={selectedCategoryId ? "invisible pointer-events-none" : undefined} aria-hidden={Boolean(selectedCategoryId)}>
+          <FlashDeals limit={5} />
+        </div>
         <section id="home-product-grid">
-          <h2 className="mb-4 text-start text-lg font-semibold">
+          <h2 className="mb-4 min-h-7 text-start text-lg font-semibold">
             {selectedCategoryName ?? t("home.allProducts")}
           </h2>
-          <div className="grid grid-cols-5 gap-3">
-            {(isPending ? mockProducts(locale).slice(0, 10) : filtered).map((product, index) => (
-              <ProductDealCard
-                key={product.id}
-                product={product}
-                isSkeleton={isPending}
-                layout="grid"
-                priority={index < 5}
-              />
-            ))}
-          </div>
-          {!isPending && filtered.length === 0 ? (
-            <p className="mt-4 text-sm text-text-secondary">{t("home.noProducts")}</p>
-          ) : null}
+          <StableProductGrid
+            products={isPending ? mockProducts(locale).slice(0, 10) : filtered}
+            isSkeleton={isPending}
+            minSlots={10}
+            priorityCount={5}
+            className="!grid-cols-5"
+          />
         </section>
       </div>
     </div>

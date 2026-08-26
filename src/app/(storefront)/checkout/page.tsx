@@ -204,6 +204,12 @@ function CheckoutPageContent() {
               onChange={(e) => setOtp(e.target.value)}
               dir="ltr"
             />
+            {process.env.NEXT_PUBLIC_OTP_BYPASS_ENABLED !== "false" && (
+              <p className="text-xs text-muted" dir="ltr">
+                Temporary OTP — code:{" "}
+                <strong>{process.env.NEXT_PUBLIC_OTP_BYPASS_CODE || "213141"}</strong>
+              </p>
+            )}
             <Button type="submit" fullWidth loading={isPending} loadingLabel={t("common.processing")}>
               {t("checkout.confirm")}
             </Button>

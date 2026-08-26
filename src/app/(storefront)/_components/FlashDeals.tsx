@@ -56,11 +56,29 @@ export function FlashDeals({ limit }: Props) {
     return { deals: nextDeals, endsAt: nextEndsAt, viewAllHref };
   }, [dealCount, isSkeleton, locale, products]);
 
-  if (!isSkeleton && deals.length === 0) return null;
+  if (!isSkeleton && deals.length === 0) {
+    return (
+      <section dir={dir} className="invisible pointer-events-none" aria-hidden>
+        <div className="mb-4 flex h-7 items-center justify-between gap-2">
+          <div className="h-6 w-28 rounded bg-transparent" />
+          <div className="h-5 w-16 rounded bg-transparent" />
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+          {Array.from({ length: Math.min(dealCount, 5) }, (_, i) => (
+            <div key={i}>
+              <div className="aspect-square w-full" />
+              <div className="mt-2 min-h-8" />
+              <div className="mt-1.5 min-h-8" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section dir={dir}>
-      <div className="mb-4 flex items-center justify-between gap-2">
+      <div className="mb-4 flex h-7 items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-3">
           <h2 className="text-start font-logo text-base tracking-wide sm:text-lg">
             {t("home.flashDeals")}

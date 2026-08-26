@@ -212,10 +212,16 @@ export async function registerRiderAction(input: RiderDetailsInput) {
     });
     if (listError) throw listError;
 
-    const phoneDigits = details.phone.replace(/^\+/, "");
+    const phoneDigits = details.phone.replace(/\D/g, "");
+    const riderEmail = `rider-${phoneDigits}@dev.local`;
+    const otpEmail = `otp-bypass-${phoneDigits}@dev.local`;
+
     let userId =
-      userList.users.find((u) => u.phone === phoneDigits || u.phone === details.phone)?.id ??
-      null;
+      userList.users.find(
+        (u) =>
+          u.email?.toLowerCase() === riderEmail ||
+          u.email?.toLowerCase() === otpEmail,
+      )?.id ?? null;
 
     if (!userId) {
       const { data: profilesMatch } = await admin
@@ -228,11 +234,10 @@ export async function registerRiderAction(input: RiderDetailsInput) {
 
     if (!userId) {
       const { data: created, error: createError } = await admin.auth.admin.createUser({
-        phone: details.phone,
-        email: `rider-${phoneDigits}@dev.local`,
-        phone_confirm: true,
+        email: riderEmail,
+        password: "dev-otp-bypass-a1f3c9",
         email_confirm: true,
-        user_metadata: { full_name: details.fullName },
+        user_metadata: { full_name: details.fullName, phone: details.phone },
       });
       if (createError) throw createError;
       userId = created.user?.id ?? null;

@@ -10,7 +10,7 @@ import { useProducts } from "@/app/(storefront)/_hooks/use-products";
 import { BrowseWithSidebar } from "@/app/(storefront)/_components/BrowseWithSidebar";
 import { CategorySideNav } from "@/app/(storefront)/_components/CategorySideNav";
 import { FilterPanel } from "@/app/(storefront)/_components/FilterPanel";
-import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
+import { StableProductGrid } from "@/app/(storefront)/_components/StableProductGrid";
 import { useTranslations } from "@/i18n/use-translations";
 import { productDescriptionSearchText } from "@/lib/i18n/product-description";
 import { categoryAndDescendantSlugs } from "@/lib/categories/tree";
@@ -277,15 +277,16 @@ export function SearchContent() {
           </FilterPanel>
         }
       >
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-          {results.map((p, index) => (
-            <ProductDealCard key={p.id} product={p} priority={index < 4} layout="grid" />
-          ))}
-        </div>
-        {results.length === 0 && hasActiveFilters && (
-          <p className="mt-8 text-center text-sm text-muted">{t("search.noResults")}</p>
-        )}
-        {!hasActiveFilters && (
+        <StableProductGrid
+          products={results}
+          minSlots={8}
+          priorityCount={4}
+          className="xl:!grid-cols-4"
+          emptyMessage={
+            hasActiveFilters ? t("search.noResults") : undefined
+          }
+        />
+        {!hasActiveFilters && results.length === 0 ? (
           <p className="mt-4 text-center text-sm text-muted">
             {t("search.hintPrefix")}{" "}
             <Link href="/categories" className="text-accent">
@@ -293,7 +294,7 @@ export function SearchContent() {
             </Link>{" "}
             {t("search.hintSuffix")}
           </p>
-        )}
+        ) : null}
       </BrowseWithSidebar>
     </main>
   );

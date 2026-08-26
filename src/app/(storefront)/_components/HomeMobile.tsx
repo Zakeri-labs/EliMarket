@@ -8,8 +8,8 @@ import { FlashDeals } from "@/app/(storefront)/_components/FlashDeals";
 import { HeroCarousel } from "@/app/(storefront)/_components/HeroCarousel";
 import { HomeFilterBar } from "@/app/(storefront)/_components/HomeFilterBar";
 import { LocationBar, SearchBar } from "@/app/(storefront)/_components/HomeSections";
-import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
 import type { ShopRefine } from "@/app/(storefront)/_components/ShopSidebar";
+import { StableProductGrid } from "@/app/(storefront)/_components/StableProductGrid";
 import { mockProducts } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import { applyHomeFilters, isOrganicProduct, type HomePill } from "@/lib/products/home-filters";
@@ -98,31 +98,25 @@ export function HomeMobile() {
           onSort={setSort}
           onOpenFilters={() => setSheetOpen(true)}
           filterCount={activeFilterCount}
+          isSkeleton={isPending}
         />
       </div>
       <FlashDeals />
       <section dir={dir}>
-        <h2 className="mb-4 text-start text-base font-bold sm:text-lg">
+        <h2 className="mb-4 min-h-7 text-start text-base font-bold sm:text-lg">
           {t("home.allProducts")}
         </h2>
         {error && !isPending ? (
           <p className="rounded-2xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger">
             {error.message}
           </p>
-        ) : !isPending && filtered.length === 0 ? (
-          <p className="text-sm text-muted">{t("home.noProducts")}</p>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {(isPending ? mockProducts(locale) : filtered).map((product, index) => (
-              <ProductDealCard
-                key={product.id}
-                product={product}
-                isSkeleton={isPending}
-                priority={index < 4}
-                layout="grid"
-              />
-            ))}
-          </div>
+          <StableProductGrid
+            products={isPending ? mockProducts(locale) : filtered}
+            isSkeleton={isPending}
+            minSlots={6}
+            priorityCount={4}
+          />
         )}
       </section>
 

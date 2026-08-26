@@ -97,7 +97,9 @@ export function ProductDealCard({
           <div className="absolute bottom-1.5 end-1.5 z-20">
             <ProductCartQtyControl product={product} />
           </div>
-        ) : null}
+        ) : (
+          <div className="absolute bottom-1.5 end-1.5 z-20 h-8 w-8" aria-hidden />
+        )}
       </div>
 
       <div className="mt-2 flex min-h-0 flex-1 flex-col text-start">
