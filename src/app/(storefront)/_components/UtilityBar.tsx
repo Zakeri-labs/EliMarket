@@ -13,7 +13,7 @@ export function UtilityBar() {
 
   return (
     <div className="h-10 border-b border-border-subtle bg-bg-main">
-      <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-8 text-[13px] text-text-secondary">
+      <div className="flex h-full w-full items-center justify-between px-8 text-[13px] text-text-secondary">
         <p suppressHydrationWarning className="min-w-0 truncate">
           {locale === "en"
             ? "Free delivery on orders over OMR 5.000 · Muscat & Seeb"

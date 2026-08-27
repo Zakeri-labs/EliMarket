@@ -37,7 +37,7 @@ type MenuItem = {
 
 export function MobileMenuDrawer({ open, onOpenChange }: Props) {
   const pathname = usePathname();
-  const { t, messages } = useTranslations();
+  const { t, messages, locale } = useTranslations();
   const session = useAuthStore((s) => s.session);
   const authStatus = useAuthStore((s) => s.status);
   const cartCount = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
@@ -69,7 +69,12 @@ export function MobileMenuDrawer({ open, onOpenChange }: Props) {
         >
           <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-4 pt-[max(1rem,env(safe-area-inset-top))]">
             <div className="min-w-0">
-              <Dialog.Title className="truncate font-logo text-base tracking-wide text-text-primary">
+              <Dialog.Title
+                className={cn(
+                  "truncate text-base tracking-wide text-text-primary",
+                  locale !== "ar" && "font-logo",
+                )}
+              >
                 {messages.brand.nameLocal}
               </Dialog.Title>
               <p className="mt-0.5 truncate text-xs text-text-secondary">

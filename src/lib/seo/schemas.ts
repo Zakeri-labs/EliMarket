@@ -3,6 +3,7 @@ import type { Category, Product } from "@/app/_types/database.types";
 import { productGallery } from "@/lib/products/gallery";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo/site-url";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
+import { resolveProductName } from "@/lib/i18n/product-name";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 import type { Locale } from "@/i18n/config";
 
@@ -52,7 +53,7 @@ export function productJsonLd(
   return {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: product.name,
+    name: resolveProductName(product, locale),
     description: resolveProductDescription(product, locale) ?? undefined,
     image: galleryImages.length ? galleryImages : undefined,
     sku: product.sku ?? product.id,

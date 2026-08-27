@@ -25,10 +25,11 @@ import { createOrderAction } from "@/app/_actions/order-actions";
 import { sendOtpAction, verifyOtpAction } from "@/app/_actions/auth-actions";
 import { useCartStore } from "@/app/_store/cart-store";
 import { useAuthStore } from "@/app/_store/auth-store";
+import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { cartTotals } from "@/config/brand";
+import { cartTotals, roundMoney } from "@/config/brand";
 import { DEFAULT_MAP_CENTER } from "@/config/geo";
 import type { Address } from "@/app/_types/database.types";
 import { CartGate } from "@/app/(storefront)/_components/CartGate";
@@ -89,6 +90,7 @@ function CheckoutPageContent() {
   const { isPending, runAction } = useFormAction();
   const { t, messages, locale, dir } = useTranslations();
   const formatPrice = useFormatPrice();
+  const { cashSurcharge } = useStoreSettings();
 
   const deliverySlots = messages.checkout.deliverySlots;
 
@@ -113,6 +115,10 @@ function CheckoutPageContent() {
     () => cartTotals(totalPrice()),
     [items, totalPrice],
   );
+
+  const cashFee =
+    paymentMethod === "cash" && cashSurcharge > 0 ? roundMoney(cashSurcharge) : 0;
+  const grandTotal = roundMoney(total + cashFee);
 
   useEffect(() => {
     setDeliverySlot(deliverySlots[0] ?? "");
@@ -606,9 +612,15 @@ function CheckoutPageContent() {
                 <span>{t("checkout.vat")}</span>
                 <span className="text-text-primary">{formatPrice(vat)}</span>
               </div>
+              {cashFee > 0 ? (
+                <div className="flex justify-between text-text-secondary">
+                  <span>{t("checkout.cashFee")}</span>
+                  <span className="text-text-primary">{formatPrice(cashFee)}</span>
+                </div>
+              ) : null}
               <div className="flex justify-between border-t border-border-subtle pt-3 text-base font-bold md:pt-4 md:text-lg">
                 <span className="text-text-primary">{t("checkout.total")}</span>
-                <span className="text-accent-teal">{formatPrice(total)}</span>
+                <span className="text-accent-teal">{formatPrice(grandTotal)}</span>
               </div>
             </div>
           </section>
@@ -625,7 +637,7 @@ function CheckoutPageContent() {
               onClick={placeOrder}
               className="!h-12 !rounded-xl !bg-accent-teal !text-base !text-on-accent shadow-none"
             >
-              {t("checkout.submitOrder", { price: formatPrice(total) })}
+              {t("checkout.submitOrder", { price: formatPrice(grandTotal) })}
             </Button>
           </div>
         </div>

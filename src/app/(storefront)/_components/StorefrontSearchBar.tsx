@@ -12,6 +12,7 @@ import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
 import { productCover } from "@/lib/products/gallery";
 import { matchesProductQuery } from "@/lib/products/search";
+import { resolveProductName } from "@/lib/i18n/product-name";
 import type { Product } from "@/app/_types/database.types";
 
 type Props = {
@@ -34,7 +35,7 @@ function SearchBarForm({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const formatPrice = useFormatPrice();
   const { data: products } = useProducts();
   const onSearchPage = pathname === "/search";
@@ -143,7 +144,9 @@ function SearchBarForm({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-text-primary">{product.name}</p>
+                  <p className="truncate text-sm text-text-primary">
+                    {resolveProductName(product, locale)}
+                  </p>
                 </div>
                 <p className="price-num shrink-0 text-xs font-semibold text-text-primary">
                   {formatPrice(Number(product.price))}

@@ -246,6 +246,9 @@ export async function getAdminProductsAction() {
 
 export async function createProductAction(input: {
   name: string;
+  name_fa?: string | null;
+  name_ar?: string | null;
+  name_en?: string | null;
   slug: string;
   description?: string;
   description_fa?: string | null;
@@ -273,11 +276,17 @@ export async function createProductAction(input: {
     const description_fa = input.description_fa?.trim() || input.description?.trim() || null;
     const description_ar = input.description_ar?.trim() || null;
     const description_en = input.description_en?.trim() || null;
+    const name_fa = input.name_fa?.trim() || input.name?.trim() || null;
+    const name_ar = input.name_ar?.trim() || null;
+    const name_en = input.name_en?.trim() || null;
     const cover = coverFromImages(input.images);
     const { data, error } = await supabase
       .from("products")
       .insert({
-        name: input.name,
+        name: name_fa ?? input.name,
+        name_fa,
+        name_ar,
+        name_en,
         slug: input.slug,
         description: description_fa ?? description_ar ?? description_en ?? null,
         description_fa,
@@ -329,6 +338,9 @@ export async function updateProductAction(
   id: string,
   input: Partial<{
     name: string;
+    name_fa: string | null;
+    name_ar: string | null;
+    name_en: string | null;
     slug: string;
     description: string | null;
     description_fa: string | null;
@@ -368,6 +380,20 @@ export async function updateProductAction(
       patch.description_ar = ar;
       patch.description_en = en;
       patch.description = fa ?? ar ?? en;
+    }
+
+    if (
+      patch.name_fa !== undefined ||
+      patch.name_ar !== undefined ||
+      patch.name_en !== undefined
+    ) {
+      const fa = patch.name_fa?.trim() || null;
+      const ar = patch.name_ar?.trim() || null;
+      const en = patch.name_en?.trim() || null;
+      patch.name_fa = fa;
+      patch.name_ar = ar;
+      patch.name_en = en;
+      patch.name = fa ?? ar ?? en ?? patch.name;
     }
 
     if (images !== undefined) {

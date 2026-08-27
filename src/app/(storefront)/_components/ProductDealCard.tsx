@@ -10,6 +10,7 @@ import { Price } from "@/components/ui/Price";
 import { ProductCartQtyControl } from "@/app/(storefront)/_components/ProductCartQtyControl";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
+import { resolveProductName } from "@/lib/i18n/product-name";
 import { productCover } from "@/lib/products/gallery";
 import {
   productCompareAtPrice,
@@ -36,6 +37,7 @@ export function ProductDealCard({
   const discountBadge = productDiscountBadge(product, formatPrice);
   const compareAt = productCompareAtPrice(product);
   const excerpt = resolveProductCardExcerpt(product, locale);
+  const name = resolveProductName(product, locale);
   const cover = productCover(product);
   // TEMP: alternate image background for testing white vs dark card backgrounds — remove when done testing.
   const testWhiteBg = String(product.id).charCodeAt(0) % 2 === 0;
@@ -77,7 +79,7 @@ export function ProductDealCard({
               <StorefrontImage
                 src={cover.image_url}
                 blurHash={cover.blur_hash}
-                alt={product.name}
+                alt={name}
                 fill
                 priority={priority}
                 sizes={
@@ -105,7 +107,7 @@ export function ProductDealCard({
 
       <div className="mt-2 flex min-h-0 flex-1 flex-col text-start">
         <p className="line-clamp-2 min-h-8 text-xs font-medium leading-4 lg:text-sm lg:font-semibold">
-          {product.name}
+          {name}
         </p>
         {excerpt ? (
           <p className="mt-0.5 line-clamp-2 min-h-7 text-[10px] leading-snug text-muted lg:hidden">

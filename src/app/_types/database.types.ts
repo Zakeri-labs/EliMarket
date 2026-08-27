@@ -140,6 +140,9 @@ export type Product = {
   category_id: string | null;
   brand_id: string | null;
   name: string;
+  name_fa: string | null;
+  name_ar: string | null;
+  name_en: string | null;
   slug: string;
   description: string | null;
   description_fa: string | null;
@@ -208,6 +211,8 @@ export type StoreSettings = {
   show_prices: boolean;
   /** Tabs + frequently-bought block on product detail pages */
   show_product_detail_extras: boolean;
+  /** Amount added to the invoice total when the customer pays cash on delivery. */
+  cash_surcharge: number;
   updated_at: string;
   hero_badge: string | null;
   hero_title: string | null;
@@ -220,13 +225,28 @@ export type StoreSettings = {
 
 export type HeroBanner = {
   id: string;
+  /** Legacy single-value copy — kept as a fallback behind the per-language columns. */
   badge: string | null;
   title: string | null;
   subtitle: string | null;
   cta_label: string | null;
+  badge_fa: string | null;
+  badge_ar: string | null;
+  badge_en: string | null;
+  title_fa: string | null;
+  title_ar: string | null;
+  title_en: string | null;
+  subtitle_fa: string | null;
+  subtitle_ar: string | null;
+  subtitle_en: string | null;
+  cta_label_fa: string | null;
+  cta_label_ar: string | null;
+  cta_label_en: string | null;
   cta_href: string;
   image_url: string | null;
   blur_hash: string | null;
+  image_url_ltr: string | null;
+  blur_hash_ltr: string | null;
   sort_order: number;
   is_active: boolean;
   created_at: string;
@@ -248,6 +268,8 @@ export type Order = {
   user_id: string;
   status: OrderStatus;
   total: number;
+  /** Cash-on-delivery surcharge included in `total` (0 for online / no fee). */
+  cash_fee?: number;
   currency: string;
   payment_method: PaymentMethod;
   payment_status: PaymentStatus;

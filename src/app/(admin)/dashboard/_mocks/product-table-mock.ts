@@ -63,6 +63,9 @@ export function mockAdminTableProducts(): Product[] {
     category_id: MOCK_CATEGORY.id,
     brand_id: null,
     name: row.name,
+    name_fa: row.name,
+    name_ar: null,
+    name_en: null,
     slug: row.slug,
     description:
       "Sample admin table description with realistic paragraph length for stable row height during skeleton loading.",

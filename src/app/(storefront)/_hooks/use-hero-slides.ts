@@ -6,32 +6,46 @@ import { mockHeroSlides } from "@/app/(storefront)/_mocks/hero-slides-mock";
 import type { HeroSlide } from "@/app/(storefront)/_types/hero-slide";
 import { getHeroBannersAction } from "@/app/_actions/banner-actions";
 import type { HeroBanner } from "@/app/_types/database.types";
+import { getDirection, type Locale } from "@/i18n/config";
+import { resolveHeroBannerText } from "@/lib/i18n/hero-banner-text";
 import { useTranslations } from "@/i18n/use-translations";
 
 function adminSlide(
   banner: HeroBanner,
   t: ReturnType<typeof useTranslations>["t"],
+  locale: Locale,
+  dir: "rtl" | "ltr",
 ): HeroSlide {
-  const hasImage = Boolean(banner.image_url?.trim());
-  const badge = banner.badge?.trim() ?? "";
-  const title = banner.title?.trim() ?? "";
-  const subtitle = banner.subtitle?.trim() ?? "";
+  const rtlImage = banner.image_url?.trim() || null;
+  // English storefront gets its own artwork when provided (the text block
+  // sits on the opposite side), otherwise it falls back to the main image.
+  const imageUrl =
+    dir === "ltr" ? banner.image_url_ltr?.trim() || rtlImage : rtlImage;
+  const blurHash =
+    dir === "ltr" && banner.image_url_ltr?.trim()
+      ? banner.blur_hash_ltr?.trim() || banner.blur_hash?.trim() || null
+      : banner.blur_hash?.trim() || null;
+  const hasImage = Boolean(imageUrl);
+  const badge = resolveHeroBannerText(banner, "badge", locale);
+  const title = resolveHeroBannerText(banner, "title", locale);
+  const subtitle = resolveHeroBannerText(banner, "subtitle", locale);
 
   return {
     id: banner.id,
     badge: badge || (!hasImage ? t("home.heroBadge") : ""),
     title: title || (!hasImage ? t("home.heroTitle") : ""),
     subtitle: subtitle || (!hasImage ? t("home.heroSubtitle") : ""),
-    ctaLabel: banner.cta_label?.trim() || t("home.heroCta"),
+    ctaLabel: resolveHeroBannerText(banner, "cta_label", locale) || t("home.heroCta"),
     ctaHref: banner.cta_href?.trim() || "/categories",
-    imageUrl: banner.image_url?.trim() || null,
-    blurHash: banner.blur_hash?.trim() || null,
+    imageUrl,
+    blurHash,
     imageOnly: hasImage && !badge && !title && !subtitle,
   };
 }
 
 export function useHeroSlides() {
   const { t, locale } = useTranslations();
+  const dir = getDirection(locale);
   const { data: banners, isPending } = useQuery({
     queryKey: ["hero-banners"],
     queryFn: async () => {
@@ -46,8 +60,8 @@ export function useHeroSlides() {
 
   const slides = useMemo((): HeroSlide[] => {
     if (isSkeleton) return mockHeroSlides(locale);
-    return (banners ?? []).map((banner) => adminSlide(banner, t));
-  }, [banners, isSkeleton, locale, t]);
+    return (banners ?? []).map((banner) => adminSlide(banner, t, locale, dir));
+  }, [banners, isSkeleton, locale, dir, t]);
 
   return { slides, isSkeleton };
 }

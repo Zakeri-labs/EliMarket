@@ -19,6 +19,14 @@ export type Messages = {
   home: {
     deliverTo: string;
     locationSample: string;
+    outOfServiceArea: string;
+    comingSoonTag: string;
+    deliverAreaMuscatKhoudh: string;
+    deliverAreaMuscatGhubra: string;
+    deliverAreaSeeb: string;
+    deliverAreaSohar: string;
+    deliverAreaSalalah: string;
+    deliverAreaNizwa: string;
     searchPlaceholder: string;
     heroBadge: string;
     heroTitle: string;
@@ -39,6 +47,10 @@ export type Messages = {
     flashDeals: string;
     flashEnds: string;
     flashEndsIn: string;
+    flashHrsLabel: string;
+    flashMinLabel: string;
+    flashSecLabel: string;
+    flashDaysLabel: string;
     categoriesTitle: string;
     viewAll: string;
     allProducts: string;
@@ -99,7 +111,6 @@ export type Messages = {
     atAGlance: string;
     similarProducts: string;
     noSimilarProducts: string;
-    inStockCount: string;
     freeDeliveryOver: string;
     breadcrumbHome: string;
     sku: string;
@@ -188,6 +199,7 @@ export type Messages = {
     subtotal: string;
     delivery: string;
     vat: string;
+    cashFee: string;
     total: string;
     submitOrder: string;
   };
@@ -313,6 +325,7 @@ export type Messages = {
     priceDisabled: string;
     productExtrasShown: string;
     productExtrasHidden: string;
+    cashSurchargeSaved: string;
     riderAssigned: string;
     categoryUpdated: string;
     categoryCreated: string;
@@ -628,6 +641,7 @@ export type Messages = {
       processingContent: string;
       before: string;
       after: string;
+      webSourced: string;
       pickPrimary: string;
       primaryBadge: string;
       reviewTitle: string;
@@ -713,12 +727,17 @@ export type Messages = {
       subtitle: string;
       formTitle: string;
       formHint: string;
+      textSection: string;
+      textLangHint: string;
       badgePlaceholder: string;
       titlePlaceholder: string;
       subtitlePlaceholder: string;
       ctaLabelPlaceholder: string;
       ctaHrefPlaceholder: string;
       imageUrlPlaceholder: string;
+      imageRtlLabel: string;
+      imageLtrLabel: string;
+      imageLtrHint: string;
       uploadImage: string;
       removeImage: string;
       save: string;
@@ -894,6 +913,12 @@ export type Messages = {
       on: string;
       off: string;
     };
+    cashSurcharge: {
+      title: string;
+      desc: string;
+      label: string;
+      save: string;
+    };
     payment: {
       cash: string;
       online: string;
@@ -995,17 +1020,25 @@ const fa: Messages = {
   home: {
     deliverTo: "تحویل به",
     locationSample: "مسقط، الخوض",
+    outOfServiceArea: "هنوز به {area} سرویس‌دهی نمی‌کنیم؛ اما به‌زودی خدمات ما به این منطقه هم اضافه خواهد شد.",
+    comingSoonTag: "به‌زودی",
+    deliverAreaMuscatKhoudh: "مسقط، الخوض",
+    deliverAreaMuscatGhubra: "مسقط، الغبره",
+    deliverAreaSeeb: "السیب",
+    deliverAreaSohar: "صحار",
+    deliverAreaSalalah: "صلاله",
+    deliverAreaNizwa: "نزوی",
     searchPlaceholder: "جستجوی محصول…",
-    heroBadge: "پیشنهاد ویژه",
-    heroTitle: "مواد تازه روزانه",
-    heroSubtitle: "ارسال سریع تا ۲ ساعت",
-    heroCta: "خرید کنید",
-    heroSlide2Badge: "تخفیف ویژه",
-    heroSlide2Title: "لبنیات تازه هر روز",
-    heroSlide2Subtitle: "تا ۲۵٪ تخفیف روی محصولات منتخب",
+    heroBadge: "خرید روزانه",
+    heroTitle: "همه‌چیز برای سفره‌ی خانه",
+    heroSubtitle: "سفارش بده، همان روز دم در تحویل بگیر",
+    heroCta: "همین حالا سفارش بده",
+    heroSlide2Badge: "تخفیف‌های هفته",
+    heroSlide2Title: "میوه و سبزی تازه با قیمت کمتر",
+    heroSlide2Subtitle: "تا ۲۵٪ تخفیف روی اقلام منتخب این هفته",
     heroSlide3Badge: "ارسال رایگان",
-    heroSlide3Title: "خرید بالای ۱۰ ریال عمان",
-    heroSlide3Subtitle: "تحویل سریع در محدوده شهر",
+    heroSlide3Title: "اولین سفارشت مهمان ماست",
+    heroSlide3Subtitle: "ارسال رایگان برای خریدهای بالای ۱۰ ریال عمان",
     heroCarouselLabel: "بنرهای فروشگاه",
     heroPrev: "اسلاید قبلی",
     heroNext: "اسلاید بعدی",
@@ -1015,6 +1048,10 @@ const fa: Messages = {
     flashDeals: "پیشنهاد لحظه‌ای",
     flashEnds: "پایان: ۰۲:۴۵:۱۸",
     flashEndsIn: "پایان در",
+    flashHrsLabel: "ساعت",
+    flashMinLabel: "دقیقه",
+    flashSecLabel: "ثانیه",
+    flashDaysLabel: "روز",
     categoriesTitle: "خرید بر اساس دسته",
     viewAll: "مشاهده همه",
     allProducts: "همه محصولات",
@@ -1075,7 +1112,6 @@ const fa: Messages = {
     atAGlance: "نگاهی سریع",
     similarProducts: "محصولات مشابه",
     noSimilarProducts: "محصول مشابهی یافت نشد.",
-    inStockCount: "موجود — {count} عدد",
     freeDeliveryOver: "ارسال رایگان برای سفارش‌های بالای {amount}",
     breadcrumbHome: "خانه",
     sku: "کد کالا: {sku}",
@@ -1169,6 +1205,7 @@ const fa: Messages = {
     subtotal: "جمع جزء",
     delivery: "ارسال",
     vat: "مالیات",
+    cashFee: "هزینه پرداخت در محل",
     total: "جمع کل",
     submitOrder: "ثبت سفارش — {price}",
   },
@@ -1326,6 +1363,7 @@ const fa: Messages = {
     priceDisabled: "نمایش قیمت غیرفعال شد",
     productExtrasShown: "بخش جزئیات محصول (تب‌ها و خرید همزمان) نمایش داده می‌شود",
     productExtrasHidden: "بخش جزئیات محصول (تب‌ها و خرید همزمان) مخفی شد",
+    cashSurchargeSaved: "هزینه پرداخت در محل ذخیره شد",
     riderAssigned: "پیک تخصیص یافت",
     categoryUpdated: "دسته به‌روز شد",
     categoryCreated: "دسته ایجاد شد",
@@ -1641,6 +1679,7 @@ const fa: Messages = {
       processingContent: "پیشنهاد نام و توضیحات سه‌زبانه",
       before: "قبل",
       after: "بعد",
+      webSourced: "یافت‌شده از اینترنت ({source}) — بررسی کنید که دقیقاً همین محصول است",
       pickPrimary: "تصویر اصلی کاتالوگ را انتخاب کنید",
       primaryBadge: "تصویر اصلی",
       reviewTitle: "بازبینی ادمین",
@@ -1726,12 +1765,17 @@ const fa: Messages = {
       subtitle: "چند بنر برای اسلایدر فروشگاه",
       formTitle: "تنظیمات بنر",
       formHint: "فیلدهای خالی از متن پیش‌فرض ترجمه استفاده می‌کنند.",
+      textSection: "متن بنر (به تفکیک زبان)",
+      textLangHint: "متن هر زبان را جداگانه وارد کنید. اگر زبانی خالی بماند، از متن فارسی استفاده می‌شود.",
       badgePlaceholder: "برچسب (مثلاً پیشنهاد ویژه)",
       titlePlaceholder: "عنوان بنر",
       subtitlePlaceholder: "زیرعنوان",
       ctaLabelPlaceholder: "متن دکمه",
       ctaHrefPlaceholder: "لینک دکمه (مثلاً /categories)",
       imageUrlPlaceholder: "آدرس تصویر بنر",
+      imageRtlLabel: "تصویر راست‌به‌چپ (فارسی و عربی)",
+      imageLtrLabel: "تصویر چپ‌به‌راست (انگلیسی)",
+      imageLtrHint: "اختیاری؛ در فروشگاه انگلیسی استفاده می‌شود. اگر خالی بماند، همان تصویر اصلی نمایش داده می‌شود.",
       uploadImage: "آپلود تصویر",
       removeImage: "حذف تصویر",
       save: "ذخیره",
@@ -1915,6 +1959,12 @@ const fa: Messages = {
       on: "جزئیات: روشن",
       off: "جزئیات: خاموش",
     },
+    cashSurcharge: {
+      title: "هزینه پرداخت در محل",
+      desc: "اگر مشتری هنگام تسویه «پرداخت در محل» را انتخاب کند، این مبلغ به جمع کل فاکتور اضافه می‌شود. مقدار صفر یعنی بدون هزینه اضافه.",
+      label: "مبلغ اضافه",
+      save: "ذخیره",
+    },
     payment: { cash: "نقدی", online: "آنلاین" },
     status: {
       pending: "در انتظار",
@@ -2015,17 +2065,25 @@ const ar: Messages = {
   home: {
     deliverTo: "التوصيل إلى",
     locationSample: "مسقط، الخوض",
+    outOfServiceArea: "لا نقوم بالتوصيل إلى {area} بعد، لكننا نتوسّع بسرعة وستُضاف منطقتك إلى خدماتنا قريبًا.",
+    comingSoonTag: "قريبًا",
+    deliverAreaMuscatKhoudh: "مسقط، الخوض",
+    deliverAreaMuscatGhubra: "مسقط، الغبرة",
+    deliverAreaSeeb: "السيب",
+    deliverAreaSohar: "صحار",
+    deliverAreaSalalah: "صلالة",
+    deliverAreaNizwa: "نزوى",
     searchPlaceholder: "البحث عن منتج…",
-    heroBadge: "عرض خاص",
-    heroTitle: "مواد طازجة يومياً",
-    heroSubtitle: "توصيل سريع خلال ساعتين",
-    heroCta: "تسوق الآن",
-    heroSlide2Badge: "خصم خاص",
-    heroSlide2Title: "منتجات ألبان طازجة يومياً",
-    heroSlide2Subtitle: "خصم يصل إلى 25٪ على منتجات مختارة",
+    heroBadge: "تسوق يومي",
+    heroTitle: "كل ما يحتاجه مطبخك",
+    heroSubtitle: "اطلب الآن واستلم إلى باب منزلك في نفس اليوم",
+    heroCta: "اطلب الآن",
+    heroSlide2Badge: "عروض الأسبوع",
+    heroSlide2Title: "خضار وفواكه طازجة بأقل سعر",
+    heroSlide2Subtitle: "خصم حتى 25٪ على منتجات مختارة هذا الأسبوع",
     heroSlide3Badge: "توصيل مجاني",
-    heroSlide3Title: "للطلبات فوق ١٠ ريالات عمانية",
-    heroSlide3Subtitle: "توصيل سريع داخل المدينة",
+    heroSlide3Title: "أول طلب لك علينا",
+    heroSlide3Subtitle: "توصيل مجاني للطلبات فوق ١٠ ريالات عمانية",
     heroCarouselLabel: "بانرات المتجر",
     heroPrev: "الشريحة السابقة",
     heroNext: "الشريحة التالية",
@@ -2035,6 +2093,10 @@ const ar: Messages = {
     flashDeals: "عروض لحظية",
     flashEnds: "ينتهي: ٠٢:٤٥:١٨",
     flashEndsIn: "ينتهي خلال",
+    flashHrsLabel: "ساعة",
+    flashMinLabel: "دقيقة",
+    flashSecLabel: "ثانية",
+    flashDaysLabel: "يوم",
     categoriesTitle: "تسوق حسب الفئة",
     viewAll: "عرض الكل",
     allProducts: "جميع المنتجات",
@@ -2095,7 +2157,6 @@ const ar: Messages = {
     atAGlance: "نظرة سريعة",
     similarProducts: "منتجات مشابهة",
     noSimilarProducts: "لا توجد منتجات مشابهة.",
-    inStockCount: "متوفر — {count} وحدة",
     freeDeliveryOver: "توصيل مجاني للطلبات فوق {amount}",
     breadcrumbHome: "الرئيسية",
     sku: "رمز المنتج: {sku}",
@@ -2189,6 +2250,7 @@ const ar: Messages = {
     subtotal: "المجموع الفرعي",
     delivery: "التوصيل",
     vat: "الضريبة",
+    cashFee: "رسوم الدفع عند الاستلام",
     total: "الإجمالي",
     submitOrder: "تأكيد الطلب — {price}",
   },
@@ -2346,6 +2408,7 @@ const ar: Messages = {
     priceDisabled: "تم إيقاف عرض الأسعار",
     productExtrasShown: "يظهر قسم تفاصيل المنتج (التبويبات والمنتجات المقترنة)",
     productExtrasHidden: "تم إخفاء قسم تفاصيل المنتج (التبويبات والمنتجات المقترنة)",
+    cashSurchargeSaved: "تم حفظ رسوم الدفع عند الاستلام",
     riderAssigned: "تم تعيين السائق",
     categoryUpdated: "تم تحديث الفئة",
     categoryCreated: "تم إنشاء الفئة",
@@ -2661,6 +2724,7 @@ const ar: Messages = {
       processingContent: "اقتراح الاسم والوصف بثلاث لغات",
       before: "قبل",
       after: "بعد",
+      webSourced: "تم العثور عليها على الإنترنت ({source}) — تحقق من أنها نفس المنتج تمامًا",
       pickPrimary: "اختر صورة الكتالوج الرئيسية",
       primaryBadge: "الصورة الرئيسية",
       reviewTitle: "مراجعة المشرف",
@@ -2746,12 +2810,17 @@ const ar: Messages = {
       subtitle: "عدة بانرات لشريط المتجر",
       formTitle: "إعدادات البانر",
       formHint: "الحقول الفارغة تستخدم النص الافتراضي من الترجمة.",
+      textSection: "نص البانر (لكل لغة)",
+      textLangHint: "أدخل نص كل لغة على حدة. إذا تُركت لغة فارغة، يُستخدم النص الفارسي.",
       badgePlaceholder: "الشارة (مثلاً عرض خاص)",
       titlePlaceholder: "عنوان البانر",
       subtitlePlaceholder: "العنوان الفرعي",
       ctaLabelPlaceholder: "نص الزر",
       ctaHrefPlaceholder: "رابط الزر (مثلاً /categories)",
       imageUrlPlaceholder: "رابط صورة البانر",
+      imageRtlLabel: "صورة من اليمين إلى اليسار (العربية والفارسية)",
+      imageLtrLabel: "صورة من اليسار إلى اليمين (الإنجليزية)",
+      imageLtrHint: "اختياري؛ تُستخدم في المتجر الإنجليزي. إن تُركت فارغة تُعرض الصورة الرئيسية نفسها.",
       uploadImage: "رفع صورة",
       removeImage: "إزالة الصورة",
       save: "حفظ",
@@ -2935,6 +3004,12 @@ const ar: Messages = {
       on: "التفاصيل: تشغيل",
       off: "التفاصيل: إيقاف",
     },
+    cashSurcharge: {
+      title: "رسوم الدفع عند الاستلام",
+      desc: "عند اختيار العميل «الدفع عند الاستلام» أثناء إتمام الشراء، يُضاف هذا المبلغ إلى إجمالي الفاتورة. القيمة صفر تعني بدون رسوم إضافية.",
+      label: "المبلغ الإضافي",
+      save: "حفظ",
+    },
     payment: { cash: "نقدي", online: "إلكتروني" },
     status: {
       pending: "قيد الانتظار",
@@ -3035,17 +3110,25 @@ const en: Messages = {
   home: {
     deliverTo: "Deliver to",
     locationSample: "Muscat, Al Khoudh",
+    outOfServiceArea: "We don't deliver to {area} yet — but we're expanding fast and will be serving your area soon.",
+    comingSoonTag: "Coming soon",
+    deliverAreaMuscatKhoudh: "Muscat, Al Khoudh",
+    deliverAreaMuscatGhubra: "Muscat, Al Ghubra",
+    deliverAreaSeeb: "Seeb",
+    deliverAreaSohar: "Sohar",
+    deliverAreaSalalah: "Salalah",
+    deliverAreaNizwa: "Nizwa",
     searchPlaceholder: "Search products…",
-    heroBadge: "Special offer",
-    heroTitle: "Fresh daily groceries",
-    heroSubtitle: "Fast delivery within 2 hours",
+    heroBadge: "Everyday grocery",
+    heroTitle: "Everything your kitchen needs",
+    heroSubtitle: "Order now, delivered to your door the same day",
     heroCta: "Shop now",
-    heroSlide2Badge: "Special savings",
-    heroSlide2Title: "Fresh dairy every day",
-    heroSlide2Subtitle: "Up to 25% off selected items",
+    heroSlide2Badge: "Deals of the week",
+    heroSlide2Title: "Fresh produce for less",
+    heroSlide2Subtitle: "Up to 25% off hand-picked items this week",
     heroSlide3Badge: "Free delivery",
-    heroSlide3Title: "On orders above 10 OMR",
-    heroSlide3Subtitle: "Fast delivery in your area",
+    heroSlide3Title: "Your first order is on us",
+    heroSlide3Subtitle: "Free delivery on orders over 10 OMR",
     heroCarouselLabel: "Store banners",
     heroPrev: "Previous slide",
     heroNext: "Next slide",
@@ -3055,6 +3138,10 @@ const en: Messages = {
     flashDeals: "Flash Deals",
     flashEnds: "Ends: 02:45:18",
     flashEndsIn: "Ends in",
+    flashHrsLabel: "Hrs",
+    flashMinLabel: "Min",
+    flashSecLabel: "Sec",
+    flashDaysLabel: "Days",
     categoriesTitle: "Shop by category",
     viewAll: "View all",
     allProducts: "All products",
@@ -3115,7 +3202,6 @@ const en: Messages = {
     atAGlance: "At a glance",
     similarProducts: "Similar products",
     noSimilarProducts: "No similar products found.",
-    inStockCount: "In stock — {count} units",
     freeDeliveryOver: "Free delivery over {amount}",
     breadcrumbHome: "Home",
     sku: "SKU: {sku}",
@@ -3209,6 +3295,7 @@ const en: Messages = {
     subtotal: "Subtotal",
     delivery: "Delivery",
     vat: "VAT",
+    cashFee: "Cash on delivery fee",
     total: "Total",
     submitOrder: "Place order — {price}",
   },
@@ -3366,6 +3453,7 @@ const en: Messages = {
     priceDisabled: "Price display disabled",
     productExtrasShown: "Product detail tabs and frequently-bought section are visible",
     productExtrasHidden: "Product detail tabs and frequently-bought section are hidden",
+    cashSurchargeSaved: "Cash on delivery fee saved",
     riderAssigned: "Rider assigned",
     categoryUpdated: "Category updated",
     categoryCreated: "Category created",
@@ -3681,6 +3769,7 @@ const en: Messages = {
       processingContent: "Suggesting a title and trilingual descriptions",
       before: "Before",
       after: "After",
+      webSourced: "Found on the web ({source}) — verify this is exactly the same product",
       pickPrimary: "Choose the catalog image",
       primaryBadge: "Primary image",
       reviewTitle: "Admin review",
@@ -3766,12 +3855,17 @@ const en: Messages = {
       subtitle: "Manage multiple hero slides for the storefront",
       formTitle: "Banner settings",
       formHint: "Empty fields fall back to default translated copy.",
+      textSection: "Banner text (per language)",
+      textLangHint: "Enter each language separately. A blank language falls back to the Persian text.",
       badgePlaceholder: "Badge (e.g. Special offer)",
       titlePlaceholder: "Banner title",
       subtitlePlaceholder: "Subtitle",
       ctaLabelPlaceholder: "Button label",
       ctaHrefPlaceholder: "Button link (e.g. /categories)",
       imageUrlPlaceholder: "Banner image URL",
+      imageRtlLabel: "Right-to-left image (Persian & Arabic)",
+      imageLtrLabel: "Left-to-right image (English)",
+      imageLtrHint: "Optional — used on the English storefront. Falls back to the main image when empty.",
       uploadImage: "Upload image",
       removeImage: "Remove image",
       save: "Save",
@@ -3954,6 +4048,12 @@ const en: Messages = {
       offDesc: "These sections are hidden on the product detail page",
       on: "Extras: on",
       off: "Extras: off",
+    },
+    cashSurcharge: {
+      title: "Cash on delivery fee",
+      desc: "When a customer chooses Cash on delivery at checkout, this amount is added to the invoice total. Zero means no extra fee.",
+      label: "Surcharge",
+      save: "Save",
     },
     payment: { cash: "Cash", online: "Online" },
     status: {

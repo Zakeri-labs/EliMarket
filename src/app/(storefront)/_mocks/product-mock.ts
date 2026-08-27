@@ -127,6 +127,9 @@ function buildMockProduct(
     category_id: category.id,
     brand_id: null,
     name,
+    name_fa: item.name_fa,
+    name_ar: item.name_ar,
+    name_en: item.name_en,
     slug: item.slug,
     description: `${name} — ${item.name_en === "Bananas (kg)" ? "Fresh yellow bananas sold by kilogram." : item.name_en === "Tomatoes (kg)" ? "Vine-ripened red tomatoes sold by kilogram." : "Quality grocery item for everyday use."}`,
     description_fa:

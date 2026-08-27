@@ -2,11 +2,11 @@
 
 import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
+import { buildProductDescriptionStub } from "@/lib/ai/product-description-stub";
 import {
-  buildProductDescriptionStub,
-  type ProductDescriptionsI18n,
-} from "@/lib/ai/product-description-stub";
-import { generateProductDescriptionsWithOpenAi } from "@/lib/ai/generate-product-description";
+  generateProductDescriptionsWithOpenAi,
+  type GeneratedProductNameAndDescriptions,
+} from "@/lib/ai/generate-product-description";
 import { hasOpenAiApiKey } from "@/lib/ai/openai-client";
 import { enhanceProductImageAction } from "@/app/_actions/smart-product-actions";
 import { publicEnv } from "@/config/env";
@@ -30,8 +30,8 @@ async function callEdgeFunction(
 
 function normalizeAiDescriptions(
   result: Record<string, unknown>,
-  fallback: ProductDescriptionsI18n,
-): ProductDescriptionsI18n | null {
+  fallback: GeneratedProductNameAndDescriptions,
+): GeneratedProductNameAndDescriptions | null {
   const fa =
     (typeof result.description_fa === "string" && result.description_fa) ||
     (typeof result.description === "string" && result.description) ||
@@ -42,6 +42,8 @@ function normalizeAiDescriptions(
   const en =
     (typeof result.description_en === "string" && result.description_en) ||
     fallback.description_en;
+  const name_ar = (typeof result.name_ar === "string" && result.name_ar) || fallback.name_ar;
+  const name_en = (typeof result.name_en === "string" && result.name_en) || fallback.name_en;
 
   if (!fa && !ar && !en) return null;
 
@@ -49,6 +51,8 @@ function normalizeAiDescriptions(
     description_fa: fa,
     description_ar: ar,
     description_en: en,
+    name_ar,
+    name_en,
   };
 }
 
@@ -64,7 +68,11 @@ export async function generateProductDescriptionAction(input: {
 }) {
   try {
     await requireAdmin();
-    const fallback = buildProductDescriptionStub(input);
+    const fallback = {
+      ...buildProductDescriptionStub(input),
+      name_ar: input.name,
+      name_en: input.name,
+    };
 
     if (hasOpenAiApiKey()) {
       try {

@@ -10,7 +10,6 @@ import { AppIcon } from "@/components/icons/AppIcon";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { heroDefaultImage } from "@/lib/images/blur-placeholders";
-import type { Locale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import styles from "./HeroCarousel.module.css";
 
@@ -42,13 +41,11 @@ function HeroSlidePanel({
   isSkeleton,
   frameHeight,
   dir,
-  locale,
 }: {
   slide: HeroSlide;
   isSkeleton: boolean;
   frameHeight: number;
   dir: "rtl" | "ltr";
-  locale: Locale;
 }) {
   const imageSrc = slide.imageUrl ?? null;
   const hasImage = Boolean(imageSrc);
@@ -95,6 +92,13 @@ function HeroSlidePanel({
         </div>
       )}
 
+      {!isSkeleton && hasImage && !slide.imageOnly ? (
+        <div
+          className="absolute inset-0 from-black/70 via-black/35 to-transparent ltr:bg-gradient-to-r rtl:bg-gradient-to-l"
+          aria-hidden
+        />
+      ) : null}
+
       <div
         className={styles.content}
         dir={dir}
@@ -106,12 +110,7 @@ function HeroSlidePanel({
           </p>
         ) : null}
         {!slide.imageOnly && slide.title ? (
-          <h2
-            className={cn(
-              "mt-1 w-full max-w-lg text-start text-2xl leading-tight sm:text-3xl md:text-4xl",
-              locale === "en" ? "font-logo font-semibold" : "font-bold",
-            )}
-          >
+          <h2 className="mt-1 w-full max-w-lg bg-clip-text text-start text-2xl font-bold leading-tight text-transparent drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] from-white via-accent-teal to-accent ltr:bg-gradient-to-r rtl:bg-gradient-to-l sm:text-3xl md:text-4xl">
             {slide.title}
           </h2>
         ) : null}
@@ -139,7 +138,7 @@ function HeroSlidePanel({
 
 export function HeroCarousel() {
   const { slides, isSkeleton } = useHeroSlides();
-  const { t, dir, locale } = useTranslations();
+  const { t, dir } = useTranslations();
   const frameHeight = useHeroFrameHeight();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -199,7 +198,6 @@ export function HeroCarousel() {
                 isSkeleton={isSkeleton}
                 frameHeight={frameHeight}
                 dir={dir}
-                locale={locale}
               />
             ))}
           </div>

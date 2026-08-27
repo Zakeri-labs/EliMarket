@@ -60,7 +60,9 @@ export default function SmartProductPage() {
   const [phase, setPhase] = useState<"upload" | "processing" | "review">("upload");
   const [draft, setDraft] = useState<SmartProductDraft | null>(null);
   const [primaryIndex, setPrimaryIndex] = useState(0);
-  const [name, setName] = useState("");
+  const [nameFa, setNameFa] = useState("");
+  const [nameAr, setNameAr] = useState("");
+  const [nameEn, setNameEn] = useState("");
   const [slug, setSlug] = useState("");
   const [descriptionFa, setDescriptionFa] = useState("");
   const [descriptionAr, setDescriptionAr] = useState("");
@@ -69,7 +71,7 @@ export default function SmartProductPage() {
   const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(undefined);
   const [stock, setStock] = useState(0);
   const [features, setFeatures] = useState<FeatureDraft[]>([]);
-  const [specTab, setSpecTab] = useState<LangLocale>("fa");
+  const [reviewLang, setReviewLang] = useState<LangLocale>("fa");
 
   useEffect(() => {
     getCategoriesAction().then((result) => {
@@ -142,7 +144,9 @@ export default function SmartProductPage() {
           }
           setDraft(data);
           setPrimaryIndex(0);
-          setName(data.name);
+          setNameFa(data.name_fa);
+          setNameAr(data.name_ar);
+          setNameEn(data.name_en);
           setSlug(data.slug);
           setDescriptionFa(data.description_fa);
           setDescriptionAr(data.description_ar);
@@ -157,7 +161,7 @@ export default function SmartProductPage() {
   };
 
   const publish = () => {
-    if (!draft || !name.trim() || !slug.trim()) {
+    if (!draft || !nameFa.trim() || !slug.trim()) {
       notifyFormError(t("admin.products.validationName"), {
         title: t("notifications.errorTitle"),
       });
@@ -189,7 +193,10 @@ export default function SmartProductPage() {
     runAction(
       () =>
         createProductAction({
-          name: name.trim(),
+          name: nameFa.trim(),
+          name_fa: nameFa.trim(),
+          name_ar: nameAr.trim() || null,
+          name_en: nameEn.trim() || null,
           slug: slug.trim(),
           description_fa: descriptionFa.trim() || null,
           description_ar: descriptionAr.trim() || null,
@@ -352,32 +359,62 @@ export default function SmartProductPage() {
             <h2 className="text-sm font-semibold">{t("admin.smartProduct.pickPrimary")}</h2>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {draft.images.map((image, index) => (
-                <button
+                <div
                   key={image.processedUrl}
-                  type="button"
-                  onClick={() => setPrimaryIndex(index)}
-                  className={`overflow-hidden rounded-2xl border p-2 text-start ${
+                  className={`overflow-hidden rounded-2xl border p-2 ${
                     primaryIndex === index ? "border-[#0d9488] ring-2 ring-[#0d9488]/30" : "border-[#e4e4e7]"
                   }`}
                 >
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <p className="mb-1 text-[11px] text-[#71717a]">{t("admin.smartProduct.before")}</p>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={image.originalUrl} alt="" className="aspect-square w-full rounded-xl object-contain bg-[#f4f4f5]" />
-                    </div>
-                    <div>
-                      <p className="mb-1 text-[11px] text-[#71717a]">{t("admin.smartProduct.after")}</p>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={image.processedUrl} alt="" className="aspect-square w-full rounded-xl object-contain bg-[#1a1a1a]" />
-                    </div>
-                  </div>
-                  {primaryIndex === index && (
-                    <p className="mt-2 text-xs font-medium text-[#0f766e]">
-                      {t("admin.smartProduct.primaryBadge")}
-                    </p>
-                  )}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setPrimaryIndex(index)}
+                    className="block w-full text-start"
+                  >
+                    {image.source === "web" ? (
+                      <div>
+                        <p className="mb-1 text-[11px] font-medium text-amber-700">
+                          {t("admin.smartProduct.webSourced", { source: image.sourceLabel ?? "" })}
+                        </p>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={image.processedUrl} alt="" className="aspect-square w-full rounded-xl object-contain bg-[#f4f4f5]" />
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="mb-1 text-[11px] text-[#71717a]">{t("admin.smartProduct.before")}</p>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={image.originalUrl} alt="" className="aspect-square w-full rounded-xl object-contain bg-[#f4f4f5]" />
+                        </div>
+                        <div>
+                          <p className="mb-1 text-[11px] text-[#71717a]">{t("admin.smartProduct.after")}</p>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={image.processedUrl} alt="" className="aspect-square w-full rounded-xl object-contain bg-[#1a1a1a]" />
+                        </div>
+                      </div>
+                    )}
+                    {primaryIndex === index && (
+                      <p className="mt-2 text-xs font-medium text-[#0f766e]">
+                        {t("admin.smartProduct.primaryBadge")}
+                      </p>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="mt-2 w-full rounded-lg border border-[#e4e4e7] px-2 py-1 text-xs text-red-600"
+                    onClick={() =>
+                      setDraft((currentDraft) => {
+                        if (!currentDraft) return currentDraft;
+                        const nextImages = currentDraft.images.filter((_, i) => i !== index);
+                        setPrimaryIndex((currentIndex) =>
+                          Math.min(currentIndex, Math.max(0, nextImages.length - 1)),
+                        );
+                        return { ...currentDraft, images: nextImages };
+                      })
+                    }
+                  >
+                    {t("admin.smartProduct.removePhoto")}
+                  </button>
+                </div>
               ))}
             </div>
           </section>
@@ -385,11 +422,33 @@ export default function SmartProductPage() {
           <section className="space-y-3 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
             <h2 className="text-sm font-semibold">{t("admin.smartProduct.reviewTitle")}</h2>
             <p className="text-sm text-[#71717a]">{t("admin.smartProduct.reviewHint")}</p>
+            <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+              {LANG_TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
+                    reviewLang === tab.key
+                      ? "bg-white text-[#18181b] shadow-sm"
+                      : "text-[#71717a] hover:text-[#18181b]"
+                  }`}
+                  onClick={() => setReviewLang(tab.key)}
+                >
+                  {t(`admin.products.${tab.labelKey}`)}
+                </button>
+              ))}
+            </div>
             <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
+              value={reviewLang === "fa" ? nameFa : reviewLang === "ar" ? nameAr : nameEn}
+              onChange={(event) => {
+                const value = event.target.value;
+                if (reviewLang === "fa") setNameFa(value);
+                else if (reviewLang === "ar") setNameAr(value);
+                else setNameEn(value);
+              }}
               placeholder={t("admin.products.namePlaceholder")}
               className={inputClass}
+              dir={reviewLang === "en" ? "ltr" : "rtl"}
             />
             <input
               value={slug}
@@ -399,26 +458,19 @@ export default function SmartProductPage() {
               dir="ltr"
             />
             <textarea
-              value={descriptionFa}
-              onChange={(event) => setDescriptionFa(event.target.value)}
-              placeholder={t("admin.products.descriptionFa")}
+              value={
+                reviewLang === "fa" ? descriptionFa : reviewLang === "ar" ? descriptionAr : descriptionEn
+              }
+              onChange={(event) => {
+                const value = event.target.value;
+                if (reviewLang === "fa") setDescriptionFa(value);
+                else if (reviewLang === "ar") setDescriptionAr(value);
+                else setDescriptionEn(value);
+              }}
+              placeholder={t("admin.products.descriptionPlaceholder")}
               className={inputClass}
-              rows={3}
-            />
-            <textarea
-              value={descriptionAr}
-              onChange={(event) => setDescriptionAr(event.target.value)}
-              placeholder={t("admin.products.descriptionAr")}
-              className={inputClass}
-              rows={3}
-            />
-            <textarea
-              value={descriptionEn}
-              onChange={(event) => setDescriptionEn(event.target.value)}
-              placeholder={t("admin.products.descriptionEn")}
-              className={inputClass}
-              rows={3}
-              dir="ltr"
+              rows={4}
+              dir={reviewLang === "en" ? "ltr" : "rtl"}
             />
             <div className="grid grid-cols-2 gap-2">
               <MoneyInput
@@ -469,26 +521,13 @@ export default function SmartProductPage() {
                 {t("admin.products.addFeature")}
               </Button>
             </div>
-            <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
-              {LANG_TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
-                    specTab === tab.key
-                      ? "bg-white text-[#18181b] shadow-sm"
-                      : "text-[#71717a] hover:text-[#18181b]"
-                  }`}
-                  onClick={() => setSpecTab(tab.key)}
-                >
-                  {t(`admin.products.${tab.labelKey}`)}
-                </button>
-              ))}
-            </div>
+            <p className="text-xs text-[#71717a]">
+              {t(`admin.products.${LANG_TABS.find((tab) => tab.key === reviewLang)?.labelKey}`)}
+            </p>
             <div className="space-y-2">
               {features.map((feature, index) => {
-                const labelKey = `label_${specTab}` as const;
-                const valueKey = `value_${specTab}` as const;
+                const labelKey = `label_${reviewLang}` as const;
+                const valueKey = `value_${reviewLang}` as const;
                 return (
                   <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
                     <input
@@ -502,7 +541,7 @@ export default function SmartProductPage() {
                       }
                       placeholder={t("admin.products.featureLabelPlaceholder")}
                       className={inputClass}
-                      dir={specTab === "en" ? "ltr" : "rtl"}
+                      dir={reviewLang === "en" ? "ltr" : "rtl"}
                     />
                     <input
                       value={feature[valueKey]}
@@ -515,7 +554,7 @@ export default function SmartProductPage() {
                       }
                       placeholder={t("admin.products.featureValuePlaceholder")}
                       className={inputClass}
-                      dir={specTab === "en" ? "ltr" : "rtl"}
+                      dir={reviewLang === "en" ? "ltr" : "rtl"}
                     />
                     <button
                       type="button"

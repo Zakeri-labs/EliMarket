@@ -32,6 +32,7 @@ import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 import { resolveFeatureText } from "@/lib/i18n/product-feature";
+import { resolveProductName } from "@/lib/i18n/product-name";
 import { productCover } from "@/lib/products/gallery";
 import { productCompareAtPrice, productDiscountBadge } from "@/lib/products/pricing";
 import { getProductReviewsAction } from "@/app/_actions/review-actions";
@@ -178,7 +179,7 @@ function ProductCartControl({
   isSkeleton?: boolean;
   cover: ReturnType<typeof productCover>;
 }) {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const addItem = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
@@ -199,7 +200,7 @@ function ProductCartControl({
           addItem(
             {
               productId: product.id,
-              name: product.name,
+              name: resolveProductName(product, locale),
               slug: product.slug,
               price: Number(product.price),
               currency: product.currency,
@@ -296,13 +297,14 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const features = product.features ?? [];
   const glanceFeatures = features.slice(0, 6);
   const categoryName = product.category ? resolveCategoryName(product.category, locale) : null;
+  const productName = resolveProductName(product, locale);
 
   const shareProduct = async () => {
     if (isSkeleton || typeof window === "undefined") return;
     const url = window.location.href;
     try {
       if (navigator.share) {
-        await navigator.share({ title: product.name, url });
+        await navigator.share({ title: productName, url });
         return;
       }
     } catch {
@@ -320,7 +322,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
       addItem(
         {
           productId: product.id,
-          name: product.name,
+          name: productName,
           slug: product.slug,
           price: Number(product.price),
           currency: product.currency,
@@ -382,7 +384,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   onClick={() =>
                     toggleWishlist({
                       productId: product.id,
-                      name: product.name,
+                      name: productName,
                       slug: product.slug,
                       imageUrl: cover?.image_url ?? product.image_url,
                     })
@@ -412,7 +414,14 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   )}
                 </div>
               )}
-              <h1 className="font-logo text-start text-2xl font-bold leading-tight">{product.name}</h1>
+              <h1
+                className={cn(
+                  "text-start text-2xl font-bold leading-tight",
+                  locale === "en" && "font-logo",
+                )}
+              >
+                {productName}
+              </h1>
               {subtitle && <p className="mt-1 text-start text-sm text-muted">{subtitle}</p>}
               <div className="mt-1.5">
                 <RatingSummary
@@ -466,7 +475,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               <div className="space-y-1.5 rounded-2xl border border-gold-hairline bg-card p-3.5">
                 <p className="flex items-center gap-2 text-start text-xs font-medium text-accent-teal">
                   <AppIcon icon={CheckCircle2} size="xs" />
-                  {t("product.inStockCount", { count: product.stock })}
+                  {t("product.inStock")}
                 </p>
                 <p className="flex items-center gap-2 text-start text-xs text-text-faint">
                   <AppIcon icon={Truck} size="xs" className="text-accent-gold" />
@@ -629,7 +638,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             </>
           )}
           <AppIcon icon={ChevronLeft} size="xs" className="rotate-180 rtl:rotate-0" />
-          <span className="truncate text-foreground">{product.name}</span>
+          <span className="truncate text-foreground">{productName}</span>
         </nav>
 
         <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr_0.82fr] lg:gap-8">
@@ -652,7 +661,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   onClick={() =>
                     toggleWishlist({
                       productId: product.id,
-                      name: product.name,
+                      name: productName,
                       slug: product.slug,
                       imageUrl: cover?.image_url ?? product.image_url,
                     })
@@ -696,7 +705,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   )}
                 </div>
               )}
-              <h1 className="font-logo text-3xl font-bold">{product.name}</h1>
+              <h1 className={cn("text-3xl font-bold", locale === "en" && "font-logo")}>{productName}</h1>
               {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
               <div className="mt-1.5">
                 <RatingSummary
@@ -756,7 +765,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 {inStock ? (
                   <p className="flex items-center gap-2 text-sm font-medium text-accent-teal">
                     <AppIcon icon={CheckCircle2} size="sm" />
-                    {t("product.inStockCount", { count: product.stock })}
+                    {t("product.inStock")}
                   </p>
                 ) : (
                   <p className="flex items-center gap-2 text-sm font-medium text-danger">

@@ -1,6 +1,8 @@
 import { ImageResponse } from "next/og";
 import { getProductBySlugAction } from "@/app/_actions/product-actions";
 import { productCover } from "@/lib/products/gallery";
+import { resolveProductName } from "@/lib/i18n/product-name";
+import { getRequestLocale } from "@/i18n/server";
 import { BRAND_NAME, DEFAULT_CURRENCY, formatPrice } from "@/config/brand";
 
 export const size = { width: 1200, height: 630 };
@@ -10,9 +12,10 @@ type Props = { params: Promise<{ slug: string }> };
 
 export default async function ProductOgImage({ params }: Props) {
   const { slug } = await params;
+  const locale = await getRequestLocale();
   const result = await getProductBySlugAction(slug);
 
-  const name = result.success ? result.data.name : "Product";
+  const name = result.success ? resolveProductName(result.data, locale) : "Product";
   const price = result.success ? result.data.price : 0;
   const currency = result.success ? result.data.currency : DEFAULT_CURRENCY;
   const imageUrl = result.success ? productCover(result.data)?.image_url ?? null : null;

@@ -7,6 +7,7 @@ import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
 import type { StoreSettings } from "@/app/_types/database.types";
 import { generateBlurHashFromFile } from "@/lib/images/generate-blur-hash";
+import { roundMoney } from "@/config/brand";
 import { withDeadlockRetry } from "@/lib/supabase/retry-deadlock";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -16,6 +17,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
   id: SETTINGS_ID,
   show_prices: true,
   show_product_detail_extras: true,
+  cash_surcharge: 0,
   updated_at: new Date().toISOString(),
   hero_badge: null,
   hero_title: null,
@@ -130,6 +132,26 @@ export async function setShowProductDetailExtrasAction(show: boolean) {
 
     revalidatePath("/");
     revalidatePath("/products", "layout");
+    return { success: true as const, data };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.settingsUpdateFailed", err),
+    };
+  }
+}
+
+export async function setCashSurchargeAction(amount: number) {
+  try {
+    const { supabase } = await requireAdmin();
+    const safe =
+      Number.isFinite(amount) && amount > 0 ? roundMoney(amount) : 0;
+    const data = await updateStoreSettingsRow(supabase, {
+      cash_surcharge: safe,
+    });
+
+    revalidatePath("/");
+    revalidatePath("/checkout");
     return { success: true as const, data };
   } catch (err) {
     return {

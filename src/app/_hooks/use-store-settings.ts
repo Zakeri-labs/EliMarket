@@ -8,6 +8,7 @@ const FALLBACK_SETTINGS: StoreSettings = {
   id: "default",
   show_prices: true,
   show_product_detail_extras: true,
+  cash_surcharge: 0,
   updated_at: "",
   hero_badge: null,
   hero_title: null,
@@ -33,6 +34,7 @@ export function useStoreSettings() {
     ...query,
     showPrices: query.data?.show_prices ?? true,
     showProductDetailExtras: query.data?.show_product_detail_extras ?? true,
+    cashSurcharge: Number(query.data?.cash_surcharge ?? 0),
     hero: query.data ?? FALLBACK_SETTINGS,
   };
 }

@@ -5,6 +5,7 @@ import { AlertTriangle, ShoppingBag } from "lucide-react";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { PriceVisibilityToggle } from "@/app/(admin)/_components/PriceVisibilityToggle";
 import { ProductDetailExtrasToggle } from "@/app/(admin)/_components/ProductDetailExtrasToggle";
+import { CashSurchargeSetting } from "@/app/(admin)/_components/CashSurchargeSetting";
 import { DashboardCharts } from "@/app/(admin)/dashboard/_components/DashboardCharts";
 import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -174,6 +175,9 @@ export default function AdminDashboardPage() {
         <div className="space-y-4 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
           <PriceVisibilityToggle />
           <ProductDetailExtrasToggle />
+          <div className="border-t border-[#e4e4e7] pt-4">
+            <CashSurchargeSetting />
+          </div>
         </div>
       </div>
     </AdminShell>

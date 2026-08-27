@@ -84,6 +84,13 @@ export function HeroBanner() {
         <StripePlaceholder className="absolute inset-0" label="produce basket photo" />
       )}
 
+      {!isSkeleton && slide?.imageUrl && !slide.imageOnly ? (
+        <div
+          className="absolute inset-0 from-black/70 via-black/35 to-transparent ltr:bg-gradient-to-r rtl:bg-gradient-to-l"
+          aria-hidden
+        />
+      ) : null}
+
       <div
         className="relative z-10 flex h-full flex-col justify-center px-10"
         dir={dir}
@@ -95,10 +102,7 @@ export function HeroBanner() {
         ) : null}
         {!slide.imageOnly && slide.title ? (
           <h2
-            className={cn(
-              "mb-5 w-full max-w-md text-start font-logo text-[42px] leading-[1.15] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]",
-              locale === "en" ? "font-semibold" : "font-bold",
-            )}
+            className="mb-5 w-full max-w-md bg-clip-text text-start text-[42px] font-bold leading-[1.15] text-transparent drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)] from-white via-accent-teal to-accent ltr:bg-gradient-to-r rtl:bg-gradient-to-l"
           >
             {slide.title}
           </h2>

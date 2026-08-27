@@ -12,6 +12,7 @@ import {
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { Spinner } from "@/components/ui/Spinner";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { RowIconActions } from "@/components/admin/RowIconActions";
 import { useFormAction } from "@/app/hooks/use-form-action";
@@ -21,34 +22,145 @@ import {
 } from "@/app/hooks/use-admin-image-upload";
 import { notifyFormError } from "@/app/utils/form-notify";
 import { cn } from "@/app/utils/cn";
+import { LOCALES, LOCALE_LABELS, type Locale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import type { HeroBanner } from "@/app/_types/database.types";
 
+type LangText = Record<Locale, string>;
+
 type FormState = {
-  badge: string;
-  title: string;
-  subtitle: string;
-  cta_label: string;
+  badge: LangText;
+  title: LangText;
+  subtitle: LangText;
+  cta_label: LangText;
   cta_href: string;
   image_url: string;
   blur_hash: string;
+  image_url_ltr: string;
+  blur_hash_ltr: string;
   sort_order: number;
   is_active: boolean;
 };
 
+const EMPTY_LANG_TEXT: LangText = { fa: "", ar: "", en: "" };
+
 const EMPTY_FORM: FormState = {
-  badge: "",
-  title: "",
-  subtitle: "",
-  cta_label: "",
+  badge: EMPTY_LANG_TEXT,
+  title: EMPTY_LANG_TEXT,
+  subtitle: EMPTY_LANG_TEXT,
+  cta_label: EMPTY_LANG_TEXT,
   cta_href: "/categories",
   image_url: "",
   blur_hash: "",
+  image_url_ltr: "",
+  blur_hash_ltr: "",
   sort_order: 0,
   is_active: true,
 };
 
+const langText = (
+  fa: string | null,
+  ar: string | null,
+  en: string | null,
+  legacy: string | null,
+): LangText => ({
+  fa: fa ?? legacy ?? "",
+  ar: ar ?? "",
+  en: en ?? "",
+});
+
 const SKELETON_KEYS = ["s1", "s2", "s3"] as const;
+
+function BannerImageField({
+  label,
+  hint,
+  value,
+  placeholder,
+  inputClass,
+  uploading,
+  uploadImage,
+  onUrlChange,
+  onUploaded,
+  onRemove,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  placeholder: string;
+  inputClass: string;
+  uploading: boolean;
+  uploadImage: ReturnType<typeof useAdminImageUpload>["uploadImage"];
+  onUrlChange: (url: string) => void;
+  onUploaded: (url: string, blurHash: string) => void;
+  onRemove: () => void;
+}) {
+  const { t } = useTranslations();
+
+  return (
+    <div className="space-y-2 rounded-xl border border-[#e4e4e7] p-3">
+      <p className="text-xs font-medium text-[#3f3f46]">{label}</p>
+      {hint ? <p className="text-[11px] text-[#71717a]">{hint}</p> : null}
+
+      {value ? (
+        <div className="overflow-hidden rounded-lg border border-[#e4e4e7]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={value} alt="" className="aspect-[16/7] w-full object-cover" />
+        </div>
+      ) : null}
+
+      <input
+        className={inputClass}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onUrlChange(e.target.value)}
+        dir="ltr"
+      />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <label className={cn("cursor-pointer", uploading && "pointer-events-none opacity-60")}>
+          <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
+            {uploading ? (
+              <Spinner size="sm" className="text-[#0d9488]" />
+            ) : (
+              <AppIcon icon={Upload} size="sm" />
+            )}
+            {uploading ? t("common.uploading") : t("admin.banners.uploadImage")}
+          </span>
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            disabled={uploading}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
+                notifyFormError(t("errors.fileTooLarge"), {
+                  title: t("notifications.errorTitle"),
+                });
+                e.target.value = "";
+                return;
+              }
+              uploadImage(file, "hero", {
+                successMessage: t("notifications.imageUploaded"),
+                onSuccess: (data) => {
+                  if (!data) return;
+                  onUploaded(data.url || value, data.blurHash || "");
+                },
+              });
+              e.target.value = "";
+            }}
+          />
+        </label>
+        {value ? (
+          <Button type="button" variant="secondary" onClick={onRemove} disabled={uploading}>
+            {t("admin.banners.removeImage")}
+          </Button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 export default function AdminBannersPage() {
   const { t } = useTranslations();
@@ -58,6 +170,7 @@ export default function AdminBannersPage() {
   const [editing, setEditing] = useState<HeroBanner | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [langTab, setLangTab] = useState<Locale>("fa");
 
   const { data: banners, isPending } = useQuery({
     queryKey: ["admin-hero-banners"],
@@ -81,6 +194,7 @@ export default function AdminBannersPage() {
 
   const openCreate = () => {
     setEditing(null);
+    setLangTab("fa");
     setForm({
       ...EMPTY_FORM,
       sort_order: banners?.length ?? 0,
@@ -90,14 +204,27 @@ export default function AdminBannersPage() {
 
   const openEdit = (banner: HeroBanner) => {
     setEditing(banner);
+    setLangTab("fa");
     setForm({
-      badge: banner.badge ?? "",
-      title: banner.title ?? "",
-      subtitle: banner.subtitle ?? "",
-      cta_label: banner.cta_label ?? "",
+      badge: langText(banner.badge_fa, banner.badge_ar, banner.badge_en, banner.badge),
+      title: langText(banner.title_fa, banner.title_ar, banner.title_en, banner.title),
+      subtitle: langText(
+        banner.subtitle_fa,
+        banner.subtitle_ar,
+        banner.subtitle_en,
+        banner.subtitle,
+      ),
+      cta_label: langText(
+        banner.cta_label_fa,
+        banner.cta_label_ar,
+        banner.cta_label_en,
+        banner.cta_label,
+      ),
       cta_href: banner.cta_href ?? "/categories",
       image_url: banner.image_url ?? "",
       blur_hash: banner.blur_hash ?? "",
+      image_url_ltr: banner.image_url_ltr ?? "",
+      blur_hash_ltr: banner.blur_hash_ltr ?? "",
       sort_order: banner.sort_order,
       is_active: banner.is_active,
     });
@@ -113,6 +240,8 @@ export default function AdminBannersPage() {
       cta_href: form.cta_href,
       image_url: form.image_url,
       blur_hash: form.blur_hash,
+      image_url_ltr: form.image_url_ltr,
+      blur_hash_ltr: form.blur_hash_ltr,
       sort_order: form.sort_order,
       is_active: form.is_active,
     };
@@ -261,7 +390,12 @@ export default function AdminBannersPage() {
         >
           <form
             id="admin-banner-form"
-            className="space-y-3"
+            className={cn(
+              "space-y-3 transition-opacity",
+              (isActionPending || isUploadPending) &&
+                "pointer-events-none opacity-50",
+            )}
+            aria-busy={isActionPending || isUploadPending}
             onSubmit={(e) => {
               e.preventDefault();
               save();
@@ -269,54 +403,132 @@ export default function AdminBannersPage() {
           >
             <p className="text-xs text-[#71717a]">{t("admin.banners.formHint")}</p>
 
-            {form.image_url ? (
-              <div className="overflow-hidden rounded-xl border border-[#e4e4e7]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={form.image_url}
-                  alt=""
-                  className="aspect-[16/7] w-full object-cover"
-                />
-              </div>
-            ) : null}
+            <BannerImageField
+              label={t("admin.banners.imageRtlLabel")}
+              value={form.image_url}
+              placeholder={t("admin.banners.imageUrlPlaceholder")}
+              inputClass={inputClass}
+              uploading={isUploadPending}
+              uploadImage={uploadImage}
+              onUrlChange={(url) => setForm((s) => ({ ...s, image_url: url }))}
+              onUploaded={(url, hash) =>
+                setForm((s) => ({
+                  ...s,
+                  image_url: url,
+                  blur_hash: hash || s.blur_hash,
+                }))
+              }
+              onRemove={() =>
+                setForm((s) => ({ ...s, image_url: "", blur_hash: "" }))
+              }
+            />
 
-            <input
-              className={inputClass}
-              placeholder={t("admin.banners.badgePlaceholder")}
-              value={form.badge}
-              onChange={(e) => setForm((s) => ({ ...s, badge: e.target.value }))}
+            <BannerImageField
+              label={t("admin.banners.imageLtrLabel")}
+              hint={t("admin.banners.imageLtrHint")}
+              value={form.image_url_ltr}
+              placeholder={t("admin.banners.imageUrlPlaceholder")}
+              inputClass={inputClass}
+              uploading={isUploadPending}
+              uploadImage={uploadImage}
+              onUrlChange={(url) => setForm((s) => ({ ...s, image_url_ltr: url }))}
+              onUploaded={(url, hash) =>
+                setForm((s) => ({
+                  ...s,
+                  image_url_ltr: url,
+                  blur_hash_ltr: hash || s.blur_hash_ltr,
+                }))
+              }
+              onRemove={() =>
+                setForm((s) => ({ ...s, image_url_ltr: "", blur_hash_ltr: "" }))
+              }
             />
-            <input
-              className={inputClass}
-              placeholder={t("admin.banners.titlePlaceholder")}
-              value={form.title}
-              onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))}
-            />
-            <textarea
-              className={inputClass}
-              rows={2}
-              placeholder={t("admin.banners.subtitlePlaceholder")}
-              value={form.subtitle}
-              onChange={(e) => setForm((s) => ({ ...s, subtitle: e.target.value }))}
-            />
-            <input
-              className={inputClass}
-              placeholder={t("admin.banners.ctaLabelPlaceholder")}
-              value={form.cta_label}
-              onChange={(e) => setForm((s) => ({ ...s, cta_label: e.target.value }))}
-            />
+
+            <div className="space-y-2 rounded-xl border border-[#e4e4e7] p-3">
+              <p className="text-xs font-medium text-[#3f3f46]">
+                {t("admin.banners.textSection")}
+              </p>
+              <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+                {LOCALES.map((loc) => (
+                  <button
+                    key={loc}
+                    type="button"
+                    className={cn(
+                      "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+                      langTab === loc
+                        ? "bg-white text-[#18181b] shadow-sm"
+                        : "text-[#71717a] hover:text-[#18181b]",
+                    )}
+                    onClick={() => setLangTab(loc)}
+                  >
+                    {LOCALE_LABELS[loc]}
+                  </button>
+                ))}
+              </div>
+
+              <input
+                key={`badge-${langTab}`}
+                className={inputClass}
+                placeholder={t("admin.banners.badgePlaceholder")}
+                value={form.badge[langTab]}
+                dir={langTab === "en" ? "ltr" : "rtl"}
+                onChange={(e) =>
+                  setForm((s) => ({
+                    ...s,
+                    badge: { ...s.badge, [langTab]: e.target.value },
+                  }))
+                }
+              />
+              <input
+                key={`title-${langTab}`}
+                className={inputClass}
+                placeholder={t("admin.banners.titlePlaceholder")}
+                value={form.title[langTab]}
+                dir={langTab === "en" ? "ltr" : "rtl"}
+                onChange={(e) =>
+                  setForm((s) => ({
+                    ...s,
+                    title: { ...s.title, [langTab]: e.target.value },
+                  }))
+                }
+              />
+              <textarea
+                key={`subtitle-${langTab}`}
+                className={inputClass}
+                rows={2}
+                placeholder={t("admin.banners.subtitlePlaceholder")}
+                value={form.subtitle[langTab]}
+                dir={langTab === "en" ? "ltr" : "rtl"}
+                onChange={(e) =>
+                  setForm((s) => ({
+                    ...s,
+                    subtitle: { ...s.subtitle, [langTab]: e.target.value },
+                  }))
+                }
+              />
+              <input
+                key={`cta-${langTab}`}
+                className={inputClass}
+                placeholder={t("admin.banners.ctaLabelPlaceholder")}
+                value={form.cta_label[langTab]}
+                dir={langTab === "en" ? "ltr" : "rtl"}
+                onChange={(e) =>
+                  setForm((s) => ({
+                    ...s,
+                    cta_label: { ...s.cta_label, [langTab]: e.target.value },
+                  }))
+                }
+              />
+              <p className="text-[11px] text-[#71717a]">
+                {t("admin.banners.textLangHint")}
+              </p>
+            </div>
+
             <input
               className={inputClass}
               placeholder={t("admin.banners.ctaHrefPlaceholder")}
               value={form.cta_href}
               onChange={(e) => setForm((s) => ({ ...s, cta_href: e.target.value }))}
-              dir="ltr"
-            />
-            <input
-              className={inputClass}
-              placeholder={t("admin.banners.imageUrlPlaceholder")}
-              value={form.image_url}
-              onChange={(e) => setForm((s) => ({ ...s, image_url: e.target.value }))}
               dir="ltr"
             />
             <div>
@@ -341,52 +553,6 @@ export default function AdminBannersPage() {
               />
               {t("admin.banners.activeLabel")}
             </label>
-
-            <div className="flex flex-wrap gap-2">
-              <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
-                  <AppIcon icon={Upload} size="sm" />
-                  {t("admin.banners.uploadImage")}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
-                      notifyFormError(t("errors.fileTooLarge"), {
-                        title: t("notifications.errorTitle"),
-                      });
-                      e.target.value = "";
-                      return;
-                    }
-                    uploadImage(file, "hero", {
-                      successMessage: t("notifications.imageUploaded"),
-                      onSuccess: (data) => {
-                        if (!data) return;
-                        setForm((s) => ({
-                          ...s,
-                          image_url: data.url || s.image_url,
-                          blur_hash: data.blurHash || s.blur_hash,
-                        }));
-                      },
-                    });
-                    e.target.value = "";
-                  }}
-                />
-              </label>
-              {form.image_url ? (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setForm((s) => ({ ...s, image_url: "", blur_hash: "" }))}
-                >
-                  {t("admin.banners.removeImage")}
-                </Button>
-              ) : null}
-            </div>
           </form>
         </Modal>
       </div>

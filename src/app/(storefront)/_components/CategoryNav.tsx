@@ -41,7 +41,7 @@ export function CategoryNav() {
 
   return (
     <div className="h-[52px] border-b border-border-subtle bg-bg-main">
-      <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-8">
+      <div className="flex h-full w-full items-center justify-between px-8">
         <nav className="flex items-center gap-7" aria-label={t("nav.categories")}>
           <Link
             href="/categories"

@@ -3,7 +3,9 @@ import { buildProductDescriptionStub } from "@/lib/ai/product-description-stub";
 import type { ProductFeatureInput } from "@/app/_types/database.types";
 
 export type VisionCatalogDraft = {
-  name: string;
+  name_fa: string;
+  name_ar: string;
+  name_en: string;
   slug: string;
   description_fa: string;
   description_ar: string;
@@ -65,8 +67,10 @@ function promptFor(input: {
   return `You are a grocery catalog copywriter for EliMarket, a supermarket in Iran/Oman.
 Look closely at the product photo(s), especially the label/packaging text (brand, ingredients, net weight, claims like organic/halal/sugar-free, usage), and return JSON only with:
 {
-  "name": "sellable product title, preferably Persian if the pack is Persian, otherwise the common store name",
-  "slug": "english-kebab-case-slug",
+  "name_fa": "sellable product title in Persian",
+  "name_ar": "the same product's sellable title in Arabic (a real Arabic product name, not a transliteration of the Persian one)",
+  "name_en": "the same product's sellable title in English",
+  "slug": "english-kebab-case-slug derived from name_en",
   "description_fa": "persuasive 2-4 sentence marketing/ad copy in Persian, written natively for a Persian shopper, based on what you actually read on the label",
   "description_ar": "persuasive 2-4 sentence marketing/ad copy in Arabic, written natively for an Arabic shopper (NOT a translation of the Persian text — phrase it the way a native Arabic ad would), based on what you actually read on the label",
   "description_en": "persuasive 2-4 sentence marketing/ad copy in English, written natively for an English shopper (NOT a translation of the other two — phrase it the way a native English ad would), based on what you actually read on the label",
@@ -86,6 +90,7 @@ Hint name: ${input.hintName || "none"}
 Hint category: ${input.categoryName || "none"}
 
 Rules:
+- name_fa/name_ar/name_en must each be a natural, sellable product title in that language (not a transliteration or literal translation of another field) while clearly naming the same real product.
 - Each of description_fa/description_ar/description_en must be independently well-written ad copy in that language, not a mechanical translation of one shared sentence — vary the wording, sentence structure, and emphasis naturally between languages while keeping the same facts.
 - Do not invent medical claims or certifications that are not visible on the pack.
 - features/specification must be genuinely derived from what is visible on the label (weight/volume, ingredients, brand, count, usage) — return as many as are visible, up to 8. Every feature needs all six label/value fields filled for fa, ar, and en.
@@ -203,7 +208,9 @@ export async function draftCatalogFromImages(input: {
 
   if (!parsed) {
     return {
-      name: fallbackName,
+      name_fa: fallbackName,
+      name_ar: fallbackName,
+      name_en: fallbackName,
       slug: slugifyProductName(fallbackName),
       ...stub,
       features: [],
@@ -211,11 +218,14 @@ export async function draftCatalogFromImages(input: {
     };
   }
 
-  const name = asString(parsed.name) || fallbackName;
-  const slug =
-    slugifyProductName(asString(parsed.slug) || asString(parsed.name_en) || name);
+  const name_fa = asString(parsed.name_fa) || asString(parsed.name) || fallbackName;
+  const name_ar = asString(parsed.name_ar) || name_fa;
+  const name_en = asString(parsed.name_en) || name_fa;
+  const slug = slugifyProductName(asString(parsed.slug) || name_en);
   return {
-    name,
+    name_fa,
+    name_ar,
+    name_en,
     slug,
     description_fa: asString(parsed.description_fa) || stub.description_fa,
     description_ar: asString(parsed.description_ar) || stub.description_ar,

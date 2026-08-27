@@ -89,6 +89,8 @@ const DESCRIPTION_TABS: { key: DescriptionLocale; labelKey: "descriptionFa" | "d
 
 type FormValues = {
   name: string;
+  name_ar?: string;
+  name_en?: string;
   slug: string;
   description_fa?: string;
   description_ar?: string;
@@ -110,6 +112,8 @@ type FormValues = {
 
 const DEFAULT_FORM_VALUES: FormValues = {
   name: "",
+  name_ar: "",
+  name_en: "",
   slug: "",
   description_fa: "",
   description_ar: "",
@@ -150,6 +154,8 @@ export default function AdminProductsPage() {
     () =>
       z.object({
         name: z.string().min(1, t("admin.products.validationName")),
+        name_ar: z.string().optional(),
+        name_en: z.string().optional(),
         slug: z.string().min(1, t("admin.products.validationSlug")),
         description_fa: z.string().optional(),
         description_ar: z.string().optional(),
@@ -233,7 +239,9 @@ export default function AdminProductsPage() {
   const openEdit = (product: Product) => {
     setEditing(product);
     form.reset({
-      name: product.name,
+      name: product.name_fa ?? product.name,
+      name_ar: product.name_ar ?? "",
+      name_en: product.name_en ?? "",
       slug: product.slug,
       description_fa: product.description_fa ?? product.description ?? "",
       description_ar: product.description_ar ?? "",
@@ -589,10 +597,30 @@ export default function AdminProductsPage() {
             onSubmit={onSubmit}
             className="space-y-3"
           >
+          <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+            {DESCRIPTION_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
+                  descriptionTab === tab.key
+                    ? "bg-white text-[#18181b] shadow-sm"
+                    : "text-[#71717a] hover:text-[#18181b]"
+                }`}
+                onClick={() => setDescriptionTab(tab.key)}
+              >
+                {t(`admin.products.${tab.labelKey}`)}
+              </button>
+            ))}
+          </div>
           <input
-            {...form.register("name")}
+            key={`name-${descriptionTab}`}
+            {...form.register(
+              descriptionTab === "fa" ? "name" : descriptionTab === "ar" ? "name_ar" : "name_en",
+            )}
             placeholder={t("admin.products.namePlaceholder")}
             className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+            dir={descriptionTab === "en" ? "ltr" : "rtl"}
           />
           <input
             {...form.register("slug")}
@@ -628,6 +656,8 @@ export default function AdminProductsPage() {
                         form.setValue("description_fa", data.description_fa);
                         form.setValue("description_ar", data.description_ar);
                         form.setValue("description_en", data.description_en);
+                        form.setValue("name_ar", data.name_ar);
+                        form.setValue("name_en", data.name_en);
                       },
                     },
                   );
@@ -635,22 +665,6 @@ export default function AdminProductsPage() {
               >
                 {t("admin.products.aiDescriptionAll")}
               </Button>
-            </div>
-            <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
-              {DESCRIPTION_TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
-                    descriptionTab === tab.key
-                      ? "bg-white text-[#18181b] shadow-sm"
-                      : "text-[#71717a] hover:text-[#18181b]"
-                  }`}
-                  onClick={() => setDescriptionTab(tab.key)}
-                >
-                  {t(`admin.products.${tab.labelKey}`)}
-                </button>
-              ))}
             </div>
             <textarea
               key={descriptionTab}

@@ -8,6 +8,7 @@ import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
+import { resolveProductName } from "@/lib/i18n/product-name";
 import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
 import { ProductCartQtyControl } from "@/app/(storefront)/_components/ProductCartQtyControl";
 import { productCover } from "@/lib/products/gallery";
@@ -19,6 +20,7 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
   const formatPrice = useFormatPrice();
   const { locale, dir } = useTranslations();
   const excerpt = resolveProductCardExcerpt(product, locale);
+  const name = resolveProductName(product, locale);
 
   if (compact) {
     const compareAt = productCompareAtPrice(product);
@@ -59,7 +61,7 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
             )}
           </div>
           <div className="min-w-0 flex-1 text-start">
-            <p className="truncate text-sm font-medium">{product.name}</p>
+            <p className="truncate text-sm font-medium">{name}</p>
             {excerpt && (
               <p className="mt-0.5 line-clamp-1 text-[11px] text-muted">{excerpt}</p>
             )}

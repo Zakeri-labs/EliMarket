@@ -11,6 +11,7 @@ import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { useTranslations } from "@/i18n/use-translations";
 import { productGallery } from "@/lib/products/gallery";
+import { resolveProductName } from "@/lib/i18n/product-name";
 
 type Props = {
   product: Product;
@@ -33,7 +34,8 @@ export function ProductGallery({
   showThumbs = false,
   thumbsLayout = "below",
 }: Props) {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
+  const name = resolveProductName(product, locale);
   const images = productGallery(product);
   const [index, setIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
@@ -102,7 +104,7 @@ export function ProductGallery({
             <StorefrontImage
               src={current.image_url}
               blurHash={current.blur_hash}
-              alt={product.name}
+              alt={name}
               fill
               priority
               sizes={sizes}
@@ -171,10 +173,10 @@ export function ProductGallery({
               style={{ zIndex: 100001 }}
               aria-describedby={undefined}
             >
-              <Dialog.Title className="sr-only">{product.name}</Dialog.Title>
+              <Dialog.Title className="sr-only">{name}</Dialog.Title>
               <div className="flex shrink-0 items-center justify-between p-4">
                 <span className="text-sm text-white/80">
-                  {hasMultiple ? `${index + 1} / ${images.length}` : product.name}
+                  {hasMultiple ? `${index + 1} / ${images.length}` : name}
                 </span>
                 <Dialog.Close asChild>
                   <button
@@ -191,7 +193,7 @@ export function ProductGallery({
                 <StorefrontImage
                   src={current.image_url}
                   blurHash={current.blur_hash}
-                  alt={product.name}
+                  alt={name}
                   fill
                   sizes="100vw"
                   withBlur={false}

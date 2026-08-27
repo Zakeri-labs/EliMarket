@@ -14,6 +14,7 @@ import {
 import { getMessages } from "@/i18n/messages";
 import { getRequestLocale } from "@/i18n/server";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
+import { resolveProductName } from "@/lib/i18n/product-name";
 import { productGallery } from "@/lib/products/gallery";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -29,22 +30,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const product = result.data;
+  const name = resolveProductName(product, locale);
   const description = trimDescription(resolveProductDescription(product, locale));
   const path = `/products/${slug}`;
   const images = productGallery(product).map((image) => ({
     url: image.image_url,
-    alt: product.name,
+    alt: name,
   }));
 
   return {
-    title: product.name,
+    title: name,
     description: description || undefined,
     alternates: {
       canonical: absoluteUrl(path),
       languages: languageAlternates(path),
     },
     openGraph: {
-      title: product.name,
+      title: name,
       description: description || undefined,
       url: absoluteUrl(path),
       type: "website",

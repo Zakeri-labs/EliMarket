@@ -7,7 +7,7 @@ import { getStoreSettingsAction } from "@/app/_actions/settings-actions";
 import { createPaymentForOrder } from "@/app/_actions/payment-actions";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
-import { DEFAULT_CURRENCY, cartTotals } from "@/config/brand";
+import { DEFAULT_CURRENCY, cartTotals, roundMoney } from "@/config/brand";
 import { applyOrderStockDecrement, restoreOrderStock } from "@/lib/inventory/stock";
 import { applyLiveCampaigns } from "@/lib/campaigns/apply";
 import { loadActiveCampaigns } from "@/lib/campaigns/load";
@@ -175,6 +175,15 @@ export async function createOrderAction(payload: {
     }
 
     const { total } = cartTotals(subtotal);
+
+    // Cash-on-delivery surcharge, configured by the admin in store settings.
+    const cashSurcharge = Number(settingsResult.data?.cash_surcharge ?? 0);
+    const cashFee =
+      payload.paymentMethod === "cash" && cashSurcharge > 0
+        ? roundMoney(cashSurcharge)
+        : 0;
+    const finalTotal = roundMoney(total + cashFee);
+
     const paymentStatus =
       payload.paymentMethod === "online" ? "pending" : "unpaid";
 
@@ -183,7 +192,8 @@ export async function createOrderAction(payload: {
       .insert({
         user_id: user.id,
         status: "pending",
-        total,
+        total: finalTotal,
+        cash_fee: cashFee,
         currency,
         payment_method: payload.paymentMethod,
         payment_status: paymentStatus,

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { cn } from "@/app/utils/cn";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
 import { FlashDealTimer } from "@/app/(storefront)/_components/FlashDealTimer";
 import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
@@ -78,12 +79,17 @@ export function FlashDeals({ limit }: Props) {
 
   return (
     <section dir={dir}>
-      <div className="mb-4 flex h-7 items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-3">
-          <h2 className="text-start font-logo text-base tracking-wide sm:text-lg">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+          <h2
+            className={cn(
+              "text-start text-base tracking-wide sm:text-lg",
+              locale === "en" && "font-logo",
+            )}
+          >
             {t("home.flashDeals")}
           </h2>
-          <FlashDealTimer endsAt={endsAt} />
+          <FlashDealTimer endsAt={endsAt} fallback={!isSkeleton && deals.length > 0} />
         </div>
         <Link
           href={viewAllHref}

@@ -193,7 +193,12 @@ export function ShopSidebar({
           </div>
 
           <div className="mt-6 w-full rounded-lg border border-border-subtle bg-bg-card/40 p-4">
-            <p className="font-logo text-sm font-semibold text-text-primary">
+            <p
+              className={cn(
+                "text-sm font-semibold text-text-primary",
+                locale === "en" && "font-logo",
+              )}
+            >
               {t("home.sameDayDeliveryTitle")}
             </p>
             <p className="mt-1 text-[13px] text-text-secondary">
