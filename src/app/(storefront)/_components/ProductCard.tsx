@@ -65,7 +65,7 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
             {excerpt && (
               <p className="mt-0.5 line-clamp-1 text-[11px] text-muted">{excerpt}</p>
             )}
-            <div className="mt-1 flex items-baseline gap-1.5 tabular-nums">
+            <div data-price className="mt-1 flex items-baseline gap-1.5 tabular-nums">
               <p className="price-num text-xs font-semibold">{formatPrice(Number(product.price))}</p>
               {compareAt != null && (
                 <p className="price-num text-[10px] text-muted line-through">{formatPrice(compareAt)}</p>

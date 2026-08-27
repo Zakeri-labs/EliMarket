@@ -437,7 +437,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             <div>
               <div className="flex items-start justify-between gap-4">
                 {showPrices ? (
-                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <div data-price className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                     <Price
                       amount={Number(product.price)}
                       currency={product.currency}
@@ -467,7 +467,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 )}
               </div>
               {showPrices && (
-                <p className="mt-1 text-start text-xs text-muted">{t("product.vatIncluded")}</p>
+                <p data-price className="mt-1 text-start text-xs text-muted">{t("product.vatIncluded")}</p>
               )}
             </div>
 
@@ -737,7 +737,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
             <div className="space-y-4 rounded-2xl border border-gold-hairline bg-card p-4">
               {showPrices ? (
-                <div>
+                <div data-price>
                   {compareAt != null && (
                     <div className="mb-1 flex items-center gap-2">
                       <span className="price-num text-[13px] text-muted line-through tabular-nums">
@@ -784,6 +784,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               {showPrices && (
                 <button
                   type="button"
+                  data-price
                   disabled={isSkeleton || !inStock}
                   onClick={buyNow}
                   className="flex h-10 w-full items-center justify-center rounded-xl border border-gold-wash-border text-[13px] font-semibold text-[#e0d6bd] disabled:opacity-50"

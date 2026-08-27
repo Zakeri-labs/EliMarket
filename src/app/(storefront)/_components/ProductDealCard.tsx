@@ -125,7 +125,7 @@ export function ProductDealCard({
                 : "product.unitCount",
           )}
         </p>
-        <div className="mt-1.5 flex min-h-8 flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums">
+        <div data-price className="mt-1.5 flex min-h-8 flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums">
           <Price
             amount={Number(product.price)}
             currency={product.currency}

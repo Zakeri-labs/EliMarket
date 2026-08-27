@@ -32,7 +32,7 @@ export function Price({ amount, currency = DEFAULT_CURRENCY, className, fraction
   );
 
   return (
-    <span className={cn("price-num tabular-nums", className)}>
+    <span data-price className={cn("price-num tabular-nums", className)}>
       {parts.map((part, i) =>
         part.type === "decimal" || part.type === "fraction" ? (
           <span

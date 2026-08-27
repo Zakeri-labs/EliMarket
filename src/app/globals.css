@@ -177,6 +177,14 @@ body {
   font-feature-settings: "tnum" 1;
 }
 
+/* When the admin turns off price display, the storefront shell carries
+   data-hide-prices (set on the server in (storefront)/layout.tsx). Every
+   real price is tagged with data-price, so this hides them from the first
+   paint — no flash of prices before the client settings query resolves. */
+[data-hide-prices] [data-price] {
+  display: none !important;
+}
+
 .stripe-placeholder {
   background-color: #0e1612;
   background-image: repeating-linear-gradient(

@@ -148,7 +148,7 @@ function SearchBarForm({
                     {resolveProductName(product, locale)}
                   </p>
                 </div>
-                <p className="price-num shrink-0 text-xs font-semibold text-text-primary">
+                <p data-price className="price-num shrink-0 text-xs font-semibold text-text-primary">
                   {formatPrice(Number(product.price))}
                 </p>
               </Link>

@@ -52,7 +52,7 @@ export function SizeVariantChips({ productId, currentProductId }: Props) {
               <span className="text-sm font-semibold">
                 {variant.variant_label || variant.slug}
               </span>
-              <span className="price-num text-[11px] text-muted">
+              <span data-price className="price-num text-[11px] text-muted">
                 {formatPrice(Number(variant.price), variant.currency)}
               </span>
             </Link>
