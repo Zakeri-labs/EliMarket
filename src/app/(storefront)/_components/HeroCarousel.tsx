@@ -110,7 +110,7 @@ function HeroSlidePanel({
           </p>
         ) : null}
         {!slide.imageOnly && slide.title ? (
-          <h2 className="mt-1 w-full max-w-lg bg-clip-text text-start text-2xl font-bold leading-tight text-transparent drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] from-white via-accent-teal to-accent ltr:bg-gradient-to-r rtl:bg-gradient-to-l sm:text-3xl md:text-4xl">
+          <h2 className="mt-1 w-full max-w-lg text-start text-2xl font-bold leading-tight text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] sm:text-3xl md:text-4xl">
             {slide.title}
           </h2>
         ) : null}

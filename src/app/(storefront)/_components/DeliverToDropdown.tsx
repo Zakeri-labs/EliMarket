@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, MapPin } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { ChevronDown, MapPin, MapPinOff } from "lucide-react";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { Button } from "@/components/ui/Button";
 import { useTranslations } from "@/i18n/use-translations";
 
 type DeliverArea = { key: string; serviceable: boolean };
@@ -17,7 +19,7 @@ const LOCATIONS: readonly DeliverArea[] = [
   { key: "home.deliverAreaNizwa", serviceable: false },
 ];
 
-/** Desktop header Deliver-to control. Selecting an out-of-service area shows a localized notice. */
+/** Desktop header Deliver-to control. Selecting an out-of-service area opens a localized notice popup. */
 export function DeliverToDropdown({ className }: { className?: string }) {
   const { t, dir } = useTranslations();
   const [open, setOpen] = useState(false);
@@ -83,7 +85,6 @@ export function DeliverToDropdown({ className }: { className?: string }) {
                   onClick={() => {
                     if (option.serviceable) {
                       setSelectedKey(option.key);
-                      setOutOfAreaKey(null);
                     } else {
                       setOutOfAreaKey(option.key);
                     }
@@ -102,14 +103,35 @@ export function DeliverToDropdown({ className }: { className?: string }) {
           })}
         </ul>
       ) : null}
-      {!open && outOfAreaKey ? (
-        <p
-          role="status"
-          className="absolute inset-x-0 top-[calc(100%+6px)] z-40 rounded-lg border border-border-subtle bg-bg-card px-3 py-2 text-[12px] leading-snug text-text-secondary shadow-lg"
-        >
-          {t("home.outOfServiceArea", { area: t(outOfAreaKey) })}
-        </p>
-      ) : null}
+
+      <Dialog.Root open={outOfAreaKey !== null} onOpenChange={(next) => !next && setOutOfAreaKey(null)}>
+        <Dialog.Portal>
+          <Dialog.Overlay
+            className="fixed inset-0"
+            style={{ zIndex: 100050, background: "rgba(15, 23, 18, 0.55)", backdropFilter: "blur(6px)" }}
+          />
+          <Dialog.Content
+            dir={dir}
+            className="fixed w-[min(30rem,calc(100vw-1.5rem))] rounded-2xl border border-border-subtle bg-bg-card p-7 text-center shadow-2xl"
+            style={{ zIndex: 100051, left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}
+          >
+            <span className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-bg-main">
+              <AppIcon icon={MapPinOff} size="xl" className="text-accent-teal" />
+            </span>
+            <Dialog.Title className="text-xl font-bold text-text-primary">
+              {t("home.outOfServiceAreaTitle")}
+            </Dialog.Title>
+            <Dialog.Description className="mt-3 text-[15px] leading-relaxed text-text-secondary">
+              {outOfAreaKey
+                ? t("home.outOfServiceArea", { area: t(outOfAreaKey) })
+                : null}
+            </Dialog.Description>
+            <Button fullWidth className="mt-6" onClick={() => setOutOfAreaKey(null)}>
+              {t("home.outOfServiceAreaAck")}
+            </Button>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }

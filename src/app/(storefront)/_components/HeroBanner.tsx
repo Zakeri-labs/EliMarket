@@ -102,7 +102,7 @@ export function HeroBanner() {
         ) : null}
         {!slide.imageOnly && slide.title ? (
           <h2
-            className="mb-5 w-full max-w-md bg-clip-text text-start text-[42px] font-bold leading-[1.15] text-transparent drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)] from-white via-accent-teal to-accent ltr:bg-gradient-to-r rtl:bg-gradient-to-l"
+            className="mb-5 w-full max-w-md text-start text-[42px] font-bold leading-[1.15] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]"
           >
             {slide.title}
           </h2>

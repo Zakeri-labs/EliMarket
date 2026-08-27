@@ -19,7 +19,9 @@ export type Messages = {
   home: {
     deliverTo: string;
     locationSample: string;
+    outOfServiceAreaTitle: string;
     outOfServiceArea: string;
+    outOfServiceAreaAck: string;
     comingSoonTag: string;
     deliverAreaMuscatKhoudh: string;
     deliverAreaMuscatGhubra: string;
@@ -1061,7 +1063,9 @@ const fa: Messages = {
   home: {
     deliverTo: "تحویل به",
     locationSample: "مسقط، الخوض",
-    outOfServiceArea: "هنوز به {area} سرویس‌دهی نمی‌کنیم؛ اما به‌زودی خدمات ما به این منطقه هم اضافه خواهد شد.",
+    outOfServiceAreaTitle: "این منطقه هنوز پوشش داده نمی‌شود",
+    outOfServiceArea: "در حال حاضر به {area} سرویس‌دهی نداریم. تیم ما به‌سرعت در حال گسترش مناطق تحت پوشش است و به‌زودی خدمات ما به این منطقه هم می‌رسد. از همراهی و صبوری شما سپاسگزاریم.",
+    outOfServiceAreaAck: "متوجه شدم",
     comingSoonTag: "به‌زودی",
     deliverAreaMuscatKhoudh: "مسقط، الخوض",
     deliverAreaMuscatGhubra: "مسقط، الغبره",
@@ -2186,7 +2190,9 @@ const ar: Messages = {
   home: {
     deliverTo: "التوصيل إلى",
     locationSample: "مسقط، الخوض",
-    outOfServiceArea: "لا نقوم بالتوصيل إلى {area} بعد، لكننا نتوسّع بسرعة وستُضاف منطقتك إلى خدماتنا قريبًا.",
+    outOfServiceAreaTitle: "هذه المنطقة غير مغطاة بعد",
+    outOfServiceArea: "لا نقدّم خدمة التوصيل إلى {area} حاليًا. يعمل فريقنا على توسيع نطاق التغطية بسرعة، وستُضاف منطقتك إلى خدماتنا قريبًا. شكرًا لتفهّمك وصبرك.",
+    outOfServiceAreaAck: "حسنًا، فهمت",
     comingSoonTag: "قريبًا",
     deliverAreaMuscatKhoudh: "مسقط، الخوض",
     deliverAreaMuscatGhubra: "مسقط، الغبرة",
@@ -3311,7 +3317,9 @@ const en: Messages = {
   home: {
     deliverTo: "Deliver to",
     locationSample: "Muscat, Al Khoudh",
-    outOfServiceArea: "We don't deliver to {area} yet — but we're expanding fast and will be serving your area soon.",
+    outOfServiceAreaTitle: "We don't cover this area yet",
+    outOfServiceArea: "We currently don't deliver to {area}. Our team is expanding our coverage quickly, and we'll be serving your area soon. Thank you for your patience.",
+    outOfServiceAreaAck: "Got it",
     comingSoonTag: "Coming soon",
     deliverAreaMuscatKhoudh: "Muscat, Al Khoudh",
     deliverAreaMuscatGhubra: "Muscat, Al Ghubra",
