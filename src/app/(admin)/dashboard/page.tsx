@@ -6,6 +6,7 @@ import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { PriceVisibilityToggle } from "@/app/(admin)/_components/PriceVisibilityToggle";
 import { ProductDetailExtrasToggle } from "@/app/(admin)/_components/ProductDetailExtrasToggle";
 import { CashSurchargeSetting } from "@/app/(admin)/_components/CashSurchargeSetting";
+import { ReceiptSettings } from "@/app/(admin)/_components/ReceiptSettings";
 import { DashboardCharts } from "@/app/(admin)/dashboard/_components/DashboardCharts";
 import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -177,6 +178,9 @@ export default function AdminDashboardPage() {
           <ProductDetailExtrasToggle />
           <div className="border-t border-[#e4e4e7] pt-4">
             <CashSurchargeSetting />
+          </div>
+          <div className="border-t border-[#e4e4e7] pt-4">
+            <ReceiptSettings />
           </div>
         </div>
       </div>

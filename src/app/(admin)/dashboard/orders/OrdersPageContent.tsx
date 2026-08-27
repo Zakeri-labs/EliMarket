@@ -6,8 +6,11 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Bike,
   CreditCard,
+  Image as ImageIcon,
   MapPin,
   Package,
+  PackageCheck,
+  Printer,
   UserRound,
 } from "lucide-react";
 import {
@@ -15,6 +18,7 @@ import {
   getRidersAction,
   updateOrderStatusAction,
 } from "@/app/_actions/order-actions";
+import { getDeliveryProofUrlAction } from "@/app/_actions/rider-actions";
 import { useOrders } from "@/app/(admin)/dashboard/_hooks/use-orders";
 import {
   mockAdminOrderDateLabel,
@@ -73,6 +77,44 @@ function allowedStatusOptions(current: OrderStatus): OrderStatus[] {
 
 function canAssignRider(status: OrderStatus) {
   return status === "preparing";
+}
+
+function ProofButton({
+  orderId,
+  kind,
+  label,
+  className,
+}: {
+  orderId: string;
+  kind: "delivered" | "failed";
+  label: string;
+  className?: string;
+}) {
+  const [loading, setLoading] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={loading}
+      className={cn(
+        "inline-flex items-center gap-1.5 text-sm font-medium text-[#0f766e] underline-offset-2 hover:underline disabled:opacity-50",
+        className,
+      )}
+      onClick={async () => {
+        setLoading(true);
+        const w = window.open("", "_blank");
+        const res = await getDeliveryProofUrlAction(orderId, kind);
+        setLoading(false);
+        if (res.success && res.data?.url && w) {
+          w.location.href = res.data.url;
+        } else {
+          w?.close();
+        }
+      }}
+    >
+      <AppIcon icon={ImageIcon} size="xs" />
+      {label}
+    </button>
+  );
 }
 
 export default function OrdersPageContent() {
@@ -204,6 +246,59 @@ export default function OrdersPageContent() {
                       </span>
                     </p>
                   ) : null}
+                  {!isSkeleton && order.picked_up_at ? (
+                    <p className="flex items-start gap-2 text-[#3f3f46]">
+                      <AppIcon
+                        icon={PackageCheck}
+                        size="sm"
+                        className="mt-0.5 text-[#0d9488]"
+                      />
+                      <span>
+                        {t("admin.orders.pickedUpAt")}:{" "}
+                        {new Date(order.picked_up_at).toLocaleString(
+                          getNumberLocale(locale),
+                        )}
+                      </span>
+                    </p>
+                  ) : null}
+                  {!isSkeleton && order.delivered_photo_path ? (
+                    <ProofButton
+                      orderId={order.id}
+                      kind="delivered"
+                      label={t("admin.orders.viewDeliveryProof")}
+                    />
+                  ) : null}
+                  {!isSkeleton && order.failed_delivery_reason ? (
+                    <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800">
+                      <p className="font-semibold">
+                        {t("admin.orders.failedDeliveryTitle")}:{" "}
+                        {t(
+                          `admin.orders.failReason.${order.failed_delivery_reason}`,
+                        )}
+                      </p>
+                      {order.failed_delivery_note ? (
+                        <p className="mt-1 text-red-700">
+                          {t("admin.orders.failedDeliveryNote")}:{" "}
+                          {order.failed_delivery_note}
+                        </p>
+                      ) : null}
+                      {order.failed_delivery_at ? (
+                        <p className="mt-1 text-xs text-red-600">
+                          {new Date(order.failed_delivery_at).toLocaleString(
+                            getNumberLocale(locale),
+                          )}
+                        </p>
+                      ) : null}
+                      {order.failed_delivery_photo_path ? (
+                        <ProofButton
+                          orderId={order.id}
+                          kind="failed"
+                          label={t("admin.orders.viewFailPhoto")}
+                          className="mt-2"
+                        />
+                      ) : null}
+                    </div>
+                  ) : null}
                   <ul className="mt-3 space-y-1.5 rounded-xl border border-[#e4e4e7] bg-[#fafafa] px-3 py-2.5 text-[#52525b]">
                     {order.order_items?.map((item) => (
                       <li key={item.id} className="flex items-center gap-2">
@@ -319,6 +414,23 @@ export default function OrdersPageContent() {
                   >
                     {t("admin.orders.assignRider")}
                   </Button>
+
+                  <button
+                    type="button"
+                    disabled={isSkeleton}
+                    onClick={() => {
+                      if (isSkeleton) return;
+                      window.open(
+                        `/print/order/${order.id}`,
+                        "_blank",
+                        "noopener,noreferrer",
+                      );
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#3f3f46] hover:border-[#0f766e] hover:text-[#0f766e] disabled:cursor-not-allowed disabled:opacity-55"
+                  >
+                    <AppIcon icon={Printer} size="sm" />
+                    {t("admin.orders.printInvoice")}
+                  </button>
                 </div>
               </div>
             </article>

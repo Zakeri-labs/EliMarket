@@ -1,12 +1,22 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/core/supabase/auth-helpers";
+import { requireAuth, requireRole } from "@/core/supabase/auth-helpers";
 import { createServiceRoleClient } from "@/core/supabase/service";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { serverT } from "@/i18n/server";
 import { DELIVERY_FEE } from "@/config/brand";
-import type { Order } from "@/app/_types/database.types";
+import type { FailedDeliveryReason, Order } from "@/app/_types/database.types";
+
+const FAILED_DELIVERY_REASONS: FailedDeliveryReason[] = [
+  "customer_absent",
+  "no_answer",
+  "wrong_address",
+  "customer_refused",
+  "other",
+];
+
+const PROOF_PATH_PREFIX = "delivery/";
 
 const ORDER_SELECT =
   "*, order_items(*, product:products(*)), address:addresses(*)";
@@ -58,7 +68,11 @@ export async function acceptOrderAction(orderId: string) {
 
     const { data, error } = await admin
       .from("orders")
-      .update({ rider_id: user.id, status: "out_for_delivery" })
+      .update({
+        rider_id: user.id,
+        status: "out_for_delivery",
+        picked_up_at: null,
+      })
       .eq("id", orderId)
       .eq("status", "preparing")
       .is("rider_id", null)
@@ -76,17 +90,54 @@ export async function acceptOrderAction(orderId: string) {
   }
 }
 
-export async function riderMarkDeliveredAction(orderId: string) {
+/** Step 1: rider confirms they collected the order from the store. */
+export async function riderMarkPickedUpAction(orderId: string) {
   try {
     const { user } = await requireRole("rider");
     const admin = createServiceRoleClient();
 
     const { data, error } = await admin
       .from("orders")
-      .update({ status: "delivered" })
+      .update({ picked_up_at: new Date().toISOString() })
       .eq("id", orderId)
       .eq("rider_id", user.id)
       .eq("status", "out_for_delivery")
+      .is("picked_up_at", null)
+      .select(ORDER_SELECT)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) throw new Error(await serverT("errors.statusUpdateFailed"));
+    revalidatePath("/rider");
+    revalidatePath("/dashboard/orders");
+    return { success: true as const, data: data as Order };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.statusUpdateFailed", err),
+    };
+  }
+}
+
+/** Step 2: successful hand-off. `photoPath` is a required proof photo already
+ *  uploaded to the private `delivery-proofs` bucket by the client. */
+export async function riderMarkDeliveredAction(
+  orderId: string,
+  photoPath: string,
+) {
+  try {
+    const { user } = await requireRole("rider");
+    if (!photoPath || !photoPath.startsWith(PROOF_PATH_PREFIX)) {
+      throw new Error(await serverT("errors.statusUpdateFailed"));
+    }
+    const admin = createServiceRoleClient();
+
+    const { data, error } = await admin
+      .from("orders")
+      .update({ status: "delivered", delivered_photo_path: photoPath })
+      .eq("id", orderId)
+      .eq("rider_id", user.id)
+      .eq("status", "out_for_delivery")
+      .not("picked_up_at", "is", null)
       .select(ORDER_SELECT)
       .maybeSingle();
     if (error) throw error;
@@ -103,14 +154,37 @@ export async function riderMarkDeliveredAction(orderId: string) {
   }
 }
 
-export async function riderMarkUndeliveredAction(orderId: string) {
+/** Step 3: failed delivery. Records the reason (+ note when "other") and a
+ *  required photo, then returns the order to the ready pool. */
+export async function riderMarkUndeliveredAction(
+  orderId: string,
+  input: { reason: FailedDeliveryReason; note?: string; photoPath: string },
+) {
   try {
     const { user } = await requireRole("rider");
+    const note = input.note?.trim() || null;
+    if (!FAILED_DELIVERY_REASONS.includes(input.reason)) {
+      throw new Error(await serverT("errors.statusUpdateFailed"));
+    }
+    if (input.reason === "other" && !note) {
+      throw new Error(await serverT("errors.statusUpdateFailed"));
+    }
+    if (!input.photoPath || !input.photoPath.startsWith(PROOF_PATH_PREFIX)) {
+      throw new Error(await serverT("errors.statusUpdateFailed"));
+    }
     const admin = createServiceRoleClient();
 
     const { data, error } = await admin
       .from("orders")
-      .update({ status: "preparing", rider_id: null })
+      .update({
+        status: "preparing",
+        rider_id: null,
+        picked_up_at: null,
+        failed_delivery_reason: input.reason,
+        failed_delivery_note: note,
+        failed_delivery_photo_path: input.photoPath,
+        failed_delivery_at: new Date().toISOString(),
+      })
       .eq("id", orderId)
       .eq("rider_id", user.id)
       .eq("status", "out_for_delivery")
@@ -125,6 +199,52 @@ export async function riderMarkUndeliveredAction(orderId: string) {
     return {
       success: false as const,
       error: await actionErrorMessage("errors.statusUpdateFailed", err),
+    };
+  }
+}
+
+/** Signed URL for a proof photo. Visible to an admin, the order's rider, or
+ *  the customer who placed it. */
+export async function getDeliveryProofUrlAction(
+  orderId: string,
+  kind: "delivered" | "failed",
+) {
+  try {
+    const { user, profile } = await requireAuth();
+    const admin = createServiceRoleClient();
+
+    const { data: order, error } = await admin
+      .from("orders")
+      .select(
+        "user_id, rider_id, delivered_photo_path, failed_delivery_photo_path",
+      )
+      .eq("id", orderId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!order) throw new Error(await serverT("errors.ordersLoadFailed"));
+
+    const allowed =
+      profile?.role === "admin" ||
+      order.user_id === user.id ||
+      order.rider_id === user.id;
+    if (!allowed) throw new Error(await serverT("errors.operationFailed"));
+
+    const path =
+      kind === "delivered"
+        ? order.delivered_photo_path
+        : order.failed_delivery_photo_path;
+    if (!path) throw new Error(await serverT("errors.ordersLoadFailed"));
+
+    const { data: signed, error: signErr } = await admin.storage
+      .from("delivery-proofs")
+      .createSignedUrl(path, 120);
+    if (signErr) throw signErr;
+
+    return { success: true as const, data: { url: signed.signedUrl } };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.ordersLoadFailed", err),
     };
   }
 }

@@ -7,9 +7,8 @@ import {
   acceptOrderAction,
   getMyRiderOrdersAction,
   getReadyOrdersAction,
-  riderMarkDeliveredAction,
-  riderMarkUndeliveredAction,
 } from "@/app/_actions/rider-actions";
+import { AssignedOrderActions } from "@/app/(rider)/_components/AssignedOrderActions";
 import { RiderShell } from "@/app/(rider)/_components/RiderShell";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { cn } from "@/app/utils/cn";
@@ -150,37 +149,7 @@ export default function RiderHomePage() {
               key={order.id}
               order={order}
               actions={
-                <>
-                  <Button
-                    type="button"
-                    className="flex-1"
-                    loading={isPending}
-                    loadingLabel={t("common.saving")}
-                    onClick={() =>
-                      runAction(() => riderMarkDeliveredAction(order.id), {
-                        successMessage: t("notifications.orderDelivered"),
-                        onSuccess: invalidate,
-                      })
-                    }
-                  >
-                    {t("rider.markDelivered")}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    loading={isPending}
-                    loadingLabel={t("common.saving")}
-                    onClick={() =>
-                      runAction(() => riderMarkUndeliveredAction(order.id), {
-                        successMessage: t("notifications.orderReturned"),
-                        onSuccess: invalidate,
-                      })
-                    }
-                  >
-                    {t("rider.markUndelivered")}
-                  </Button>
-                </>
+                <AssignedOrderActions order={order} onChanged={invalidate} />
               }
             />
           ))}

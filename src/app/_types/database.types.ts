@@ -8,6 +8,13 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
+export type FailedDeliveryReason =
+  | "customer_absent"
+  | "no_answer"
+  | "wrong_address"
+  | "customer_refused"
+  | "other";
+
 export type InventoryUnit = "count" | "weight" | "pack";
 
 export type PaymentMethod = "cash" | "online";
@@ -221,6 +228,17 @@ export type StoreSettings = {
   hero_cta_href: string | null;
   hero_image_url: string | null;
   hero_blur_hash: string | null;
+  /** Store identity printed on the order receipt handed to the rider. */
+  receipt_store_name_fa: string | null;
+  receipt_store_name_ar: string | null;
+  receipt_store_name_en: string | null;
+  receipt_store_address_fa: string | null;
+  receipt_store_address_ar: string | null;
+  receipt_store_address_en: string | null;
+  receipt_store_phone: string | null;
+  receipt_footer_fa: string | null;
+  receipt_footer_ar: string | null;
+  receipt_footer_en: string | null;
 };
 
 export type HeroBanner = {
@@ -278,6 +296,12 @@ export type Order = {
   rider_id: string | null;
   store_id: string | null;
   stock_restored?: boolean;
+  picked_up_at?: string | null;
+  delivered_photo_path?: string | null;
+  failed_delivery_reason?: FailedDeliveryReason | null;
+  failed_delivery_note?: string | null;
+  failed_delivery_photo_path?: string | null;
+  failed_delivery_at?: string | null;
   created_at: string;
   order_items?: OrderItem[];
   address?: Address | null;

@@ -286,6 +286,7 @@ export type Messages = {
     tracking: Record<string, string>;
     stepper: Record<string, string>;
   };
+  receipt: Record<string, string>;
   common: {
     loading: string;
     saving: string;
@@ -326,6 +327,7 @@ export type Messages = {
     productExtrasShown: string;
     productExtrasHidden: string;
     cashSurchargeSaved: string;
+    receiptSettingsSaved: string;
     riderAssigned: string;
     categoryUpdated: string;
     categoryCreated: string;
@@ -345,6 +347,7 @@ export type Messages = {
     avatarRemoved: string;
     orderStatusUpdated: string;
     orderAccepted: string;
+    orderPickedUp: string;
     orderDelivered: string;
     orderReturned: string;
     riderRegistered: string;
@@ -810,8 +813,16 @@ export type Messages = {
       statusHint: string;
       customer: string;
       payment: string;
+      printInvoice: string;
+      pickedUpAt: string;
+      viewDeliveryProof: string;
+      failedDeliveryTitle: string;
+      failedDeliveryNote: string;
+      viewFailPhoto: string;
+      failReason: Record<string, string>;
       status: Record<string, string>;
     };
+    receiptSettings: Record<string, string>;
     notifCenter: {
       title: string;
       empty: string;
@@ -970,8 +981,37 @@ export type Messages = {
     recentTitle: string;
     historyEmpty: string;
     accept: string;
+    markPickedUp: string;
+    pickupHint: string;
+    pickedUpAt: string;
     markDelivered: string;
     markUndelivered: string;
+    proof: {
+      deliveredTitle: string;
+      deliveredDescription: string;
+      takePhoto: string;
+      retakePhoto: string;
+      photoRequired: string;
+      uploading: string;
+      confirmDelivered: string;
+    };
+    undelivered: {
+      title: string;
+      description: string;
+      reasonLabel: string;
+      reasons: {
+        customer_absent: string;
+        no_answer: string;
+        wrong_address: string;
+        customer_refused: string;
+        other: string;
+      };
+      noteLabel: string;
+      notePlaceholder: string;
+      noteRequired: string;
+      photoLabel: string;
+      submit: string;
+    };
     tabs: {
       assigned: string;
       ready: string;
@@ -1325,6 +1365,31 @@ const fa: Messages = {
       delivered: "تحویل",
     },
   },
+  receipt: {
+    invoiceTitle: "فاکتور فروش",
+    orderNo: "شماره سفارش",
+    date: "تاریخ",
+    customer: "مشتری",
+    phone: "تلفن",
+    address: "آدرس تحویل",
+    deliverySlot: "بازه تحویل",
+    payment: "پرداخت",
+    paid: "پرداخت‌شده",
+    unpaid: "پرداخت‌نشده",
+    item: "کالا",
+    qty: "تعداد",
+    lineTotal: "مبلغ",
+    subtotal: "جمع کالاها",
+    deliveryAndVat: "هزینه ارسال و مالیات",
+    cashFee: "هزینه پرداخت در محل",
+    total: "مبلغ قابل پرداخت",
+    print: "چاپ فاکتور",
+    printSize: "اندازه کاغذ",
+    loading: "در حال بارگذاری فاکتور…",
+    notFound: "سفارش یافت نشد",
+    printedAt: "چاپ‌شده در",
+    thankYou: "از خرید شما سپاسگزاریم",
+  },
   common: {
     loading: "بارگذاری…",
     saving: "در حال ذخیره…",
@@ -1365,6 +1430,7 @@ const fa: Messages = {
     productExtrasShown: "بخش جزئیات محصول (تب‌ها و خرید همزمان) نمایش داده می‌شود",
     productExtrasHidden: "بخش جزئیات محصول (تب‌ها و خرید همزمان) مخفی شد",
     cashSurchargeSaved: "هزینه پرداخت در محل ذخیره شد",
+    receiptSettingsSaved: "تنظیمات فاکتور ذخیره شد",
     riderAssigned: "پیک تخصیص یافت",
     categoryUpdated: "دسته به‌روز شد",
     categoryCreated: "دسته ایجاد شد",
@@ -1384,6 +1450,7 @@ const fa: Messages = {
     avatarRemoved: "تصویر پروفایل حذف شد",
     orderStatusUpdated: "وضعیت سفارش به‌روز شد",
     orderAccepted: "سفارش پذیرفته شد",
+    orderPickedUp: "دریافت از فروشگاه ثبت شد",
     orderDelivered: "تحویل ثبت شد",
     orderReturned: "سفارش به صف آماده برگشت",
     riderRegistered: "پیک ثبت شد",
@@ -1849,6 +1916,19 @@ const fa: Messages = {
       statusHint: "ترتیب پیشنهادی: در انتظار → تأیید → آماده‌سازی → تخصیص پیک → ارسال → تحویل",
       customer: "مشتری",
       payment: "پرداخت",
+      printInvoice: "چاپ فاکتور",
+      pickedUpAt: "دریافت از فروشگاه",
+      viewDeliveryProof: "مشاهده عکس تحویل",
+      failedDeliveryTitle: "عدم تحویل",
+      failedDeliveryNote: "توضیحات پیک",
+      viewFailPhoto: "مشاهده عکس",
+      failReason: {
+        customer_absent: "عدم حضور در محل",
+        no_answer: "عدم پاسخگویی به تماس",
+        wrong_address: "آدرس نادرست یا ناقص",
+        customer_refused: "انصراف مشتری",
+        other: "موارد دیگر",
+      },
       status: {
         pending: "در انتظار",
         confirmed: "تأیید",
@@ -1857,6 +1937,16 @@ const fa: Messages = {
         delivered: "تحویل",
         cancelled: "لغو",
       },
+    },
+    receiptSettings: {
+      title: "اطلاعات فاکتور فروشگاه",
+      desc: "این اطلاعات روی فاکتوری که همراه سفارش برای مشتری ارسال می‌شود چاپ می‌شود.",
+      storeName: "نام فروشگاه",
+      storeAddress: "آدرس فروشگاه",
+      storePhone: "شماره تماس",
+      footer: "متن پایانی فاکتور",
+      langHint: "برای هر زبان جداگانه وارد کنید.",
+      save: "ذخیره",
     },
     notifCenter: {
       title: "اعلان‌ها",
@@ -2019,8 +2109,37 @@ const fa: Messages = {
     recentTitle: "تاریخچه تحویل‌شده",
     historyEmpty: "هنوز سفارشی تحویل نداده‌اید",
     accept: "قبول سفارش",
-    markDelivered: "تحویل شد",
-    markUndelivered: "تحویل نشد",
+    markPickedUp: "دریافت از فروشگاه",
+    pickupHint: "پس از تحویل گرفتن سفارش از فروشگاه، این گزینه را بزنید.",
+    pickedUpAt: "دریافت‌شده از فروشگاه: {time}",
+    markDelivered: "تحویل به مشتری",
+    markUndelivered: "عدم تحویل",
+    proof: {
+      deliveredTitle: "ثبت تحویل به مشتری",
+      deliveredDescription: "یک عکس از تحویل سفارش بگیرید و آپلود کنید.",
+      takePhoto: "گرفتن عکس",
+      retakePhoto: "گرفتن عکس دوباره",
+      photoRequired: "برای ثبت تحویل، گرفتن عکس الزامی است.",
+      uploading: "در حال آپلود عکس…",
+      confirmDelivered: "تأیید تحویل",
+    },
+    undelivered: {
+      title: "ثبت عدم تحویل",
+      description: "دلیل عدم تحویل را انتخاب کنید و یک عکس بگیرید.",
+      reasonLabel: "دلیل عدم تحویل",
+      reasons: {
+        customer_absent: "عدم حضور در محل",
+        no_answer: "عدم پاسخگویی به تماس",
+        wrong_address: "آدرس نادرست یا ناقص",
+        customer_refused: "انصراف مشتری",
+        other: "موارد دیگر",
+      },
+      noteLabel: "توضیحات",
+      notePlaceholder: "توضیح کوتاهی درباره دلیل عدم تحویل بنویسید",
+      noteRequired: "برای «موارد دیگر» نوشتن توضیحات الزامی است.",
+      photoLabel: "عکس محل / وضعیت تحویل",
+      submit: "ثبت عدم تحویل",
+    },
     tabs: {
       assigned: "تخصیص‌شده",
       ready: "آماده",
@@ -2371,6 +2490,31 @@ const ar: Messages = {
       delivered: "تسليم",
     },
   },
+  receipt: {
+    invoiceTitle: "فاتورة بيع",
+    orderNo: "رقم الطلب",
+    date: "التاريخ",
+    customer: "العميل",
+    phone: "الهاتف",
+    address: "عنوان التسليم",
+    deliverySlot: "وقت التسليم",
+    payment: "الدفع",
+    paid: "مدفوع",
+    unpaid: "غير مدفوع",
+    item: "الصنف",
+    qty: "الكمية",
+    lineTotal: "المبلغ",
+    subtotal: "إجمالي الأصناف",
+    deliveryAndVat: "التوصيل والضريبة",
+    cashFee: "رسوم الدفع عند الاستلام",
+    total: "المبلغ المستحق",
+    print: "طباعة الفاتورة",
+    printSize: "حجم الورق",
+    loading: "جاري تحميل الفاتورة…",
+    notFound: "الطلب غير موجود",
+    printedAt: "طُبعت في",
+    thankYou: "شكراً لتسوقكم معنا",
+  },
   common: {
     loading: "جاري التحميل…",
     saving: "جاري الحفظ…",
@@ -2411,6 +2555,7 @@ const ar: Messages = {
     productExtrasShown: "يظهر قسم تفاصيل المنتج (التبويبات والمنتجات المقترنة)",
     productExtrasHidden: "تم إخفاء قسم تفاصيل المنتج (التبويبات والمنتجات المقترنة)",
     cashSurchargeSaved: "تم حفظ رسوم الدفع عند الاستلام",
+    receiptSettingsSaved: "تم حفظ إعدادات الفاتورة",
     riderAssigned: "تم تعيين السائق",
     categoryUpdated: "تم تحديث الفئة",
     categoryCreated: "تم إنشاء الفئة",
@@ -2430,6 +2575,7 @@ const ar: Messages = {
     avatarRemoved: "تم حذف صورة الملف الشخصي",
     orderStatusUpdated: "تم تحديث حالة الطلب",
     orderAccepted: "تم قبول الطلب",
+    orderPickedUp: "تم تسجيل الاستلام من المتجر",
     orderDelivered: "تم تسجيل التسليم",
     orderReturned: "أُعيد الطلب إلى قائمة الجاهز",
     riderRegistered: "تم تسجيل السائق",
@@ -2895,6 +3041,19 @@ const ar: Messages = {
       statusHint: "الترتيب المقترح: انتظار → تأكيد → تحضير → تعيين سائق → إرسال → تسليم",
       customer: "العميل",
       payment: "الدفع",
+      printInvoice: "طباعة الفاتورة",
+      pickedUpAt: "الاستلام من المتجر",
+      viewDeliveryProof: "عرض صورة التسليم",
+      failedDeliveryTitle: "تعذّر التسليم",
+      failedDeliveryNote: "ملاحظات السائق",
+      viewFailPhoto: "عرض الصورة",
+      failReason: {
+        customer_absent: "عدم التواجد في الموقع",
+        no_answer: "عدم الرد على الاتصال",
+        wrong_address: "عنوان خاطئ أو غير مكتمل",
+        customer_refused: "تراجع العميل",
+        other: "أسباب أخرى",
+      },
       status: {
         pending: "قيد الانتظار",
         confirmed: "مؤكد",
@@ -2903,6 +3062,16 @@ const ar: Messages = {
         delivered: "تم التسليم",
         cancelled: "ملغى",
       },
+    },
+    receiptSettings: {
+      title: "بيانات فاتورة المتجر",
+      desc: "تُطبع هذه البيانات على الفاتورة المرسلة مع الطلب إلى العميل.",
+      storeName: "اسم المتجر",
+      storeAddress: "عنوان المتجر",
+      storePhone: "رقم الاتصال",
+      footer: "نص تذييل الفاتورة",
+      langHint: "أدخل القيمة لكل لغة على حدة.",
+      save: "حفظ",
     },
     notifCenter: {
       title: "الإشعارات",
@@ -3065,8 +3234,37 @@ const ar: Messages = {
     recentTitle: "سجل التسليمات",
     historyEmpty: "لم تُسلّم أي طلبات بعد",
     accept: "قبول الطلب",
-    markDelivered: "تم التسليم",
-    markUndelivered: "لم يتم التسليم",
+    markPickedUp: "الاستلام من المتجر",
+    pickupHint: "اضغط هنا بعد استلام الطلب من المتجر.",
+    pickedUpAt: "تم الاستلام من المتجر: {time}",
+    markDelivered: "التسليم إلى العميل",
+    markUndelivered: "تعذّر التسليم",
+    proof: {
+      deliveredTitle: "تأكيد التسليم إلى العميل",
+      deliveredDescription: "التقط صورة لتسليم الطلب وارفعها.",
+      takePhoto: "التقاط صورة",
+      retakePhoto: "إعادة التقاط الصورة",
+      photoRequired: "التقاط صورة إلزامي لتأكيد التسليم.",
+      uploading: "جارٍ رفع الصورة…",
+      confirmDelivered: "تأكيد التسليم",
+    },
+    undelivered: {
+      title: "تسجيل تعذّر التسليم",
+      description: "اختر سبب تعذّر التسليم والتقط صورة.",
+      reasonLabel: "سبب تعذّر التسليم",
+      reasons: {
+        customer_absent: "عدم التواجد في الموقع",
+        no_answer: "عدم الرد على الاتصال",
+        wrong_address: "عنوان خاطئ أو غير مكتمل",
+        customer_refused: "تراجع العميل",
+        other: "أسباب أخرى",
+      },
+      noteLabel: "ملاحظات",
+      notePlaceholder: "اكتب وصفًا موجزًا لسبب تعذّر التسليم",
+      noteRequired: "كتابة الملاحظات إلزامية عند اختيار «أسباب أخرى».",
+      photoLabel: "صورة الموقع / حالة التسليم",
+      submit: "تسجيل تعذّر التسليم",
+    },
     tabs: {
       assigned: "معيّنة",
       ready: "جاهزة",
@@ -3417,6 +3615,31 @@ const en: Messages = {
       delivered: "Delivered",
     },
   },
+  receipt: {
+    invoiceTitle: "Sales invoice",
+    orderNo: "Order no.",
+    date: "Date",
+    customer: "Customer",
+    phone: "Phone",
+    address: "Delivery address",
+    deliverySlot: "Delivery slot",
+    payment: "Payment",
+    paid: "Paid",
+    unpaid: "Unpaid",
+    item: "Item",
+    qty: "Qty",
+    lineTotal: "Amount",
+    subtotal: "Items subtotal",
+    deliveryAndVat: "Delivery & VAT",
+    cashFee: "Cash-on-delivery fee",
+    total: "Amount due",
+    print: "Print invoice",
+    printSize: "Paper size",
+    loading: "Loading invoice…",
+    notFound: "Order not found",
+    printedAt: "Printed at",
+    thankYou: "Thank you for your purchase",
+  },
   common: {
     loading: "Loading…",
     saving: "Saving…",
@@ -3457,6 +3680,7 @@ const en: Messages = {
     productExtrasShown: "Product detail tabs and frequently-bought section are visible",
     productExtrasHidden: "Product detail tabs and frequently-bought section are hidden",
     cashSurchargeSaved: "Cash on delivery fee saved",
+    receiptSettingsSaved: "Receipt settings saved",
     riderAssigned: "Rider assigned",
     categoryUpdated: "Category updated",
     categoryCreated: "Category created",
@@ -3476,6 +3700,7 @@ const en: Messages = {
     avatarRemoved: "Profile photo removed",
     orderStatusUpdated: "Order status updated",
     orderAccepted: "Order accepted",
+    orderPickedUp: "Pickup from store recorded",
     orderDelivered: "Delivery recorded",
     orderReturned: "Order returned to ready pool",
     riderRegistered: "Rider registered",
@@ -3941,6 +4166,19 @@ const en: Messages = {
       statusHint: "Suggested flow: Pending → Confirmed → Preparing → Assign rider → Shipping → Delivered",
       customer: "Customer",
       payment: "Payment",
+      printInvoice: "Print invoice",
+      pickedUpAt: "Picked up from store",
+      viewDeliveryProof: "View delivery photo",
+      failedDeliveryTitle: "Failed delivery",
+      failedDeliveryNote: "Rider notes",
+      viewFailPhoto: "View photo",
+      failReason: {
+        customer_absent: "Nobody at the location",
+        no_answer: "No answer on call",
+        wrong_address: "Wrong or incomplete address",
+        customer_refused: "Customer changed their mind",
+        other: "Something else",
+      },
       status: {
         pending: "Pending",
         confirmed: "Confirmed",
@@ -3949,6 +4187,16 @@ const en: Messages = {
         delivered: "Delivered",
         cancelled: "Cancelled",
       },
+    },
+    receiptSettings: {
+      title: "Store invoice details",
+      desc: "Printed on the invoice that goes with the order to the customer.",
+      storeName: "Store name",
+      storeAddress: "Store address",
+      storePhone: "Contact number",
+      footer: "Invoice footer text",
+      langHint: "Enter a value for each language.",
+      save: "Save",
     },
     notifCenter: {
       title: "Notifications",
@@ -4111,8 +4359,37 @@ const en: Messages = {
     recentTitle: "Delivery history",
     historyEmpty: "No delivered orders yet",
     accept: "Accept order",
-    markDelivered: "Delivered",
+    markPickedUp: "Picked up from store",
+    pickupHint: "Tap this once you have collected the order from the store.",
+    pickedUpAt: "Picked up from store: {time}",
+    markDelivered: "Deliver to customer",
     markUndelivered: "Not delivered",
+    proof: {
+      deliveredTitle: "Confirm delivery to customer",
+      deliveredDescription: "Take a photo of the hand-off and upload it.",
+      takePhoto: "Take photo",
+      retakePhoto: "Retake photo",
+      photoRequired: "A photo is required to confirm delivery.",
+      uploading: "Uploading photo…",
+      confirmDelivered: "Confirm delivery",
+    },
+    undelivered: {
+      title: "Report failed delivery",
+      description: "Choose why the delivery failed and take a photo.",
+      reasonLabel: "Reason",
+      reasons: {
+        customer_absent: "Nobody at the location",
+        no_answer: "No answer on call",
+        wrong_address: "Wrong or incomplete address",
+        customer_refused: "Customer changed their mind",
+        other: "Something else",
+      },
+      noteLabel: "Notes",
+      notePlaceholder: "Briefly describe why the delivery failed",
+      noteRequired: "Notes are required when you pick “Something else”.",
+      photoLabel: "Photo of the location / delivery state",
+      submit: "Report failed delivery",
+    },
     tabs: {
       assigned: "Assigned",
       ready: "Ready",

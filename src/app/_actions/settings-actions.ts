@@ -26,6 +26,16 @@ const DEFAULT_SETTINGS: StoreSettings = {
   hero_cta_href: "/categories",
   hero_image_url: null,
   hero_blur_hash: null,
+  receipt_store_name_fa: null,
+  receipt_store_name_ar: null,
+  receipt_store_name_en: null,
+  receipt_store_address_fa: null,
+  receipt_store_address_ar: null,
+  receipt_store_address_en: null,
+  receipt_store_phone: null,
+  receipt_footer_fa: null,
+  receipt_footer_ar: null,
+  receipt_footer_en: null,
 };
 
 async function updateStoreSettingsRow(
@@ -191,6 +201,45 @@ export async function updateHeroSettingsAction(input: HeroSettingsInput) {
     return {
       success: false as const,
       error: await actionErrorMessage("errors.heroUpdateFailed", err),
+    };
+  }
+}
+
+export type ReceiptSettingsInput = {
+  receipt_store_name_fa?: string | null;
+  receipt_store_name_ar?: string | null;
+  receipt_store_name_en?: string | null;
+  receipt_store_address_fa?: string | null;
+  receipt_store_address_ar?: string | null;
+  receipt_store_address_en?: string | null;
+  receipt_store_phone?: string | null;
+  receipt_footer_fa?: string | null;
+  receipt_footer_ar?: string | null;
+  receipt_footer_en?: string | null;
+};
+
+export async function updateReceiptSettingsAction(input: ReceiptSettingsInput) {
+  try {
+    const { supabase } = await requireAdmin();
+    const clean = (value?: string | null) => value?.trim() || null;
+    const data = await updateStoreSettingsRow(supabase, {
+      receipt_store_name_fa: clean(input.receipt_store_name_fa),
+      receipt_store_name_ar: clean(input.receipt_store_name_ar),
+      receipt_store_name_en: clean(input.receipt_store_name_en),
+      receipt_store_address_fa: clean(input.receipt_store_address_fa),
+      receipt_store_address_ar: clean(input.receipt_store_address_ar),
+      receipt_store_address_en: clean(input.receipt_store_address_en),
+      receipt_store_phone: clean(input.receipt_store_phone),
+      receipt_footer_fa: clean(input.receipt_footer_fa),
+      receipt_footer_ar: clean(input.receipt_footer_ar),
+      receipt_footer_en: clean(input.receipt_footer_en),
+    });
+
+    return { success: true as const, data };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.settingsUpdateFailed", err),
     };
   }
 }

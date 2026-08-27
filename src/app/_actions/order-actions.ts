@@ -104,7 +104,16 @@ export async function getOrderByIdAction(id: string) {
     if (profile?.role !== "admin" && data.user_id !== user.id) {
       throw new Error(await serverT("errors.accessDenied"));
     }
-    return { success: true as const, data: data as Order };
+
+    const order = data as Order;
+    const { data: customer } = await supabase
+      .from("profiles")
+      .select("id, full_name, phone")
+      .eq("id", order.user_id)
+      .maybeSingle();
+    order.customer = customer ?? null;
+
+    return { success: true as const, data: order };
   } catch (err) {
     return {
       success: false as const,

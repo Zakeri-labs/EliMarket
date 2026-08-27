@@ -17,6 +17,16 @@ const FALLBACK_SETTINGS: StoreSettings = {
   hero_cta_href: "/categories",
   hero_image_url: null,
   hero_blur_hash: null,
+  receipt_store_name_fa: null,
+  receipt_store_name_ar: null,
+  receipt_store_name_en: null,
+  receipt_store_address_fa: null,
+  receipt_store_address_ar: null,
+  receipt_store_address_en: null,
+  receipt_store_phone: null,
+  receipt_footer_fa: null,
+  receipt_footer_ar: null,
+  receipt_footer_en: null,
 };
 
 export function useStoreSettings() {
