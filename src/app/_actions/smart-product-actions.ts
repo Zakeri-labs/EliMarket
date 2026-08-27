@@ -4,16 +4,16 @@ import sharp from "sharp";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { generateBlurHashFromBuffer } from "@/lib/images/generate-blur-hash";
-import { removeStudioBackground } from "@/lib/images/remove-studio-background";
 import {
-  enhanceProductImageVariants,
-  enhanceProductImageWithOpenAi,
-} from "@/lib/ai/enhance-product-image";
+  enhanceProductPhoto,
+  buildProductPhotoFramings,
+} from "@/lib/images/enhance-product-photo";
 import {
   draftCatalogFromImages,
   matchCategoryId,
 } from "@/lib/ai/vision-catalog";
 import { searchProductImagesWithOpenAi } from "@/lib/ai/web-image-search";
+import { generateProductContextShots } from "@/lib/ai/generate-product-context-shots";
 import type { ProductFeatureInput } from "@/app/_types/database.types";
 
 type AdminSupabase = Awaited<ReturnType<typeof requireAdmin>>["supabase"];
@@ -22,7 +22,7 @@ export type SmartProductImage = {
   originalUrl: string;
   processedUrl: string;
   blurHash: string;
-  source: "upload" | "web";
+  source: "upload" | "web" | "ai-generated";
   sourceLabel?: string;
 };
 
@@ -42,6 +42,7 @@ export type SmartProductDraft = {
 
 const MAX_DRAFT_IMAGES = 8;
 const MAX_WEB_IMAGES = 3;
+const MAX_AI_CONTEXT_SHOTS = 2;
 
 function guessMime(url: string, header: string | null) {
   if (header?.startsWith("image/")) return header.split(";")[0]!;
@@ -106,29 +107,23 @@ async function buildEnhancedImages(
 ): Promise<SmartProductImage[]> {
   const images: SmartProductImage[] = [];
 
-  // Generate at least 3 high-quality catalog variants overall, spreading
+  // Generate at least 3 high-quality catalog framings overall, spreading
   // them across however many source photos were uploaded (capped at 6).
+  // These are deterministic crop/background framings of the real photo —
+  // never AI-regenerated pixels — so label text can never be corrupted.
   const totalTarget = Math.min(6, Math.max(3, originals.length));
-  const variantsPerImage = Math.max(1, Math.ceil(totalTarget / originals.length));
+  const framingsPerImage = Math.max(1, Math.ceil(totalTarget / originals.length));
 
   for (let i = 0; i < originals.length; i += 1) {
     const original = originals[i]!;
     const originalUrl = urls[i]!;
-    let variants: Buffer[] = [];
+    let framings: Buffer[] = [];
     try {
-      variants = await enhanceProductImageVariants({ ...original, count: variantsPerImage });
+      framings = await buildProductPhotoFramings(original.bytes, framingsPerImage);
     } catch {
-      variants = [];
+      framings = [];
     }
-    if (variants.length === 0) {
-      try {
-        const fallback = await removeStudioBackground(original.bytes);
-        variants = Array.from({ length: variantsPerImage }, () => fallback);
-      } catch {
-        variants = [];
-      }
-    }
-    if (variants.length === 0) {
+    if (framings.length === 0) {
       images.push({
         originalUrl,
         processedUrl: originalUrl,
@@ -137,7 +132,7 @@ async function buildEnhancedImages(
       });
       continue;
     }
-    for (const png of variants) {
+    for (const png of framings) {
       const processedUrl = await uploadProcessedPng(supabase, png);
       images.push({
         originalUrl,
@@ -148,6 +143,40 @@ async function buildEnhancedImages(
     }
   }
 
+  return images;
+}
+
+/**
+ * Best-effort: when only one photo was uploaded, ask AI to generate 1-2
+ * brand-new supplementary shots (contents poured/placed next to the
+ * package, close-up of contents) so the gallery isn't just one flat pack
+ * shot. These never redraw the real package's printed text, but the admin
+ * should still verify they actually match the product.
+ */
+async function generateContextShots(
+  supabase: AdminSupabase,
+  original: { bytes: Buffer; mime: string },
+  originalUrl: string,
+): Promise<SmartProductImage[]> {
+  const shots = await generateProductContextShots({
+    ...original,
+    count: MAX_AI_CONTEXT_SHOTS,
+  }).catch(() => []);
+
+  const images: SmartProductImage[] = [];
+  for (const png of shots) {
+    try {
+      const processedUrl = await uploadProcessedPng(supabase, png);
+      images.push({
+        originalUrl,
+        processedUrl,
+        blurHash: await generateBlurHashFromBuffer(png),
+        source: "ai-generated",
+      });
+    } catch {
+      // skip on storage failure
+    }
+  }
   return images;
 }
 
@@ -215,6 +244,14 @@ export async function processSmartProductDraftAction(input: {
     ]);
 
     const images = [...enhancedImages];
+
+    // Only one photo uploaded — ask AI to fill out the gallery with a couple
+    // of supplementary shots (contents poured out, close-up of contents).
+    if (originals.length === 1 && images.length < MAX_DRAFT_IMAGES) {
+      const contextShots = await generateContextShots(supabase, originals[0]!, urls[0]!);
+      images.push(...contextShots.slice(0, Math.max(0, MAX_DRAFT_IMAGES - images.length)));
+    }
+
     if (catalog.usedModel && images.length < MAX_DRAFT_IMAGES) {
       const query = [catalog.name_en, catalog.name_fa].filter(Boolean).join(" ");
       const webImages = await findWebImages(supabase, query);
@@ -251,16 +288,7 @@ export async function enhanceProductImageAction(imageUrl: string) {
   try {
     const { supabase } = await requireAdmin();
     const original = await fetchImage(imageUrl);
-
-    let output: Buffer | null = null;
-    try {
-      output = await enhanceProductImageWithOpenAi(original);
-    } catch {
-      output = null;
-    }
-    if (!output) {
-      output = await removeStudioBackground(original.bytes);
-    }
+    const output = await enhanceProductPhoto(original.bytes);
 
     const url = await uploadProcessedPng(supabase, output);
     const blurHash = await generateBlurHashFromBuffer(Buffer.from(output));

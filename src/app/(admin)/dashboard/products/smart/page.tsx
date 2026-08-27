@@ -378,6 +378,14 @@ export default function SmartProductPage() {
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={image.processedUrl} alt="" className="aspect-square w-full rounded-xl object-contain bg-[#f4f4f5]" />
                       </div>
+                    ) : image.source === "ai-generated" ? (
+                      <div>
+                        <p className="mb-1 text-[11px] font-medium text-amber-700">
+                          {t("admin.smartProduct.aiGenerated")}
+                        </p>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={image.processedUrl} alt="" className="aspect-square w-full rounded-xl object-contain bg-[#f4f4f5]" />
+                      </div>
                     ) : (
                       <div className="grid grid-cols-2 gap-2">
                         <div>

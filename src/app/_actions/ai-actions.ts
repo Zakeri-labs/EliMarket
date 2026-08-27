@@ -56,7 +56,7 @@ function normalizeAiDescriptions(
   };
 }
 
-/** Enhance product photo via OpenAI (when configured) or local background cleanup. */
+/** Deterministic, pixel-safe product photo enhancement (crop/sharpen/background cleanup). */
 export async function editProductImageWithAiAction(imageUrl: string) {
   return enhanceProductImageAction(imageUrl);
 }

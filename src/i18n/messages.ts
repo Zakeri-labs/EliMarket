@@ -642,6 +642,7 @@ export type Messages = {
       before: string;
       after: string;
       webSourced: string;
+      aiGenerated: string;
       pickPrimary: string;
       primaryBadge: string;
       reviewTitle: string;
@@ -1474,7 +1475,7 @@ const fa: Messages = {
     paymentVerifyFailed: "تأیید پرداخت ناموفق بود",
     customersLoadFailed: "بارگذاری مشتریان ناموفق بود",
     categoryParentInvalid: "دسته والد نامعتبر است",
-    aiImageFailed: "ویرایش تصویر با AI ناموفق بود",
+    aiImageFailed: "بهبود تصویر ناموفق بود",
     aiDescriptionFailed: "تولید توضیحات ناموفق بود",
     smartProductFailed: "ثبت هوشمند محصول ناموفق بود",
     smartProductNoImages: "هیچ تصویری برای پردازش وجود ندارد",
@@ -1637,7 +1638,7 @@ const fa: Messages = {
       cancel: "انصراف",
       aiDescription: "AI توضیحات",
       uploadImage: "آپلود تصویر",
-      aiImage: "AI تصویر",
+      aiImage: "بهبود تصویر",
       colImage: "تصویر",
       colName: "نام",
       colPrice: "قیمت",
@@ -1680,6 +1681,7 @@ const fa: Messages = {
       before: "قبل",
       after: "بعد",
       webSourced: "یافت‌شده از اینترنت ({source}) — بررسی کنید که دقیقاً همین محصول است",
+      aiGenerated: "تصویر تولیدشده با AI — بررسی کنید که با محصول واقعی مطابقت دارد",
       pickPrimary: "تصویر اصلی کاتالوگ را انتخاب کنید",
       primaryBadge: "تصویر اصلی",
       reviewTitle: "بازبینی ادمین",
@@ -2519,7 +2521,7 @@ const ar: Messages = {
     paymentVerifyFailed: "فشل التحقق من الدفع",
     customersLoadFailed: "فشل تحميل العملاء",
     categoryParentInvalid: "الفئة الأب غير صالحة",
-    aiImageFailed: "فشل تعديل الصورة بالذكاء الاصطناعي",
+    aiImageFailed: "فشل تحسين الصورة",
     aiDescriptionFailed: "فشل إنشاء الوصف",
     smartProductFailed: "فشل التسجيل الذكي للمنتج",
     smartProductNoImages: "لا توجد صور للمعالجة",
@@ -2682,7 +2684,7 @@ const ar: Messages = {
       cancel: "إلغاء",
       aiDescription: "وصف AI",
       uploadImage: "رفع صورة",
-      aiImage: "صورة AI",
+      aiImage: "تحسين الصورة",
       colImage: "صورة",
       colName: "الاسم",
       colPrice: "السعر",
@@ -2725,6 +2727,7 @@ const ar: Messages = {
       before: "قبل",
       after: "بعد",
       webSourced: "تم العثور عليها على الإنترنت ({source}) — تحقق من أنها نفس المنتج تمامًا",
+      aiGenerated: "صورة تم إنشاؤها بالذكاء الاصطناعي — تحقق من مطابقتها للمنتج الحقيقي",
       pickPrimary: "اختر صورة الكتالوج الرئيسية",
       primaryBadge: "الصورة الرئيسية",
       reviewTitle: "مراجعة المشرف",
@@ -3564,7 +3567,7 @@ const en: Messages = {
     paymentVerifyFailed: "Failed to verify payment",
     customersLoadFailed: "Failed to load customers",
     categoryParentInvalid: "Invalid parent category",
-    aiImageFailed: "AI image edit failed",
+    aiImageFailed: "Image enhancement failed",
     aiDescriptionFailed: "Failed to generate description",
     smartProductFailed: "Smart product listing failed",
     smartProductNoImages: "No images to process",
@@ -3727,7 +3730,7 @@ const en: Messages = {
       cancel: "Cancel",
       aiDescription: "AI description",
       uploadImage: "Upload image",
-      aiImage: "AI image",
+      aiImage: "Enhance image",
       colImage: "Image",
       colName: "Name",
       colPrice: "Price",
@@ -3770,6 +3773,7 @@ const en: Messages = {
       before: "Before",
       after: "After",
       webSourced: "Found on the web ({source}) — verify this is exactly the same product",
+      aiGenerated: "AI-generated image — verify it matches the real product",
       pickPrimary: "Choose the catalog image",
       primaryBadge: "Primary image",
       reviewTitle: "Admin review",
