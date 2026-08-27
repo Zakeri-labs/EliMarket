@@ -434,7 +434,29 @@ export default function AdminProductsPage() {
         header: t("admin.products.colName"),
         cell: ({ row }) => (
           <div>
-            <p className="font-medium">{row.original.name}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="font-medium">{row.original.name}</p>
+              {(row.original.generation_status === "pending" ||
+                row.original.generation_status === "generating") && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                  <Spinner size="sm" className="text-amber-700" />
+                  {t("admin.products.generatingBadge")}
+                </span>
+              )}
+              {row.original.generation_status === "failed" && (
+                <span
+                  className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700"
+                  title={row.original.generation_error ?? undefined}
+                >
+                  {t("admin.products.generationFailedBadge")}
+                </span>
+              )}
+              {row.original.generation_status === "completed" && !row.original.is_active && (
+                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                  {t("admin.products.needsImageReviewBadge")}
+                </span>
+              )}
+            </div>
             <p className="text-xs text-[#71717a]" dir="ltr">
               {row.original.slug}
             </p>
@@ -953,22 +975,29 @@ export default function AdminProductsPage() {
                         title={t("admin.products.aiImage")}
                         className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-[#0f766e]"
                         onClick={() =>
-                          runAction(() => editProductImageWithAiAction(image.image_url), {
-                            successMessage: t("admin.products.aiImage"),
-                            onSuccess: (data) => {
-                              if (!data?.url) return;
-                              setGallery((current) =>
-                                current.map((item, itemIndex) =>
-                                  itemIndex === index
-                                    ? {
-                                        image_url: data.url,
-                                        blur_hash: data.blurHash ?? item.blur_hash,
-                                      }
-                                    : item,
-                                ),
-                              );
+                          runAction(
+                            () =>
+                              editProductImageWithAiAction(
+                                image.image_url,
+                                form.getValues("name")?.trim() || undefined,
+                              ),
+                            {
+                              successMessage: t("admin.products.aiImage"),
+                              onSuccess: (data) => {
+                                if (!data?.url) return;
+                                setGallery((current) =>
+                                  current.map((item, itemIndex) =>
+                                    itemIndex === index
+                                      ? {
+                                          image_url: data.url,
+                                          blur_hash: data.blurHash ?? item.blur_hash,
+                                        }
+                                      : item,
+                                  ),
+                                );
+                              },
                             },
-                          })
+                          )
                         }
                       >
                         <AppIcon icon={Sparkles} size="xs" className="mx-auto" />

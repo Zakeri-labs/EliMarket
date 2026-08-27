@@ -15,7 +15,7 @@ import { useAuthStore } from "@/app/_store/auth-store";
 import { createClient } from "@/core/supabase/client";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
-import { notifyFormSuccess } from "@/app/utils/form-notify";
+import { notifyFormError, notifyFormSuccess } from "@/app/utils/form-notify";
 import { useTranslations } from "@/i18n/use-translations";
 import type { AdminNotification } from "@/app/_types/database.types";
 import { getNumberLocale } from "@/i18n/config";
@@ -67,6 +67,7 @@ export function AdminNotificationBell() {
   const invalidate = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
     void queryClient.invalidateQueries({ queryKey: ["orders"] });
+    void queryClient.invalidateQueries({ queryKey: ["admin-products"] });
   }, [queryClient]);
 
   const alertNewOrder = useCallback(
@@ -121,6 +122,12 @@ export function AdminNotificationBell() {
               title: row.title,
               body: row.body,
             });
+          } else if (row.type === "product_generated") {
+            invalidate();
+            notifyFormSuccess(row.body || row.title, { title: row.title });
+          } else if (row.type === "product_generation_failed") {
+            invalidate();
+            notifyFormError(row.body || row.title, { title: row.title });
           } else {
             invalidate();
           }
@@ -245,7 +252,9 @@ export function AdminNotificationBell() {
                       href={
                         n.order_id
                           ? `/dashboard/orders?highlight=${n.order_id}`
-                          : "/dashboard/orders"
+                          : n.product_id
+                            ? "/dashboard/products"
+                            : "/dashboard/orders"
                       }
                       className="min-w-0 flex-1 px-3 py-2.5 text-start hover:bg-[#fafafa]"
                       onClick={() => void onOpenItem(n)}

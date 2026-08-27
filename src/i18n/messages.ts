@@ -445,6 +445,7 @@ export type Messages = {
     aiDescriptionFailed: string;
     smartProductFailed: string;
     smartProductNoImages: string;
+    smartProductNameRequired: string;
     storeLoadFailed: string;
     coverageSaveFailed: string;
     reviewsLoadFailed: string;
@@ -628,6 +629,9 @@ export type Messages = {
       validationCompareAtMin: string;
       aiStubDescription: string;
       aiStubCategorySuffix: string;
+      generatingBadge: string;
+      generationFailedBadge: string;
+      needsImageReviewBadge: string;
     };
     smartProduct: {
       title: string;
@@ -655,6 +659,10 @@ export type Messages = {
       publish: string;
       startOver: string;
       noImages: string;
+      nameRequired: string;
+      queueHint: string;
+      queuing: string;
+      queued: string;
       fallbackNotice: string;
       stepPhoto: string;
       stepEnhance: string;
@@ -1550,6 +1558,7 @@ const fa: Messages = {
     aiDescriptionFailed: "تولید توضیحات ناموفق بود",
     smartProductFailed: "ثبت هوشمند محصول ناموفق بود",
     smartProductNoImages: "هیچ تصویری برای پردازش وجود ندارد",
+    smartProductNameRequired: "وارد کردن نام محصول الزامی است",
     storeLoadFailed: "بارگذاری فروشگاه ناموفق بود",
     coverageSaveFailed: "ذخیره محدوده پوشش ناموفق بود",
     reviewsLoadFailed: "بارگذاری نظرات ناموفق بود",
@@ -1733,6 +1742,9 @@ const fa: Messages = {
       validationCompareAtMin: "قیمت قبل از تخفیف باید برابر یا بیشتر از قیمت فروش باشد",
       aiStubDescription: "{name} — محصول تازه و باکیفیت{category}.",
       aiStubCategorySuffix: " در دسته {category}",
+      generatingBadge: "در حال تولید…",
+      generationFailedBadge: "تولید ناموفق بود",
+      needsImageReviewBadge: "نیاز به بررسی تصاویر",
     },
     smartProduct: {
       title: "ثبت هوشمند محصول",
@@ -1742,7 +1754,7 @@ const fa: Messages = {
       uploadButton: "گرفتن یا آپلود عکس",
       maxPhotos: "تا {count} عکس",
       removePhoto: "حذف",
-      hintName: "نام محصول (اختیاری)",
+      hintName: "نام محصول",
       hintNamePlaceholder: "اگر روی بسته‌بندی خوانا نیست، اینجا بنویسید",
       categoryOptional: "دسته‌بندی (اختیاری)",
       processButton: "بهبود تصویر و تولید محتوا",
@@ -1760,6 +1772,10 @@ const fa: Messages = {
       publish: "ثبت در کاتالوگ",
       startOver: "شروع دوباره",
       noImages: "حداقل یک عکس انتخاب کنید",
+      nameRequired: "وارد کردن نام محصول الزامی است",
+      queueHint: "محصول بلافاصله با قیمت و موجودی صفر در لیست محصولات ثبت می‌شود و تولید عکس، توضیحات و مشخصات آن در پس‌زمینه انجام می‌شود؛ وقتی تمام شد یک نوتیفیکیشن دریافت می‌کنید.",
+      queuing: "در حال ثبت…",
+      queued: "محصول ثبت شد؛ تولید محتوا در پس‌زمینه ادامه دارد",
       fallbackNotice: "مدل بینایی پیکربندی نشده؛ پیش‌نویس را خودتان کامل کنید. برای تشخیص خودکار عکس، GEMINI_API_KEY یا OPENAI_API_KEY را تنظیم کنید.",
       stepPhoto: "عکس محصول",
       stepEnhance: "بهبود تصویر",
@@ -2677,6 +2693,7 @@ const ar: Messages = {
     aiDescriptionFailed: "فشل إنشاء الوصف",
     smartProductFailed: "فشل التسجيل الذكي للمنتج",
     smartProductNoImages: "لا توجد صور للمعالجة",
+    smartProductNameRequired: "إدخال اسم المنتج إلزامي",
     storeLoadFailed: "فشل تحميل المتجر",
     coverageSaveFailed: "فشل حفظ نطاق التغطية",
     reviewsLoadFailed: "فشل تحميل التقييمات",
@@ -2860,6 +2877,9 @@ const ar: Messages = {
       validationCompareAtMin: "يجب أن يكون السعر قبل الخصم مساوياً أو أعلى من سعر البيع",
       aiStubDescription: "{name} — منتج طازج وعالي الجودة{category}.",
       aiStubCategorySuffix: " في فئة {category}",
+      generatingBadge: "قيد التوليد…",
+      generationFailedBadge: "فشل التوليد",
+      needsImageReviewBadge: "يتطلب مراجعة الصور",
     },
     smartProduct: {
       title: "تسجيل المنتج بالذكاء الاصطناعي",
@@ -2869,7 +2889,7 @@ const ar: Messages = {
       uploadButton: "التقاط أو رفع صورة",
       maxPhotos: "حتى {count} صور",
       removePhoto: "حذف",
-      hintName: "اسم المنتج (اختياري)",
+      hintName: "اسم المنتج",
       hintNamePlaceholder: "اكتب الاسم إذا لم يكن واضحاً على العبوة",
       categoryOptional: "الفئة (اختياري)",
       processButton: "تحسين الصورة وإنشاء المحتوى",
@@ -2887,6 +2907,10 @@ const ar: Messages = {
       publish: "تسجيل في الكتالوج",
       startOver: "البدء من جديد",
       noImages: "اختر صورة واحدة على الأقل",
+      nameRequired: "إدخال اسم المنتج إلزامي",
+      queueHint: "سيُسجَّل المنتج فورًا في القائمة بسعر وكمية صفر، وسيتم إنشاء الصور والوصف والمواصفات في الخلفية؛ ستصلك إشعار عند الانتهاء.",
+      queuing: "جارٍ التسجيل…",
+      queued: "تم تسجيل المنتج؛ توليد المحتوى مستمر في الخلفية",
       fallbackNotice: "لم يُضبط نموذج الرؤية. أكمل المسودة يدوياً أو أضف GEMINI_API_KEY أو OPENAI_API_KEY.",
       stepPhoto: "صورة المنتج",
       stepEnhance: "تحسين الصورة",
@@ -3804,6 +3828,7 @@ const en: Messages = {
     aiDescriptionFailed: "Failed to generate description",
     smartProductFailed: "Smart product listing failed",
     smartProductNoImages: "No images to process",
+    smartProductNameRequired: "Product name is required",
     storeLoadFailed: "Failed to load store",
     coverageSaveFailed: "Failed to save coverage area",
     reviewsLoadFailed: "Failed to load reviews",
@@ -3987,6 +4012,9 @@ const en: Messages = {
       validationCompareAtMin: "Original price must be equal to or higher than the selling price",
       aiStubDescription: "{name} — fresh, high-quality product{category}.",
       aiStubCategorySuffix: " in {category} category",
+      generatingBadge: "Generating…",
+      generationFailedBadge: "Generation failed",
+      needsImageReviewBadge: "Needs image review",
     },
     smartProduct: {
       title: "Smart product listing",
@@ -3996,7 +4024,7 @@ const en: Messages = {
       uploadButton: "Take or upload photos",
       maxPhotos: "Up to {count} photos",
       removePhoto: "Remove",
-      hintName: "Product name (optional)",
+      hintName: "Product name",
       hintNamePlaceholder: "Add a name if the pack is hard to read",
       categoryOptional: "Category (optional)",
       processButton: "Enhance images and generate copy",
@@ -4014,6 +4042,10 @@ const en: Messages = {
       publish: "Publish to catalog",
       startOver: "Start over",
       noImages: "Select at least one photo",
+      nameRequired: "Product name is required",
+      queueHint: "The product is saved to the list immediately with price and stock at 0, and its photos, description, and specification are generated in the background; you'll get a notification when it's done.",
+      queuing: "Queuing…",
+      queued: "Product queued; content generation continues in the background",
       fallbackNotice: "No vision model is configured. Complete the draft yourself, or set GEMINI_API_KEY or OPENAI_API_KEY.",
       stepPhoto: "Product photo",
       stepEnhance: "Image enhancement",
@@ -4428,5 +4460,5 @@ const en: Messages = {
 export const messages: Record<Locale, Messages> = { fa, ar, en };
 
 export function getMessages(locale: Locale): Messages {
-  return messages[locale] ?? messages.fa;
+  return messages[locale] ?? messages.en;
 }

@@ -14,6 +14,7 @@ import type {
   InventoryUnit,
 } from "@/app/_types/database.types";
 import { generateBlurHashFromFile } from "@/lib/images/generate-blur-hash";
+import { coverFromImageInputs } from "@/lib/products/gallery";
 import { applyLiveCampaigns, applyLiveCampaignsToProducts } from "@/lib/campaigns/apply";
 import { loadActiveCampaigns } from "@/lib/campaigns/load";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -44,7 +45,7 @@ function sortProductFeatures(product: Product): Product {
   };
 }
 
-async function syncProductFeatures(
+export async function syncProductFeatures(
   supabase: SupabaseClient,
   productId: string,
   features?: ProductFeatureInput[],
@@ -85,7 +86,7 @@ async function syncProductFeatures(
   if (insertError) throw insertError;
 }
 
-async function syncProductImages(
+export async function syncProductImages(
   supabase: SupabaseClient,
   productId: string,
   images?: ProductImageInput[],
@@ -115,14 +116,6 @@ async function syncProductImages(
     })),
   );
   if (insertError) throw insertError;
-}
-
-function coverFromImages(images?: ProductImageInput[]) {
-  const first = images?.find((image) => image.image_url.trim());
-  return {
-    image_url: first?.image_url.trim() || null,
-    blur_hash: first?.blur_hash?.trim() || null,
-  };
 }
 
 export async function getProductsAction() {
@@ -279,7 +272,7 @@ export async function createProductAction(input: {
     const name_fa = input.name_fa?.trim() || input.name?.trim() || null;
     const name_ar = input.name_ar?.trim() || null;
     const name_en = input.name_en?.trim() || null;
-    const cover = coverFromImages(input.images);
+    const cover = coverFromImageInputs(input.images);
     const { data, error } = await supabase
       .from("products")
       .insert({
@@ -397,7 +390,7 @@ export async function updateProductAction(
     }
 
     if (images !== undefined) {
-      const cover = coverFromImages(images);
+      const cover = coverFromImageInputs(images);
       patch.image_url = cover.image_url;
       patch.blur_hash = cover.blur_hash;
     }

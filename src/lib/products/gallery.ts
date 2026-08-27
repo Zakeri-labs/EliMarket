@@ -1,4 +1,4 @@
-import type { Product, ProductImage } from "@/app/_types/database.types";
+import type { Product, ProductImage, ProductImageInput } from "@/app/_types/database.types";
 
 export function productGallery(product: Product): ProductImage[] {
   if (product.images?.length) {
@@ -21,4 +21,13 @@ export function productGallery(product: Product): ProductImage[] {
 export function productCover(product: Product): ProductImage | null {
   const images = productGallery(product);
   return images.find((image) => image.is_primary) ?? images[0] ?? null;
+}
+
+/** Pick the cover image_url/blur_hash to store on a product row from a gallery input list. */
+export function coverFromImageInputs(images?: ProductImageInput[]) {
+  const first = images?.find((image) => image.image_url.trim());
+  return {
+    image_url: first?.image_url.trim() || null,
+    blur_hash: first?.blur_hash?.trim() || null,
+  };
 }

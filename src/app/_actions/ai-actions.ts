@@ -56,9 +56,13 @@ function normalizeAiDescriptions(
   };
 }
 
-/** Deterministic, pixel-safe product photo enhancement (crop/sharpen/background cleanup). */
-export async function editProductImageWithAiAction(imageUrl: string) {
-  return enhanceProductImageAction(imageUrl);
+/**
+ * Re-enhance a product photo — a premium AI studio cover shot when a title
+ * is given (admin reviews it in the gallery before saving), otherwise a
+ * deterministic, pixel-safe crop/sharpen/background cleanup.
+ */
+export async function editProductImageWithAiAction(imageUrl: string, title?: string) {
+  return enhanceProductImageAction(imageUrl, title);
 }
 
 /** Generate product descriptions in FA, AR, and EN (OpenAI first). */

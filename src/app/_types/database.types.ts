@@ -142,6 +142,9 @@ export type ProductCampaign = Pick<
   "id" | "name" | "slug" | "type" | "discount_value" | "starts_at" | "ends_at" | "show_on_home" | "badge"
 >;
 
+/** Background AI generation state for products created via the smart/queued wizard. */
+export type ProductGenerationStatus = "pending" | "generating" | "completed" | "failed";
+
 export type Product = {
   id: string;
   category_id: string | null;
@@ -168,6 +171,8 @@ export type Product = {
   sku: string | null;
   parent_product_id: string | null;
   variant_label: string | null;
+  generation_status: ProductGenerationStatus | null;
+  generation_error: string | null;
   category?: Category | null;
   brand?: Brand | null;
   features?: ProductFeature[];
@@ -315,6 +320,7 @@ export type AdminNotification = {
   title: string;
   body: string;
   order_id: string | null;
+  product_id: string | null;
   read_at: string | null;
   created_at: string;
 };

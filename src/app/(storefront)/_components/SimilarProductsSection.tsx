@@ -71,4 +71,6 @@ const PLACEHOLDER = {
   sku: null,
   parent_product_id: null,
   variant_label: null,
+  generation_status: null,
+  generation_error: null,
 };

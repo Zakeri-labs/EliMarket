@@ -5,7 +5,7 @@ import { absoluteUrl, getSiteUrl } from "@/lib/seo/site-url";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
 import { resolveProductName } from "@/lib/i18n/product-name";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
-import type { Locale } from "@/i18n/config";
+import { DEFAULT_LOCALE, type Locale } from "@/i18n/config";
 
 export function websiteJsonLd() {
   const siteUrl = getSiteUrl();
@@ -40,7 +40,7 @@ export function websiteJsonLd() {
 
 export function productJsonLd(
   product: Product,
-  locale: Locale = "fa",
+  locale: Locale = DEFAULT_LOCALE,
   reviewStats?: { average: number; count: number },
 ) {
   const availability =

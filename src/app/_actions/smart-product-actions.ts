@@ -1,7 +1,10 @@
 "use server";
 
 import sharp from "sharp";
+import { after } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
+import { createServiceRoleClient } from "@/core/supabase/service";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { generateBlurHashFromBuffer } from "@/lib/images/generate-blur-hash";
 import {
@@ -14,9 +17,14 @@ import {
 } from "@/lib/ai/vision-catalog";
 import { searchProductImagesWithOpenAi } from "@/lib/ai/web-image-search";
 import { generateProductContextShots } from "@/lib/ai/generate-product-context-shots";
-import type { ProductFeatureInput } from "@/app/_types/database.types";
-
-type AdminSupabase = Awaited<ReturnType<typeof requireAdmin>>["supabase"];
+import { generateProductCoverShots } from "@/lib/ai/generate-product-cover-shot";
+import { slugifyProductName } from "@/lib/products/slug";
+import { coverFromImageInputs } from "@/lib/products/gallery";
+import {
+  syncProductFeatures,
+  syncProductImages,
+} from "@/app/_actions/product-actions";
+import type { ProductImageInput } from "@/app/_types/database.types";
 
 export type SmartProductImage = {
   originalUrl: string;
@@ -24,20 +32,6 @@ export type SmartProductImage = {
   blurHash: string;
   source: "upload" | "web" | "ai-generated";
   sourceLabel?: string;
-};
-
-export type SmartProductDraft = {
-  images: SmartProductImage[];
-  name_fa: string;
-  name_ar: string;
-  name_en: string;
-  slug: string;
-  description_fa: string;
-  description_ar: string;
-  description_en: string;
-  features: ProductFeatureInput[];
-  suggestedCategoryId?: string;
-  usedVisionModel: boolean;
 };
 
 const MAX_DRAFT_IMAGES = 8;
@@ -77,7 +71,7 @@ async function fetchAndValidateWebImage(url: string): Promise<{ bytes: Buffer; m
   }
 }
 
-async function uploadProcessedPng(supabase: AdminSupabase, png: Buffer) {
+async function uploadProcessedPng(supabase: SupabaseClient, png: Buffer) {
   const path = `products/ai/${Date.now()}-${Math.random().toString(36).slice(2)}.png`;
   const { error } = await supabase.storage.from("product-images").upload(path, png, {
     contentType: "image/png",
@@ -88,7 +82,7 @@ async function uploadProcessedPng(supabase: AdminSupabase, png: Buffer) {
   return data.publicUrl;
 }
 
-async function uploadWebImage(supabase: AdminSupabase, bytes: Buffer, mime: string) {
+async function uploadWebImage(supabase: SupabaseClient, bytes: Buffer, mime: string) {
   const ext = mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : "jpg";
   const path = `products/web/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   const { error } = await supabase.storage.from("product-images").upload(path, bytes, {
@@ -100,30 +94,58 @@ async function uploadWebImage(supabase: AdminSupabase, bytes: Buffer, mime: stri
   return data.publicUrl;
 }
 
+/**
+ * Build the primary gallery images for each uploaded photo: premium
+ * AI-generated studio shots (image 1 is always the standard fixed cover
+ * framing, further shots vary lighting/composition — marked
+ * "ai-generated", admin must verify since fine print can come out wrong)
+ * plus, if the AI didn't cover the full target count, deterministic,
+ * pixel-safe framings filling the rest as a guaranteed-accurate backup.
+ */
 async function buildEnhancedImages(
-  supabase: AdminSupabase,
+  supabase: SupabaseClient,
   originals: { bytes: Buffer; mime: string }[],
   urls: string[],
+  hintName: string,
 ): Promise<SmartProductImage[]> {
   const images: SmartProductImage[] = [];
 
-  // Generate at least 3 high-quality catalog framings overall, spreading
-  // them across however many source photos were uploaded (capped at 6).
-  // These are deterministic crop/background framings of the real photo —
-  // never AI-regenerated pixels — so label text can never be corrupted.
+  // Generate at least 3 high-quality images overall, spreading them across
+  // however many source photos were uploaded (capped at 6).
   const totalTarget = Math.min(6, Math.max(3, originals.length));
-  const framingsPerImage = Math.max(1, Math.ceil(totalTarget / originals.length));
+  const perImage = Math.max(1, Math.ceil(totalTarget / originals.length));
 
   for (let i = 0; i < originals.length; i += 1) {
     const original = originals[i]!;
     const originalUrl = urls[i]!;
-    let framings: Buffer[] = [];
+
+    let aiCovers: Buffer[] = [];
     try {
-      framings = await buildProductPhotoFramings(original.bytes, framingsPerImage);
+      aiCovers = await generateProductCoverShots({ ...original, title: hintName, count: perImage });
     } catch {
-      framings = [];
+      aiCovers = [];
     }
-    if (framings.length === 0) {
+    for (const png of aiCovers) {
+      const processedUrl = await uploadProcessedPng(supabase, png);
+      images.push({
+        originalUrl,
+        processedUrl,
+        blurHash: await generateBlurHashFromBuffer(png),
+        source: "ai-generated",
+        sourceLabel: "cover",
+      });
+    }
+
+    const deterministicCount = Math.max(0, perImage - aiCovers.length);
+    let framings: Buffer[] = [];
+    if (deterministicCount > 0) {
+      try {
+        framings = await buildProductPhotoFramings(original.bytes, deterministicCount);
+      } catch {
+        framings = [];
+      }
+    }
+    if (framings.length === 0 && aiCovers.length === 0) {
       images.push({
         originalUrl,
         processedUrl: originalUrl,
@@ -154,7 +176,7 @@ async function buildEnhancedImages(
  * should still verify they actually match the product.
  */
 async function generateContextShots(
-  supabase: AdminSupabase,
+  supabase: SupabaseClient,
   original: { bytes: Buffer; mime: string },
   originalUrl: string,
 ): Promise<SmartProductImage[]> {
@@ -182,7 +204,7 @@ async function generateContextShots(
 
 /** Best-effort: find extra real photos of the same product on the web (admin should verify each). */
 async function findWebImages(
-  supabase: AdminSupabase,
+  supabase: SupabaseClient,
   query: string,
 ): Promise<SmartProductImage[]> {
   if (!query.trim()) return [];
@@ -211,19 +233,36 @@ async function findWebImages(
   return found;
 }
 
-export async function processSmartProductDraftAction(input: {
+/**
+ * Queue a new product for background AI generation. Inserts a visible
+ * placeholder row immediately (price 0, stock 0, generation_status
+ * "pending") and returns its id right away — the actual photo enhancement,
+ * name/description/specification drafting, and image gallery are built
+ * afterwards via `after()` so the admin's request doesn't block on it. The
+ * admin who queued it gets an admin_notifications row when it finishes (or
+ * fails), and the product list shows a "generating" badge in the meantime.
+ */
+export async function createQueuedSmartProductAction(input: {
   imageUrls: string[];
-  hintName?: string;
+  hintName: string;
   categoryId?: string;
   categoryName?: string;
   categories: { id: string; name: string }[];
 }): Promise<
-  | { success: true; data: SmartProductDraft }
+  | { success: true; data: { id: string } }
   | { success: false; error: string }
 > {
   try {
-    const { supabase } = await requireAdmin();
+    const { supabase, user } = await requireAdmin();
+    const hintName = input.hintName.trim();
     const urls = input.imageUrls.map((url) => url.trim()).filter(Boolean).slice(0, 6);
+
+    if (!hintName) {
+      return {
+        success: false as const,
+        error: await actionErrorMessage("errors.smartProductNameRequired", new Error("name required")),
+      };
+    }
     if (urls.length === 0) {
       return {
         success: false as const,
@@ -231,10 +270,93 @@ export async function processSmartProductDraftAction(input: {
       };
     }
 
-    const originals = await Promise.all(urls.map(fetchImage));
+    const slug = `${slugifyProductName(hintName)}-${Math.random().toString(36).slice(2, 8)}`;
+    const { data: created, error: insertError } = await supabase
+      .from("products")
+      .insert({
+        name: hintName,
+        name_fa: hintName,
+        slug,
+        price: 0,
+        stock: 0,
+        image_url: urls[0],
+        is_active: false,
+        category_id: input.categoryId ?? null,
+        generation_status: "pending",
+      })
+      .select("id")
+      .single();
+    if (insertError) throw insertError;
+
+    const productId = created.id as string;
+    const recipientId = user.id;
+    const { categoryId, categoryName, categories } = input;
+
+    after(() =>
+      runQueuedProductGeneration({
+        productId,
+        urls,
+        hintName,
+        recipientId,
+        categoryId,
+        categoryName,
+        categories,
+      }),
+    );
+
+    return { success: true as const, data: { id: productId } };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.smartProductFailed", err),
+    };
+  }
+}
+
+async function notifyGenerationResult(
+  supabase: SupabaseClient,
+  input: {
+    recipientId: string;
+    productId: string;
+    type: "product_generated" | "product_generation_failed";
+    title: string;
+    body: string;
+  },
+) {
+  try {
+    await supabase.from("admin_notifications").insert({
+      recipient_id: input.recipientId,
+      type: input.type,
+      title: input.title,
+      body: input.body,
+      product_id: input.productId,
+    });
+  } catch {
+    /* never let a notification failure mask the real generation result */
+  }
+}
+
+async function runQueuedProductGeneration(input: {
+  productId: string;
+  urls: string[];
+  hintName: string;
+  recipientId: string;
+  categoryId?: string;
+  categoryName?: string;
+  categories: { id: string; name: string }[];
+}) {
+  const supabase = createServiceRoleClient();
+
+  try {
+    await supabase
+      .from("products")
+      .update({ generation_status: "generating" })
+      .eq("id", input.productId);
+
+    const originals = await Promise.all(input.urls.map(fetchImage));
 
     const [enhancedImages, catalog] = await Promise.all([
-      buildEnhancedImages(supabase, originals, urls),
+      buildEnhancedImages(supabase, originals, input.urls, input.hintName),
       draftCatalogFromImages({
         images: originals.map((item) => ({ mime: item.mime, bytes: item.bytes })),
         hintName: input.hintName,
@@ -245,10 +367,8 @@ export async function processSmartProductDraftAction(input: {
 
     const images = [...enhancedImages];
 
-    // Only one photo uploaded — ask AI to fill out the gallery with a couple
-    // of supplementary shots (contents poured out, close-up of contents).
     if (originals.length === 1 && images.length < MAX_DRAFT_IMAGES) {
-      const contextShots = await generateContextShots(supabase, originals[0]!, urls[0]!);
+      const contextShots = await generateContextShots(supabase, originals[0]!, input.urls[0]!);
       images.push(...contextShots.slice(0, Math.max(0, MAX_DRAFT_IMAGES - images.length)));
     }
 
@@ -258,37 +378,97 @@ export async function processSmartProductDraftAction(input: {
       images.push(...webImages.slice(0, Math.max(0, MAX_DRAFT_IMAGES - images.length)));
     }
 
-    return {
-      success: true as const,
-      data: {
-        images,
+    const categoryId =
+      input.categoryId || matchCategoryId(catalog.suggestedCategoryName, input.categories);
+    const imageInputs: ProductImageInput[] = images.map((image) => ({
+      image_url: image.processedUrl,
+      blur_hash: image.blurHash,
+    }));
+    const cover = coverFromImageInputs(imageInputs);
+
+    // AI-generated and web-sourced images carry a real accuracy risk (label
+    // text or product match isn't guaranteed) — never auto-publish those;
+    // require an admin to review and activate the product manually. Only
+    // fully deterministic, pixel-safe galleries go live automatically.
+    const needsReview = images.some((image) => image.source !== "upload");
+
+    const { error: updateError } = await supabase
+      .from("products")
+      .update({
         name_fa: catalog.name_fa,
         name_ar: catalog.name_ar,
         name_en: catalog.name_en,
-        slug: catalog.slug,
+        name: catalog.name_fa,
         description_fa: catalog.description_fa,
         description_ar: catalog.description_ar,
         description_en: catalog.description_en,
-        features: catalog.features,
-        suggestedCategoryId:
-          input.categoryId ||
-          matchCategoryId(catalog.suggestedCategoryName, input.categories),
-        usedVisionModel: catalog.usedModel,
-      },
-    };
+        description: catalog.description_fa,
+        category_id: categoryId ?? null,
+        image_url: cover.image_url ?? input.urls[0],
+        blur_hash: cover.blur_hash,
+        is_active: !needsReview,
+        generation_status: "completed",
+        generation_error: null,
+      })
+      .eq("id", input.productId);
+    if (updateError) throw updateError;
+
+    await syncProductFeatures(supabase, input.productId, catalog.features);
+    await syncProductImages(supabase, input.productId, imageInputs);
+
+    await notifyGenerationResult(supabase, {
+      recipientId: input.recipientId,
+      productId: input.productId,
+      type: "product_generated",
+      title: `محصول آماده شد: ${catalog.name_fa}`,
+      body: needsReview
+        ? "محتوا تولید شد، اما چون شامل تصاویر ساخته‌شده با AI است، قبل از نمایش در فروشگاه باید تصاویر را بررسی و محصول را فعال کنید."
+        : "محتوا و گالری تصاویر این محصول با موفقیت تولید شد و آماده بررسی است.",
+    });
   } catch (err) {
-    return {
-      success: false as const,
-      error: await actionErrorMessage("errors.smartProductFailed", err),
-    };
+    const message = err instanceof Error ? err.message : "Unknown error";
+    try {
+      await supabase
+        .from("products")
+        .update({ generation_status: "failed", generation_error: message.slice(0, 500) })
+        .eq("id", input.productId);
+    } catch {
+      /* nothing more we can do here */
+    }
+    await notifyGenerationResult(supabase, {
+      recipientId: input.recipientId,
+      productId: input.productId,
+      type: "product_generation_failed",
+      title: `تولید محتوا برای «${input.hintName}» ناموفق بود`,
+      body: message.slice(0, 300),
+    });
   }
 }
 
-export async function enhanceProductImageAction(imageUrl: string) {
+/**
+ * Re-enhance a single existing gallery image. When a product title is given,
+ * tries the premium AI studio cover shot first (the admin sees the result
+ * inline in the gallery and must still hit Save, so there's a human review
+ * moment before it's persisted); otherwise, and on any AI failure, falls
+ * back to the deterministic, pixel-safe enhancer.
+ */
+export async function enhanceProductImageAction(imageUrl: string, title?: string) {
   try {
     const { supabase } = await requireAdmin();
     const original = await fetchImage(imageUrl);
-    const output = await enhanceProductPhoto(original.bytes);
+
+    let output: Buffer | null = null;
+    if (title?.trim()) {
+      try {
+        const [cover] = await generateProductCoverShots({ ...original, title, count: 1 });
+        output = cover ?? null;
+      } catch {
+        output = null;
+      }
+    }
+    if (!output) {
+      output = await enhanceProductPhoto(original.bytes);
+    }
 
     const url = await uploadProcessedPng(supabase, output);
     const blurHash = await generateBlurHashFromBuffer(Buffer.from(output));

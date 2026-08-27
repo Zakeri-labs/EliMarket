@@ -7,7 +7,7 @@ export const DELIVERY_FEE = 0.5;
 export const VAT_RATE = 0.05;
 export const MONEY_SCALE = 1000;
 
-import { getNumberLocale, type Locale } from "@/i18n/config";
+import { DEFAULT_LOCALE, getNumberLocale, type Locale } from "@/i18n/config";
 import { getMessages } from "@/i18n/messages";
 
 export function roundMoney(amount: number) {
@@ -28,11 +28,14 @@ export function cartTotals(subtotal: number) {
 export function formatPrice(
   amount: number,
   currency = DEFAULT_CURRENCY,
-  locale: Locale = "fa",
+  locale: Locale = DEFAULT_LOCALE,
 ) {
   const value = Number(amount);
   const safeAmount = Number.isFinite(value) ? value : 0;
-  const safeLocale: Locale = locale === "en" || locale === "ar" ? locale : "fa";
+  const safeLocale: Locale =
+    locale === "en" || locale === "ar" || locale === "fa"
+      ? locale
+      : DEFAULT_LOCALE;
   const fractionDigits = currency === "OMR" ? 3 : currency === "IRR" ? 0 : 2;
   const formatted = safeAmount.toLocaleString(getNumberLocale(safeLocale), {
     minimumFractionDigits: fractionDigits,

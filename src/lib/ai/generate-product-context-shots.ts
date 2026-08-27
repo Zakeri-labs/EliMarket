@@ -8,9 +8,12 @@ import { getOpenAiApiKey } from "@/lib/ai/openai-client";
 // that made regenerating the labeled package itself unsafe. Callers must
 // still mark these as AI-generated so an admin can verify accuracy before
 // publishing, since the model can still get color/shape/texture wrong.
+const STUDIO_STYLE =
+  "Photography style: light warm-gray seamless studio background, soft even lighting, a soft realistic shadow beneath the subject, generous empty margin around it (the subject should not fill the whole frame) — matching a professional grocery catalog photo.";
+
 const CONTEXT_SHOT_PROMPTS = [
-  "Create a NEW product photo for a grocery catalog showing the actual contents of this package (the food/drink/treats itself) placed or poured next to the package on a clean white studio background — for example in a glass, bowl, or small pile beside it. Do not render any readable text, brand name, or label wording anywhere in the image; keep the package shape plain and unlabeled. Keep the color, shape, and texture of the contents realistic and consistent with what this actual product looks like.",
-  "Create a NEW close-up product photo showing ONLY the actual contents of this package (the food/drink/treats itself, not the package) — a close-up that reveals its real texture and color, studio lit, clean white background. Do not render any readable text, brand name, logo, or packaging anywhere in the image.",
+  `Create a NEW product photo for a grocery catalog showing the actual contents of this package (the food/drink/treats itself) placed or poured next to the package — for example in a glass, bowl, or small pile beside it. Do not render any readable text, brand name, or label wording anywhere in the image; keep the package shape plain and unlabeled. Keep the color, shape, and texture of the contents realistic and consistent with what this actual product looks like. ${STUDIO_STYLE}`,
+  `Create a NEW close-up product photo showing ONLY the actual contents of this package (the food/drink/treats itself, not the package) — a close-up that reveals its real texture and color. Do not render any readable text, brand name, logo, or packaging anywhere in the image. ${STUDIO_STYLE}`,
 ];
 
 function buildEditForm(png: Buffer, prompt: string) {
