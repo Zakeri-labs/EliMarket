@@ -37,7 +37,7 @@ const FLASH_DEAL_DATA: {
     name_en: "Bananas (kg)",
     price: 0.45,
     compare_at_price: 0.6,
-    image_url: "/products/bananas.png",
+    image_url: "/products/bananas-v2.png",
   },
   {
     slug: "tomatoes-kg",
@@ -46,7 +46,7 @@ const FLASH_DEAL_DATA: {
     name_en: "Tomatoes (kg)",
     price: 0.32,
     compare_at_price: 0.4,
-    image_url: "/products/tomatoes.png",
+    image_url: "/products/tomatoes-v2.png",
   },
   {
     slug: "milk-full-fat-2l",
@@ -55,7 +55,7 @@ const FLASH_DEAL_DATA: {
     name_en: "Milk Full Fat 2L",
     price: 0.65,
     compare_at_price: 0.765,
-    image_url: "/products/milk-2l.png",
+    image_url: "/products/milk-2l-v2.png",
   },
   {
     slug: "eggs-15-pack",
@@ -64,7 +64,7 @@ const FLASH_DEAL_DATA: {
     name_en: "Eggs 15 Pack",
     price: 4.1,
     compare_at_price: 4.8,
-    image_url: "/products/eggs-15.png",
+    image_url: "/products/eggs-15-v2.png",
   },
   {
     slug: "crusty-bread-500g",
@@ -73,7 +73,7 @@ const FLASH_DEAL_DATA: {
     name_en: "Crusty Bread 500g",
     price: 0.95,
     compare_at_price: 1.1,
-    image_url: "/products/bread-loaf.png",
+    image_url: "/products/bread-loaf-v2.png",
   },
   {
     slug: "chicken-breast-1kg",
@@ -82,7 +82,7 @@ const FLASH_DEAL_DATA: {
     name_en: "Chicken Breast 1kg",
     price: 3.85,
     compare_at_price: 4.5,
-    image_url: "/products/chicken-breast.png",
+    image_url: "/products/chicken-breast-v2.png",
   },
   {
     slug: "orange-juice-1l",
@@ -91,7 +91,7 @@ const FLASH_DEAL_DATA: {
     name_en: "Orange Juice 1L",
     price: 0.78,
     compare_at_price: 0.92,
-    image_url: "/products/orange-juice.png",
+    image_url: "/products/orange-juice-v2.png",
   },
   {
     slug: "potato-chips-200g",
@@ -100,7 +100,7 @@ const FLASH_DEAL_DATA: {
     name_en: "Potato Chips 200g",
     price: 0.55,
     compare_at_price: 0.65,
-    image_url: "/products/potato-chips.png",
+    image_url: "/products/potato-chips-v2.png",
   },
 ];
 

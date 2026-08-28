@@ -25,6 +25,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
 const originalDir = join(root, "public", "products-original");
 const outDir = join(root, "public", "products");
+// Output basenames carry a version suffix so a regenerated image is a NEW URL
+// everywhere (browser cache, CDN, and the cache-first service worker all key
+// on the path). Bump this when regenerating, and update the matching paths in
+// product-mock.ts, the seed migration, and the live DB rows.
+const OUT_SUFFIX = "-v2";
 
 // Filename (without .png) -> catalog title fed to the prompt.
 const TITLES = {
@@ -107,8 +112,8 @@ async function restyle(name, key) {
     .resize(1024, 1024, { fit: "inside" })
     .png({ compressionLevel: 9, adaptiveFiltering: true })
     .toBuffer();
-  await writeFile(join(outDir, `${name}.png`), normalized);
-  console.log(`✓ ${name}.png`);
+  await writeFile(join(outDir, `${name}${OUT_SUFFIX}.png`), normalized);
+  console.log(`✓ ${name}${OUT_SUFFIX}.png`);
 }
 
 const key = process.env.OPENAI_API_KEY?.trim();
