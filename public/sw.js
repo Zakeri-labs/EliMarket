@@ -1,4 +1,4 @@
-const CACHE = "elimarket-v2";
+const CACHE = "elimarket-v3";
 const PRECACHE = ["/", "/icon.png", "/icon-192.png", "/apple-icon.png"];
 
 self.addEventListener("install", (event) => {

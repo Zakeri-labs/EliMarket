@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local image-restyle backups (revert data for scripts/restyle-db-product-covers.mjs)
+/scripts/_restyle-backup/

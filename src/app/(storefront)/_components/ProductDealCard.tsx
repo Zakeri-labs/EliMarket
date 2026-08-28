@@ -33,14 +33,12 @@ export function ProductDealCard({
   layout = "rail",
 }: Props) {
   const formatPrice = useFormatPrice();
-  const { locale, dir, t } = useTranslations();
+  const { locale, dir } = useTranslations();
   const discountBadge = productDiscountBadge(product, formatPrice);
   const compareAt = productCompareAtPrice(product);
   const excerpt = resolveProductCardExcerpt(product, locale);
   const name = resolveProductName(product, locale);
   const cover = productCover(product);
-  // TEMP: alternate image background for testing white vs dark card backgrounds — remove when done testing.
-  const testWhiteBg = String(product.id).charCodeAt(0) % 2 === 0;
 
   return (
     <article
@@ -67,12 +65,7 @@ export function ProductDealCard({
               {discountBadge}
             </span>
           )}
-          <div
-            className={cn(
-              "relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl",
-              testWhiteBg ? "bg-white" : "bg-transparent",
-            )}
-          >
+          <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-transparent">
             {isSkeleton ? (
               <SkeletonImage />
             ) : cover ? (
@@ -116,15 +109,6 @@ export function ProductDealCard({
         ) : (
           <p className="mt-0.5 min-h-7 lg:hidden" aria-hidden />
         )}
-        <p className="mt-0.5 hidden text-xs text-muted lg:block">
-          {t(
-            product.inventory_unit === "weight"
-              ? "product.unitWeight"
-              : product.inventory_unit === "pack"
-                ? "product.unitPack"
-                : "product.unitCount",
-          )}
-        </p>
         <div data-price className="mt-1.5 flex min-h-8 flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums">
           <Price
             amount={Number(product.price)}
