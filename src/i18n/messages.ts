@@ -822,6 +822,7 @@ export type Messages = {
       statusLabel: string;
       statusHint: string;
       customer: string;
+      phone: string;
       payment: string;
       printInvoice: string;
       pickedUpAt: string;
@@ -1935,6 +1936,7 @@ const fa: Messages = {
       statusLabel: "وضعیت سفارش",
       statusHint: "ترتیب پیشنهادی: در انتظار → تأیید → آماده‌سازی → تخصیص پیک → ارسال → تحویل",
       customer: "مشتری",
+      phone: "موبایل مشتری",
       payment: "پرداخت",
       printInvoice: "چاپ فاکتور",
       pickedUpAt: "دریافت از فروشگاه",
@@ -3070,6 +3072,7 @@ const ar: Messages = {
       statusLabel: "حالة الطلب",
       statusHint: "الترتيب المقترح: انتظار → تأكيد → تحضير → تعيين سائق → إرسال → تسليم",
       customer: "العميل",
+      phone: "جوال العميل",
       payment: "الدفع",
       printInvoice: "طباعة الفاتورة",
       pickedUpAt: "الاستلام من المتجر",
@@ -4205,6 +4208,7 @@ const en: Messages = {
       statusLabel: "Order status",
       statusHint: "Suggested flow: Pending → Confirmed → Preparing → Assign rider → Shipping → Delivered",
       customer: "Customer",
+      phone: "Customer phone",
       payment: "Payment",
       printInvoice: "Print invoice",
       pickedUpAt: "Picked up from store",

@@ -10,6 +10,7 @@ import {
   MapPin,
   Package,
   PackageCheck,
+  Phone,
   Printer,
   UserRound,
 } from "lucide-react";
@@ -218,12 +219,24 @@ export default function OrdersPageContent() {
                       <span>
                         <span className="text-[#71717a]">{t("admin.orders.customer")}: </span>
                         {order.customer.full_name || order.customer.phone}
-                        {order.customer.full_name && order.customer.phone
-                          ? ` — ${order.customer.phone}`
-                          : ""}
                       </span>
                     </p>
                   )}
+                  {order.customer?.phone ? (
+                    <p className="flex items-start gap-2 text-[#3f3f46]">
+                      <AppIcon icon={Phone} size="sm" className="mt-0.5 text-[#0d9488]" />
+                      <span>
+                        <span className="text-[#71717a]">{t("admin.orders.phone")}: </span>
+                        <a
+                          href={`tel:${order.customer.phone}`}
+                          dir="ltr"
+                          className="font-medium text-[#0f766e] hover:underline"
+                        >
+                          {order.customer.phone}
+                        </a>
+                      </span>
+                    </p>
+                  ) : null}
                   {order.address?.address_line ? (
                     <p className="flex items-start gap-2 text-[#3f3f46]">
                       <AppIcon icon={MapPin} size="sm" className="mt-0.5 text-[#0d9488]" />
