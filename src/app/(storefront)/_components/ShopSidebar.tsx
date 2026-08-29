@@ -106,8 +106,8 @@ export function ShopSidebar({
   }
 
   return (
-    <aside className="w-[260px] shrink-0 grow-0 basis-[260px] self-stretch">
-      <div className={cn("flex w-[260px] flex-col", isSkeleton && "skeleton")}>
+    <aside className="w-[280px] shrink-0 grow-0 basis-[280px] self-stretch">
+      <div className={cn("flex w-[280px] flex-col", isSkeleton && "skeleton")}>
         <p className="mb-4 min-h-4 text-[11px] tracking-[0.1em] text-text-secondary uppercase">
           {t("home.shopByCategory")}
         </p>

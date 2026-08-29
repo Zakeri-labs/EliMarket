@@ -39,6 +39,7 @@ export function CategoryBrowse({ slug }: Props) {
               categories={list}
               selectedSlug={slug}
               hrefFor={(next) => (next ? `/categories/${next}` : "/categories")}
+              withThumbnails
             />
           </FilterPanel>
         }

@@ -19,8 +19,6 @@ type Props = {
   onToggleExpand?: () => void;
 };
 
-const THUMB = 28;
-
 export function CategoryListItem({
   category,
   label,
@@ -31,6 +29,7 @@ export function CategoryListItem({
   onSelect,
   onToggleExpand,
 }: Props) {
+  const THUMB = depth > 0 ? 32 : 44;
   const src = resolveCategoryImage(category);
   const [imgFailed, setImgFailed] = useState(false);
   const showImage = Boolean(src) && !imgFailed;
@@ -38,8 +37,8 @@ export function CategoryListItem({
   return (
     <div
       className={cn(
-        "group flex h-[42px] w-full max-w-full shrink-0 items-center gap-2 overflow-hidden rounded-md px-1",
-        depth > 0 && "ps-3",
+        "group flex w-full max-w-full shrink-0 items-center gap-2 overflow-hidden rounded-md px-1",
+        depth > 0 ? "h-[44px] ps-3" : "h-[56px]",
         active && "bg-accent-teal/10",
       )}
     >
@@ -72,7 +71,8 @@ export function CategoryListItem({
         </span>
         <span
           className={cn(
-            "min-w-0 flex-1 truncate text-sm transition-colors",
+            "min-w-0 flex-1 truncate transition-colors",
+            depth > 0 ? "text-sm" : "text-[15px]",
             active
               ? "font-medium text-accent-teal"
               : "text-text-primary group-hover:text-accent-teal",
