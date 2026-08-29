@@ -10,8 +10,10 @@ import {
   Heart,
   Minus,
   Plus,
+  RotateCcw,
   Share2,
   Star,
+  Store,
   Trash2,
   Truck,
 } from "lucide-react";
@@ -70,19 +72,18 @@ function AtAGlanceGrid({
   locale: Locale;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-1.5">
       {features.map((feature) => {
         const { label, value } = resolveFeatureText(feature, locale);
         return (
           <div
             key={feature.id}
-            className="flex items-center gap-2.5 rounded-xl border border-line-soft bg-card p-3"
+            className="min-w-0 rounded-lg border border-line-soft bg-card px-3 py-2 text-start"
           >
-            <span className="h-[22px] w-[22px] shrink-0 rounded-[7px] bg-bg-tile" />
-            <div className="min-w-0 text-start">
-              <p className="truncate text-[10px] text-text-faint">{label}</p>
-              <p className="mt-0.5 truncate text-[11.5px] font-semibold">{value}</p>
-            </div>
+            <p className="truncate text-[9.5px] uppercase tracking-wide text-text-faint">
+              {label}
+            </p>
+            <p className="mt-0.5 truncate text-[12px] font-semibold leading-snug">{value}</p>
           </div>
         );
       })}
@@ -117,13 +118,13 @@ function RatingSummary({
 function DeliveryServiceCard() {
   const { t } = useTranslations();
   const rows = [
-    { title: t("product.sameDayDelivery"), note: t("product.sameDayDeliveryNote") },
-    { title: t("product.easyReturns"), note: t("product.easyReturnsNote") },
-    { title: t("product.pickupInStore"), note: t("product.pickupInStoreNote") },
+    { icon: Truck, title: t("product.sameDayDelivery"), note: t("product.sameDayDeliveryNote") },
+    { icon: RotateCcw, title: t("product.easyReturns"), note: t("product.easyReturnsNote") },
+    { icon: Store, title: t("product.pickupInStore"), note: t("product.pickupInStoreNote") },
   ];
   return (
-    <div className="flex flex-col gap-2.5 rounded-2xl border border-line-soft bg-card p-3.5">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-text-faint">
+    <div className="flex flex-col gap-2 rounded-xl border border-line-soft bg-card p-3">
+      <p className="text-[9.5px] font-semibold uppercase tracking-wide text-text-faint">
         {t("product.deliveryServiceTitle")}
       </p>
       {rows.map((row, index) => (
@@ -131,10 +132,12 @@ function DeliveryServiceCard() {
           key={row.title}
           className={cn(
             "flex items-center gap-2.5",
-            index > 0 && "border-t border-line-soft pt-2.5",
+            index > 0 && "border-t border-line-soft pt-2",
           )}
         >
-          <span className="h-6 w-6 shrink-0 rounded-lg bg-bg-tile" />
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-bg-tile text-accent-gold">
+            <AppIcon icon={row.icon} size="xs" />
+          </span>
           <div className="min-w-0 text-start">
             <p className="truncate text-[11.5px] font-semibold">{row.title}</p>
             <p className="truncate text-[10px] text-text-faint">{row.note}</p>
@@ -347,9 +350,10 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               aria-busy={isSkeleton}
             >
             <ProductGallery product={product} isSkeleton={isSkeleton} sizes="100vw" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/25 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/15 to-transparent" />
             {!isSkeleton && discountBadge && (
-              <span className="absolute start-3 top-14 z-10 rounded-md bg-accent-teal px-2 py-1 text-xs font-bold text-bg-main">
+              <span className="absolute start-3 top-16 z-10 rounded-full bg-accent-teal px-2.5 py-0.5 text-[11px] font-bold text-bg-main shadow-sm">
                 {discountBadge}
               </span>
             )}
@@ -358,28 +362,28 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
             <div className="absolute inset-x-0 top-0 flex items-center justify-between px-4 pb-2 pt-3">
               <Link
                 href={isSkeleton ? "#" : "/"}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-black/60 text-white"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/40 text-white backdrop-blur-sm"
                 onClick={(e) => {
                   if (isSkeleton) e.preventDefault();
                 }}
                 aria-label={t("common.back")}
               >
-                <AppIcon icon={ChevronLeft} size="md" className="rtl:rotate-180" />
+                <AppIcon icon={ChevronLeft} size="sm" className="rtl:rotate-180" />
               </Link>
               <div className="flex shrink-0 gap-2">
                 <button
                   type="button"
                   disabled={isSkeleton}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-black/60 text-white"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/40 text-white backdrop-blur-sm"
                   aria-label={t("product.share")}
                   onClick={() => void shareProduct()}
                 >
-                  <AppIcon icon={Share2} size="sm" />
+                  <AppIcon icon={Share2} size="xs" />
                 </button>
                 <button
                   type="button"
                   disabled={isSkeleton}
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-black/60 ${wishlisted ? "text-red-400" : "text-white"}`}
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/40 backdrop-blur-sm ${wishlisted ? "text-red-400" : "text-white"}`}
                   aria-label={t("product.wishlist")}
                   onClick={() =>
                     toggleWishlist({
@@ -390,25 +394,25 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                     })
                   }
                 >
-                  <AppIcon icon={Heart} size="sm" />
+                  <AppIcon icon={Heart} size="xs" />
                 </button>
               </div>
             </div>
 
           </div>
 
-          <div className="relative z-10 -mt-5 rounded-t-[1.75rem] bg-background px-4 pb-4 pt-5">
-            <div className="space-y-4">
+          <div className="relative z-10 -mt-6 rounded-t-3xl bg-background px-4 pb-4 pt-5">
+            <div className="space-y-3.5">
             <div>
               {(badgeLabel || product.sku) && (
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   {badgeLabel && (
-                    <span className="inline-block rounded-md border border-gold-wash-border bg-gold-wash-bg px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-accent-gold">
+                    <span className="inline-block rounded-md border border-gold-wash-border bg-gold-wash-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-gold">
                       {badgeLabel}
                     </span>
                   )}
                   {product.sku && (
-                    <span className="font-mono text-[10.5px] text-text-dim">
+                    <span className="font-mono text-[10px] text-text-dim">
                       {t("product.sku", { sku: product.sku })}
                     </span>
                   )}
@@ -416,13 +420,13 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               )}
               <h1
                 className={cn(
-                  "text-start text-2xl font-bold leading-tight",
+                  "text-start text-xl font-bold leading-tight",
                   locale === "en" && "font-logo",
                 )}
               >
                 {productName}
               </h1>
-              {subtitle && <p className="mt-1 text-start text-sm text-muted">{subtitle}</p>}
+              {subtitle && <p className="mt-1 text-start text-[13px] text-muted">{subtitle}</p>}
               <div className="mt-1.5">
                 <RatingSummary
                   average={reviewsSummary?.average ?? 0}
@@ -441,56 +445,49 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                     <Price
                       amount={Number(product.price)}
                       currency={product.currency}
-                      className="text-start text-3xl font-bold tracking-tight text-accent-teal"
+                      className="text-start text-2xl font-bold tracking-tight text-accent-teal"
                     />
                     {compareAt != null && (
-                      <span className="price-num text-start text-sm text-muted line-through tabular-nums">
+                      <span className="price-num text-start text-[13px] text-muted line-through tabular-nums">
                         {formatPrice(compareAt, product.currency)}
                       </span>
                     )}
                     {discountBadge && (
-                      <span className="rounded-md bg-accent-teal px-1.5 py-0.5 text-xs font-semibold text-bg-main">
+                      <span className="rounded-full bg-accent-teal px-2 py-0.5 text-[11px] font-semibold text-bg-main">
                         {discountBadge}
                       </span>
                     )}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted">{t("store.pricesHidden")}</p>
+                  <p className="text-[13px] text-muted">{t("store.pricesHidden")}</p>
                 )}
                 {inStock ? (
-                  <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-accent">
-                    <AppIcon icon={CheckCircle2} size="sm" />
+                  <span className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-accent">
+                    <AppIcon icon={CheckCircle2} size="xs" />
                     {t("product.inStock")}
                   </span>
                 ) : (
-                  <span className="shrink-0 text-sm text-danger">{t("product.outOfStock")}</span>
+                  <span className="shrink-0 text-[13px] text-danger">{t("product.outOfStock")}</span>
                 )}
               </div>
               {showPrices && (
-                <p data-price className="mt-1 text-start text-xs text-muted">{t("product.vatIncluded")}</p>
+                <p data-price className="mt-0.5 text-start text-[11px] text-muted">{t("product.vatIncluded")}</p>
               )}
-            </div>
-
-            {inStock && (
-              <div className="space-y-1.5 rounded-2xl border border-gold-hairline bg-card p-3.5">
-                <p className="flex items-center gap-2 text-start text-xs font-medium text-accent-teal">
-                  <AppIcon icon={CheckCircle2} size="xs" />
-                  {t("product.inStock")}
-                </p>
-                <p className="flex items-center gap-2 text-start text-xs text-text-faint">
+              {inStock && (
+                <p className="mt-2 flex items-center gap-2 text-start text-[11.5px] text-text-faint">
                   <AppIcon icon={Truck} size="xs" className="text-accent-gold" />
                   {t("product.freeDeliveryOver", {
                     amount: formatPrice(FREE_DELIVERY_THRESHOLD),
                   })}
                 </p>
-              </div>
-            )}
+              )}
+            </div>
 
             <DeliveryServiceCard />
 
             {glanceFeatures.length > 0 && (
               <div>
-                <p className="mb-2 text-start text-[11px] font-semibold uppercase tracking-wide text-muted">
+                <p className="mb-1.5 text-start text-[10px] font-semibold uppercase tracking-wide text-muted">
                   {t("product.atAGlance")}
                 </p>
                 <AtAGlanceGrid features={glanceFeatures} locale={locale} />
@@ -503,7 +500,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               <button
                 type="button"
                 disabled={isSkeleton}
-                className="flex w-full items-center justify-between py-1 text-sm font-medium"
+                className="flex w-full items-center justify-between py-1 text-[13px] font-semibold"
                 onClick={() => {
                   if (isSkeleton) return;
                   setDescOpen(!descOpen);
@@ -512,12 +509,12 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 <span className="text-start">{t("product.description")}</span>
                 <AppIcon
                   icon={ChevronDown}
-                  size="sm"
+                  size="xs"
                   className={cn("text-muted transition-transform", descOpen && "rotate-180")}
                 />
               </button>
               {descOpen && (
-                <p className="mt-2 text-start text-sm leading-7 text-muted">{description}</p>
+                <p className="mt-1.5 text-start text-[13px] leading-6 text-muted">{description}</p>
               )}
             </div>
 
@@ -645,17 +642,17 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           {/* Column 1: gallery */}
           <div className="relative lg:sticky lg:top-24 lg:self-start">
             {!isSkeleton && discountBadge && (
-              <span className="absolute start-2 top-2 z-10 rounded-md bg-accent-teal px-2 py-1 text-xs font-bold text-bg-main">
+              <span className="absolute start-3 top-3 z-10 rounded-full bg-accent-teal px-2.5 py-0.5 text-[11px] font-bold text-bg-main shadow-sm">
                 {discountBadge}
               </span>
             )}
             {!isSkeleton && (
-              <div className="absolute end-2 top-2 z-10 flex flex-col gap-2">
+              <div className="absolute end-3 top-3 z-10 flex flex-col gap-2">
                 <button
                   type="button"
                   aria-label={t("product.wishlist")}
                   className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line-field bg-black/60",
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/40 backdrop-blur-sm",
                     wishlisted ? "text-red-400" : "text-accent-gold",
                   )}
                   onClick={() =>
@@ -667,15 +664,15 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                     })
                   }
                 >
-                  <AppIcon icon={Heart} size="sm" />
+                  <AppIcon icon={Heart} size="xs" />
                 </button>
                 <button
                   type="button"
                   aria-label={t("product.share")}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line-field bg-black/60 text-text-dim"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/40 text-white backdrop-blur-sm"
                   onClick={() => void shareProduct()}
                 >
-                  <AppIcon icon={Share2} size="sm" />
+                  <AppIcon icon={Share2} size="xs" />
                 </button>
               </div>
             )}
@@ -689,24 +686,24 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           </div>
 
           {/* Column 2: title, meta, size, at-a-glance, description */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3.5">
             <div>
               {(badgeLabel || product.sku) && (
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   {badgeLabel && (
-                    <span className="inline-block rounded-md border border-gold-wash-border bg-gold-wash-bg px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-accent-gold">
+                    <span className="inline-block rounded-md border border-gold-wash-border bg-gold-wash-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-gold">
                       {badgeLabel}
                     </span>
                   )}
                   {product.sku && (
-                    <span className="font-mono text-[10.5px] text-text-dim">
+                    <span className="font-mono text-[10px] text-text-dim">
                       {t("product.sku", { sku: product.sku })}
                     </span>
                   )}
                 </div>
               )}
-              <h1 className={cn("text-3xl font-bold", locale === "en" && "font-logo")}>{productName}</h1>
-              {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+              <h1 className={cn("text-2xl font-bold leading-tight", locale === "en" && "font-logo")}>{productName}</h1>
+              {subtitle && <p className="mt-1 text-[13px] text-muted">{subtitle}</p>}
               <div className="mt-1.5">
                 <RatingSummary
                   average={reviewsSummary?.average ?? 0}
@@ -720,22 +717,22 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
 
             {glanceFeatures.length > 0 && (
               <div>
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted">
                   {t("product.atAGlance")}
                 </p>
                 <AtAGlanceGrid features={glanceFeatures} locale={locale} />
               </div>
             )}
 
-            <div className="border-t border-line-soft pt-4">
-              <p className="mb-1.5 text-sm font-medium">{t("product.description")}</p>
-              <p className="text-base leading-7 text-muted">{description}</p>
+            <div className="border-t border-line-soft pt-3.5">
+              <p className="mb-1 text-[13px] font-semibold">{t("product.description")}</p>
+              <p className="text-[13px] leading-6 text-muted">{description}</p>
             </div>
           </div>
 
           {/* Column 3: price + buy box + delivery & service */}
-          <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-            <div className="space-y-4 rounded-2xl border border-gold-hairline bg-card p-4">
+          <div className="flex flex-col gap-3.5 lg:sticky lg:top-24 lg:self-start">
+            <div className="space-y-3.5 rounded-2xl border border-gold-hairline bg-card p-3.5">
               {showPrices ? (
                 <div data-price>
                   {compareAt != null && (
@@ -753,26 +750,26 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                   <Price
                     amount={Number(product.price)}
                     currency={product.currency}
-                    className="text-[26px] font-bold text-accent-teal"
+                    className="text-[22px] font-bold text-accent-teal"
                   />
-                  <p className="mt-0.5 text-[10.5px] text-text-faint">{t("product.vatIncluded")}</p>
+                  <p className="mt-0.5 text-[10px] text-text-faint">{t("product.vatIncluded")}</p>
                 </div>
               ) : (
-                <p className="text-sm text-muted">{t("store.pricesHidden")}</p>
+                <p className="text-[13px] text-muted">{t("store.pricesHidden")}</p>
               )}
 
-              <div className="space-y-1.5 border-b border-line-soft pb-3.5">
+              <div className="space-y-1.5 border-b border-line-soft pb-3">
                 {inStock ? (
-                  <p className="flex items-center gap-2 text-sm font-medium text-accent-teal">
-                    <AppIcon icon={CheckCircle2} size="sm" />
+                  <p className="flex items-center gap-2 text-[13px] font-medium text-accent-teal">
+                    <AppIcon icon={CheckCircle2} size="xs" />
                     {t("product.inStock")}
                   </p>
                 ) : (
-                  <p className="flex items-center gap-2 text-sm font-medium text-danger">
+                  <p className="flex items-center gap-2 text-[13px] font-medium text-danger">
                     {t("product.outOfStock")}
                   </p>
                 )}
-                <p className="flex items-center gap-2 text-xs text-text-faint">
+                <p className="flex items-center gap-2 text-[11.5px] text-text-faint">
                   <AppIcon icon={Truck} size="xs" className="text-accent-gold" />
                   {t("product.freeDeliveryOver", {
                     amount: formatPrice(FREE_DELIVERY_THRESHOLD),

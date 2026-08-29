@@ -140,8 +140,8 @@ export function StorefrontHeader() {
           className="flex h-20 w-full items-center justify-between border-b border-border-subtle bg-bg-main px-8"
         >
           {/* 1) Logo */}
-          <Link href="/" className="w-[220px] shrink-0">
-            <span className="font-logo block text-[22px] leading-none tracking-[0.2em] text-text-primary uppercase">
+          <Link href="/" className="w-[240px] shrink-0">
+            <span className="font-logo block whitespace-nowrap text-[22px] leading-none tracking-[0.15em] text-text-primary uppercase">
               HILLS ELI MART
             </span>
           </Link>
