@@ -27,7 +27,7 @@ export function UtilityBar() {
             {t("nav.help")}
           </Link>
           <div
-            className="inline-flex items-center gap-0.5 rounded-full border border-border-subtle p-0.5"
+            className="inline-flex items-center gap-0.5 rounded-full p-0.5"
             role="group"
             aria-label={t("common.language")}
           >

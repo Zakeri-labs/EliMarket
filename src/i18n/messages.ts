@@ -717,6 +717,10 @@ export type Messages = {
       newCategory: string;
       editCategory: string;
       namePlaceholder: string;
+      nameFaPlaceholder: string;
+      nameArPlaceholder: string;
+      nameEnPlaceholder: string;
+      nameLangHint: string;
       slugPlaceholder: string;
       sortOrderLabel: string;
       imageUrlPlaceholder: string;
@@ -1831,6 +1835,10 @@ const fa: Messages = {
       newCategory: "دسته جدید",
       editCategory: "ویرایش دسته",
       namePlaceholder: "نام دسته",
+      nameFaPlaceholder: "نام دسته (فارسی)",
+      nameArPlaceholder: "نام دسته (عربی)",
+      nameEnPlaceholder: "نام دسته (انگلیسی)",
+      nameLangHint: "نام دسته را برای هر سه زبان وارد کنید. اگر زبانی خالی بماند، از نام فارسی استفاده می‌شود.",
       slugPlaceholder: "slug-دسته",
       sortOrderLabel: "ترتیب نمایش",
       imageUrlPlaceholder: "آدرس تصویر دسته",
@@ -2967,6 +2975,10 @@ const ar: Messages = {
       newCategory: "فئة جديدة",
       editCategory: "تعديل الفئة",
       namePlaceholder: "اسم الفئة",
+      nameFaPlaceholder: "اسم الفئة (الفارسية)",
+      nameArPlaceholder: "اسم الفئة (العربية)",
+      nameEnPlaceholder: "اسم الفئة (الإنجليزية)",
+      nameLangHint: "أدخل اسم الفئة لكل اللغات الثلاث. إذا تُركت لغة فارغة، يُستخدم الاسم الفارسي.",
       slugPlaceholder: "slug-الفئة",
       sortOrderLabel: "ترتيب العرض",
       imageUrlPlaceholder: "رابط صورة الفئة",
@@ -4103,6 +4115,10 @@ const en: Messages = {
       newCategory: "New category",
       editCategory: "Edit category",
       namePlaceholder: "Category name",
+      nameFaPlaceholder: "Category name (Persian)",
+      nameArPlaceholder: "Category name (Arabic)",
+      nameEnPlaceholder: "Category name (English)",
+      nameLangHint: "Enter the category name for all three languages. A blank language falls back to the Persian name.",
       slugPlaceholder: "category-slug",
       sortOrderLabel: "Sort order",
       imageUrlPlaceholder: "Category image URL",

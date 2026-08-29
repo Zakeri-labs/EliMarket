@@ -46,6 +46,9 @@ async function assertValidParent(
 
 export async function createCategoryAction(input: {
   name: string;
+  name_fa?: string | null;
+  name_ar?: string | null;
+  name_en?: string | null;
   slug: string;
   sort_order?: number;
   parent_id?: string | null;
@@ -57,11 +60,16 @@ export async function createCategoryAction(input: {
     await assertValidParent(supabase, input.parent_id);
     const imageUrl = input.image_url?.trim() || null;
     const parentId = input.parent_id?.trim() || null;
+    const nameFa = input.name_fa?.trim() || input.name?.trim() || null;
+    const nameAr = input.name_ar?.trim() || null;
+    const nameEn = input.name_en?.trim() || null;
     const { data, error } = await supabase
       .from("categories")
       .insert({
-        name: input.name.trim(),
-        name_fa: input.name.trim(),
+        name: nameFa ?? nameAr ?? nameEn ?? input.name.trim(),
+        name_fa: nameFa,
+        name_ar: nameAr,
+        name_en: nameEn,
         slug: input.slug.trim(),
         sort_order: input.sort_order ?? 0,
         image_url: imageUrl,
@@ -86,6 +94,9 @@ export async function updateCategoryAction(
   id: string,
   input: Partial<{
     name: string;
+    name_fa: string | null;
+    name_ar: string | null;
+    name_en: string | null;
     slug: string;
     sort_order: number;
     parent_id: string | null;
@@ -99,9 +110,20 @@ export async function updateCategoryAction(
       await assertValidParent(supabase, input.parent_id, id);
     }
     const payload: Record<string, string | number | null> = {};
-    if (input.name !== undefined) {
-      payload.name = input.name.trim();
-      payload.name_fa = input.name.trim();
+    if (
+      input.name_fa !== undefined ||
+      input.name_ar !== undefined ||
+      input.name_en !== undefined ||
+      input.name !== undefined
+    ) {
+      const fa = input.name_fa?.trim() || input.name?.trim() || null;
+      const ar = input.name_ar?.trim() || null;
+      const en = input.name_en?.trim() || null;
+      payload.name_fa = fa;
+      payload.name_ar = ar;
+      payload.name_en = en;
+      const primary = fa ?? ar ?? en;
+      if (primary) payload.name = primary;
     }
     if (input.slug !== undefined) payload.slug = input.slug.trim();
     if (input.sort_order !== undefined) payload.sort_order = input.sort_order;

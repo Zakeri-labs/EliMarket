@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+// import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useHeroSlides } from "@/app/(storefront)/_hooks/use-hero-slides";
 import { cn } from "@/app/utils/cn";
-import { AppIcon } from "@/components/icons/AppIcon";
+// import { AppIcon } from "@/components/icons/AppIcon";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { StripePlaceholder } from "@/components/ui/StripePlaceholder";
 import { useTranslations } from "@/i18n/use-translations";
@@ -127,6 +127,7 @@ export function HeroBanner() {
 
       {showControls && (
         <>
+          {/* Prev/next arrow controls temporarily disabled
           <button
             type="button"
             className="absolute start-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-transparent text-white transition-colors hover:bg-black/45 hover:backdrop-blur-sm disabled:opacity-40"
@@ -153,6 +154,7 @@ export function HeroBanner() {
               className="rtl:rotate-180 drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]"
             />
           </button>
+          */}
           <div
             className="absolute inset-x-0 bottom-4 z-20 flex items-center justify-center gap-2"
             role="tablist"

@@ -5,7 +5,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import type { Category } from "@/app/_types/database.types";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
-import { StripePlaceholder } from "@/components/ui/StripePlaceholder";
+import { getCategoryIcon } from "@/config/category-icons";
 import { resolveCategoryImage } from "@/lib/categories/image";
 
 type Props = {
@@ -47,17 +47,19 @@ export function CategoryListItem({
         onClick={onSelect}
         className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden text-start"
       >
-        {/* Must be block/inline-block — width/height are ignored on bare inline spans */}
+        {/* Must be block/inline-block — width/height are ignored on bare inline spans.
+           Background is the theme-aware `bg-bg-card` token (dark in dark mode, light
+           in light mode); no striped placeholder — the category PNGs are transparent
+           so a hatch would show through behind the product. */}
         <span
           className={cn(
-            "relative block shrink-0 overflow-hidden rounded-full border bg-bg-card",
+            "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border bg-bg-card",
             active ? "border-accent-teal" : "border-border-subtle",
           )}
           style={{ width: THUMB, height: THUMB, minWidth: THUMB, minHeight: THUMB }}
         >
-          <StripePlaceholder className="pointer-events-none absolute inset-0" />
           {showImage ? (
-            // eslint-disable-next-line @next/next/no-img-element -- fixed 28px thumb only
+            // eslint-disable-next-line @next/next/no-img-element -- fixed small thumb only
             <img
               src={src!}
               alt=""
@@ -67,7 +69,13 @@ export function CategoryListItem({
               style={{ width: THUMB, height: THUMB, maxWidth: THUMB, maxHeight: THUMB }}
               onError={() => setImgFailed(true)}
             />
-          ) : null}
+          ) : (
+            <AppIcon
+              icon={getCategoryIcon(category.slug)}
+              size={depth > 0 ? "xs" : "sm"}
+              className="text-accent-teal/70"
+            />
+          )}
         </span>
         <span
           className={cn(

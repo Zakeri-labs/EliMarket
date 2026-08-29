@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/app/utils/cn";
 import type { Category } from "@/app/_types/database.types";
@@ -8,7 +7,6 @@ import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
 import { childCategories, topLevelCategories } from "@/lib/categories/tree";
 import { getCategoryIcon } from "@/config/category-icons";
-import { resolveCategoryImage } from "@/lib/categories/image";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 
 type Props = {
@@ -21,6 +19,13 @@ type Props = {
   withThumbnails?: boolean;
 };
 
+/**
+ * Monochrome category glyph on a theme-aware chip. We intentionally do not use
+ * the category photos here: those images carry baked-in (light or dark) studio
+ * backdrops that cannot follow the active theme, so at this small size they
+ * render as stray light/dark discs. An icon on `bg-bg-tile` stays dark in dark
+ * mode and light in light mode.
+ */
 function CategoryThumb({
   category,
   size,
@@ -30,35 +35,15 @@ function CategoryThumb({
   size: number;
   active: boolean;
 }) {
-  const src = resolveCategoryImage(category);
-  const [failed, setFailed] = useState(false);
-  const showImage = Boolean(src) && !failed;
-
   return (
     <span
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border bg-surface-elevated",
-        active ? "border-accent" : "border-border",
+        "flex shrink-0 items-center justify-center rounded-full border bg-bg-tile",
+        active ? "border-accent text-accent" : "border-border-subtle text-accent/70",
       )}
       style={{ width: size, height: size }}
     >
-      {showImage ? (
-        // eslint-disable-next-line @next/next/no-img-element -- fixed small thumb only
-        <img
-          src={src!}
-          alt=""
-          width={size}
-          height={size}
-          className="absolute inset-0 h-full w-full object-contain p-0.5"
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <AppIcon
-          icon={getCategoryIcon(category.slug)}
-          size="xs"
-          className="text-accent/70"
-        />
-      )}
+      <AppIcon icon={getCategoryIcon(category.slug)} size="xs" />
     </span>
   );
 }

@@ -18,7 +18,7 @@ export function LanguageTabs({ className, compact = false }: Props) {
   return (
     <div
       className={cn(
-        "inline-flex rounded-xl border border-border bg-surface-elevated p-0.5",
+        "inline-flex rounded-xl bg-surface-elevated p-0.5",
         className?.includes("w-full") && "flex w-full justify-center",
         className,
       )}

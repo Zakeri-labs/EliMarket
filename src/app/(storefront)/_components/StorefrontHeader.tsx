@@ -88,7 +88,7 @@ export function StorefrontHeader() {
           </Link>
           <ThemeToggle compact />
           <div
-            className="inline-flex h-10 shrink-0 items-center gap-0.5 rounded-xl border border-border-subtle bg-bg-card p-0.5"
+            className="inline-flex h-10 shrink-0 items-center gap-0.5 rounded-xl bg-bg-card p-0.5"
             role="group"
             aria-label={t("common.language")}
           >

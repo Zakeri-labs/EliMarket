@@ -25,11 +25,14 @@ import {
 import { notifyFormError } from "@/app/utils/form-notify";
 import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
+import { LOCALES, LOCALE_LABELS, getDirection, type Locale } from "@/i18n/config";
 import { flattenCategoryTree, categoryDepth, validCategoryParents } from "@/lib/categories/tree";
 import type { Category } from "@/app/_types/database.types";
 
 type FormValues = {
   name: string;
+  name_ar?: string;
+  name_en?: string;
   slug: string;
   sort_order: number;
   parent_id?: string;
@@ -39,6 +42,8 @@ type FormValues = {
 
 const DEFAULT_FORM_VALUES: FormValues = {
   name: "",
+  name_ar: "",
+  name_en: "",
   slug: "",
   sort_order: 0,
   parent_id: "",
@@ -55,9 +60,12 @@ export default function AdminCategoriesPage() {
   const { uploadImage, isPending: isUploadPending } = useAdminImageUpload();
   const [editing, setEditing] = useState<Category | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [nameTab, setNameTab] = useState<Locale>("fa");
 
   const schema = z.object({
     name: z.string().min(1, t("admin.categories.validationName")),
+    name_ar: z.string().optional(),
+    name_en: z.string().optional(),
     slug: z.string().min(1, t("admin.categories.validationSlug")),
     sort_order: z.number().int().min(0),
     parent_id: z.string().optional(),
@@ -84,7 +92,9 @@ export default function AdminCategoriesPage() {
   useEffect(() => {
     if (!editing) return;
     form.reset({
-      name: editing.name,
+      name: editing.name_fa ?? editing.name,
+      name_ar: editing.name_ar ?? "",
+      name_en: editing.name_en ?? "",
       slug: editing.slug,
       sort_order: editing.sort_order,
       parent_id: editing.parent_id ?? "",
@@ -101,23 +111,30 @@ export default function AdminCategoriesPage() {
   const closeForm = () => {
     setFormOpen(false);
     setEditing(null);
+    setNameTab("fa");
     form.reset(DEFAULT_FORM_VALUES);
   };
 
   const openCreate = () => {
     setEditing(null);
+    setNameTab("fa");
     form.reset(DEFAULT_FORM_VALUES);
     setFormOpen(true);
   };
 
   const openEdit = (cat: Category) => {
     setEditing(cat);
+    setNameTab("fa");
     setFormOpen(true);
   };
 
   const onSubmit = form.handleSubmit((values) => {
     const payload = {
       ...values,
+      name: values.name.trim(),
+      name_fa: values.name.trim(),
+      name_ar: values.name_ar?.trim() || null,
+      name_en: values.name_en?.trim() || null,
       parent_id: values.parent_id?.trim() || null,
       image_url: values.image_url?.trim() || null,
       blur_hash: values.image_url?.trim() ? values.blur_hash?.trim() || null : null,
@@ -290,11 +307,44 @@ export default function AdminCategoriesPage() {
 
             <input type="hidden" {...form.register("blur_hash")} />
 
-            <input
-              {...form.register("name")}
-              placeholder={t("admin.categories.namePlaceholder")}
-              className={inputClass}
-            />
+            <div className="space-y-2">
+              <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+                {LOCALES.map((loc) => (
+                  <button
+                    key={loc}
+                    type="button"
+                    className={cn(
+                      "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+                      nameTab === loc
+                        ? "bg-white text-[#18181b] shadow-sm"
+                        : "text-[#71717a] hover:text-[#18181b]",
+                    )}
+                    onClick={() => setNameTab(loc)}
+                  >
+                    {LOCALE_LABELS[loc]}
+                  </button>
+                ))}
+              </div>
+              <input
+                key={`name-${nameTab}`}
+                {...form.register(
+                  nameTab === "fa" ? "name" : nameTab === "ar" ? "name_ar" : "name_en",
+                )}
+                placeholder={t(
+                  nameTab === "fa"
+                    ? "admin.categories.nameFaPlaceholder"
+                    : nameTab === "ar"
+                      ? "admin.categories.nameArPlaceholder"
+                      : "admin.categories.nameEnPlaceholder",
+                )}
+                className={inputClass}
+                dir={getDirection(nameTab)}
+              />
+              {form.formState.errors.name ? (
+                <p className="text-xs text-red-600">{form.formState.errors.name.message}</p>
+              ) : null}
+              <p className="text-[11px] text-[#71717a]">{t("admin.categories.nameLangHint")}</p>
+            </div>
             <input
               {...form.register("slug")}
               placeholder={t("admin.categories.slugPlaceholder")}
