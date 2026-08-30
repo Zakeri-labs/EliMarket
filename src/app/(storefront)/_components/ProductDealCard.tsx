@@ -99,7 +99,7 @@ export function ProductDealCard({
       </div>
 
       <div className="mt-2 flex min-h-0 flex-1 flex-col text-start">
-        <p className="line-clamp-2 min-h-8 text-xs font-medium leading-4 lg:text-sm lg:font-semibold">
+        <p className="line-clamp-2 text-xs font-medium leading-4 lg:text-sm lg:font-semibold">
           {name}
         </p>
         {excerpt ? (
@@ -107,9 +107,9 @@ export function ProductDealCard({
             {excerpt}
           </p>
         ) : (
-          <p className="mt-0.5 min-h-7 lg:hidden" aria-hidden />
+          <p className="min-h-3 lg:hidden" aria-hidden />
         )}
-        <div data-price className="mt-1.5 flex min-h-8 flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums">
+        <div data-price className="mt-1 flex min-h-9 flex-col items-start gap-y-0.5 text-start tabular-nums">
           <Price
             amount={Number(product.price)}
             currency={product.currency}
