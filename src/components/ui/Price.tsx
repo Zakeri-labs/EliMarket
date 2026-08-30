@@ -14,7 +14,7 @@ type Props = {
   fractionClassName?: string;
 };
 
-/** Renders a price with the fractional digits at a slightly smaller size than the whole part. */
+/** Renders a price with the fractional digits at the same size as the whole part, but not bold. */
 export function Price({ amount, currency = DEFAULT_CURRENCY, className, fractionClassName }: Props) {
   const { locale } = useTranslations();
   const safeAmount = Number.isFinite(amount) ? amount : 0;
@@ -37,7 +37,7 @@ export function Price({ amount, currency = DEFAULT_CURRENCY, className, fraction
         part.type === "decimal" || part.type === "fraction" ? (
           <span
             key={i}
-            className={cn("text-[0.82em] font-normal opacity-80", fractionClassName)}
+            className={cn("font-normal", fractionClassName)}
           >
             {part.value}
           </span>

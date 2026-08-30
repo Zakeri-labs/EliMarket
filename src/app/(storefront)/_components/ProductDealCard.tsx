@@ -61,7 +61,7 @@ export function ProductDealCard({
           }}
         >
           {!isSkeleton && discountBadge && (
-            <span className="absolute start-0 top-0 z-10 rounded-md bg-accent-teal px-1.5 py-0.5 text-[10px] font-semibold text-bg-main">
+            <span className="absolute start-0 top-0 z-10 rounded-md bg-accent-teal px-2 py-0.5 text-sm font-bold text-bg-main lg:text-base">
               {discountBadge}
             </span>
           )}
