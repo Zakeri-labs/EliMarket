@@ -18,17 +18,12 @@ export type Messages = {
   };
   home: {
     deliverTo: string;
-    locationSample: string;
+    deliverSelectArea: string;
+    deliverAreasEmpty: string;
     outOfServiceAreaTitle: string;
     outOfServiceArea: string;
     outOfServiceAreaAck: string;
     comingSoonTag: string;
-    deliverAreaMuscatKhoudh: string;
-    deliverAreaMuscatGhubra: string;
-    deliverAreaSeeb: string;
-    deliverAreaSohar: string;
-    deliverAreaSalalah: string;
-    deliverAreaNizwa: string;
     searchPlaceholder: string;
     heroBadge: string;
     heroTitle: string;
@@ -337,6 +332,9 @@ export type Messages = {
     brandCreated: string;
     brandUpdated: string;
     brandDeleted: string;
+    deliveryAreaCreated: string;
+    deliveryAreaUpdated: string;
+    deliveryAreaDeleted: string;
     heroUpdated: string;
     bannerCreated: string;
     bannerUpdated: string;
@@ -416,6 +414,10 @@ export type Messages = {
     brandUpdateFailed: string;
     brandDeleteFailed: string;
     brandsLoadFailed: string;
+    deliveryAreaCreateFailed: string;
+    deliveryAreaUpdateFailed: string;
+    deliveryAreaDeleteFailed: string;
+    deliveryAreasLoadFailed: string;
     heroUpdateFailed: string;
     bannersLoadFailed: string;
     bannerCreateFailed: string;
@@ -479,6 +481,7 @@ export type Messages = {
       orders: string;
       reports: string;
       coverage: string;
+      deliveryAreas: string;
       customers: string;
       riders: string;
       smartProduct: string;
@@ -687,6 +690,41 @@ export type Messages = {
       edit: string;
       delete: string;
       loading: string;
+      empty: string;
+      validationName: string;
+      validationSlug: string;
+    };
+    deliveryAreas: {
+      title: string;
+      subtitle: string;
+      newArea: string;
+      editArea: string;
+      nameFaPlaceholder: string;
+      nameArPlaceholder: string;
+      nameEnPlaceholder: string;
+      nameLangHint: string;
+      slugPlaceholder: string;
+      mapHint: string;
+      locationHint: string;
+      latLabel: string;
+      lngLabel: string;
+      radiusLabel: string;
+      noPin: string;
+      validationLocation: string;
+      serviceableLabel: string;
+      activeLabel: string;
+      serviceableTag: string;
+      comingSoonTag: string;
+      hiddenTag: string;
+      sortOrderLabel: string;
+      deliveryFeeLabel: string;
+      minOrderLabel: string;
+      etaMinutesLabel: string;
+      save: string;
+      create: string;
+      cancel: string;
+      edit: string;
+      delete: string;
       empty: string;
       validationName: string;
       validationSlug: string;
@@ -1075,17 +1113,12 @@ const fa: Messages = {
   },
   home: {
     deliverTo: "تحویل به",
-    locationSample: "مسقط، الخوض",
+    deliverSelectArea: "منطقه‌ی خود را انتخاب کنید",
+    deliverAreasEmpty: "هنوز منطقه‌ای تعریف نشده است",
     outOfServiceAreaTitle: "این منطقه هنوز پوشش داده نمی‌شود",
     outOfServiceArea: "در حال حاضر به {area} سرویس‌دهی نداریم. تیم ما به‌سرعت در حال گسترش مناطق تحت پوشش است و به‌زودی خدمات ما به این منطقه هم می‌رسد. از همراهی و صبوری شما سپاسگزاریم.",
     outOfServiceAreaAck: "متوجه شدم",
     comingSoonTag: "به‌زودی",
-    deliverAreaMuscatKhoudh: "مسقط، الخوض",
-    deliverAreaMuscatGhubra: "مسقط، الغبره",
-    deliverAreaSeeb: "السیب",
-    deliverAreaSohar: "صحار",
-    deliverAreaSalalah: "صلاله",
-    deliverAreaNizwa: "نزوی",
     searchPlaceholder: "جستجوی محصول…",
     heroBadge: "خرید روزانه",
     heroTitle: "همه‌چیز برای سفره‌ی خانه",
@@ -1455,6 +1488,9 @@ const fa: Messages = {
     brandCreated: "برند ایجاد شد",
     brandUpdated: "برند به‌روزرسانی شد",
     brandDeleted: "برند حذف شد",
+    deliveryAreaCreated: "منطقه ایجاد شد",
+    deliveryAreaUpdated: "منطقه به‌روزرسانی شد",
+    deliveryAreaDeleted: "منطقه حذف شد",
     heroUpdated: "بنر ذخیره شد",
     bannerCreated: "بنر ایجاد شد",
     bannerUpdated: "بنر به‌روز شد",
@@ -1534,6 +1570,10 @@ const fa: Messages = {
     brandUpdateFailed: "به‌روزرسانی برند ناموفق بود",
     brandDeleteFailed: "حذف برند ناموفق بود",
     brandsLoadFailed: "بارگذاری برندها ناموفق بود",
+    deliveryAreaCreateFailed: "ایجاد منطقه ناموفق بود",
+    deliveryAreaUpdateFailed: "به‌روزرسانی منطقه ناموفق بود",
+    deliveryAreaDeleteFailed: "حذف منطقه ناموفق بود",
+    deliveryAreasLoadFailed: "بارگذاری مناطق ارسال ناموفق بود",
     heroUpdateFailed: "ذخیره بنر ناموفق بود",
     bannersLoadFailed: "بارگذاری بنرها ناموفق بود",
     bannerCreateFailed: "ایجاد بنر ناموفق بود",
@@ -1597,6 +1637,7 @@ const fa: Messages = {
       orders: "سفارش‌ها",
       reports: "گزارشات مالی",
       coverage: "محدوده پوشش",
+      deliveryAreas: "مناطق ارسال",
       customers: "مشتریان",
       riders: "پیک‌ها",
       smartProduct: "ثبت هوشمند",
@@ -1808,6 +1849,41 @@ const fa: Messages = {
       empty: "برندی ثبت نشده است.",
       validationName: "نام برند الزامی است",
       validationSlug: "اسلاگ برند الزامی است",
+    },
+    deliveryAreas: {
+      title: "مناطق ارسال",
+      subtitle: "مناطق «تحویل به» و وضعیت سرویس‌دهی هر کدام را مدیریت کنید",
+      newArea: "منطقه‌ی جدید",
+      editArea: "ویرایش منطقه",
+      nameFaPlaceholder: "نام منطقه (فارسی)",
+      nameArPlaceholder: "نام منطقه (عربی)",
+      nameEnPlaceholder: "نام منطقه (انگلیسی)",
+      nameLangHint: "نام منطقه را برای هر سه زبان وارد کنید. اگر زبانی خالی بماند، از نام فارسی استفاده می‌شود.",
+      slugPlaceholder: "area-slug (شناسه‌ی لاتین یکتا)",
+      mapHint: "روی نقشه کلیک کنید تا منطقه‌ی جدیدی اضافه شود، یا روی یک منطقه‌ی موجود کلیک کنید تا ویرایش شود.",
+      locationHint: "پین را روی نقشه بکشید یا مختصات را دستی وارد کنید. شعاع محدوده‌ی منطقه را تعیین می‌کند.",
+      latLabel: "عرض جغرافیایی",
+      lngLabel: "طول جغرافیایی",
+      radiusLabel: "شعاع (کیلومتر)",
+      noPin: "بدون موقعیت روی نقشه",
+      validationLocation: "موقعیت منطقه را روی نقشه مشخص کنید",
+      serviceableLabel: "سرویس‌دهی فعال است",
+      activeLabel: "نمایش در فروشگاه",
+      serviceableTag: "سرویس‌دهی",
+      comingSoonTag: "به‌زودی",
+      hiddenTag: "مخفی",
+      sortOrderLabel: "ترتیب نمایش",
+      deliveryFeeLabel: "کرایه‌ی پیک (ریال عمان)",
+      minOrderLabel: "حداقل سفارش (ریال عمان)",
+      etaMinutesLabel: "زمان تحویل (دقیقه)",
+      save: "ذخیره",
+      create: "ایجاد منطقه",
+      cancel: "انصراف",
+      edit: "ویرایش",
+      delete: "حذف",
+      empty: "هنوز منطقه‌ای ثبت نشده است.",
+      validationName: "نام منطقه الزامی است",
+      validationSlug: "شناسه‌ی منطقه الزامی است",
     },
     reviews: {
       title: "نظرات مشتریان",
@@ -2215,17 +2291,12 @@ const ar: Messages = {
   },
   home: {
     deliverTo: "التوصيل إلى",
-    locationSample: "مسقط، الخوض",
+    deliverSelectArea: "اختر منطقتك",
+    deliverAreasEmpty: "لا توجد مناطق مُعرّفة بعد",
     outOfServiceAreaTitle: "هذه المنطقة غير مغطاة بعد",
     outOfServiceArea: "لا نقدّم خدمة التوصيل إلى {area} حاليًا. يعمل فريقنا على توسيع نطاق التغطية بسرعة، وستُضاف منطقتك إلى خدماتنا قريبًا. شكرًا لتفهّمك وصبرك.",
     outOfServiceAreaAck: "حسنًا، فهمت",
     comingSoonTag: "قريبًا",
-    deliverAreaMuscatKhoudh: "مسقط، الخوض",
-    deliverAreaMuscatGhubra: "مسقط، الغبرة",
-    deliverAreaSeeb: "السيب",
-    deliverAreaSohar: "صحار",
-    deliverAreaSalalah: "صلالة",
-    deliverAreaNizwa: "نزوى",
     searchPlaceholder: "البحث عن منتج…",
     heroBadge: "تسوق يومي",
     heroTitle: "كل ما يحتاجه مطبخك",
@@ -2595,6 +2666,9 @@ const ar: Messages = {
     brandCreated: "تم إنشاء العلامة",
     brandUpdated: "تم تحديث العلامة",
     brandDeleted: "تم حذف العلامة",
+    deliveryAreaCreated: "تم إنشاء المنطقة",
+    deliveryAreaUpdated: "تم تحديث المنطقة",
+    deliveryAreaDeleted: "تم حذف المنطقة",
     heroUpdated: "تم حفظ البانر",
     bannerCreated: "تم إنشاء البانر",
     bannerUpdated: "تم تحديث البانر",
@@ -2674,6 +2748,10 @@ const ar: Messages = {
     brandUpdateFailed: "فشل تحديث العلامة",
     brandDeleteFailed: "فشل حذف العلامة",
     brandsLoadFailed: "فشل تحميل العلامات",
+    deliveryAreaCreateFailed: "فشل إنشاء المنطقة",
+    deliveryAreaUpdateFailed: "فشل تحديث المنطقة",
+    deliveryAreaDeleteFailed: "فشل حذف المنطقة",
+    deliveryAreasLoadFailed: "فشل تحميل مناطق التوصيل",
     heroUpdateFailed: "فشل حفظ البانر",
     bannersLoadFailed: "فشل تحميل البانرات",
     bannerCreateFailed: "فشل إنشاء البانر",
@@ -2737,6 +2815,7 @@ const ar: Messages = {
       orders: "الطلبات",
       reports: "التقارير المالية",
       coverage: "نطاق التغطية",
+      deliveryAreas: "مناطق التوصيل",
       customers: "العملاء",
       riders: "السائقون",
       smartProduct: "تسجيل ذكي",
@@ -2948,6 +3027,41 @@ const ar: Messages = {
       empty: "لا توجد علامات مسجلة.",
       validationName: "اسم العلامة مطلوب",
       validationSlug: "الرابط التعريفي مطلوب",
+    },
+    deliveryAreas: {
+      title: "مناطق التوصيل",
+      subtitle: "أدر مناطق «التوصيل إلى» وحالة الخدمة لكل منطقة",
+      newArea: "منطقة جديدة",
+      editArea: "تعديل المنطقة",
+      nameFaPlaceholder: "اسم المنطقة (الفارسية)",
+      nameArPlaceholder: "اسم المنطقة (العربية)",
+      nameEnPlaceholder: "اسم المنطقة (الإنجليزية)",
+      nameLangHint: "أدخل اسم المنطقة لكل اللغات الثلاث. إذا تُركت لغة فارغة، يُستخدم الاسم الفارسي.",
+      slugPlaceholder: "area-slug (معرّف لاتيني فريد)",
+      mapHint: "انقر على الخريطة لإضافة منطقة جديدة، أو انقر على منطقة موجودة لتعديلها.",
+      locationHint: "اسحب الدبوس على الخريطة أو أدخل الإحداثيات يدويًا. يحدّد نصف القطر نطاق المنطقة.",
+      latLabel: "خط العرض",
+      lngLabel: "خط الطول",
+      radiusLabel: "نصف القطر (كم)",
+      noPin: "بدون موقع على الخريطة",
+      validationLocation: "حدّد موقع المنطقة على الخريطة",
+      serviceableLabel: "الخدمة مفعّلة",
+      activeLabel: "إظهار في المتجر",
+      serviceableTag: "خدمة متاحة",
+      comingSoonTag: "قريبًا",
+      hiddenTag: "مخفية",
+      sortOrderLabel: "ترتيب العرض",
+      deliveryFeeLabel: "رسوم التوصيل (ريال عماني)",
+      minOrderLabel: "الحد الأدنى للطلب (ريال عماني)",
+      etaMinutesLabel: "زمن التوصيل (دقيقة)",
+      save: "حفظ",
+      create: "إنشاء منطقة",
+      cancel: "إلغاء",
+      edit: "تعديل",
+      delete: "حذف",
+      empty: "لا توجد مناطق مسجلة بعد.",
+      validationName: "اسم المنطقة مطلوب",
+      validationSlug: "معرّف المنطقة مطلوب",
     },
     reviews: {
       title: "تقييمات العملاء",
@@ -3355,17 +3469,12 @@ const en: Messages = {
   },
   home: {
     deliverTo: "Deliver to",
-    locationSample: "Muscat, Al Khoudh",
+    deliverSelectArea: "Select your area",
+    deliverAreasEmpty: "No areas defined yet",
     outOfServiceAreaTitle: "We don't cover this area yet",
     outOfServiceArea: "We currently don't deliver to {area}. Our team is expanding our coverage quickly, and we'll be serving your area soon. Thank you for your patience.",
     outOfServiceAreaAck: "Got it",
     comingSoonTag: "Coming soon",
-    deliverAreaMuscatKhoudh: "Muscat, Al Khoudh",
-    deliverAreaMuscatGhubra: "Muscat, Al Ghubra",
-    deliverAreaSeeb: "Seeb",
-    deliverAreaSohar: "Sohar",
-    deliverAreaSalalah: "Salalah",
-    deliverAreaNizwa: "Nizwa",
     searchPlaceholder: "Search products…",
     heroBadge: "Everyday grocery",
     heroTitle: "Everything your kitchen needs",
@@ -3735,6 +3844,9 @@ const en: Messages = {
     brandCreated: "Brand created",
     brandUpdated: "Brand updated",
     brandDeleted: "Brand deleted",
+    deliveryAreaCreated: "Area created",
+    deliveryAreaUpdated: "Area updated",
+    deliveryAreaDeleted: "Area deleted",
     heroUpdated: "Banner saved",
     bannerCreated: "Banner created",
     bannerUpdated: "Banner updated",
@@ -3814,6 +3926,10 @@ const en: Messages = {
     brandUpdateFailed: "Failed to update brand",
     brandDeleteFailed: "Failed to delete brand",
     brandsLoadFailed: "Failed to load brands",
+    deliveryAreaCreateFailed: "Failed to create area",
+    deliveryAreaUpdateFailed: "Failed to update area",
+    deliveryAreaDeleteFailed: "Failed to delete area",
+    deliveryAreasLoadFailed: "Failed to load delivery areas",
     heroUpdateFailed: "Failed to save banner",
     bannersLoadFailed: "Failed to load banners",
     bannerCreateFailed: "Failed to create banner",
@@ -3877,6 +3993,7 @@ const en: Messages = {
       orders: "Orders",
       reports: "Financial reports",
       coverage: "Coverage area",
+      deliveryAreas: "Delivery areas",
       customers: "Customers",
       riders: "Riders",
       smartProduct: "Smart listing",
@@ -4088,6 +4205,41 @@ const en: Messages = {
       empty: "No brands yet.",
       validationName: "Brand name is required",
       validationSlug: "Brand slug is required",
+    },
+    deliveryAreas: {
+      title: "Delivery areas",
+      subtitle: "Manage the \"Deliver to\" areas and each one's service status",
+      newArea: "New area",
+      editArea: "Edit area",
+      nameFaPlaceholder: "Area name (Persian)",
+      nameArPlaceholder: "Area name (Arabic)",
+      nameEnPlaceholder: "Area name (English)",
+      nameLangHint: "Enter the area name for all three languages. A blank language falls back to the Persian name.",
+      slugPlaceholder: "area-slug (unique latin id)",
+      mapHint: "Click the map to add a new area, or click an existing area to edit it.",
+      locationHint: "Drag the pin on the map or enter coordinates manually. The radius sets the area's reach.",
+      latLabel: "Latitude",
+      lngLabel: "Longitude",
+      radiusLabel: "Radius (km)",
+      noPin: "No map location",
+      validationLocation: "Set the area location on the map",
+      serviceableLabel: "Delivery enabled",
+      activeLabel: "Show in store",
+      serviceableTag: "Serviceable",
+      comingSoonTag: "Coming soon",
+      hiddenTag: "Hidden",
+      sortOrderLabel: "Sort order",
+      deliveryFeeLabel: "Delivery fee (OMR)",
+      minOrderLabel: "Minimum order (OMR)",
+      etaMinutesLabel: "Delivery time (minutes)",
+      save: "Save",
+      create: "Create area",
+      cancel: "Cancel",
+      edit: "Edit",
+      delete: "Delete",
+      empty: "No delivery areas yet.",
+      validationName: "Area name is required",
+      validationSlug: "Area slug is required",
     },
     reviews: {
       title: "Customer reviews",

@@ -94,7 +94,7 @@ function HeroSlidePanel({
 
       {!isSkeleton && hasImage && !slide.imageOnly ? (
         <div
-          className="absolute inset-0 from-black/70 via-black/35 to-transparent ltr:bg-gradient-to-r rtl:bg-gradient-to-l"
+          className="absolute inset-0 from-black/45 from-0% via-transparent via-45% to-transparent ltr:bg-gradient-to-r rtl:bg-gradient-to-l"
           aria-hidden
         />
       ) : null}

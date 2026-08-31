@@ -41,7 +41,7 @@ export function HeroBanner() {
   if (slides.length === 0) {
     return (
       <section
-        className="relative h-[340px] overflow-hidden rounded-2xl border border-border-subtle"
+        className="relative h-[400px] overflow-hidden rounded-2xl border border-border-subtle"
         aria-hidden
       >
         <StripePlaceholder className="absolute inset-0" label="produce basket photo" />
@@ -54,7 +54,7 @@ export function HeroBanner() {
 
   return (
     <section
-      className="relative h-[340px] w-full overflow-hidden rounded-2xl border border-border-subtle"
+      className="relative h-[400px] w-full overflow-hidden rounded-2xl border border-border-subtle"
       aria-roledescription="carousel"
       aria-label={t("home.heroCarouselLabel")}
       onMouseEnter={() => setPaused(true)}
@@ -86,7 +86,7 @@ export function HeroBanner() {
 
       {!isSkeleton && slide?.imageUrl && !slide.imageOnly ? (
         <div
-          className="absolute inset-0 from-black/70 via-black/35 to-transparent ltr:bg-gradient-to-r rtl:bg-gradient-to-l"
+          className="absolute inset-0 from-black/45 from-0% via-transparent via-45% to-transparent ltr:bg-gradient-to-r rtl:bg-gradient-to-l"
           aria-hidden
         />
       ) : null}

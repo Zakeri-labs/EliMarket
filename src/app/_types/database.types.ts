@@ -73,6 +73,24 @@ export type Brand = {
   created_at: string;
 };
 
+export type DeliveryArea = {
+  id: string;
+  slug: string;
+  name_fa: string;
+  name_ar: string | null;
+  name_en: string | null;
+  serviceable: boolean;
+  active: boolean;
+  sort_order: number;
+  center_lat: number | null;
+  center_lng: number | null;
+  radius_km: number;
+  delivery_fee: number | null;
+  min_order: number | null;
+  eta_minutes: number | null;
+  created_at: string;
+};
+
 export type ProductFeature = {
   id: string;
   product_id: string;

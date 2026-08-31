@@ -15,6 +15,7 @@ import {
   Percent,
   ClipboardList,
   MapPin,
+  MapPinned,
   BarChart3,
   Users,
   Star,
@@ -66,6 +67,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/dashboard/orders", key: "admin.nav.orders", icon: ClipboardList },
       { href: "/dashboard/riders", key: "admin.nav.riders", icon: Bike },
+      { href: "/dashboard/delivery-areas", key: "admin.nav.deliveryAreas", icon: MapPinned },
       { href: "/dashboard/coverage-area", key: "admin.nav.coverage", icon: MapPin },
     ],
   },
