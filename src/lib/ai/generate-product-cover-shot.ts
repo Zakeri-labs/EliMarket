@@ -4,6 +4,7 @@ import {
   AI_IMAGE_GENERATION_ENABLED,
   AI_IMAGE_MODEL,
   AI_IMAGE_QUALITY,
+  AI_IMAGE_STYLE_BLOCK,
 } from "@/lib/ai/ai-config";
 
 // This regenerates the product's pixels (unlike enhance-product-photo.ts),
@@ -32,15 +33,17 @@ const FIDELITY_RULES =
   "Do not redesign, improve, simplify, modernize, or reinterpret the product. Do not invent missing features, change its color or packaging, replace its logos, or add accessories not present in the reference. The generated product must clearly be the SAME physical product shown in the uploaded image. " +
   "Never generate a cartoon, illustration, 3D render, CGI look, deformed product, incorrect proportions, extra or missing components, fake logos/text/labels, people, hands, props, watermarks, or promotional text — the result must be photorealistic.";
 
+// Every prompt ends with the shared, config-driven style mandate
+// (AI_IMAGE_STYLE_BLOCK): light-grey studio backdrop + studio lighting +
+// soft contact shadow + photoreal. Edit those clauses in ai-config.ts.
 function coverPrompt(title: string) {
   return `${FIDELITY_RULES}
 
 Create the PRIMARY, standard e-commerce cover image of this product.
-Background: clean, neutral medium-light gray, seamless studio background, no patterns or distracting elements, product clearly separated from the background.
 Position: product prominently centered, fully visible and completely inside the frame, balanced comfortable negative space around it.
-Lighting: professional studio lighting, soft but clearly directional key light with gentle fill, realistic highlights and reflections appropriate to the product's material — avoid flat lighting.
-Shadow: a realistic soft, diffused natural contact shadow beneath the product that anchors it to the surface — never an artificial flat drop shadow.
 Camera: straightforward, product-focused angle, natural perspective, sharp details, minimal distortion, high-end studio camera look.
+
+${AI_IMAGE_STYLE_BLOCK}
 
 Product title: ${title}`;
 }
@@ -49,7 +52,8 @@ function secondaryPrompt(title: string) {
   return `${FIDELITY_RULES}
 
 Create a SECOND professional photograph of this SAME product for a secondary product-detail view — vary the camera angle or composition from a plain straight-on shot (three-quarter view, slight side angle, or slightly elevated angle — whichever best presents this specific product), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions).
-Background: clean neutral studio background (gray, or a very subtle neutral variation), professional studio lighting, realistic soft contact shadow, photorealistic, sharp, no props unless physically part of the product.
+
+${AI_IMAGE_STYLE_BLOCK}
 
 Product title: ${title}`;
 }
@@ -57,8 +61,9 @@ Product title: ${title}`;
 function marketingPrompt(title: string) {
   return `${FIDELITY_RULES}
 
-Create a THIRD, premium marketing-style commercial photograph of this SAME product — a more visually appealing composition than a plain catalog shot (elegant three-quarter framing, a touch more dramatic but still realistic studio lighting, subtle premium atmosphere, close but complete product framing), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions).
-Realistic natural reflections, realistic soft shadow, clean neutral studio background, photorealistic. No lifestyle scene, no people, hands, props, or watermarks.
+Create a THIRD, premium marketing-style commercial photograph of this SAME product — a more visually appealing composition than a plain catalog shot (elegant three-quarter framing, close but complete product framing), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions). No lifestyle scene, no people, hands, props, or watermarks.
+
+${AI_IMAGE_STYLE_BLOCK}
 
 Product title: ${title}`;
 }

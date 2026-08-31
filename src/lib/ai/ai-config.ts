@@ -56,3 +56,37 @@ export const AI_WEB_IMAGE_SEARCH_ENABLED = flag("AI_WEB_IMAGE_SEARCH_ENABLED", f
 export const AI_TEXT_MODEL = str("OPENAI_TEXT_MODEL", "gpt-4o-mini");
 export const AI_VISION_MODEL = str("OPENAI_VISION_MODEL", "gpt-4o-mini");
 export const AI_WEB_SEARCH_MODEL = str("OPENAI_WEB_SEARCH_MODEL", "gpt-4o-mini");
+
+/**
+ * The mandatory look for EVERY AI-generated product image. Each clause is
+ * injected verbatim into every image prompt (cover shots + context shots), so
+ * a generated image is always: light-grey studio backdrop + studio lighting +
+ * soft contact shadow + photoreal (never CGI). Edit here — or override a
+ * single line via its env var — to change the art direction in one place.
+ */
+export const AI_IMAGE_STYLE = {
+  background: str(
+    "AI_IMAGE_STYLE_BACKGROUND",
+    "Background: a clean, seamless studio backdrop in a soft, even LIGHT GREY — clearly grey, never pure white; no patterns, no props, no visible seams or banding; the product is cleanly separated from it.",
+  ),
+  lighting: str(
+    "AI_IMAGE_STYLE_LIGHTING",
+    "Lighting: professional STUDIO LIGHTING — a soft, directional key light with gentle fill, a subtle brighter pool behind the product falling off gradually toward the corners, and realistic highlights/reflections true to the product's material. Never flat or evenly lit.",
+  ),
+  shadow: str(
+    "AI_IMAGE_STYLE_SHADOW",
+    "Shadow: a soft, diffused, realistic CONTACT SHADOW directly beneath the product that anchors it to the surface — never a hard or detached drop shadow.",
+  ),
+  realism: str(
+    "AI_IMAGE_STYLE_REALISM",
+    "Realism: the image must look like a real DSLR studio PHOTOGRAPH — natural surface texture, micro-imperfections and true material response. Absolutely NO cartoon, illustration, 3D render, CGI, or plasticky / waxy / over-smoothed look.",
+  ),
+};
+
+/** The four style clauses as one block, ready to drop into any image prompt. */
+export const AI_IMAGE_STYLE_BLOCK = [
+  AI_IMAGE_STYLE.background,
+  AI_IMAGE_STYLE.lighting,
+  AI_IMAGE_STYLE.shadow,
+  AI_IMAGE_STYLE.realism,
+].join("\n");
