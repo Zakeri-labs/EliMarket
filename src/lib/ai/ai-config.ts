@@ -1,0 +1,58 @@
+/**
+ * Central cost controls for every PAID OpenAI call in the app.
+ *
+ * All values are environment-overridable so spend can be dialled up or down
+ * without a code change. The defaults are the cheap options on purpose —
+ * pre-launch, the priority is a near-zero AI bill:
+ *
+ *  - AI image generation (gpt-image-1) is OFF. Product photos still get the
+ *    grey studio background + soft shadow, produced by the free, local,
+ *    deterministic sharp pipeline (src/lib/images/enhance-product-photo.ts).
+ *  - When image generation is turned on, it uses gpt-image-1-mini at "low"
+ *    quality, which is roughly 20-30x cheaper per image than gpt-image-1 at
+ *    "high".
+ *  - Web image search (billed web_search tool + a vision model) is OFF.
+ *  - Text/vision drafting stays on but on the mini models (cents per product).
+ *
+ * To restore the premium behaviour, set in the environment:
+ *   AI_IMAGE_GENERATION_ENABLED=true
+ *   OPENAI_IMAGE_MODEL=gpt-image-1
+ *   OPENAI_IMAGE_QUALITY=high
+ *   AI_WEB_IMAGE_SEARCH_ENABLED=true
+ */
+
+function flag(name: string, fallback: boolean): boolean {
+  const raw = process.env[name]?.trim().toLowerCase();
+  if (!raw) return fallback;
+  return raw === "1" || raw === "true" || raw === "yes" || raw === "on";
+}
+
+function str(name: string, fallback: string): string {
+  return process.env[name]?.trim() || fallback;
+}
+
+function int(name: string, fallback: number): number {
+  const n = Number(process.env[name]?.trim());
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
+}
+
+/** Master switch for gpt-image-1 studio cover + context shots. */
+export const AI_IMAGE_GENERATION_ENABLED = flag("AI_IMAGE_GENERATION_ENABLED", false);
+
+/** Image model + quality used only when generation is enabled. */
+export const AI_IMAGE_MODEL = str("OPENAI_IMAGE_MODEL", "gpt-image-1-mini");
+/** "low" | "medium" | "high" | "auto" */
+export const AI_IMAGE_QUALITY = str("OPENAI_IMAGE_QUALITY", "low");
+
+/** How many AI shots to attempt per source photo (the free deterministic
+ *  framer fills any remaining gallery slots). */
+export const AI_MAX_STUDIO_SHOTS = int("AI_MAX_STUDIO_SHOTS", 1);
+export const AI_MAX_CONTEXT_SHOTS = int("AI_MAX_CONTEXT_SHOTS", 0);
+
+/** Master switch for OpenAI web image search (billed web_search tool). */
+export const AI_WEB_IMAGE_SEARCH_ENABLED = flag("AI_WEB_IMAGE_SEARCH_ENABLED", false);
+
+/** Text + vision models. Minis are already ~cents; kept overridable anyway. */
+export const AI_TEXT_MODEL = str("OPENAI_TEXT_MODEL", "gpt-4o-mini");
+export const AI_VISION_MODEL = str("OPENAI_VISION_MODEL", "gpt-4o-mini");
+export const AI_WEB_SEARCH_MODEL = str("OPENAI_WEB_SEARCH_MODEL", "gpt-4o-mini");

@@ -1,5 +1,7 @@
 /** Server-only OpenAI helpers. Do not import from client components. */
 
+import { AI_TEXT_MODEL } from "@/lib/ai/ai-config";
+
 export function getOpenAiApiKey() {
   return process.env.OPENAI_API_KEY?.trim() || null;
 }
@@ -24,7 +26,7 @@ export async function openAiChatJson(input: {
       Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: input.model ?? "gpt-4o-mini",
+      model: input.model ?? AI_TEXT_MODEL,
       temperature: input.temperature ?? 0.4,
       response_format: { type: "json_object" },
       messages: [

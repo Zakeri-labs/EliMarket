@@ -1,5 +1,10 @@
 import sharp from "sharp";
 import { getOpenAiApiKey } from "@/lib/ai/openai-client";
+import {
+  AI_IMAGE_GENERATION_ENABLED,
+  AI_IMAGE_MODEL,
+  AI_IMAGE_QUALITY,
+} from "@/lib/ai/ai-config";
 
 // Unlike enhance-product-photo.ts (which never touches pixels), these prompts
 // deliberately generate brand-new supplementary images. They never ask the
@@ -20,8 +25,9 @@ function buildEditForm(png: Buffer, prompt: string) {
   const form = new FormData();
   form.append("image", new Blob([new Uint8Array(png)], { type: "image/png" }), "product.png");
   form.append("prompt", prompt);
-  form.append("model", "gpt-image-1");
+  form.append("model", AI_IMAGE_MODEL);
   form.append("size", "1024x1024");
+  form.append("quality", AI_IMAGE_QUALITY);
   return form;
 }
 
@@ -61,7 +67,7 @@ export async function generateProductContextShots(input: {
   count?: number;
 }): Promise<Buffer[]> {
   const key = getOpenAiApiKey();
-  if (!key) return [];
+  if (!key || !AI_IMAGE_GENERATION_ENABLED) return [];
 
   const png = await sharp(input.bytes)
     .rotate()

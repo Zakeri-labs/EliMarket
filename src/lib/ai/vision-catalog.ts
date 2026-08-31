@@ -1,5 +1,6 @@
 import { slugifyProductName } from "@/lib/products/slug";
 import { buildProductDescriptionStub } from "@/lib/ai/product-description-stub";
+import { AI_VISION_MODEL } from "@/lib/ai/ai-config";
 import type { ProductFeatureInput } from "@/app/_types/database.types";
 
 export type VisionCatalogDraft = {
@@ -156,7 +157,7 @@ async function analyzeWithOpenAi(
       Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: AI_VISION_MODEL,
       temperature: 0.3,
       response_format: { type: "json_object" },
       messages: [

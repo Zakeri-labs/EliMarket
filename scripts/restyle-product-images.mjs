@@ -63,6 +63,10 @@ Product title: ${title}`;
 }
 
 const SIZE = "1024x1024";
+// Superseded by restyle-static-photoreal.mjs (free, local). If you do run this,
+// it defaults to the cheap image model/quality — override via env if needed.
+const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-1-mini";
+const IMAGE_QUALITY = process.env.OPENAI_IMAGE_QUALITY?.trim() || "low";
 
 async function restyle(name, key) {
   const srcPath = join(originalDir, `${name}.png`);
@@ -83,9 +87,9 @@ async function restyle(name, key) {
   const form = new FormData();
   form.append("image", new Blob([new Uint8Array(png)], { type: "image/png" }), "product.png");
   form.append("prompt", coverPrompt(title));
-  form.append("model", "gpt-image-1");
+  form.append("model", IMAGE_MODEL);
   form.append("size", SIZE);
-  form.append("quality", "high");
+  form.append("quality", IMAGE_QUALITY);
 
   const res = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",

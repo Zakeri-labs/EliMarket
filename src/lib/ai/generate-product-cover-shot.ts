@@ -1,5 +1,10 @@
 import sharp from "sharp";
 import { getOpenAiApiKey } from "@/lib/ai/openai-client";
+import {
+  AI_IMAGE_GENERATION_ENABLED,
+  AI_IMAGE_MODEL,
+  AI_IMAGE_QUALITY,
+} from "@/lib/ai/ai-config";
 
 // This regenerates the product's pixels (unlike enhance-product-photo.ts),
 // so it carries a real, demonstrated risk: even with explicit "do not alter
@@ -65,9 +70,9 @@ async function requestCoverShot(png: Buffer, key: string, prompt: string): Promi
     const form = new FormData();
     form.append("image", new Blob([new Uint8Array(png)], { type: "image/png" }), "product.png");
     form.append("prompt", prompt);
-    form.append("model", "gpt-image-1");
+    form.append("model", AI_IMAGE_MODEL);
     form.append("size", "1024x1024");
-    form.append("quality", "high");
+    form.append("quality", AI_IMAGE_QUALITY);
 
     const res = await fetch("https://api.openai.com/v1/images/edits", {
       method: "POST",
@@ -110,7 +115,7 @@ export async function generateProductCoverShots(input: {
   count?: number;
 }): Promise<Buffer[]> {
   const key = getOpenAiApiKey();
-  if (!key) return [];
+  if (!key || !AI_IMAGE_GENERATION_ENABLED) return [];
 
   const png = await sharp(input.bytes)
     .rotate()

@@ -26,6 +26,9 @@ import { encode } from "blurhash";
 import { createClient } from "@supabase/supabase-js";
 
 const BUCKET = "product-images";
+// Cost knobs — cheap by default. Override with OPENAI_IMAGE_MODEL / _QUALITY.
+const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-1-mini";
+const IMAGE_QUALITY = process.env.OPENAI_IMAGE_QUALITY?.trim() || "low";
 // kinza-cola-250cc is intentionally excluded: it is a real product photo with
 // real, legible branding that a generative pass would corrupt.
 const SLUGS = [
@@ -80,9 +83,9 @@ async function generateStudioShot(srcBuffer, title, key) {
   const form = new FormData();
   form.append("image", new Blob([new Uint8Array(png)], { type: "image/png" }), "product.png");
   form.append("prompt", coverPrompt(title));
-  form.append("model", "gpt-image-1");
+  form.append("model", IMAGE_MODEL);
   form.append("size", "1024x1024");
-  form.append("quality", "high");
+  form.append("quality", IMAGE_QUALITY);
 
   const res = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",

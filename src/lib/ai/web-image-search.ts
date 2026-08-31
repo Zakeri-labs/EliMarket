@@ -1,4 +1,5 @@
 import { getOpenAiApiKey } from "@/lib/ai/openai-client";
+import { AI_WEB_IMAGE_SEARCH_ENABLED, AI_WEB_SEARCH_MODEL } from "@/lib/ai/ai-config";
 
 export type WebImageCandidate = {
   url: string;
@@ -32,7 +33,7 @@ export async function searchProductImagesWithOpenAi(input: {
   count?: number;
 }): Promise<WebImageCandidate[]> {
   const key = getOpenAiApiKey();
-  if (!key || !input.query.trim()) return [];
+  if (!key || !AI_WEB_IMAGE_SEARCH_ENABLED || !input.query.trim()) return [];
 
   const count = Math.max(1, Math.min(input.count ?? 3, 5));
 
@@ -45,7 +46,7 @@ export async function searchProductImagesWithOpenAi(input: {
         Authorization: `Bearer ${key}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: AI_WEB_SEARCH_MODEL,
         tools: [{ type: "web_search_preview" }],
         input: [
           {

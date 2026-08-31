@@ -18,6 +18,7 @@ import {
 import { searchProductImagesWithOpenAi } from "@/lib/ai/web-image-search";
 import { generateProductContextShots } from "@/lib/ai/generate-product-context-shots";
 import { generateProductCoverShots } from "@/lib/ai/generate-product-cover-shot";
+import { AI_MAX_CONTEXT_SHOTS, AI_MAX_STUDIO_SHOTS } from "@/lib/ai/ai-config";
 import { slugifyProductName } from "@/lib/products/slug";
 import { coverFromImageInputs } from "@/lib/products/gallery";
 import {
@@ -36,7 +37,7 @@ export type SmartProductImage = {
 
 const MAX_DRAFT_IMAGES = 8;
 const MAX_WEB_IMAGES = 3;
-const MAX_AI_CONTEXT_SHOTS = 2;
+const MAX_AI_CONTEXT_SHOTS = AI_MAX_CONTEXT_SHOTS;
 
 function guessMime(url: string, header: string | null) {
   if (header?.startsWith("image/")) return header.split(";")[0]!;
@@ -119,11 +120,17 @@ async function buildEnhancedImages(
     const original = originals[i]!;
     const originalUrl = urls[i]!;
 
+    // Only attempt a few paid AI shots per photo (0 when generation is
+    // disabled); the free deterministic framer below fills the rest of the
+    // gallery so the total image count is unchanged.
+    const aiWanted = Math.min(perImage, AI_MAX_STUDIO_SHOTS);
     let aiCovers: Buffer[] = [];
-    try {
-      aiCovers = await generateProductCoverShots({ ...original, title: hintName, count: perImage });
-    } catch {
-      aiCovers = [];
+    if (aiWanted > 0) {
+      try {
+        aiCovers = await generateProductCoverShots({ ...original, title: hintName, count: aiWanted });
+      } catch {
+        aiCovers = [];
+      }
     }
     for (const png of aiCovers) {
       const processedUrl = await uploadProcessedPng(supabase, png);
