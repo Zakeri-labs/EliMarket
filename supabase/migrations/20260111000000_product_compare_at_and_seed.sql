@@ -29,7 +29,7 @@ INSERT INTO public.products (
     60000,
     'IRR',
     120,
-    '/products/bananas-v2.png',
+    '/products/bananas-v3.png',
     (SELECT id FROM public.categories WHERE slug = 'produce' LIMIT 1),
     TRUE
   ),
@@ -44,7 +44,7 @@ INSERT INTO public.products (
     40000,
     'IRR',
     85,
-    '/products/tomatoes-v2.png',
+    '/products/tomatoes-v3.png',
     (SELECT id FROM public.categories WHERE slug = 'produce' LIMIT 1),
     TRUE
   ),
@@ -59,7 +59,7 @@ INSERT INTO public.products (
     76500,
     'IRR',
     48,
-    '/products/milk-2l-v2.png',
+    '/products/milk-2l-v3.png',
     (SELECT id FROM public.categories WHERE slug = 'dairy' LIMIT 1),
     TRUE
   ),
@@ -74,7 +74,7 @@ INSERT INTO public.products (
     480000,
     'IRR',
     36,
-    '/products/eggs-15-v2.png',
+    '/products/eggs-15-v3.png',
     (SELECT id FROM public.categories WHERE slug = 'dairy' LIMIT 1),
     TRUE
   ),
@@ -89,7 +89,7 @@ INSERT INTO public.products (
     110000,
     'IRR',
     64,
-    '/products/bread-loaf-v2.png',
+    '/products/bread-loaf-v3.png',
     (SELECT id FROM public.categories WHERE slug = 'bakery' LIMIT 1),
     TRUE
   ),
@@ -104,7 +104,7 @@ INSERT INTO public.products (
     450000,
     'IRR',
     22,
-    '/products/chicken-breast-v2.png',
+    '/products/chicken-breast-v3.png',
     (SELECT id FROM public.categories WHERE slug = 'meat' LIMIT 1),
     TRUE
   ),
@@ -119,7 +119,7 @@ INSERT INTO public.products (
     92000,
     'IRR',
     40,
-    '/products/orange-juice-v2.png',
+    '/products/orange-juice-v3.png',
     (SELECT id FROM public.categories WHERE slug = 'beverages' LIMIT 1),
     TRUE
   ),
@@ -134,7 +134,7 @@ INSERT INTO public.products (
     65000,
     'IRR',
     90,
-    '/products/potato-chips-v2.png',
+    '/products/potato-chips-v3.png',
     (SELECT id FROM public.categories WHERE slug = 'snacks' LIMIT 1),
     TRUE
   )
