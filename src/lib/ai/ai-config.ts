@@ -36,12 +36,24 @@ function int(name: string, fallback: number): number {
   return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
 }
 
-/** Master switch for gpt-image-1 studio cover + context shots. */
+/** Master switch for AI studio cover + context shots. */
 export const AI_IMAGE_GENERATION_ENABLED = flag("AI_IMAGE_GENERATION_ENABLED", false);
 
-/** Image model + quality used only when generation is enabled. */
-export const AI_IMAGE_MODEL = str("OPENAI_IMAGE_MODEL", "gpt-image-1-mini");
-/** "low" | "medium" | "high" | "auto" */
+/**
+ * Which image backend edits the product photo:
+ *  - "gemini" (default): Gemini 2.5 Flash Image ("nano banana"). Much better
+ *    at keeping the real label/brand text intact during an edit, and cheaper
+ *    per image than gpt-image-1. Needs GEMINI_API_KEY.
+ *  - "openai": gpt-image-1 / gpt-image-1-mini via the images/edits endpoint.
+ */
+export const AI_IMAGE_PROVIDER = str("AI_IMAGE_PROVIDER", "gemini").toLowerCase();
+
+/** Image model (defaults follow the provider). */
+export const AI_IMAGE_MODEL = str(
+  "AI_IMAGE_MODEL",
+  AI_IMAGE_PROVIDER === "openai" ? "gpt-image-1-mini" : "gemini-2.5-flash-image",
+);
+/** OpenAI only: "low" | "medium" | "high" | "auto". Ignored by Gemini. */
 export const AI_IMAGE_QUALITY = str("OPENAI_IMAGE_QUALITY", "low");
 
 /** How many AI shots to attempt per source photo (the free deterministic
