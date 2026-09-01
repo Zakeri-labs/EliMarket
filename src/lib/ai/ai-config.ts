@@ -81,12 +81,17 @@ export const AI_IMAGE_STYLE = {
     "AI_IMAGE_STYLE_REALISM",
     "Realism: the image must look like a real DSLR studio PHOTOGRAPH — natural surface texture, micro-imperfections and true material response. Absolutely NO cartoon, illustration, 3D render, CGI, or plasticky / waxy / over-smoothed look.",
   ),
+  labels: str(
+    "AI_IMAGE_STYLE_LABELS",
+    "Label fidelity: the packaging, brand mark, and EVERY piece of printed text must be reproduced EXACTLY as in the source image — same wording, same script, same spelling, same layout, same fonts, same colours, character for character (including Persian/Arabic text and small print). Do NOT translate, restyle, re-typeset, paraphrase, blur, or invent any text or logo. If a detail is unreadable in the source, leave that area as a plain unlabelled surface rather than guessing.",
+  ),
 };
 
-/** The four style clauses as one block, ready to drop into any image prompt. */
+/** The style clauses as one block, ready to drop into any image prompt. */
 export const AI_IMAGE_STYLE_BLOCK = [
   AI_IMAGE_STYLE.background,
   AI_IMAGE_STYLE.lighting,
   AI_IMAGE_STYLE.shadow,
   AI_IMAGE_STYLE.realism,
+  AI_IMAGE_STYLE.labels,
 ].join("\n");
