@@ -2,7 +2,12 @@
 
 import { createClient } from "@/core/supabase/client";
 
-export type ImageStorageFolder = "hero" | "products" | "categories" | "brands";
+export type ImageStorageFolder =
+  | "hero"
+  | "products"
+  | "categories"
+  | "brands"
+  | "blog";
 
 /** Upload large files directly to Supabase Storage (bypasses Server Action body limit). */
 export async function uploadImageFileToStorage(

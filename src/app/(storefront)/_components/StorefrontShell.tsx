@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { AddressGateModal } from "@/app/(storefront)/_components/AddressGateModal";
 import { BottomNav } from "@/app/(storefront)/_components/BottomNav";
 import { PwaProvider } from "@/app/(storefront)/_components/PwaProvider";
+import { StorefrontFooter } from "@/app/(storefront)/_components/StorefrontFooter";
 import { StorefrontHeader } from "@/app/(storefront)/_components/StorefrontHeader";
 import { cn } from "@/app/utils/cn";
 import { STOREFRONT_CONTAINER } from "@/config/layout";
@@ -52,6 +53,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </div>
+      {!hideMobileNav && <StorefrontFooter />}
       {!hideMobileNav && <BottomNav />}
       <PwaProvider />
       <AddressGateModal />

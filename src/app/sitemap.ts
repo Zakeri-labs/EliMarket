@@ -1,14 +1,16 @@
 import type { MetadataRoute } from "next";
 import {
+  getSitemapBlogPosts,
   getSitemapCategories,
   getSitemapProducts,
 } from "@/lib/seo/sitemap-data";
 import { absoluteUrl } from "@/lib/seo/site-url";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, categories] = await Promise.all([
+  const [products, categories, blogPosts] = await Promise.all([
     getSitemapProducts(),
     getSitemapCategories(),
+    getSitemapBlogPosts(),
   ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -27,7 +29,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.5,
     },
+    {
+      url: absoluteUrl("/blog"),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
   ];
+
+  const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: absoluteUrl(`/blog/${post.slug}`),
+    lastModified: post.updated_at,
+    changeFrequency: "monthly",
+    priority: 0.5,
+  }));
 
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
     url: absoluteUrl(`/categories/${category.slug}`),
@@ -43,5 +57,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...categoryRoutes, ...productRoutes];
+  return [...staticRoutes, ...blogRoutes, ...categoryRoutes, ...productRoutes];
 }

@@ -15,6 +15,7 @@ export type Messages = {
     help: string;
     accountSignIn: string;
     signIn: string;
+    blog: string;
   };
   home: {
     deliverTo: string;
@@ -353,6 +354,9 @@ export type Messages = {
     riderRegistered: string;
     riderApproved: string;
     riderRevoked: string;
+    blogPostCreated: string;
+    blogPostUpdated: string;
+    blogPostDeleted: string;
   };
   errors: {
     operationFailed: string;
@@ -418,6 +422,12 @@ export type Messages = {
     deliveryAreaUpdateFailed: string;
     deliveryAreaDeleteFailed: string;
     deliveryAreasLoadFailed: string;
+    deliveryAreaBoundaryFailed: string;
+    blogPostsLoadFailed: string;
+    blogPostCreateFailed: string;
+    blogPostUpdateFailed: string;
+    blogPostDeleteFailed: string;
+    aiBlogDraftFailed: string;
     heroUpdateFailed: string;
     bannersLoadFailed: string;
     bannerCreateFailed: string;
@@ -487,6 +497,7 @@ export type Messages = {
       smartProduct: string;
       reviews: string;
       questions: string;
+      blog: string;
     };
     navGroups: {
       overview: string;
@@ -494,6 +505,41 @@ export type Messages = {
       marketing: string;
       operations: string;
       insights: string;
+    };
+    blog: {
+      title: string;
+      subtitle: string;
+      newPost: string;
+      editPost: string;
+      edit: string;
+      delete: string;
+      save: string;
+      create: string;
+      cancel: string;
+      empty: string;
+      publishedTag: string;
+      draftTag: string;
+      publishedLabel: string;
+      publishedAtLabel: string;
+      sortOrderLabel: string;
+      slugPlaceholder: string;
+      titlePlaceholder: string;
+      excerptPlaceholder: string;
+      bodyPlaceholder: string;
+      bodyHint: string;
+      langHint: string;
+      coverUrlPlaceholder: string;
+      uploadCover: string;
+      removeCover: string;
+      validationTitle: string;
+      validationBody: string;
+      validationSlug: string;
+      validationTopic: string;
+      aiDraftHeading: string;
+      aiTopicPlaceholder: string;
+      aiDraftButton: string;
+      aiDrafting: string;
+      aiDraftHint: string;
     };
     login: {
       title: string;
@@ -711,6 +757,17 @@ export type Messages = {
       radiusLabel: string;
       noPin: string;
       validationLocation: string;
+      shapeLabel: string;
+      osmLookupPlaceholder: string;
+      fetchBoundary: string;
+      drawStart: string;
+      drawDone: string;
+      drawHint: string;
+      removeLastPoint: string;
+      clearShape: string;
+      boundaryFound: string;
+      boundaryMissing: string;
+      radiusFallbackNote: string;
       serviceableLabel: string;
       activeLabel: string;
       serviceableTag: string;
@@ -1082,6 +1139,25 @@ export type Messages = {
       hint: string;
     };
   };
+  blog: {
+    title: string;
+    subtitle: string;
+    readMore: string;
+    empty: string;
+    backToList: string;
+    locationHeading: string;
+    viewOnMaps: string;
+    readingTime: string;
+    minutesShort: string;
+    morePosts: string;
+    byline: string;
+    bylineRole: string;
+    share: string;
+    copied: string;
+    save: string;
+    saved: string;
+    ctaBody: string;
+  };
   meta: {
     siteDescription: string;
     storefrontTitle: string;
@@ -1092,6 +1168,8 @@ export type Messages = {
     notFoundTitle: string;
     notFoundMessage: string;
     backToHome: string;
+    blogTitle: string;
+    blogDescription: string;
   };
 };
 
@@ -1110,6 +1188,7 @@ const fa: Messages = {
     help: "راهنما",
     accountSignIn: "حساب / ورود",
     signIn: "ورود",
+    blog: "بلاگ",
   },
   home: {
     deliverTo: "تحویل به",
@@ -1509,6 +1588,9 @@ const fa: Messages = {
     riderRegistered: "پیک ثبت شد",
     riderApproved: "پیک تأیید شد",
     riderRevoked: "دسترسی پیک لغو شد",
+    blogPostCreated: "نوشته ایجاد شد",
+    blogPostUpdated: "نوشته به‌روز شد",
+    blogPostDeleted: "نوشته حذف شد",
   },
   errors: {
     operationFailed: "عملیات ناموفق بود",
@@ -1574,6 +1656,12 @@ const fa: Messages = {
     deliveryAreaUpdateFailed: "به‌روزرسانی منطقه ناموفق بود",
     deliveryAreaDeleteFailed: "حذف منطقه ناموفق بود",
     deliveryAreasLoadFailed: "بارگذاری مناطق ارسال ناموفق بود",
+    deliveryAreaBoundaryFailed: "دریافت مرز منطقه از نقشه ناموفق بود",
+    blogPostsLoadFailed: "بارگذاری نوشته‌های بلاگ ناموفق بود",
+    blogPostCreateFailed: "ایجاد نوشته ناموفق بود",
+    blogPostUpdateFailed: "به‌روزرسانی نوشته ناموفق بود",
+    blogPostDeleteFailed: "حذف نوشته ناموفق بود",
+    aiBlogDraftFailed: "نوشتن پیش‌نویس ناموفق بود",
     heroUpdateFailed: "ذخیره بنر ناموفق بود",
     bannersLoadFailed: "بارگذاری بنرها ناموفق بود",
     bannerCreateFailed: "ایجاد بنر ناموفق بود",
@@ -1643,6 +1731,7 @@ const fa: Messages = {
       smartProduct: "ثبت هوشمند",
       reviews: "نظرات مشتریان",
       questions: "پرسش و پاسخ",
+      blog: "بلاگ",
     },
     navGroups: {
       overview: "کلی",
@@ -1650,6 +1739,41 @@ const fa: Messages = {
       marketing: "بازاریابی",
       operations: "عملیات",
       insights: "گزارش‌ها",
+    },
+    blog: {
+      title: "بلاگ",
+      subtitle: "نوشته‌های کوتاه بلاگ فروشگاه را اینجا بنویسید",
+      newPost: "نوشتهٔ جدید",
+      editPost: "ویرایش نوشته",
+      edit: "ویرایش",
+      delete: "حذف",
+      save: "ذخیره",
+      create: "ایجاد نوشته",
+      cancel: "انصراف",
+      empty: "هنوز نوشته‌ای نیست.",
+      publishedTag: "منتشرشده",
+      draftTag: "پیش‌نویس",
+      publishedLabel: "منتشرشده (در فروشگاه دیده می‌شود)",
+      publishedAtLabel: "تاریخ انتشار",
+      sortOrderLabel: "ترتیب نمایش",
+      slugPlaceholder: "post-slug (یکتا، لاتین — خالی بگذارید تا خودکار پر شود)",
+      titlePlaceholder: "عنوان نوشته",
+      excerptPlaceholder: "خلاصهٔ کوتاه (در فهرست بلاگ نمایش داده می‌شود)",
+      bodyPlaceholder: "متن نوشته…",
+      bodyHint: "متن ساده. خط خالی = پاراگراف جدید. خطی که با «## » شروع شود زیرعنوان است.",
+      langHint: "همهٔ زبان‌ها را پر کنید. زبان خالی به فارسی برمی‌گردد.",
+      coverUrlPlaceholder: "نشانی تصویر کاور",
+      uploadCover: "بارگذاری کاور",
+      removeCover: "حذف کاور",
+      validationTitle: "عنوان لازم است",
+      validationBody: "متن لازم است",
+      validationSlug: "اسلاگ لازم است",
+      validationTopic: "برای پیش‌نویس هوش مصنوعی یک موضوع وارد کنید",
+      aiDraftHeading: "پیش‌نویس با هوش مصنوعی",
+      aiTopicPlaceholder: "موضوع، مثلاً «مسیر رسیدن به فروشگاه»",
+      aiDraftButton: "نوشتن با هوش مصنوعی",
+      aiDrafting: "در حال نوشتن…",
+      aiDraftHint: "عنوان، خلاصه و متن را در هر سه زبان پر می‌کند. پیش از انتشار بازبینی و ویرایش کنید.",
     },
     login: {
       title: "ورود پنل مدیریت",
@@ -1867,6 +1991,17 @@ const fa: Messages = {
       radiusLabel: "شعاع (کیلومتر)",
       noPin: "بدون موقعیت روی نقشه",
       validationLocation: "موقعیت منطقه را روی نقشه مشخص کنید",
+      shapeLabel: "مرز منطقه روی نقشه",
+      osmLookupPlaceholder: "نام منطقه برای جستجو (مثلاً Al Khoudh)",
+      fetchBoundary: "دریافت مرز از نقشه",
+      drawStart: "رسم / ویرایش مرز",
+      drawDone: "پایان رسم",
+      drawHint: "روی نقشه کلیک کنید تا نقطه اضافه شود؛ هر نقطه را بکشید تا جابه‌جا شود.",
+      removeLastPoint: "حذف آخرین نقطه",
+      clearShape: "پاک کردن مرز",
+      boundaryFound: "مرز واقعی روی نقشه بارگذاری شد.",
+      boundaryMissing: "مرزی پیدا نشد — آن را دستی روی نقشه رسم کنید.",
+      radiusFallbackNote: "هنوز مرزی رسم نشده — دایره‌ای به شعاع {km} کیلومتر دور پین نمایش داده می‌شود.",
       serviceableLabel: "سرویس‌دهی فعال است",
       activeLabel: "نمایش در فروشگاه",
       serviceableTag: "سرویس‌دهی",
@@ -2260,6 +2395,25 @@ const fa: Messages = {
       hint: "فقط سفارش‌های تحویل‌شدهٔ همین حساب پیک محاسبه می‌شوند.",
     },
   },
+  blog: {
+    title: "از فروشگاه",
+    subtitle: "خبرها و یادداشت‌های هیلز الی مارت — از راهنمای رسیدن به فروشگاه شروع می‌کنیم.",
+    readMore: "ادامه مطلب",
+    empty: "هنوز نوشته‌ای منتشر نشده است. به‌زودی سر بزنید.",
+    backToList: "بازگشت به همهٔ نوشته‌ها",
+    locationHeading: "به فروشگاه سر بزنید",
+    viewOnMaps: "باز کردن در نقشهٔ گوگل",
+    readingTime: "{count} دقیقه مطالعه",
+    minutesShort: "{count} دقیقه",
+    morePosts: "نوشته‌های دیگر بلاگ",
+    byline: "تیم هیلز الی مارت",
+    bylineRole: "تیم فروشگاه",
+    share: "هم‌رسانی",
+    copied: "لینک کپی شد",
+    save: "ذخیره",
+    saved: "ذخیره شد",
+    ctaBody: "برای خرید حضوری باز هستیم و در سراسر مسقط و سیب ارسال داریم.",
+  },
   meta: {
     siteDescription: "خرید آنلاین — EliMarket",
     storefrontTitle: "فروشگاه",
@@ -2270,6 +2424,8 @@ const fa: Messages = {
     notFoundTitle: "صفحه یافت نشد",
     notFoundMessage: "صفحه‌ای که دنبال آن هستید وجود ندارد یا حذف شده است.",
     backToHome: "بازگشت به صفحه اصلی",
+    blogTitle: "بلاگ — هیلز الی مارت",
+    blogDescription: "خبرها، یادداشت‌ها و مسیر رسیدن به هیلز الی مارت در المولح، سیب — مسقط، عمان.",
   },
 };
 
@@ -2288,6 +2444,7 @@ const ar: Messages = {
     help: "مساعدة",
     accountSignIn: "الحساب / تسجيل الدخول",
     signIn: "تسجيل الدخول",
+    blog: "المدوّنة",
   },
   home: {
     deliverTo: "التوصيل إلى",
@@ -2687,6 +2844,9 @@ const ar: Messages = {
     riderRegistered: "تم تسجيل السائق",
     riderApproved: "تم اعتماد السائق",
     riderRevoked: "تم إلغاء صلاحية السائق",
+    blogPostCreated: "تم إنشاء المقال",
+    blogPostUpdated: "تم تحديث المقال",
+    blogPostDeleted: "تم حذف المقال",
   },
   errors: {
     operationFailed: "فشلت العملية",
@@ -2752,6 +2912,12 @@ const ar: Messages = {
     deliveryAreaUpdateFailed: "فشل تحديث المنطقة",
     deliveryAreaDeleteFailed: "فشل حذف المنطقة",
     deliveryAreasLoadFailed: "فشل تحميل مناطق التوصيل",
+    deliveryAreaBoundaryFailed: "تعذّر جلب حدود المنطقة من الخريطة",
+    blogPostsLoadFailed: "فشل تحميل مقالات المدوّنة",
+    blogPostCreateFailed: "فشل إنشاء المقال",
+    blogPostUpdateFailed: "فشل تحديث المقال",
+    blogPostDeleteFailed: "فشل حذف المقال",
+    aiBlogDraftFailed: "فشلت صياغة المقال",
     heroUpdateFailed: "فشل حفظ البانر",
     bannersLoadFailed: "فشل تحميل البانرات",
     bannerCreateFailed: "فشل إنشاء البانر",
@@ -2821,6 +2987,7 @@ const ar: Messages = {
       smartProduct: "تسجيل ذكي",
       reviews: "تقييمات العملاء",
       questions: "الأسئلة والأجوبة",
+      blog: "المدوّنة",
     },
     navGroups: {
       overview: "عام",
@@ -2828,6 +2995,41 @@ const ar: Messages = {
       marketing: "التسويق",
       operations: "العمليات",
       insights: "التقارير",
+    },
+    blog: {
+      title: "المدوّنة",
+      subtitle: "اكتب مقالات قصيرة لمدوّنة المتجر",
+      newPost: "مقال جديد",
+      editPost: "تعديل المقال",
+      edit: "تعديل",
+      delete: "حذف",
+      save: "حفظ",
+      create: "إنشاء المقال",
+      cancel: "إلغاء",
+      empty: "لا توجد مقالات بعد.",
+      publishedTag: "منشور",
+      draftTag: "مسودّة",
+      publishedLabel: "منشور (ظاهر في المتجر)",
+      publishedAtLabel: "تاريخ النشر",
+      sortOrderLabel: "ترتيب العرض",
+      slugPlaceholder: "post-slug (فريد، لاتيني — اتركه فارغًا للتعبئة التلقائية)",
+      titlePlaceholder: "عنوان المقال",
+      excerptPlaceholder: "ملخّص قصير (يظهر في قائمة المدوّنة)",
+      bodyPlaceholder: "نص المقال…",
+      bodyHint: "نص عادي. سطر فارغ = فقرة جديدة. السطر الذي يبدأ بـ \"## \" عنوان فرعي.",
+      langHint: "املأ كل اللغات. اللغة الفارغة تعود إلى الفارسية.",
+      coverUrlPlaceholder: "رابط صورة الغلاف",
+      uploadCover: "رفع غلاف",
+      removeCover: "إزالة الغلاف",
+      validationTitle: "العنوان مطلوب",
+      validationBody: "النص مطلوب",
+      validationSlug: "المُعرّف مطلوب",
+      validationTopic: "أدخل موضوعًا لمسودّة الذكاء الاصطناعي",
+      aiDraftHeading: "مسودّة بالذكاء الاصطناعي",
+      aiTopicPlaceholder: "الموضوع، مثل: \"طريق الوصول إلى المتجر\"",
+      aiDraftButton: "صياغة بالذكاء الاصطناعي",
+      aiDrafting: "جارٍ الصياغة…",
+      aiDraftHint: "يملأ العنوان والملخّص والنص باللغات الثلاث. راجِع وحرِّر قبل النشر.",
     },
     login: {
       title: "دخول لوحة الإدارة",
@@ -3045,6 +3247,17 @@ const ar: Messages = {
       radiusLabel: "نصف القطر (كم)",
       noPin: "بدون موقع على الخريطة",
       validationLocation: "حدّد موقع المنطقة على الخريطة",
+      shapeLabel: "حدود المنطقة على الخريطة",
+      osmLookupPlaceholder: "اسم المنطقة للبحث (مثال: Al Khoudh)",
+      fetchBoundary: "جلب الحدود من الخريطة",
+      drawStart: "رسم / تعديل الحدود",
+      drawDone: "إنهاء الرسم",
+      drawHint: "انقر على الخريطة لإضافة نقطة؛ اسحب أي نقطة لتحريكها.",
+      removeLastPoint: "حذف آخر نقطة",
+      clearShape: "مسح الحدود",
+      boundaryFound: "تم تحميل الحدود الحقيقية من الخريطة.",
+      boundaryMissing: "لم يُعثر على حدود — ارسمها يدويًا على الخريطة.",
+      radiusFallbackNote: "لا توجد حدود بعد — تُعرض دائرة نصف قطرها {km} كم حول الدبوس.",
       serviceableLabel: "الخدمة مفعّلة",
       activeLabel: "إظهار في المتجر",
       serviceableTag: "خدمة متاحة",
@@ -3438,6 +3651,25 @@ const ar: Messages = {
       hint: "تُحسب فقط الطلبات المسلّمة لهذا السائق.",
     },
   },
+  blog: {
+    title: "من المتجر",
+    subtitle: "أخبار وملاحظات من هيلز إيلي مارت — نبدأ بكيفية الوصول إلينا.",
+    readMore: "اقرأ المزيد",
+    empty: "لا توجد مقالات بعد. عُد قريبًا.",
+    backToList: "العودة إلى كل المقالات",
+    locationHeading: "زيارة المتجر",
+    viewOnMaps: "افتح في خرائط جوجل",
+    readingTime: "{count} دقائق قراءة",
+    minutesShort: "{count} دقيقة",
+    morePosts: "مقالات أخرى من المدوّنة",
+    byline: "فريق هيلز إيلي مارت",
+    bylineRole: "فريق المتجر",
+    share: "مشاركة",
+    copied: "تم نسخ الرابط",
+    save: "حفظ",
+    saved: "تم الحفظ",
+    ctaBody: "نرحّب بزيارتك إلى المتجر، ونوصّل إلى كل أنحاء مسقط والسيب.",
+  },
   meta: {
     siteDescription: "تسوق إلكتروني — إلي ماركت",
     storefrontTitle: "المتجر",
@@ -3448,6 +3680,8 @@ const ar: Messages = {
     notFoundTitle: "الصفحة غير موجودة",
     notFoundMessage: "الصفحة التي تبحث عنها غير موجودة أو تمت إزالتها.",
     backToHome: "العودة إلى الصفحة الرئيسية",
+    blogTitle: "المدوّنة — هيلز إيلي مارت",
+    blogDescription: "أخبار وملاحظات وطريق الوصول إلى هيلز إيلي مارت في المولح بالسيب — مسقط، عُمان.",
   },
 };
 
@@ -3466,6 +3700,7 @@ const en: Messages = {
     help: "Help",
     accountSignIn: "Account / Sign in",
     signIn: "Sign in",
+    blog: "Blog",
   },
   home: {
     deliverTo: "Deliver to",
@@ -3865,6 +4100,9 @@ const en: Messages = {
     riderRegistered: "Rider registered",
     riderApproved: "Rider approved",
     riderRevoked: "Rider access revoked",
+    blogPostCreated: "Post created",
+    blogPostUpdated: "Post updated",
+    blogPostDeleted: "Post deleted",
   },
   errors: {
     operationFailed: "Operation failed",
@@ -3930,6 +4168,12 @@ const en: Messages = {
     deliveryAreaUpdateFailed: "Failed to update area",
     deliveryAreaDeleteFailed: "Failed to delete area",
     deliveryAreasLoadFailed: "Failed to load delivery areas",
+    deliveryAreaBoundaryFailed: "Couldn't fetch the area boundary from the map",
+    blogPostsLoadFailed: "Failed to load blog posts",
+    blogPostCreateFailed: "Failed to create post",
+    blogPostUpdateFailed: "Failed to update post",
+    blogPostDeleteFailed: "Failed to delete post",
+    aiBlogDraftFailed: "Failed to draft the post",
     heroUpdateFailed: "Failed to save banner",
     bannersLoadFailed: "Failed to load banners",
     bannerCreateFailed: "Failed to create banner",
@@ -3999,6 +4243,7 @@ const en: Messages = {
       smartProduct: "Smart listing",
       reviews: "Customer reviews",
       questions: "Questions & answers",
+      blog: "Blog",
     },
     navGroups: {
       overview: "Overview",
@@ -4006,6 +4251,41 @@ const en: Messages = {
       marketing: "Marketing",
       operations: "Operations",
       insights: "Insights",
+    },
+    blog: {
+      title: "Blog",
+      subtitle: "Write short posts for the storefront blog",
+      newPost: "New post",
+      editPost: "Edit post",
+      edit: "Edit",
+      delete: "Delete",
+      save: "Save",
+      create: "Create post",
+      cancel: "Cancel",
+      empty: "No posts yet.",
+      publishedTag: "Published",
+      draftTag: "Draft",
+      publishedLabel: "Published (visible on the storefront)",
+      publishedAtLabel: "Publish date",
+      sortOrderLabel: "Sort order",
+      slugPlaceholder: "post-slug (unique, latin — leave blank to auto-fill)",
+      titlePlaceholder: "Post title",
+      excerptPlaceholder: "Short summary (shown on the blog list)",
+      bodyPlaceholder: "Post body…",
+      bodyHint: "Plain text. Blank line = new paragraph. A line starting with \"## \" is a sub-heading.",
+      langHint: "Fill in every language. A blank language falls back to Persian.",
+      coverUrlPlaceholder: "Cover image URL",
+      uploadCover: "Upload cover",
+      removeCover: "Remove cover",
+      validationTitle: "Title is required",
+      validationBody: "Body is required",
+      validationSlug: "Slug is required",
+      validationTopic: "Enter a topic for the AI draft",
+      aiDraftHeading: "AI draft",
+      aiTopicPlaceholder: "Topic, e.g. \"directions to the store\"",
+      aiDraftButton: "Draft with AI",
+      aiDrafting: "Drafting…",
+      aiDraftHint: "Fills the title, summary and body in all three languages. Review and edit before publishing.",
     },
     login: {
       title: "Admin sign in",
@@ -4223,6 +4503,17 @@ const en: Messages = {
       radiusLabel: "Radius (km)",
       noPin: "No map location",
       validationLocation: "Set the area location on the map",
+      shapeLabel: "Area boundary on the map",
+      osmLookupPlaceholder: "Place name to look up (e.g. Al Khoudh)",
+      fetchBoundary: "Fetch boundary from map",
+      drawStart: "Draw / edit boundary",
+      drawDone: "Finish drawing",
+      drawHint: "Click the map to add a point; drag a point to move it.",
+      removeLastPoint: "Remove last point",
+      clearShape: "Clear boundary",
+      boundaryFound: "Real boundary loaded from the map.",
+      boundaryMissing: "No boundary found — draw it by hand on the map.",
+      radiusFallbackNote: "No boundary yet — showing a {km} km circle around the pin.",
       serviceableLabel: "Delivery enabled",
       activeLabel: "Show in store",
       serviceableTag: "Serviceable",
@@ -4616,6 +4907,25 @@ const en: Messages = {
       hint: "Only delivered orders for this rider account are counted.",
     },
   },
+  blog: {
+    title: "From the store",
+    subtitle: "News and notes from Hills Eli Mart — starting with how to find us.",
+    readMore: "Read more",
+    empty: "No posts yet. Check back soon.",
+    backToList: "Back to all posts",
+    locationHeading: "Visit the store",
+    viewOnMaps: "Open in Google Maps",
+    readingTime: "{count} min read",
+    minutesShort: "{count} min",
+    morePosts: "More from the blog",
+    byline: "Hills Eli Mart Team",
+    bylineRole: "Store team",
+    share: "Share",
+    copied: "Link copied",
+    save: "Save",
+    saved: "Saved",
+    ctaBody: "We're open for walk-ins and we deliver across Muscat and Seeb.",
+  },
   meta: {
     siteDescription: "Online shopping — EliMarket",
     storefrontTitle: "Store",
@@ -4626,6 +4936,8 @@ const en: Messages = {
     notFoundTitle: "Page not found",
     notFoundMessage: "The page you are looking for does not exist or has been removed.",
     backToHome: "Back to homepage",
+    blogTitle: "Blog — Hills Eli Mart",
+    blogDescription: "News, notes and directions from Hills Eli Mart in Al Mawaleh, Seeb — Muscat, Oman.",
   },
 };
 

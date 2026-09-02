@@ -1,5 +1,6 @@
 -- Admin-managed storefront delivery areas (replaces the hard-coded "Deliver to" list).
--- Each area is a named pin + radius (circle) the admin places on a map. This is separate
+-- Each area is defined on a map: a real `boundary` polygon (fetched from OpenStreetMap or
+-- hand-drawn), with a `center_lat/lng` + `radius_km` circle as fallback. This is separate
 -- from stores.coverage_area, which stays the single checkout-gating boundary.
 
 CREATE TABLE IF NOT EXISTS public.delivery_areas (
@@ -23,6 +24,7 @@ ALTER TABLE public.delivery_areas
   ADD COLUMN IF NOT EXISTS center_lat   DOUBLE PRECISION,
   ADD COLUMN IF NOT EXISTS center_lng   DOUBLE PRECISION,
   ADD COLUMN IF NOT EXISTS radius_km    NUMERIC(6, 2) NOT NULL DEFAULT 2.5,
+  ADD COLUMN IF NOT EXISTS boundary     JSONB,
   ADD COLUMN IF NOT EXISTS delivery_fee NUMERIC(12, 3),
   ADD COLUMN IF NOT EXISTS min_order    NUMERIC(12, 3),
   ADD COLUMN IF NOT EXISTS eta_minutes  INT;

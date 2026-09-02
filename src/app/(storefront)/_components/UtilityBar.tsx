@@ -20,6 +20,9 @@ export function UtilityBar() {
             : t("home.utilityFreeDelivery", { amount: "OMR 5.000" })}
         </p>
         <div className="flex shrink-0 items-center gap-6">
+          <Link href="/blog" className="hover:text-text-primary" suppressHydrationWarning>
+            {t("nav.blog")}
+          </Link>
           <Link href="/orders" className="hover:text-text-primary" suppressHydrationWarning>
             {t("nav.trackOrder")}
           </Link>

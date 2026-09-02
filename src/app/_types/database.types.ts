@@ -73,6 +73,11 @@ export type Brand = {
   created_at: string;
 };
 
+/** GeoJSON geometry stored for a delivery area's real boundary (from OSM or drawn by hand). */
+export type AreaBoundary =
+  | { type: "Polygon"; coordinates: number[][][] }
+  | { type: "MultiPolygon"; coordinates: number[][][][] };
+
 export type DeliveryArea = {
   id: string;
   slug: string;
@@ -85,6 +90,8 @@ export type DeliveryArea = {
   center_lat: number | null;
   center_lng: number | null;
   radius_km: number;
+  /** Real polygon boundary; when null the storefront/admin fall back to center + radius_km. */
+  boundary: AreaBoundary | null;
   delivery_fee: number | null;
   min_order: number | null;
   eta_minutes: number | null;
@@ -381,4 +388,24 @@ export type CartItem = {
   blurHash?: string | null;
   quantity: number;
   stock?: number;
+};
+
+export type BlogPost = {
+  id: string;
+  slug: string;
+  title_fa: string;
+  title_ar: string | null;
+  title_en: string | null;
+  excerpt_fa: string | null;
+  excerpt_ar: string | null;
+  excerpt_en: string | null;
+  body_fa: string;
+  body_ar: string | null;
+  body_en: string | null;
+  cover_url: string | null;
+  published: boolean;
+  sort_order: number;
+  published_at: string;
+  created_at: string;
+  updated_at: string;
 };

@@ -12,6 +12,7 @@ import {
   FolderTree,
   Tag,
   Image as ImageIcon,
+  Newspaper,
   Percent,
   ClipboardList,
   MapPin,
@@ -60,6 +61,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/dashboard/banners", key: "admin.nav.banners", icon: ImageIcon },
       { href: "/dashboard/campaigns", key: "admin.nav.campaigns", icon: Percent },
+      { href: "/dashboard/blog", key: "admin.nav.blog", icon: Newspaper },
     ],
   },
   {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -10,6 +10,7 @@ import { Plus } from "lucide-react";
 import {
   createDeliveryAreaAction,
   deleteDeliveryAreaAction,
+  fetchAreaBoundaryAction,
   getAdminDeliveryAreasAction,
   updateDeliveryAreaAction,
 } from "@/app/_actions/delivery-area-actions";
@@ -19,24 +20,27 @@ import { Modal } from "@/components/ui/Modal";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { RowIconActions } from "@/components/admin/RowIconActions";
 import { useFormAction } from "@/app/hooks/use-form-action";
-import { notifyFormError } from "@/app/utils/form-notify";
 import { cn } from "@/app/utils/cn";
 import { resolveDeliveryAreaName } from "@/lib/i18n/delivery-area-name";
 import { useTranslations } from "@/i18n/use-translations";
 import { LOCALES, LOCALE_LABELS, getDirection, type Locale } from "@/i18n/config";
-import type { MapDraft } from "@/app/(admin)/dashboard/delivery-areas/_components/DeliveryAreasMap";
-import type { DeliveryArea } from "@/app/_types/database.types";
-import "leaflet/dist/leaflet.css";
+import type { AreaBoundary, DeliveryArea } from "@/app/_types/database.types";
+import {
+  boundaryToLatLngs,
+  latLngsToBoundary,
+  type AreaDraft,
+  type LatLng,
+} from "@/app/(admin)/dashboard/delivery-areas/_components/DeliveryAreasMap";
 
 const DeliveryAreasMap = dynamic(
   () => import("@/app/(admin)/dashboard/delivery-areas/_components/DeliveryAreasMap"),
-  { ssr: false, loading: () => <MapLoader /> },
+  { ssr: false, loading: () => <MapLoading /> },
 );
 
-function MapLoader() {
+function MapLoading() {
   const { t } = useTranslations();
   return (
-    <div className="flex h-[420px] items-center justify-center rounded-xl border border-[#e4e4e7] bg-white text-sm text-[#71717a]">
+    <div className="flex h-[380px] items-center justify-center rounded-xl border border-[#e4e4e7] bg-[#fafafa] text-sm text-[#71717a]">
       {t("admin.coverage.loadingMap")}
     </div>
   );
@@ -75,16 +79,38 @@ const DEFAULT_FORM_VALUES: FormValues = {
 };
 
 const SKELETON_KEYS = ["s1", "s2", "s3", "s4", "s5", "s6"] as const;
-
 const nullableNumber = z.number().nonnegative().nullable().optional();
+const toNum = (v: unknown) => (v === "" || v === null || v === undefined ? null : Number(v));
+
+/** Rough centroid of a boundary, for the center pin / radius fallback. */
+function boundaryCentroid(b: AreaBoundary | null): LatLng | null {
+  if (!b) return null;
+  if (b.type === "Polygon") {
+    const ring = boundaryToLatLngs(b);
+    if (!ring.length) return null;
+    const s = ring.reduce((acc, [la, ln]) => [acc[0] + la, acc[1] + ln], [0, 0]);
+    return { lat: s[0] / ring.length, lng: s[1] / ring.length };
+  }
+  const first = b.coordinates?.[0]?.[0]?.[0];
+  return first ? { lat: first[1], lng: first[0] } : null;
+}
 
 export default function AdminDeliveryAreasPage() {
   const { t, locale } = useTranslations();
   const queryClient = useQueryClient();
-  const { runAction, isPending: isActionPending } = useFormAction();
+  const { runAction, isPending: isActionPending, notifyError } = useFormAction();
   const [editing, setEditing] = useState<DeliveryArea | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [nameTab, setNameTab] = useState<Locale>("fa");
+  /** Manually drawn/edited polygon vertices. */
+  const [ring, setRing] = useState<[number, number][]>([]);
+  /** Boundary fetched from OSM (kept as-is; Polygons get moved into `ring` for editing). */
+  const [osmBoundary, setOsmBoundary] = useState<AreaBoundary | null>(null);
+  const [drawing, setDrawing] = useState(false);
+  const [osmQuery, setOsmQuery] = useState("");
+
+  const effectiveBoundary: AreaBoundary | null =
+    ring.length >= 3 ? latLngsToBoundary(ring) : osmBoundary;
 
   const schema = z.object({
     slug: z.string().min(1, t("admin.deliveryAreas.validationSlug")),
@@ -94,8 +120,8 @@ export default function AdminDeliveryAreasPage() {
     serviceable: z.boolean(),
     active: z.boolean(),
     sort_order: z.number().int().min(0),
-    center_lat: z.number().nullable().optional(),
-    center_lng: z.number().nullable().optional(),
+    center_lat: nullableNumber,
+    center_lng: nullableNumber,
     radius_km: z.number().positive(),
     delivery_fee: nullableNumber,
     min_order: nullableNumber,
@@ -116,16 +142,6 @@ export default function AdminDeliveryAreasPage() {
     },
   });
 
-  const watchLat = form.watch("center_lat");
-  const watchLng = form.watch("center_lng");
-  const watchRadius = form.watch("radius_km");
-
-  const draft: MapDraft | null = useMemo(() => {
-    if (!formOpen || watchLat == null || watchLng == null) return null;
-    if (Number.isNaN(watchLat) || Number.isNaN(watchLng)) return null;
-    return { lat: watchLat, lng: watchLng, radiusKm: watchRadius || 2.5 };
-  }, [formOpen, watchLat, watchLng, watchRadius]);
-
   useEffect(() => {
     if (!editing) return;
     form.reset({
@@ -143,27 +159,61 @@ export default function AdminDeliveryAreasPage() {
       min_order: editing.min_order,
       eta_minutes: editing.eta_minutes,
     });
+    if (editing.boundary?.type === "Polygon") {
+      setRing(boundaryToLatLngs(editing.boundary));
+      setOsmBoundary(null);
+    } else {
+      setRing([]);
+      setOsmBoundary(editing.boundary);
+    }
+    setDrawing(false);
+    setOsmQuery(editing.name_en || editing.name_fa || "");
   }, [editing, form]);
+
+  const watchLat = form.watch("center_lat");
+  const watchLng = form.watch("center_lng");
+  const watchRadius = form.watch("radius_km");
+
+  const draft: AreaDraft = {
+    ring,
+    boundary: osmBoundary,
+    center:
+      watchLat != null && watchLng != null
+        ? { lat: Number(watchLat), lng: Number(watchLng) }
+        : null,
+    radiusKm: Number(watchRadius) || 2.5,
+    drawing,
+  };
 
   const refetch = () => {
     void queryClient.invalidateQueries({ queryKey: ["admin-delivery-areas"] });
     void queryClient.invalidateQueries({ queryKey: ["delivery-areas"] });
   };
 
+  const resetShape = () => {
+    setRing([]);
+    setOsmBoundary(null);
+    setDrawing(false);
+  };
+
   const closeForm = () => {
     setFormOpen(false);
     setEditing(null);
     setNameTab("fa");
+    resetShape();
+    setOsmQuery("");
     form.reset(DEFAULT_FORM_VALUES);
   };
 
-  const openCreate = (coords?: { lat: number; lng: number }) => {
+  const openCreate = (at?: LatLng) => {
     setEditing(null);
     setNameTab("fa");
+    resetShape();
+    setOsmQuery("");
     form.reset({
       ...DEFAULT_FORM_VALUES,
-      center_lat: coords?.lat ?? null,
-      center_lng: coords?.lng ?? null,
+      center_lat: at?.lat ?? null,
+      center_lng: at?.lng ?? null,
     });
     setFormOpen(true);
   };
@@ -174,27 +224,56 @@ export default function AdminDeliveryAreasPage() {
     setFormOpen(true);
   };
 
-  const handleMapClick = (lat: number, lng: number) => {
-    if (formOpen) {
-      form.setValue("center_lat", Number(lat.toFixed(6)));
-      form.setValue("center_lng", Number(lng.toFixed(6)));
+  const setCenter = (p: LatLng) => {
+    form.setValue("center_lat", Number(p.lat.toFixed(6)));
+    form.setValue("center_lng", Number(p.lng.toFixed(6)));
+  };
+
+  const handleMapClick = (p: LatLng) => {
+    if (!formOpen) {
+      openCreate(p);
+      return;
+    }
+    if (drawing) {
+      setRing((prev) => [...prev, [p.lat, p.lng]]);
     } else {
-      openCreate({ lat: Number(lat.toFixed(6)), lng: Number(lng.toFixed(6)) });
+      setCenter(p);
     }
   };
 
-  const handleDraftMove = (lat: number, lng: number) => {
-    form.setValue("center_lat", Number(lat.toFixed(6)));
-    form.setValue("center_lng", Number(lng.toFixed(6)));
+  const handleVertexMove = (index: number, p: LatLng) => {
+    setRing((prev) => prev.map((pt, i) => (i === index ? [p.lat, p.lng] : pt)));
+  };
+
+  const toggleDrawing = () => {
+    setDrawing((on) => {
+      const next = !on;
+      // Entering draw mode with an OSM Polygon loaded → move its vertices into `ring` to edit.
+      if (next && ring.length === 0 && osmBoundary?.type === "Polygon") {
+        setRing(boundaryToLatLngs(osmBoundary));
+        setOsmBoundary(null);
+      }
+      return next;
+    });
+  };
+
+  const fetchBoundary = () => {
+    runAction(() => fetchAreaBoundaryAction(osmQuery), {
+      onSuccess: (data) => {
+        if (data?.boundary) {
+          setRing([]);
+          setOsmBoundary(data.boundary);
+          setDrawing(false);
+        } else {
+          notifyError(t("admin.deliveryAreas.boundaryMissing"));
+        }
+        if (data?.center) setCenter(data.center);
+      },
+    });
   };
 
   const onSubmit = form.handleSubmit((values) => {
-    if (values.center_lat == null || values.center_lng == null) {
-      notifyFormError(t("admin.deliveryAreas.validationLocation"), {
-        title: t("notifications.errorTitle"),
-      });
-      return;
-    }
+    const centroid = boundaryCentroid(effectiveBoundary);
     const payload = {
       slug: values.slug.trim(),
       name_fa: values.name_fa.trim(),
@@ -203,9 +282,10 @@ export default function AdminDeliveryAreasPage() {
       serviceable: values.serviceable,
       active: values.active,
       sort_order: values.sort_order,
-      center_lat: values.center_lat,
-      center_lng: values.center_lng,
+      center_lat: values.center_lat ?? centroid?.lat ?? null,
+      center_lng: values.center_lng ?? centroid?.lng ?? null,
       radius_km: values.radius_km,
+      boundary: effectiveBoundary,
       delivery_fee: values.delivery_fee ?? null,
       min_order: values.min_order ?? null,
       eta_minutes: values.eta_minutes ?? null,
@@ -232,7 +312,7 @@ export default function AdminDeliveryAreasPage() {
 
   const inputClass = "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm";
   const nameField = nameTab === "fa" ? "name_fa" : nameTab === "ar" ? "name_ar" : "name_en";
-  const areaList = useMemo(() => areas ?? [], [areas]);
+  const hasShape = ring.length >= 3 || Boolean(osmBoundary);
 
   return (
     <AdminShell
@@ -241,22 +321,25 @@ export default function AdminDeliveryAreasPage() {
     >
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-[#71717a]">{t("admin.deliveryAreas.mapHint")}</p>
+          <p className="text-xs text-[#71717a]">{t("admin.deliveryAreas.mapHint")}</p>
           <Button type="button" size="sm" onClick={() => openCreate()}>
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
             {t("admin.deliveryAreas.newArea")}
           </Button>
         </div>
 
-        <DeliveryAreasMap
-          areas={areaList}
-          locale={locale}
-          selectedId={editing?.id ?? null}
-          draft={draft}
-          onSelectArea={openEdit}
-          onMapClick={handleMapClick}
-          onDraftMove={handleDraftMove}
-        />
+        {!isPending && areas ? (
+          <DeliveryAreasMap
+            areas={areas}
+            onAreaClick={(id) => {
+              const area = areas.find((a) => a.id === id);
+              if (area && !formOpen) openEdit(area);
+            }}
+            onMapClick={handleMapClick}
+          />
+        ) : (
+          <MapLoading />
+        )}
 
         {isPending ? (
           <ul className="space-y-2">
@@ -264,9 +347,9 @@ export default function AdminDeliveryAreasPage() {
               <li key={key} className="h-14 animate-pulse rounded-xl border border-[#e4e4e7] bg-white" />
             ))}
           </ul>
-        ) : areaList.length ? (
+        ) : areas?.length ? (
           <ul className="space-y-2">
-            {areaList.map((area) => (
+            {areas.map((area) => (
               <li
                 key={area.id}
                 className={cn(
@@ -287,11 +370,7 @@ export default function AdminDeliveryAreasPage() {
                     </span>
                     <span className="truncate text-[11px] text-[#71717a]" dir="ltr">
                       {area.slug}
-                      {area.center_lat != null && area.center_lng != null
-                        ? ` · ${area.center_lat.toFixed(3)}, ${area.center_lng.toFixed(3)} · ${Number(
-                            area.radius_km,
-                          )}km`
-                        : ` · ${t("admin.deliveryAreas.noPin")}`}
+                      {area.boundary ? " · ▰" : area.center_lat != null ? " · ◯" : ""}
                     </span>
                   </span>
                   <span
@@ -342,7 +421,7 @@ export default function AdminDeliveryAreasPage() {
             else closeForm();
           }}
           title={editing ? t("admin.deliveryAreas.editArea") : t("admin.deliveryAreas.newArea")}
-          size="md"
+          size="lg"
           busy={isActionPending}
           busyLabel={t("common.saving")}
           footer={
@@ -409,55 +488,6 @@ export default function AdminDeliveryAreasPage() {
               <p className="text-xs text-red-600">{form.formState.errors.slug.message}</p>
             ) : null}
 
-            <div className="rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-3">
-              <p className="mb-2 text-[11px] text-[#71717a]">
-                {t("admin.deliveryAreas.locationHint")}
-              </p>
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <label className="mb-1 block text-[11px] text-[#71717a]">
-                    {t("admin.deliveryAreas.latLabel")}
-                  </label>
-                  <input
-                    {...form.register("center_lat", {
-                      setValueAs: (v) => (v === "" || v === null ? null : Number(v)),
-                    })}
-                    type="number"
-                    step="0.000001"
-                    className={inputClass}
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] text-[#71717a]">
-                    {t("admin.deliveryAreas.lngLabel")}
-                  </label>
-                  <input
-                    {...form.register("center_lng", {
-                      setValueAs: (v) => (v === "" || v === null ? null : Number(v)),
-                    })}
-                    type="number"
-                    step="0.000001"
-                    className={inputClass}
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] text-[#71717a]">
-                    {t("admin.deliveryAreas.radiusLabel")}
-                  </label>
-                  <input
-                    {...form.register("radius_km", { valueAsNumber: true })}
-                    type="number"
-                    min={0.2}
-                    step="0.1"
-                    className={inputClass}
-                    dir="ltr"
-                  />
-                </div>
-              </div>
-            </div>
-
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" {...form.register("serviceable")} />
@@ -467,6 +497,114 @@ export default function AdminDeliveryAreasPage() {
                 <input type="checkbox" {...form.register("active")} />
                 {t("admin.deliveryAreas.activeLabel")}
               </label>
+            </div>
+
+            {/* ---- Area shape (map) ---- */}
+            <div className="space-y-2 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-3">
+              <p className="text-xs font-semibold text-[#18181b]">
+                {t("admin.deliveryAreas.shapeLabel")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  value={osmQuery}
+                  onChange={(e) => setOsmQuery(e.target.value)}
+                  placeholder={t("admin.deliveryAreas.osmLookupPlaceholder")}
+                  className="min-w-0 flex-1 rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm"
+                  dir="ltr"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  disabled={isActionPending || !osmQuery.trim()}
+                  onClick={fetchBoundary}
+                >
+                  {t("admin.deliveryAreas.fetchBoundary")}
+                </Button>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={drawing ? "primary" : "outline"}
+                  onClick={toggleDrawing}
+                >
+                  {drawing ? t("admin.deliveryAreas.drawDone") : t("admin.deliveryAreas.drawStart")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={ring.length === 0}
+                  onClick={() => setRing((prev) => prev.slice(0, -1))}
+                >
+                  {t("admin.deliveryAreas.removeLastPoint")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={!hasShape && ring.length === 0}
+                  onClick={() => {
+                    setRing([]);
+                    setOsmBoundary(null);
+                  }}
+                >
+                  {t("admin.deliveryAreas.clearShape")}
+                </Button>
+              </div>
+              <p className="text-[11px] text-[#71717a]">
+                {drawing
+                  ? t("admin.deliveryAreas.drawHint")
+                  : hasShape
+                    ? t("admin.deliveryAreas.boundaryFound")
+                    : t("admin.deliveryAreas.radiusFallbackNote", { km: String(draft.radiusKm) })}
+              </p>
+
+              <DeliveryAreasMap
+                key={editing?.id ?? "new"}
+                areas={areas ?? []}
+                editingId={editing?.id ?? "new"}
+                draft={draft}
+                onMapClick={handleMapClick}
+                onVertexMove={handleVertexMove}
+                onCenterMove={setCenter}
+                height={320}
+              />
+
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <label className="text-[11px] text-[#71717a]">
+                  {t("admin.deliveryAreas.latLabel")}
+                  <input
+                    {...form.register("center_lat", { setValueAs: toNum })}
+                    type="number"
+                    step="0.000001"
+                    className={inputClass}
+                    dir="ltr"
+                  />
+                </label>
+                <label className="text-[11px] text-[#71717a]">
+                  {t("admin.deliveryAreas.lngLabel")}
+                  <input
+                    {...form.register("center_lng", { setValueAs: toNum })}
+                    type="number"
+                    step="0.000001"
+                    className={inputClass}
+                    dir="ltr"
+                  />
+                </label>
+                <label className="text-[11px] text-[#71717a]">
+                  {t("admin.deliveryAreas.radiusLabel")}
+                  <input
+                    {...form.register("radius_km", { valueAsNumber: true })}
+                    type="number"
+                    step="0.1"
+                    min={0.1}
+                    className={inputClass}
+                    dir="ltr"
+                  />
+                </label>
+              </div>
             </div>
 
             <div>
@@ -487,9 +625,7 @@ export default function AdminDeliveryAreasPage() {
                   {t("admin.deliveryAreas.deliveryFeeLabel")}
                 </label>
                 <input
-                  {...form.register("delivery_fee", {
-                    setValueAs: (v) => (v === "" || v === null ? null : Number(v)),
-                  })}
+                  {...form.register("delivery_fee", { setValueAs: toNum })}
                   type="number"
                   min={0}
                   step="0.001"
@@ -502,9 +638,7 @@ export default function AdminDeliveryAreasPage() {
                   {t("admin.deliveryAreas.minOrderLabel")}
                 </label>
                 <input
-                  {...form.register("min_order", {
-                    setValueAs: (v) => (v === "" || v === null ? null : Number(v)),
-                  })}
+                  {...form.register("min_order", { setValueAs: toNum })}
                   type="number"
                   min={0}
                   step="0.001"
@@ -517,9 +651,7 @@ export default function AdminDeliveryAreasPage() {
                   {t("admin.deliveryAreas.etaMinutesLabel")}
                 </label>
                 <input
-                  {...form.register("eta_minutes", {
-                    setValueAs: (v) => (v === "" || v === null ? null : Number(v)),
-                  })}
+                  {...form.register("eta_minutes", { setValueAs: toNum })}
                   type="number"
                   min={0}
                   step="1"
