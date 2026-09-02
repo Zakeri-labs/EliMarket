@@ -180,6 +180,7 @@ export type Messages = {
     editAddress: string;
     deleteAddress: string;
     pickOnMap: string;
+    resolvingAddress: string;
     outsideCoverage: string;
     coverageOk: string;
     paymentRedirecting: string;
@@ -1353,6 +1354,7 @@ const fa: Messages = {
     editAddress: "ویرایش",
     deleteAddress: "حذف",
     pickOnMap: "محل را روی نقشه انتخاب کنید",
+    resolvingAddress: "در حال یافتن آدرس…",
     outsideCoverage: "این آدرس خارج از محدوده ارسال است",
     coverageOk: "این آدرس داخل محدوده ارسال است",
     paymentRedirecting: "در حال انتقال به درگاه پرداخت…",
@@ -2609,6 +2611,7 @@ const ar: Messages = {
     editAddress: "تعديل",
     deleteAddress: "حذف",
     pickOnMap: "حدد الموقع على الخريطة",
+    resolvingAddress: "جارٍ تحديد العنوان…",
     outsideCoverage: "هذا العنوان خارج نطاق التوصيل",
     coverageOk: "هذا العنوان داخل نطاق التوصيل",
     paymentRedirecting: "جارٍ التحويل إلى بوابة الدفع…",
@@ -3865,6 +3868,7 @@ const en: Messages = {
     editAddress: "Edit",
     deleteAddress: "Delete",
     pickOnMap: "Pick the location on the map",
+    resolvingAddress: "Finding address…",
     outsideCoverage: "This address is outside the delivery area",
     coverageOk: "This address is inside the delivery area",
     paymentRedirecting: "Redirecting to the payment gateway…",

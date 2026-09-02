@@ -124,6 +124,70 @@ export async function deleteAddressAction(id: string) {
   }
 }
 
+/**
+ * Turn a map pin into a human-readable street address via OpenStreetMap (Nominatim).
+ * One lookup per user map click — well within Nominatim's usage policy.
+ * The caller drops the result into an editable text field, so an empty string
+ * (no match) simply leaves the user to type the address themselves.
+ */
+export async function reverseGeocodeAction(
+  lat: number,
+  lng: number,
+  lang?: string,
+) {
+  try {
+    await requireAuth();
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return { success: true as const, data: "" };
+    }
+
+    const url = new URL("https://nominatim.openstreetmap.org/reverse");
+    url.searchParams.set("format", "jsonv2");
+    url.searchParams.set("lat", String(lat));
+    url.searchParams.set("lon", String(lng));
+    url.searchParams.set("zoom", "18");
+    url.searchParams.set("addressdetails", "1");
+
+    const acceptLanguage =
+      lang === "fa" ? "fa" : lang === "ar" ? "ar" : "en";
+
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "EliMarket-Storefront/1.0 (address map picker)",
+        "Accept-Language": acceptLanguage,
+      },
+      // Same pin resolves to the same address; let the platform cache for a day.
+      next: { revalidate: 86400 },
+    });
+    if (!res.ok) throw new Error(`Nominatim ${res.status}`);
+
+    const body = (await res.json()) as {
+      display_name?: string;
+      address?: Record<string, string>;
+    };
+
+    const a = body.address ?? {};
+    // Build a compact line from the most specific parts, skipping the country
+    // and postcode noise that Nominatim's display_name tacks on.
+    const parts = [
+      [a.road, a.house_number].filter(Boolean).join(" "),
+      a.neighbourhood ?? a.suburb ?? a.quarter,
+      a.city ?? a.town ?? a.village ?? a.municipality,
+      a.state ?? a.province,
+    ].filter((p): p is string => Boolean(p && p.trim()));
+
+    const sep = acceptLanguage === "en" ? ", " : "، ";
+    const line = parts.length > 0 ? parts.join(sep) : body.display_name ?? "";
+    return { success: true as const, data: line };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.coverageCheckFailed", err),
+    };
+  }
+}
+
 export async function checkAddressCoverageAction(lat: number, lng: number) {
   try {
     const { supabase } = await requireAuth();

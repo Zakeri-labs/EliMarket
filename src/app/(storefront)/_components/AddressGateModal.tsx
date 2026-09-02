@@ -32,7 +32,7 @@ export function AddressGateModal() {
   const status = useAuthStore((s) => s.status);
   const userId = useAuthStore((s) => s.session?.id);
   const { data: addresses, isSuccess, isFetching } = useAddresses();
-  const { t, dir } = useTranslations();
+  const { t, dir, locale } = useTranslations();
   const { isPending, runAction } = useFormAction();
   const queryClient = useQueryClient();
 
@@ -138,10 +138,13 @@ export function AddressGateModal() {
             <AddressMapPicker
               lat={lat}
               lng={lng}
+              lang={locale}
+              resolvingLabel={t("checkout.resolvingAddress")}
               onChange={(nextLat, nextLng) => {
                 setLat(nextLat);
                 setLng(nextLng);
               }}
+              onResolveAddress={setAddressLine}
             />
             {coverageOk === false && (
               <p className="text-sm text-red-400">{t("checkout.outsideCoverage")}</p>

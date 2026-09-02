@@ -29,7 +29,7 @@ const inputClass =
 
 export function AccountAddressesPanel() {
   const { data: addresses, isPending } = useAddresses();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const { isPending: isSaving, runAction } = useFormAction();
   const queryClient = useQueryClient();
 
@@ -206,10 +206,13 @@ export function AccountAddressesPanel() {
           <AddressMapPicker
             lat={lat}
             lng={lng}
+            lang={locale}
+            resolvingLabel={t("checkout.resolvingAddress")}
             onChange={(nextLat, nextLng) => {
               setLat(nextLat);
               setLng(nextLng);
             }}
+            onResolveAddress={setAddressLine}
           />
           <div className="flex gap-2">
             <Button type="submit" variant="secondary" loading={isSaving} loadingLabel={t("common.saving")}>

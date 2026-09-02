@@ -444,10 +444,13 @@ function CheckoutPageContent() {
                   <AddressMapPicker
                     lat={lat}
                     lng={lng}
+                    lang={locale}
+                    resolvingLabel={t("checkout.resolvingAddress")}
                     onChange={(nextLat, nextLng) => {
                       setLat(nextLat);
                       setLng(nextLng);
                     }}
+                    onResolveAddress={setAddressLine}
                   />
                   <div className="flex gap-2">
                     <Button
