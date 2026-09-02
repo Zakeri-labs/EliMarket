@@ -1,116 +1,112 @@
 import sharp from "sharp";
-import { removeStudioBackground } from "@/lib/images/remove-studio-background";
 
 const CANVAS_SIZE = 1200;
-// Fraction of the canvas kept empty on each side around the product — this
-// is what keeps the product from filling the whole frame edge-to-edge.
-const PADDING_RATIO = 0.16;
-// Light warm-gray studio backdrop, matching the store's catalog photography.
-const STUDIO_BACKGROUND = { r: 238, g: 238, b: 238, alpha: 1 } as const;
-// Zoom levels for successive framings: 1 = full product with generous
-// padding, >1 = progressively closer detail shots of the same real photo.
-const ZOOM_LEVELS = [1, 1.3, 1.65];
+// White in the source photo lands on this grey — a clearly grey studio sweep.
+const BG = 207;
+// Luma below this is left untouched, so the product's mid/shadow tones — and
+// the photo's own real contact shadow — are preserved; only the bright sweep
+// is pulled down to grey.
+const KNEE = 172;
+// Product box vs canvas at zoom 1; >1 = progressively closer detail crops.
+const INNER_RATIO = 0.9;
+const ZOOM_LEVELS = [1, 1.28, 1.6];
+
+/** input luma -> multiplier that maps white toward BG, hue preserved. */
+function toneCurve(): Float64Array {
+  const lut = new Float64Array(256);
+  for (let L = 0; L < 256; L += 1) {
+    lut[L] = L <= KNEE ? 1 : (KNEE + ((L - KNEE) * (BG - KNEE)) / (255 - KNEE)) / L;
+  }
+  return lut;
+}
+
+/** Radial "studio lighting" — brighter behind the product, falling off to the
+ *  corners. Applied over the whole frame so it can never leave a seam. */
+function studioLightOverlay(size: number): Buffer {
+  return Buffer.from(
+    `<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">` +
+      `<defs><radialGradient id="l" cx="50%" cy="41%" r="75%">` +
+      `<stop offset="0%" stop-color="#000" stop-opacity="0"/>` +
+      `<stop offset="50%" stop-color="#000" stop-opacity="0.02"/>` +
+      `<stop offset="100%" stop-color="#000" stop-opacity="0.17"/>` +
+      `</radialGradient></defs>` +
+      `<rect width="${size}" height="${size}" fill="url(#l)"/></svg>`,
+  );
+}
 
 /**
- * Composite an already-cutout (transparent background) product photo onto a
- * consistent light-gray studio backdrop with a soft drop shadow beneath it,
- * matching the store's catalog photography style. Pure pixel compositing —
- * never regenerates the product itself, so it's as safe as a crop/resize.
+ * Tone-map the real photo so its white sweep + own soft shadow roll into one
+ * grey, centre it on the canvas, and lay a radial studio-light gradient over
+ * everything. Optionally crop tighter first for a detail framing.
+ *
+ * Pure per-pixel curve + compositing — the product's own pixels (shape,
+ * colour, label text in every script) are never regenerated, only its bright
+ * highlights are gently compressed. So it is as safe as a crop/resize and can
+ * be auto-published, unlike a generative model's output.
  */
-async function composeOnStudioBackground(cutout: Buffer, zoom: number): Promise<Buffer> {
-  const meta = await sharp(cutout).metadata();
-  const srcW = meta.width ?? CANVAS_SIZE;
-  const srcH = meta.height ?? CANVAS_SIZE;
+async function studioize(bytes: Buffer, zoom = 1): Promise<Buffer> {
+  const src = sharp(bytes).rotate();
+  const { data, info } = await src.clone().removeAlpha().raw().toBuffer({ resolveWithObject: true });
 
-  let working = cutout;
-  let workingW = srcW;
-  let workingH = srcH;
-  if (zoom > 1) {
-    const cw = Math.max(1, Math.round(srcW / zoom));
-    const ch = Math.max(1, Math.round(srcH / zoom));
-    const left = Math.round((srcW - cw) / 2);
-    const top = Math.round((srcH - ch) / 2);
-    working = await sharp(cutout).extract({ left, top, width: cw, height: ch }).png().toBuffer();
-    workingW = cw;
-    workingH = ch;
+  const px = Buffer.from(data);
+  const lut = toneCurve();
+  for (let i = 0; i < px.length; i += 3) {
+    const L = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
+    const f = lut[Math.round(L)]!;
+    if (f === 1) continue;
+    px[i] = Math.min(255, Math.round(px[i] * f));
+    px[i + 1] = Math.min(255, Math.round(px[i + 1] * f));
+    px[i + 2] = Math.min(255, Math.round(px[i + 2] * f));
   }
 
-  const maxDim = Math.round(CANVAS_SIZE * (1 - PADDING_RATIO * 2));
-  const scale = Math.min(maxDim / workingW, maxDim / workingH, 1);
-  const productW = Math.max(1, Math.round(workingW * scale));
-  const productH = Math.max(1, Math.round(workingH * scale));
+  let toned = sharp(px, { raw: { width: info.width, height: info.height, channels: 3 } });
+  if (zoom > 1) {
+    const cw = Math.max(1, Math.round(info.width / zoom));
+    const ch = Math.max(1, Math.round(info.height / zoom));
+    toned = toned.extract({
+      left: Math.round((info.width - cw) / 2),
+      top: Math.round((info.height - ch) / 2),
+      width: cw,
+      height: ch,
+    });
+  }
 
-  const product = await sharp(working)
-    .resize(productW, productH, { fit: "inside" })
+  const inner = Math.round(CANVAS_SIZE * INNER_RATIO);
+  const margin = CANVAS_SIZE - inner;
+  const grey = { r: BG, g: BG, b: BG + 1 };
+  const framed = await toned
+    .resize(inner, inner, { fit: "contain", background: grey })
+    .extend({
+      top: margin >> 1,
+      bottom: margin - (margin >> 1),
+      left: margin >> 1,
+      right: margin - (margin >> 1),
+      background: grey,
+    })
+    .modulate({ saturation: 1.06 })
+    .linear(1.06, -8)
     .png()
     .toBuffer();
 
-  const left = Math.round((CANVAS_SIZE - productW) / 2);
-  const top = Math.round((CANVAS_SIZE - productH) / 2);
-  const shadowOffset = Math.round(CANVAS_SIZE * 0.014);
-  const shadowBlur = Math.max(6, Math.round(CANVAS_SIZE * 0.018));
-
-  // Soft shadow: a pure-black silhouette shaped by the product's own alpha
-  // channel (built via the alpha mask directly, never the product's actual
-  // colors, so it can't pick up a color tint), blurred and offset slightly
-  // down so only its soft edge peeks out from behind the product.
-  const alphaMask = await sharp(product).ensureAlpha().extractChannel(3).blur(shadowBlur).toBuffer();
-  const shadowShape = await sharp({
-    create: { width: productW, height: productH, channels: 3, background: { r: 0, g: 0, b: 0 } },
-  })
-    .joinChannel(alphaMask)
-    .png()
-    .toBuffer();
-
-  return sharp({
-    create: { width: CANVAS_SIZE, height: CANVAS_SIZE, channels: 4, background: STUDIO_BACKGROUND },
-  })
-    .composite([
-      { input: shadowShape, left, top: top + shadowOffset },
-      { input: product, left, top },
-    ])
+  return sharp(framed)
+    .composite([{ input: studioLightOverlay(CANVAS_SIZE) }])
     .png({ compressionLevel: 9, adaptiveFiltering: true })
     .toBuffer();
 }
 
-async function sharpenedCutout(bytes: Buffer): Promise<Buffer> {
-  const cleaned = await removeStudioBackground(bytes);
-  return sharp(cleaned)
-    .sharpen({ sigma: 1 })
-    .modulate({ brightness: 1.03, saturation: 1.05 })
-    .normalise()
-    .png()
-    .toBuffer();
-}
-
-/**
- * Deterministic, pixel-safe product photo enhancement: crops to the
- * product, sharpens/normalizes it, then composites it onto the store's
- * standard light-gray studio backdrop with a soft shadow. This never
- * regenerates pixels the way a generative image model does, so printed
- * label text (Persian/Arabic/English) can never be hallucinated or
- * corrupted — only real photo adjustments (crop, sharpen, exposure,
- * background/shadow compositing) are applied.
- */
+/** Single studio cover shot from a real product photo. */
 export async function enhanceProductPhoto(bytes: Buffer): Promise<Buffer> {
-  const cutout = await sharpenedCutout(bytes);
-  return composeOnStudioBackground(cutout, 1);
+  return studioize(bytes, 1);
 }
 
 /**
- * Build up to `count` genuinely different, pixel-safe framings of the same
- * enhanced photo — a full shot with generous padding, then progressively
- * closer detail crops — all on the same consistent studio backdrop, so the
- * catalog gets real visual variety without ever altering the product or
- * its label, and without the product looking oversized or the shots
- * looking like near-duplicates of each other.
+ * Up to `count` framings of the same photo — a full shot, then progressively
+ * closer detail crops — all on the identical studio backdrop, so the gallery
+ * gets real variety without ever altering the product or its label.
  */
 export async function buildProductPhotoFramings(bytes: Buffer, count: number): Promise<Buffer[]> {
-  const cutout = await sharpenedCutout(bytes);
   const levels = ZOOM_LEVELS.slice(0, Math.max(1, Math.min(count, ZOOM_LEVELS.length)));
-  const framings: Buffer[] = [];
-  for (const zoom of levels) {
-    framings.push(await composeOnStudioBackground(cutout, zoom));
-  }
-  return framings;
+  const out: Buffer[] = [];
+  for (const zoom of levels) out.push(await studioize(bytes, zoom));
+  return out;
 }

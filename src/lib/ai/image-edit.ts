@@ -34,7 +34,10 @@ export async function editProductImage(png: Buffer, prompt: string): Promise<Buf
 
 async function editWithGemini(png: Buffer, prompt: string): Promise<Buffer | null> {
   const key = getGeminiApiKey();
-  if (!key) return null;
+  if (!key) {
+    console.error("[image-edit] AI_IMAGE_PROVIDER=gemini but no GEMINI_API_KEY set");
+    return null;
+  }
   try {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${AI_IMAGE_MODEL}:generateContent?key=${encodeURIComponent(key)}`,
@@ -55,26 +58,39 @@ async function editWithGemini(png: Buffer, prompt: string): Promise<Buffer | nul
         }),
       },
     );
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[image-edit] Gemini ${AI_IMAGE_MODEL} ${res.status}: ${(await res.text()).slice(0, 300)}`);
+      return null;
+    }
     const json = (await res.json()) as {
       candidates?: Array<{
         content?: { parts?: Array<{ inlineData?: { data?: string }; inline_data?: { data?: string } }> };
+        finishReason?: string;
       }>;
+      promptFeedback?: unknown;
     };
     const parts = json.candidates?.[0]?.content?.parts ?? [];
     for (const part of parts) {
       const data = part.inlineData?.data ?? part.inline_data?.data;
       if (data) return Buffer.from(data, "base64");
     }
+    console.error(
+      `[image-edit] Gemini returned no image (finishReason=${json.candidates?.[0]?.finishReason}) ` +
+        JSON.stringify(json.promptFeedback ?? {}).slice(0, 200),
+    );
     return null;
-  } catch {
+  } catch (err) {
+    console.error("[image-edit] Gemini request threw:", err instanceof Error ? err.message : err);
     return null;
   }
 }
 
 async function editWithOpenAi(png: Buffer, prompt: string): Promise<Buffer | null> {
   const key = getOpenAiApiKey();
-  if (!key) return null;
+  if (!key) {
+    console.error("[image-edit] AI_IMAGE_PROVIDER=openai but no OPENAI_API_KEY set");
+    return null;
+  }
   try {
     const form = new FormData();
     form.append("image", new Blob([new Uint8Array(png)], { type: "image/png" }), "product.png");
@@ -88,7 +104,10 @@ async function editWithOpenAi(png: Buffer, prompt: string): Promise<Buffer | nul
       headers: { Authorization: `Bearer ${key}` },
       body: form,
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[image-edit] OpenAI ${AI_IMAGE_MODEL} ${res.status}: ${(await res.text()).slice(0, 300)}`);
+      return null;
+    }
     const json = (await res.json()) as { data?: Array<{ b64_json?: string; url?: string }> };
     const first = json.data?.[0];
     if (first?.b64_json) return Buffer.from(first.b64_json, "base64");
