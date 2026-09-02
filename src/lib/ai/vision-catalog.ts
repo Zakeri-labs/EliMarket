@@ -125,7 +125,10 @@ async function analyzeWithGemini(
       }),
     },
   );
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.error(`[vision-catalog] Gemini ${res.status}: ${(await res.text()).slice(0, 250)}`);
+    return null;
+  }
   const json = (await res.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
   };
@@ -166,7 +169,10 @@ async function analyzeWithOpenAi(
       ],
     }),
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.error(`[vision-catalog] OpenAI ${res.status}: ${(await res.text()).slice(0, 250)}`);
+    return null;
+  }
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
   };
@@ -187,19 +193,23 @@ export async function draftCatalogFromImages(input: {
   }));
 
   let parsed: Record<string, unknown> | null = null;
+  let via = "none";
   // Prefer OpenAI when configured (user .env), then Gemini.
   try {
     parsed = await analyzeWithOpenAi(payloads, prompt);
-  } catch {
-    parsed = null;
+    if (parsed) via = "openai";
+  } catch (err) {
+    console.error("[vision-catalog] OpenAI vision failed:", err instanceof Error ? err.message : err);
   }
   if (!parsed) {
     try {
       parsed = await analyzeWithGemini(payloads, prompt);
-    } catch {
-      parsed = null;
+      if (parsed) via = "gemini";
+    } catch (err) {
+      console.error("[vision-catalog] Gemini vision failed:", err instanceof Error ? err.message : err);
     }
   }
+  console.log(`[vision-catalog] product draft via ${via}`);
 
   const fallbackName = input.hintName?.trim() || "محصول جدید";
   const stub = buildProductDescriptionStub({

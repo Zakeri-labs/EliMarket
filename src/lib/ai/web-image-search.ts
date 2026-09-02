@@ -33,7 +33,11 @@ export async function searchProductImagesWithOpenAi(input: {
   count?: number;
 }): Promise<WebImageCandidate[]> {
   const key = getOpenAiApiKey();
-  if (!key || !AI_WEB_IMAGE_SEARCH_ENABLED || !input.query.trim()) return [];
+  if (!AI_WEB_IMAGE_SEARCH_ENABLED) return [];
+  if (!key || !input.query.trim()) {
+    console.error(`[web-image-search] skipped: ${!key ? "no OPENAI_API_KEY" : "empty query"}`);
+    return [];
+  }
 
   const count = Math.max(1, Math.min(input.count ?? 3, 5));
 
@@ -70,11 +74,15 @@ Rules:
         ],
       }),
     });
-  } catch {
+  } catch (err) {
+    console.error("[web-image-search] request threw:", err instanceof Error ? err.message : err);
     return [];
   }
 
-  if (!res.ok) return [];
+  if (!res.ok) {
+    console.error(`[web-image-search] ${AI_WEB_SEARCH_MODEL} ${res.status}: ${(await res.text()).slice(0, 250)}`);
+    return [];
+  }
 
   const json = (await res.json().catch(() => null)) as {
     output?: Array<{
