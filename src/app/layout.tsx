@@ -95,6 +95,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${BRAND_NAME_FA}`,
     },
     description: meta.siteDescription,
+    verification: publicEnv.googleSiteVerification
+      ? { google: publicEnv.googleSiteVerification }
+      : undefined,
     icons: {
       icon: [
         { url: "/favicon.ico", sizes: "any" },
