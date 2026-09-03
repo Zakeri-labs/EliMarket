@@ -14,7 +14,9 @@ export function StorefrontFooter() {
   const links = [
     { href: "/", label: t("nav.home") },
     { href: "/categories", label: t("nav.categories") },
+    { href: "/offers", label: t("nav.offers") },
     { href: "/blog", label: t("nav.blog") },
+    { href: "/contact", label: t("nav.contact") },
     { href: "/orders", label: t("nav.trackOrder") },
     { href: "/account", label: t("nav.account") },
   ];

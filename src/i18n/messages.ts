@@ -16,6 +16,8 @@ export type Messages = {
     accountSignIn: string;
     signIn: string;
     blog: string;
+    offers: string;
+    contact: string;
   };
   home: {
     deliverTo: string;
@@ -1159,7 +1161,66 @@ export type Messages = {
     saved: string;
     ctaBody: string;
   };
+  offers: {
+    title: string;
+    subtitle: string;
+    activeDeals: string;
+    weeklySpecials: string;
+    weeklySpecialsDesc: string;
+    freeDelivery: string;
+    freeDeliveryDesc: string;
+    freshDaily: string;
+    freshDailyDesc: string;
+    bulkDiscount: string;
+    bulkDiscountDesc: string;
+    firstOrder: string;
+    firstOrderDesc: string;
+    loyaltyProgram: string;
+    loyaltyProgramDesc: string;
+    browseCta: string;
+    noOffers: string;
+    validUntil: string;
+    termsApply: string;
+  };
+  contact: {
+    title: string;
+    subtitle: string;
+    getInTouch: string;
+    phone: string;
+    email: string;
+    whatsapp: string;
+    address: string;
+    workingHours: string;
+    workingHoursValue: string;
+    fridayHours: string;
+    sendMessage: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    subjectLabel: string;
+    subjectPlaceholder: string;
+    messageLabel: string;
+    messagePlaceholder: string;
+    submitBtn: string;
+    submitSuccess: string;
+    findUs: string;
+    followUs: string;
+    faq: string;
+    faqDeliveryQ: string;
+    faqDeliveryA: string;
+    faqPaymentQ: string;
+    faqPaymentA: string;
+    faqReturnQ: string;
+    faqReturnA: string;
+    faqHoursQ: string;
+    faqHoursA: string;
+  };
   meta: {
+    offersTitle: string;
+    offersDescription: string;
+    contactTitle: string;
+    contactDescription: string;
     siteDescription: string;
     storefrontTitle: string;
     productFallback: string;
@@ -1190,6 +1251,8 @@ const fa: Messages = {
     accountSignIn: "حساب / ورود",
     signIn: "ورود",
     blog: "بلاگ",
+    offers: "پیشنهادها",
+    contact: "تماس با ما",
   },
   home: {
     deliverTo: "تحویل به",
@@ -2416,7 +2479,66 @@ const fa: Messages = {
     saved: "ذخیره شد",
     ctaBody: "برای خرید حضوری باز هستیم و در سراسر مسقط و سیب ارسال داریم.",
   },
+  offers: {
+    title: "پیشنهادها و تخفیف‌ها",
+    subtitle: "بهترین فرصت‌های خرید را از دست ندهید",
+    activeDeals: "تخفیف‌های فعال",
+    weeklySpecials: "تخفیف‌های هفتگی",
+    weeklySpecialsDesc: "هر هفته محصولات منتخب با تخفیف ویژه. بررسی کنید و صرفه‌جویی کنید!",
+    freeDelivery: "ارسال رایگان",
+    freeDeliveryDesc: "برای سفارش‌های بالای ۱۰ ریال عمان، هزینه ارسال رایگان است.",
+    freshDaily: "محصولات تازه روزانه",
+    freshDailyDesc: "میوه و سبزیجات تازه هر روز مستقیم از مزرعه به فروشگاه می‌رسد.",
+    bulkDiscount: "تخفیف خرید عمده",
+    bulkDiscountDesc: "با خرید بیشتر، بیشتر صرفه‌جویی کنید. تخفیف‌های ویژه برای خرید عمده.",
+    firstOrder: "هدیه اولین سفارش",
+    firstOrderDesc: "اولین سفارش شما با ارسال رایگان و ۱۰٪ تخفیف همراه است.",
+    loyaltyProgram: "باشگاه مشتریان",
+    loyaltyProgramDesc: "با هر خرید امتیاز جمع کنید و از تخفیف‌های اختصاصی بهره‌مند شوید.",
+    browseCta: "مشاهده محصولات",
+    noOffers: "در حال حاضر پیشنهاد فعالی وجود ندارد.",
+    validUntil: "معتبر تا {date}",
+    termsApply: "شرایط و ضوابط اعمال می‌شود.",
+  },
+  contact: {
+    title: "تماس با ما",
+    subtitle: "خوشحال می‌شویم صدای شما را بشنویم",
+    getInTouch: "راه‌های ارتباط",
+    phone: "تلفن",
+    email: "ایمیل",
+    whatsapp: "واتساپ",
+    address: "آدرس",
+    workingHours: "ساعات کاری",
+    workingHoursValue: "شنبه تا پنجشنبه: ۸ صبح تا ۱۱ شب",
+    fridayHours: "جمعه: ۲ بعدازظهر تا ۱۱ شب",
+    sendMessage: "ارسال پیام",
+    nameLabel: "نام",
+    namePlaceholder: "نام شما",
+    emailLabel: "ایمیل",
+    emailPlaceholder: "example@email.com",
+    subjectLabel: "موضوع",
+    subjectPlaceholder: "موضوع پیام شما",
+    messageLabel: "پیام",
+    messagePlaceholder: "پیام خود را بنویسید…",
+    submitBtn: "ارسال پیام",
+    submitSuccess: "پیام شما ارسال شد. به زودی پاسخ خواهیم داد.",
+    findUs: "ما را پیدا کنید",
+    followUs: "ما را دنبال کنید",
+    faq: "سؤالات متداول",
+    faqDeliveryQ: "آیا ارسال رایگان دارید؟",
+    faqDeliveryA: "بله، برای سفارش‌های بالای ۱۰ ریال عمان ارسال رایگان است.",
+    faqPaymentQ: "روش‌های پرداخت چیست؟",
+    faqPaymentA: "پرداخت آنلاین، کارت‌خوان درب منزل و پرداخت نقدی.",
+    faqReturnQ: "آیا امکان مرجوع کالا وجود دارد؟",
+    faqReturnA: "بله، تا ۲۴ ساعت پس از تحویل می‌توانید کالا را مرجوع کنید.",
+    faqHoursQ: "ساعات کاری فروشگاه چیست؟",
+    faqHoursA: "شنبه تا پنجشنبه ۸ صبح تا ۱۱ شب، جمعه ۲ بعدازظهر تا ۱۱ شب.",
+  },
   meta: {
+    offersTitle: "پیشنهادها — هیلز الی مارت",
+    offersDescription: "بهترین تخفیف‌ها و پیشنهادهای ویژه فروشگاه هیلز الی مارت.",
+    contactTitle: "تماس با ما — هیلز الی مارت",
+    contactDescription: "راه‌های ارتباط با فروشگاه هیلز الی مارت در المولح، مسقط.",
     siteDescription: "خرید آنلاین — EliMarket",
     storefrontTitle: "فروشگاه",
     productFallback: "محصول",
@@ -2447,6 +2569,8 @@ const ar: Messages = {
     accountSignIn: "الحساب / تسجيل الدخول",
     signIn: "تسجيل الدخول",
     blog: "المدوّنة",
+    offers: "العروض",
+    contact: "اتصل بنا",
   },
   home: {
     deliverTo: "التوصيل إلى",
@@ -3673,7 +3797,66 @@ const ar: Messages = {
     saved: "تم الحفظ",
     ctaBody: "نرحّب بزيارتك إلى المتجر، ونوصّل إلى كل أنحاء مسقط والسيب.",
   },
+  offers: {
+    title: "العروض والخصومات",
+    subtitle: "لا تفوّت أفضل فرص التسوق",
+    activeDeals: "العروض الفعّالة",
+    weeklySpecials: "عروض الأسبوع",
+    weeklySpecialsDesc: "كل أسبوع منتجات مختارة بخصومات مميزة. تصفّح ووفّر!",
+    freeDelivery: "توصيل مجاني",
+    freeDeliveryDesc: "للطلبات فوق ١٠ ريال عماني، التوصيل مجاني.",
+    freshDaily: "منتجات طازجة يوميًا",
+    freshDailyDesc: "فواكه وخضروات طازجة تصل يوميًا من المزرعة إلى المتجر.",
+    bulkDiscount: "خصم الشراء بالجملة",
+    bulkDiscountDesc: "اشترِ أكثر ووفّر أكثر. خصومات خاصة للشراء بالجملة.",
+    firstOrder: "هدية الطلب الأول",
+    firstOrderDesc: "طلبك الأول بتوصيل مجاني وخصم ١٠٪.",
+    loyaltyProgram: "برنامج الولاء",
+    loyaltyProgramDesc: "اجمع نقاطًا مع كل عملية شراء واستمتع بخصومات حصرية.",
+    browseCta: "تصفّح المنتجات",
+    noOffers: "لا توجد عروض فعّالة حاليًا.",
+    validUntil: "صالح حتى {date}",
+    termsApply: "تُطبّق الشروط والأحكام.",
+  },
+  contact: {
+    title: "اتصل بنا",
+    subtitle: "يسعدنا سماع رأيك",
+    getInTouch: "طرق التواصل",
+    phone: "الهاتف",
+    email: "البريد الإلكتروني",
+    whatsapp: "واتساب",
+    address: "العنوان",
+    workingHours: "ساعات العمل",
+    workingHoursValue: "السبت – الخميس: ٨ صباحًا – ١١ مساءً",
+    fridayHours: "الجمعة: ٢ ظهرًا – ١١ مساءً",
+    sendMessage: "أرسل رسالة",
+    nameLabel: "الاسم",
+    namePlaceholder: "اسمك",
+    emailLabel: "البريد الإلكتروني",
+    emailPlaceholder: "example@email.com",
+    subjectLabel: "الموضوع",
+    subjectPlaceholder: "موضوع رسالتك",
+    messageLabel: "الرسالة",
+    messagePlaceholder: "اكتب رسالتك هنا…",
+    submitBtn: "إرسال الرسالة",
+    submitSuccess: "تم إرسال رسالتك. سنرد عليك قريبًا.",
+    findUs: "موقعنا",
+    followUs: "تابعنا",
+    faq: "الأسئلة الشائعة",
+    faqDeliveryQ: "هل لديكم توصيل مجاني؟",
+    faqDeliveryA: "نعم، للطلبات فوق ١٠ ريال عماني التوصيل مجاني.",
+    faqPaymentQ: "ما هي طرق الدفع؟",
+    faqPaymentA: "الدفع الإلكتروني، نقاط البيع عند التسليم، والدفع النقدي.",
+    faqReturnQ: "هل يمكن إرجاع المنتجات؟",
+    faqReturnA: "نعم، يمكنك إرجاع المنتجات خلال ٢٤ ساعة من التسليم.",
+    faqHoursQ: "ما هي ساعات عمل المتجر؟",
+    faqHoursA: "السبت – الخميس ٨ صباحًا – ١١ مساءً، الجمعة ٢ ظهرًا – ١١ مساءً.",
+  },
   meta: {
+    offersTitle: "العروض — هيلز إيلي مارت",
+    offersDescription: "أفضل العروض والخصومات من هيلز إيلي مارت.",
+    contactTitle: "اتصل بنا — هيلز إيلي مارت",
+    contactDescription: "طرق التواصل مع هيلز إيلي مارت في المعبيلة، مسقط.",
     siteDescription: "تسوق إلكتروني — إلي ماركت",
     storefrontTitle: "المتجر",
     productFallback: "منتج",
@@ -3704,6 +3887,8 @@ const en: Messages = {
     accountSignIn: "Account / Sign in",
     signIn: "Sign in",
     blog: "Blog",
+    offers: "Offers",
+    contact: "Contact",
   },
   home: {
     deliverTo: "Deliver to",
@@ -4930,7 +5115,66 @@ const en: Messages = {
     saved: "Saved",
     ctaBody: "We're open for walk-ins and we deliver across Muscat and Seeb.",
   },
+  offers: {
+    title: "Offers & Deals",
+    subtitle: "Don't miss our best shopping opportunities",
+    activeDeals: "Active Deals",
+    weeklySpecials: "Weekly Specials",
+    weeklySpecialsDesc: "Selected products at special prices every week. Browse and save!",
+    freeDelivery: "Free Delivery",
+    freeDeliveryDesc: "Free delivery on orders over 10 OMR.",
+    freshDaily: "Fresh Daily Produce",
+    freshDailyDesc: "Fresh fruits and vegetables delivered daily from the farm to our store.",
+    bulkDiscount: "Bulk Discounts",
+    bulkDiscountDesc: "Buy more, save more. Special discounts on bulk purchases.",
+    firstOrder: "First Order Gift",
+    firstOrderDesc: "Your first order comes with free delivery and 10% off.",
+    loyaltyProgram: "Loyalty Program",
+    loyaltyProgramDesc: "Earn points with every purchase and enjoy exclusive discounts.",
+    browseCta: "Browse Products",
+    noOffers: "No active offers at the moment.",
+    validUntil: "Valid until {date}",
+    termsApply: "Terms and conditions apply.",
+  },
+  contact: {
+    title: "Contact Us",
+    subtitle: "We'd love to hear from you",
+    getInTouch: "Get in Touch",
+    phone: "Phone",
+    email: "Email",
+    whatsapp: "WhatsApp",
+    address: "Address",
+    workingHours: "Working Hours",
+    workingHoursValue: "Saturday – Thursday: 8 AM – 11 PM",
+    fridayHours: "Friday: 2 PM – 11 PM",
+    sendMessage: "Send a Message",
+    nameLabel: "Name",
+    namePlaceholder: "Your name",
+    emailLabel: "Email",
+    emailPlaceholder: "example@email.com",
+    subjectLabel: "Subject",
+    subjectPlaceholder: "What is your message about?",
+    messageLabel: "Message",
+    messagePlaceholder: "Write your message here…",
+    submitBtn: "Send Message",
+    submitSuccess: "Your message has been sent. We'll get back to you soon.",
+    findUs: "Find Us",
+    followUs: "Follow Us",
+    faq: "Frequently Asked Questions",
+    faqDeliveryQ: "Do you offer free delivery?",
+    faqDeliveryA: "Yes, delivery is free for orders over 10 OMR.",
+    faqPaymentQ: "What payment methods do you accept?",
+    faqPaymentA: "Online payment, card on delivery, and cash on delivery.",
+    faqReturnQ: "Can I return products?",
+    faqReturnA: "Yes, you can return products within 24 hours of delivery.",
+    faqHoursQ: "What are your working hours?",
+    faqHoursA: "Saturday–Thursday 8 AM–11 PM, Friday 2 PM–11 PM.",
+  },
   meta: {
+    offersTitle: "Offers — Hills Eli Mart",
+    offersDescription: "The best deals and offers from Hills Eli Mart.",
+    contactTitle: "Contact Us — Hills Eli Mart",
+    contactDescription: "Get in touch with Hills Eli Mart in Al Mawaleh, Muscat.",
     siteDescription: "Online shopping — EliMarket",
     storefrontTitle: "Store",
     productFallback: "Product",

@@ -21,14 +21,17 @@ export function UtilityBar() {
           {rich("home.utilityFreeDelivery", { amount: <Price amount={5} /> })}
         </p>
         <div className="flex shrink-0 items-center gap-6">
+          <Link href="/offers" className="hover:text-text-primary" suppressHydrationWarning>
+            {t("nav.offers")}
+          </Link>
           <Link href="/blog" className="hover:text-text-primary" suppressHydrationWarning>
             {t("nav.blog")}
           </Link>
+          <Link href="/contact" className="hover:text-text-primary" suppressHydrationWarning>
+            {t("nav.contact")}
+          </Link>
           <Link href="/orders" className="hover:text-text-primary" suppressHydrationWarning>
             {t("nav.trackOrder")}
-          </Link>
-          <Link href="/account" className="hover:text-text-primary" suppressHydrationWarning>
-            {t("nav.help")}
           </Link>
           <div
             className="inline-flex items-center gap-0.5 rounded-full p-0.5"

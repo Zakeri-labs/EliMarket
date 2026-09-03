@@ -21,19 +21,20 @@ export const STORE_LOCATION = {
   /** Exact pin. */
   coordinates: { lat: 23.576365, lng: 58.2986085 },
   /** The short link the store shares with customers. */
-  googleMapsUrl: "https://maps.app.goo.gl/BwBXt5wQCj4sM5NH7",
+  googleMapsUrl: "https://maps.app.goo.gl/BwBXt5wQCj4sM5NH7?g_st=ic",
   /** Delivery reach, in plain words, per locale (matches the storefront copy). */
   deliveryArea: {
     fa: "مسقط و سیب",
     ar: "مسقط والسيب",
     en: "Muscat and Seeb",
   },
+  /** Public inbox — used on the contact page and mailto form. */
+  email: "hello@hillseli.om",
 } as const;
 
-/** A universal `geo:` / maps deep link built from the exact pin. */
+/** Opens the store's official Google Maps pin (the short link customers share). */
 export function storeGeoUrl(): string {
-  const { lat, lng } = STORE_LOCATION.coordinates;
-  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  return STORE_LOCATION.googleMapsUrl;
 }
 
 type LocaleKey = "fa" | "ar" | "en";

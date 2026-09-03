@@ -71,7 +71,7 @@ export function CategoryNav() {
             );
           })}
         </nav>
-        <Link href="/search?sale=1" className="ms-auto text-sm text-accent-gold">
+        <Link href="/offers" className="ms-auto text-sm text-accent-gold">
           {t("home.flashDeals")}
         </Link>
       </div>
