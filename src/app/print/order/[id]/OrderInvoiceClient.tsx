@@ -5,7 +5,8 @@ import { getOrderByIdAction } from "@/app/_actions/order-actions";
 import { getStoreSettingsAction } from "@/app/_actions/settings-actions";
 import { BRAND_NAME } from "@/config/brand";
 import { getDirection, getNumberLocale } from "@/i18n/config";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 import type { Order, StoreSettings } from "@/app/_types/database.types";
 
 type Width = "58" | "80";
@@ -23,7 +24,6 @@ function readStoredWidth(): Width {
 
 export default function OrderInvoiceClient({ orderId }: { orderId: string }) {
   const { t, locale } = useTranslations();
-  const formatPrice = useFormatPrice();
   const dir = getDirection(locale);
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -246,11 +246,11 @@ export default function OrderInvoiceClient({ orderId }: { orderId: string }) {
                     <span style={{ flex: 1, wordBreak: "break-word" }}>
                       {item.product?.name ?? item.product_id}
                     </span>
-                    <span style={{ whiteSpace: "nowrap" }}>{formatPrice(line, order.currency)}</span>
+                    <Price amount={line} currency={order.currency} />
                   </div>
                   <div dir="ltr" style={{ opacity: 0.7, textAlign: dir === "rtl" ? "right" : "left" }}>
                     {item.quantity.toLocaleString(getNumberLocale(locale))} ×{" "}
-                    {formatPrice(Number(item.unit_price), order.currency)}
+                    <Price amount={Number(item.unit_price)} currency={order.currency} />
                   </div>
                 </div>
               );
@@ -258,13 +258,19 @@ export default function OrderInvoiceClient({ orderId }: { orderId: string }) {
 
             <Divider />
 
-            <Row label={t("receipt.subtotal")} value={formatPrice(totals.subtotal, order.currency)} />
+            <Row
+              label={t("receipt.subtotal")}
+              value={<Price amount={totals.subtotal} currency={order.currency} />}
+            />
             <Row
               label={t("receipt.deliveryAndVat")}
-              value={formatPrice(totals.deliveryAndVat, order.currency)}
+              value={<Price amount={totals.deliveryAndVat} currency={order.currency} />}
             />
             {totals.cashFee > 0 ? (
-              <Row label={t("receipt.cashFee")} value={formatPrice(totals.cashFee, order.currency)} />
+              <Row
+                label={t("receipt.cashFee")}
+                value={<Price amount={totals.cashFee} currency={order.currency} />}
+              />
             ) : null}
 
             <div
@@ -278,7 +284,7 @@ export default function OrderInvoiceClient({ orderId }: { orderId: string }) {
               }}
             >
               <span style={{ flex: 1 }}>{t("receipt.total")}</span>
-              <span>{formatPrice(totals.grand, order.currency)}</span>
+              <Price amount={totals.grand} currency={order.currency} />
             </div>
 
             <Divider />

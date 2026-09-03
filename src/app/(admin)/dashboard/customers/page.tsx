@@ -10,11 +10,11 @@ import {
 } from "@/app/_actions/customer-actions";
 import { DataTable } from "@/components/table";
 import { getNumberLocale } from "@/i18n/config";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 
 export default function AdminCustomersPage() {
   const { t, locale } = useTranslations();
-  const formatPrice = useFormatPrice();
 
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ["admin-customers"],
@@ -46,7 +46,7 @@ export default function AdminCustomersPage() {
       {
         accessorKey: "spent",
         header: t("admin.customers.colSpent"),
-        cell: ({ getValue }) => formatPrice(Number(getValue())),
+        cell: ({ getValue }) => <Price amount={Number(getValue())} />,
       },
       {
         accessorKey: "created_at",
@@ -55,7 +55,7 @@ export default function AdminCustomersPage() {
           new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale)),
       },
     ],
-    [t, locale, formatPrice],
+    [t, locale],
   );
 
   return (

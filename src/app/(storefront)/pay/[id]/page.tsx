@@ -10,7 +10,8 @@ import {
 } from "@/app/_actions/payment-actions";
 import { Button } from "@/components/ui/Button";
 import { useFormAction } from "@/app/hooks/use-form-action";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 import type { Payment } from "@/app/_types/database.types";
 
 export default function PayPage({ params }: { params: Promise<{ id: string }> }) {
@@ -26,7 +27,6 @@ function PayPageContent({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useTranslations();
-  const formatPrice = useFormatPrice();
   const { runAction, isPending } = useFormAction();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +73,8 @@ function PayPageContent({ params }: { params: Promise<{ id: string }> }) {
     <main className="mx-auto max-w-md space-y-4 px-4 py-10">
       <h1 className="text-xl font-bold">{t("checkout.payNow")}</h1>
       <p className="text-sm text-muted">
-        {t("checkout.paymentPending")} — {formatPrice(Number(payment.amount), payment.currency)}
+        {t("checkout.paymentPending")} —{" "}
+        <Price amount={Number(payment.amount)} currency={payment.currency} />
       </p>
       {(cancelled || payment.status === "failed") && (
         <p className="text-sm text-red-400">{t("checkout.paymentFailed")}</p>

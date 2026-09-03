@@ -36,7 +36,9 @@ import { CartGate } from "@/app/(storefront)/_components/CartGate";
 import { StorefrontBreadcrumbs } from "@/app/(storefront)/_components/StorefrontBreadcrumbs";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { cn } from "@/app/utils/cn";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { useRichText } from "@/i18n/rich-text";
+import { Price } from "@/components/ui/Price";
 import "leaflet/dist/leaflet.css";
 
 const AddressMapPicker = dynamic(
@@ -89,7 +91,7 @@ function CheckoutPageContent() {
   const { status, session, updateSession } = useAuthStore();
   const { isPending, runAction } = useFormAction();
   const { t, messages, locale, dir } = useTranslations();
-  const formatPrice = useFormatPrice();
+  const rich = useRichText();
   const { cashSurcharge } = useStoreSettings();
 
   const deliverySlots = messages.checkout.deliverySlots;
@@ -603,27 +605,27 @@ function CheckoutPageContent() {
             <div className="space-y-2.5 text-sm tabular-nums md:space-y-3.5 md:text-[15px]">
               <div className="flex justify-between text-text-secondary">
                 <span>{t("checkout.subtotal")}</span>
-                <span className="text-text-primary">{formatPrice(subtotal)}</span>
+                <span className="text-text-primary"><Price amount={subtotal} /></span>
               </div>
               <div className="flex justify-between text-text-secondary">
                 <span>{t("checkout.delivery")}</span>
                 <span className="text-text-primary">
-                  {deliveryFee === 0 ? t("common.free") : formatPrice(deliveryFee)}
+                  {deliveryFee === 0 ? t("common.free") : <Price amount={deliveryFee} />}
                 </span>
               </div>
               <div className="flex justify-between text-text-secondary">
                 <span>{t("checkout.vat")}</span>
-                <span className="text-text-primary">{formatPrice(vat)}</span>
+                <span className="text-text-primary"><Price amount={vat} /></span>
               </div>
               {cashFee > 0 ? (
                 <div className="flex justify-between text-text-secondary">
                   <span>{t("checkout.cashFee")}</span>
-                  <span className="text-text-primary">{formatPrice(cashFee)}</span>
+                  <span className="text-text-primary"><Price amount={cashFee} /></span>
                 </div>
               ) : null}
               <div className="flex justify-between border-t border-border-subtle pt-3 text-base font-bold md:pt-4 md:text-lg">
                 <span className="text-text-primary">{t("checkout.total")}</span>
-                <span className="text-accent-teal">{formatPrice(grandTotal)}</span>
+                <span className="text-accent-teal"><Price amount={grandTotal} /></span>
               </div>
             </div>
           </section>
@@ -640,7 +642,7 @@ function CheckoutPageContent() {
               onClick={placeOrder}
               className="!h-12 !rounded-xl !bg-accent-teal !text-base !text-on-accent shadow-none"
             >
-              {t("checkout.submitOrder", { price: formatPrice(grandTotal) })}
+              {rich("checkout.submitOrder", { price: <Price amount={grandTotal} /> })}
             </Button>
           </div>
         </div>
@@ -658,7 +660,7 @@ function CheckoutPageContent() {
           onClick={placeOrder}
           className="!rounded-xl !bg-accent-teal !text-on-accent shadow-none"
         >
-          {t("checkout.submitOrder", { price: formatPrice(total) })}
+          {rich("checkout.submitOrder", { price: <Price amount={total} /> })}
         </Button>
       </div>
 

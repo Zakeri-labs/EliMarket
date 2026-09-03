@@ -5,12 +5,12 @@ import { useOrders } from "@/app/(admin)/dashboard/_hooks/use-orders";
 import { StorefrontBreadcrumbs } from "@/app/(storefront)/_components/StorefrontBreadcrumbs";
 import { useLocaleStore } from "@/app/_store/locale-store";
 import { getNumberLocale } from "@/i18n/config";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 
 export default function OrdersListPage() {
   const { data: orders, isLoading, error } = useOrders();
   const { t } = useTranslations();
-  const formatPrice = useFormatPrice();
   const locale = useLocaleStore((s) => s.locale);
 
   return (
@@ -48,9 +48,11 @@ export default function OrdersListPage() {
               <p className="mt-1 text-xs text-muted md:text-sm">
                 {new Date(order.created_at).toLocaleDateString(getNumberLocale(locale))}
               </p>
-              <p className="mt-3 font-bold text-accent md:text-lg">
-                {formatPrice(Number(order.total), order.currency)}
-              </p>
+              <Price
+                amount={Number(order.total)}
+                currency={order.currency}
+                className="mt-3 block font-bold text-accent md:text-lg"
+              />
             </Link>
           </li>
         ))}

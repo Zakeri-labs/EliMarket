@@ -18,7 +18,8 @@ import {
 } from "recharts";
 import type { FinancialReport, PeriodBucket } from "@/app/_actions/report-actions";
 import { getNumberLocale, type Locale } from "@/i18n/config";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 
 const SAGE = "#0d9488";
 const SAGE_DARK = "#0f766e";
@@ -62,7 +63,6 @@ function truncateName(name: string, max = 18) {
 
 export function DashboardCharts({ report }: { report: FinancialReport }) {
   const { t, locale } = useTranslations();
-  const formatPrice = useFormatPrice();
   const [period, setPeriod] = useState<PeriodKey>("daily");
 
   const salesData = useMemo(() => {
@@ -143,7 +143,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
                   contentStyle={tooltipStyle}
                   formatter={(value, name) =>
                     name === "total"
-                      ? [formatPrice(Number(value)), t("admin.dashboard.chartRevenue")]
+                      ? [<Price key="v" amount={Number(value)} />, t("admin.dashboard.chartRevenue")]
                       : [String(value), t("admin.dashboard.chartOrders")]
                   }
                 />
@@ -190,7 +190,9 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
                       const row = item?.payload as { fullName?: string; revenue?: number };
                       if (name === "quantity") {
                         return [
-                          `${value} · ${formatPrice(Number(row.revenue ?? 0))}`,
+                          <span key="v">
+                            {String(value)} · <Price amount={Number(row.revenue ?? 0)} />
+                          </span>,
                           row.fullName ?? t("admin.dashboard.soldCount", { count: Number(value) }),
                         ];
                       }

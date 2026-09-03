@@ -18,7 +18,9 @@ import {
   cartTotals,
 } from "@/config/brand";
 import { cn } from "@/app/utils/cn";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { useRichText } from "@/i18n/rich-text";
+import { Price } from "@/components/ui/Price";
 
 function CartQtyStepper({
   quantity,
@@ -60,7 +62,7 @@ function CartPageContent() {
   const { items, updateQuantity, removeItem, clearCart, totalPrice, totalItems, isSyncing } =
     useCartStore();
   const { t, dir } = useTranslations();
-  const formatPrice = useFormatPrice();
+  const rich = useRichText();
   const [pendingDelete, setPendingDelete] = useState<"all" | string | null>(null);
   const isSkeleton = isSyncing;
   const itemCount = totalItems();
@@ -114,8 +116,8 @@ function CartPageContent() {
                 <p className="text-start text-sm leading-relaxed text-muted">
                   {hasFreeDelivery
                     ? t("cart.freeDeliveryUnlocked")
-                    : t("cart.freeDeliveryProgress", {
-                        amount: formatPrice(remaining),
+                    : rich("cart.freeDeliveryProgress", {
+                        amount: <Price amount={remaining} />,
                         highlight: t("cart.freeDeliveryHighlight"),
                       })}
                 </p>
@@ -163,9 +165,11 @@ function CartPageContent() {
                           <p className="text-start text-sm font-semibold leading-snug">
                             {item.name}
                           </p>
-                          <p className="price-num mt-2 text-start text-sm font-bold tabular-nums">
-                            {formatPrice(item.price, item.currency)}
-                          </p>
+                          <Price
+                            amount={item.price}
+                            currency={item.currency}
+                            className="mt-2 block text-start text-sm font-bold"
+                          />
                         </div>
                         <button
                           type="button"
@@ -202,15 +206,15 @@ function CartPageContent() {
             <div className="space-y-2 border-t border-border p-4 text-sm tabular-nums">
               <div className="flex items-center justify-between text-muted">
                 <span>{t("cart.subtotal")}</span>
-                <span>{formatPrice(subtotal)}</span>
+                <Price amount={subtotal} />
               </div>
               <div className="flex items-center justify-between text-muted">
                 <span>{t("cart.deliveryFee")}</span>
-                <span>{deliveryFee === 0 ? t("cart.free") : formatPrice(deliveryFee)}</span>
+                <span>{deliveryFee === 0 ? t("cart.free") : <Price amount={deliveryFee} />}</span>
               </div>
               <div className="flex items-center justify-between pt-1 font-bold">
                 <span>{t("cart.total")}</span>
-                <span className="text-accent">{formatPrice(total)}</span>
+                <Price amount={total} className="text-accent" />
               </div>
             </div>
           </div>
@@ -241,8 +245,8 @@ function CartPageContent() {
                 <div className="flex items-center gap-2 text-xs">
                   <AppIcon icon={Truck} size="sm" className="text-accent" />
                   <span>
-                    {t("cart.freeDeliveryProgress", {
-                      amount: formatPrice(remaining),
+                    {rich("cart.freeDeliveryProgress", {
+                      amount: <Price amount={remaining} />,
                       highlight: t("cart.freeDeliveryHighlight"),
                     })}
                   </span>
@@ -285,7 +289,7 @@ function CartPageContent() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{item.name}</p>
-                    <p className="price-num text-xs text-accent tabular-nums">{formatPrice(item.price, item.currency)}</p>
+                    <Price amount={item.price} currency={item.currency} className="block text-xs text-accent" />
                     <div className="mt-2">
                       <CartQtyStepper
                         quantity={item.quantity}
@@ -321,19 +325,19 @@ function CartPageContent() {
             <div className="space-y-2 rounded-2xl border border-border bg-surface p-4 text-sm tabular-nums lg:sticky lg:top-24">
               <div className="flex justify-between text-muted">
                 <span>{t("cart.subtotal")}</span>
-                <span>{formatPrice(subtotal)}</span>
+                <Price amount={subtotal} />
               </div>
               <div className="flex justify-between text-muted">
                 <span>{t("cart.deliveryFee")}</span>
-                <span>{deliveryFee === 0 ? t("cart.free") : formatPrice(deliveryFee)}</span>
+                <span>{deliveryFee === 0 ? t("cart.free") : <Price amount={deliveryFee} />}</span>
               </div>
               <div className="flex justify-between text-muted">
                 <span>{t("cart.vat", { percent: Math.round(VAT_RATE * 100) })}</span>
-                <span>{formatPrice(vat)}</span>
+                <Price amount={vat} />
               </div>
               <div className="flex justify-between border-t border-border pt-2 font-bold text-accent">
                 <span>{t("cart.total")}</span>
-                <span>{formatPrice(total)}</span>
+                <Price amount={total} />
               </div>
             </div>
 

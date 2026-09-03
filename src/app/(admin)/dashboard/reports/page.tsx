@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
 import { DataTable } from "@/components/table";
-import { DEFAULT_CURRENCY, formatPrice } from "@/config/brand";
 import { getNumberLocale } from "@/i18n/config";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 import type { Order, OrderStatus } from "@/app/_types/database.types";
 
 const STATUS_KEYS: OrderStatus[] = [
@@ -20,7 +20,7 @@ const STATUS_KEYS: OrderStatus[] = [
   "cancelled",
 ];
 
-function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function StatCard({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
     <div className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
       <p className="text-sm text-[#71717a]">{label}</p>
@@ -35,7 +35,6 @@ export default function AdminReportsPage() {
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
   const isSkeleton = isPending;
   const { t, locale } = useTranslations();
-  const formatLocalizedPrice = useFormatPrice();
 
   const orderColumns = useMemo<ColumnDef<Order>[]>(
     () => [
@@ -87,11 +86,11 @@ export default function AdminReportsPage() {
         accessorKey: "total",
         header: t("admin.reports.colAmount"),
         cell: ({ getValue }) => (
-          <span className="font-medium">{formatLocalizedPrice(Number(getValue()))}</span>
+          <Price amount={Number(getValue())} className="font-medium" />
         ),
       },
     ],
-    [t, locale, formatLocalizedPrice],
+    [t, locale],
   );
 
   return (
@@ -104,21 +103,21 @@ export default function AdminReportsPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               label={t("admin.reports.deliveredRevenue")}
-              value={formatPrice(report.deliveredRevenue, DEFAULT_CURRENCY, locale)}
+              value={<Price amount={report.deliveredRevenue} />}
               sub={t("admin.reports.ordersCount", { count: report.deliveredCount })}
             />
             <StatCard
               label={t("admin.reports.pendingRevenue")}
-              value={formatPrice(report.pendingRevenue, DEFAULT_CURRENCY, locale)}
+              value={<Price amount={report.pendingRevenue} />}
               sub={t("admin.reports.activeOrders", { count: report.pendingCount })}
             />
             <StatCard
               label={t("admin.reports.cashPayment")}
-              value={formatPrice(report.cashRevenue, DEFAULT_CURRENCY, locale)}
+              value={<Price amount={report.cashRevenue} />}
             />
             <StatCard
               label={t("admin.reports.onlinePayment")}
-              value={formatPrice(report.onlineRevenue, DEFAULT_CURRENCY, locale)}
+              value={<Price amount={report.onlineRevenue} />}
             />
           </div>
 
@@ -157,9 +156,7 @@ export default function AdminReportsPage() {
                     {rows.map((row) => (
                       <li key={row.period} className="flex justify-between text-sm">
                         <span className="text-[#71717a]">{row.period}</span>
-                        <span className="font-medium">
-                          {formatPrice(row.total, DEFAULT_CURRENCY, locale)}
-                        </span>
+                        <Price amount={row.total} className="font-medium" />
                         <span className="text-[#71717a]">
                           {t("admin.reports.ordersCount", { count: row.count })}
                         </span>

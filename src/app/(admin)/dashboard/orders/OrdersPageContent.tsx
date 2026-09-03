@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/app/utils/cn";
 import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 import type { Order, OrderStatus } from "@/app/_types/database.types";
 
 const STATUS_FLOW: OrderStatus[] = [
@@ -204,10 +205,11 @@ export default function OrdersPageContent() {
                   >
                     {t(`admin.orders.status.${status}`)}
                   </span>
-                  <span className="rounded-full bg-[#0f766e] px-2.5 py-1 text-xs font-bold text-white tabular-nums">
-                    {Number(order.total).toLocaleString(getNumberLocale(locale))}{" "}
-                    {order.currency}
-                  </span>
+                  <Price
+                    amount={Number(order.total)}
+                    currency={order.currency}
+                    className="rounded-full bg-[#0f766e] px-2.5 py-1 text-xs font-bold text-white"
+                  />
                 </div>
               </div>
 

@@ -13,14 +13,14 @@ import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 
 export default function OrderTrackingClient({ orderId }: { orderId: string }) {
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(true);
   const { t, dir } = useTranslations();
-  const formatPrice = useFormatPrice();
 
   useEffect(() => {
     let mounted = true;
@@ -196,16 +196,20 @@ export default function OrderTrackingClient({ orderId }: { orderId: string }) {
                       ×{item.quantity}
                     </p>
                   </div>
-                  <p className="shrink-0 text-sm font-semibold text-text-primary tabular-nums md:text-[15px]">
-                    {formatPrice(Number(item.unit_price) * item.quantity)}
-                  </p>
+                  <Price
+                    amount={Number(item.unit_price) * item.quantity}
+                    currency={order.currency}
+                    className="shrink-0 text-sm font-semibold text-text-primary md:text-[15px]"
+                  />
                 </li>
               ))}
               <li className="flex items-center justify-between rounded-2xl border border-border-subtle bg-bg-card px-4 py-3.5 text-sm md:px-5 md:py-4 md:text-base">
                 <span className="text-text-secondary">{t("checkout.total")}</span>
-                <span className="font-bold text-accent-teal tabular-nums">
-                  {formatPrice(Number(order.total), order.currency)}
-                </span>
+                <Price
+                  amount={Number(order.total)}
+                  currency={order.currency}
+                  className="font-bold text-accent-teal"
+                />
               </li>
             </ul>
 

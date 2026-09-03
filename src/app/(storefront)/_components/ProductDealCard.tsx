@@ -116,9 +116,11 @@ export function ProductDealCard({
             className="text-sm font-bold text-accent-teal"
           />
           {compareAt != null && (
-            <span className="price-num text-[10px] text-price-strike line-through">
-              {formatPrice(compareAt, product.currency)}
-            </span>
+            <Price
+              amount={compareAt}
+              currency={product.currency}
+              className="text-[10px] text-price-strike line-through"
+            />
           )}
         </div>
       </div>

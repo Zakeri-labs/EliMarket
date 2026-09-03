@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getProductVariantsAction } from "@/app/_actions/product-actions";
 import { cn } from "@/app/utils/cn";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 
 type Props = {
   productId: string;
@@ -13,7 +14,6 @@ type Props = {
 
 export function SizeVariantChips({ productId, currentProductId }: Props) {
   const { t, dir } = useTranslations();
-  const formatPrice = useFormatPrice();
 
   const { data: variants } = useQuery({
     queryKey: ["product-variants", productId],
@@ -52,9 +52,11 @@ export function SizeVariantChips({ productId, currentProductId }: Props) {
               <span className="text-sm font-semibold">
                 {variant.variant_label || variant.slug}
               </span>
-              <span data-price className="price-num text-[11px] text-muted">
-                {formatPrice(Number(variant.price), variant.currency)}
-              </span>
+              <Price
+                amount={Number(variant.price)}
+                currency={variant.currency}
+                className="text-[11px] text-muted"
+              />
             </Link>
           );
         })}

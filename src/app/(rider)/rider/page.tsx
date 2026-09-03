@@ -14,7 +14,8 @@ import { useFormAction } from "@/app/hooks/use-form-action";
 import { cn } from "@/app/utils/cn";
 import { Button } from "@/components/ui/Button";
 import { getNumberLocale } from "@/i18n/config";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 import type { Order } from "@/app/_types/database.types";
 
 type OrdersTab = "assigned" | "ready" | "history";
@@ -27,7 +28,6 @@ function OrderCard({
   actions?: ReactNode;
 }) {
   const { t, locale } = useTranslations();
-  const formatPrice = useFormatPrice();
 
   return (
     <article className="rounded-2xl border border-border bg-surface p-4">
@@ -41,9 +41,11 @@ function OrderCard({
             {t(`orders.status.${order.status}`) || order.status}
           </p>
         </div>
-        <p className="font-bold text-accent">
-          {formatPrice(Number(order.total), order.currency)}
-        </p>
+        <Price
+          amount={Number(order.total)}
+          currency={order.currency}
+          className="font-bold text-accent"
+        />
       </div>
       {order.address?.address_line ? (
         <p className="mt-3 text-sm text-muted">{order.address.address_line}</p>

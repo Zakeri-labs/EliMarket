@@ -6,7 +6,8 @@ import { cn } from "@/app/utils/cn";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 import { resolveProductCardExcerpt } from "@/lib/i18n/product-description";
 import { resolveProductName } from "@/lib/i18n/product-name";
 import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
@@ -17,7 +18,6 @@ import { productCompareAtPrice } from "@/lib/products/pricing";
 type Props = { product: Product; compact?: boolean; isSkeleton?: boolean };
 
 export function ProductCard({ product, compact, isSkeleton = false }: Props) {
-  const formatPrice = useFormatPrice();
   const { locale, dir } = useTranslations();
   const excerpt = resolveProductCardExcerpt(product, locale);
   const name = resolveProductName(product, locale);
@@ -66,9 +66,13 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
               <p className="mt-0.5 line-clamp-1 text-[11px] text-muted">{excerpt}</p>
             )}
             <div data-price className="mt-1 flex items-baseline gap-1.5 tabular-nums">
-              <p className="price-num text-xs font-semibold">{formatPrice(Number(product.price))}</p>
+              <p className="price-num text-xs font-semibold">
+                <Price amount={Number(product.price)} currency={product.currency} />
+              </p>
               {compareAt != null && (
-                <p className="price-num text-[10px] text-muted line-through">{formatPrice(compareAt)}</p>
+                <p className="price-num text-[10px] text-muted line-through">
+                  <Price amount={compareAt} currency={product.currency} />
+                </p>
               )}
             </div>
           </div>

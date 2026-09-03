@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { AlertTriangle, ShoppingBag } from "lucide-react";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
@@ -11,7 +12,8 @@ import { DashboardCharts } from "@/app/(admin)/dashboard/_components/DashboardCh
 import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { getNumberLocale } from "@/i18n/config";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 import { cn } from "@/app/utils/cn";
 import type { PeriodSummary } from "@/app/_actions/report-actions";
 
@@ -22,8 +24,8 @@ function StatCard({
   tone = "default",
 }: {
   label: string;
-  value: string;
-  sub?: string;
+  value: ReactNode;
+  sub?: ReactNode;
   tone?: "default" | "warn" | "danger";
 }) {
   return (
@@ -46,13 +48,12 @@ function StatCard({
 
 export default function AdminDashboardPage() {
   const { t, locale } = useTranslations();
-  const formatPrice = useFormatPrice();
   const { data: report, isPending, error } = useFinancialReport();
 
   const periodCard = (label: string, summary?: PeriodSummary) => (
     <StatCard
       label={label}
-      value={formatPrice(summary?.revenue ?? 0)}
+      value={<Price amount={summary?.revenue ?? 0} />}
       sub={t("admin.reports.ordersCount", { count: summary?.orders ?? 0 })}
     />
   );
@@ -77,7 +78,7 @@ export default function AdminDashboardPage() {
               <StatCard
                 label={t("admin.dashboard.activeOrders")}
                 value={String(report.pendingCount)}
-                sub={formatPrice(report.pendingRevenue)}
+                sub={<Price amount={report.pendingRevenue} />}
               />
               <StatCard
                 label={t("admin.dashboard.lowStockTitle")}
@@ -163,7 +164,7 @@ export default function AdminDashboardPage() {
                             timeStyle: "short",
                           })}
                         </span>
-                        <span className="font-medium">{formatPrice(Number(order.total))}</span>
+                        <Price amount={Number(order.total)} className="font-medium" />
                       </li>
                     ))}
                   </ul>

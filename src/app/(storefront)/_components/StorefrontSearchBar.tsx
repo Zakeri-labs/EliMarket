@@ -8,7 +8,8 @@ import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
 import { productCover } from "@/lib/products/gallery";
 import { matchesProductQuery } from "@/lib/products/search";
@@ -36,7 +37,6 @@ function SearchBarForm({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { t, locale } = useTranslations();
-  const formatPrice = useFormatPrice();
   const { data: products } = useProducts();
   const onSearchPage = pathname === "/search";
   const [q, setQ] = useState(onSearchPage ? (searchParams.get("q") ?? "") : "");
@@ -148,9 +148,11 @@ function SearchBarForm({
                     {resolveProductName(product, locale)}
                   </p>
                 </div>
-                <p data-price className="price-num shrink-0 text-xs font-semibold text-text-primary">
-                  {formatPrice(Number(product.price))}
-                </p>
+                <Price
+                  amount={Number(product.price)}
+                  currency={product.currency}
+                  className="shrink-0 text-xs font-semibold text-text-primary"
+                />
               </Link>
             );
           })

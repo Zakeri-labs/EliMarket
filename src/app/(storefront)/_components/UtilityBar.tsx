@@ -6,18 +6,19 @@ import { LOCALE_SHORT, LOCALES } from "@/i18n/config";
 import { cn } from "@/app/utils/cn";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useTranslations } from "@/i18n/use-translations";
+import { useRichText } from "@/i18n/rich-text";
+import { Price } from "@/components/ui/Price";
 
 export function UtilityBar() {
   const { t, locale } = useTranslations();
+  const rich = useRichText();
   const setLocale = useLocaleStore((s) => s.setLocale);
 
   return (
     <div className="h-10 border-b border-border-subtle bg-bg-main">
       <div className="flex h-full w-full items-center justify-between px-8 text-[13px] text-text-secondary">
         <p suppressHydrationWarning className="min-w-0 truncate">
-          {locale === "en"
-            ? "Free delivery on orders over OMR 5.000 · Muscat & Seeb"
-            : t("home.utilityFreeDelivery", { amount: "OMR 5.000" })}
+          {rich("home.utilityFreeDelivery", { amount: <Price amount={5} /> })}
         </p>
         <div className="flex shrink-0 items-center gap-6">
           <Link href="/blog" className="hover:text-text-primary" suppressHydrationWarning>

@@ -3,11 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { getRiderFinanceAction } from "@/app/_actions/rider-actions";
 import { RiderShell } from "@/app/(rider)/_components/RiderShell";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 
 export default function RiderFinancePage() {
   const { t } = useTranslations();
-  const formatPrice = useFormatPrice();
 
   const query = useQuery({
     queryKey: ["rider-finance"],
@@ -27,15 +27,15 @@ export default function RiderFinancePage() {
     },
     {
       label: t("rider.finance.totalSales"),
-      value: formatPrice(data?.totalSales ?? 0, data?.currency),
+      value: <Price amount={data?.totalSales ?? 0} currency={data?.currency} />,
     },
     {
       label: t("rider.finance.deliveryFees"),
-      value: formatPrice(data?.deliveryFees ?? 0, data?.currency),
+      value: <Price amount={data?.deliveryFees ?? 0} currency={data?.currency} />,
     },
     {
       label: t("rider.finance.cashCollected"),
-      value: formatPrice(data?.cashCollected ?? 0, data?.currency),
+      value: <Price amount={data?.cashCollected ?? 0} currency={data?.currency} />,
     },
   ];
 

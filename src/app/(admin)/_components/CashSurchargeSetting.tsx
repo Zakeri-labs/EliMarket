@@ -8,6 +8,7 @@ import { useFormAction } from "@/app/hooks/use-form-action";
 import { cn } from "@/app/utils/cn";
 import { Button } from "@/components/ui/Button";
 import { useTranslations } from "@/i18n/use-translations";
+import { OmrSymbol } from "@/components/ui/OmrSymbol";
 
 type Props = {
   className?: string;
@@ -55,7 +56,7 @@ export function CashSurchargeSetting({ className }: Props) {
               className="w-32 rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm outline-none focus:border-[#0f766e]"
             />
           </span>
-          <span className="text-xs text-[#71717a]">{messages.brand.currency}</span>
+          <OmrSymbol className="h-3.5 text-[#71717a]" label={messages.brand.currency} />
         </label>
         <Button
           type="button"

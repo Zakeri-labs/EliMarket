@@ -31,6 +31,7 @@ import { STOREFRONT_CONTAINER_BLEED } from "@/config/layout";
 import { FREE_DELIVERY_THRESHOLD } from "@/config/brand";
 import { notifyFormSuccess } from "@/app/utils/form-notify";
 import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useRichText } from "@/i18n/rich-text";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 import { resolveFeatureText } from "@/lib/i18n/product-feature";
@@ -263,6 +264,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const [tab, setTab] = useState<"specs" | "reviews" | "questions" | "similar">("specs");
   const { t, locale, dir } = useTranslations();
   const formatPrice = useFormatPrice();
+  const rich = useRichText();
   const { showPrices, showProductDetailExtras } = useStoreSettings();
 
   const { data: reviewsSummary } = useQuery({
@@ -294,8 +296,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
   const compareAt = productCompareAtPrice(product);
   const discountBadge = productDiscountBadge(product, formatPrice);
   const badgeLabel = product.campaign?.badge?.trim() || null;
-  const buyNowLabel = t("product.buyNow", {
-    price: formatPrice(Number(product.price), product.currency),
+  const buyNowLabel = rich("product.buyNow", {
+    price: <Price amount={Number(product.price)} currency={product.currency} />,
   });
   const features = product.features ?? [];
   const glanceFeatures = features.slice(0, 6);
@@ -448,9 +450,11 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                       className="text-start text-2xl font-bold tracking-tight text-accent-teal"
                     />
                     {compareAt != null && (
-                      <span className="price-num text-start text-[13px] text-muted line-through tabular-nums">
-                        {formatPrice(compareAt, product.currency)}
-                      </span>
+                      <Price
+                        amount={compareAt}
+                        currency={product.currency}
+                        className="text-start text-[13px] text-muted line-through"
+                      />
                     )}
                     {discountBadge && (
                       <span className="rounded-full bg-accent-teal px-2 py-0.5 text-[11px] font-semibold text-bg-main">
@@ -476,8 +480,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
               {inStock && (
                 <p className="mt-2 flex items-center gap-2 text-start text-[11.5px] text-text-faint">
                   <AppIcon icon={Truck} size="xs" className="text-accent-gold" />
-                  {t("product.freeDeliveryOver", {
-                    amount: formatPrice(FREE_DELIVERY_THRESHOLD),
+                  {rich("product.freeDeliveryOver", {
+                    amount: <Price amount={FREE_DELIVERY_THRESHOLD} />,
                   })}
                 </p>
               )}
@@ -737,9 +741,11 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 <div data-price>
                   {compareAt != null && (
                     <div className="mb-1 flex items-center gap-2">
-                      <span className="price-num text-[13px] text-muted line-through tabular-nums">
-                        {formatPrice(compareAt, product.currency)}
-                      </span>
+                      <Price
+                        amount={compareAt}
+                        currency={product.currency}
+                        className="text-[13px] text-muted line-through"
+                      />
                       {discountBadge && (
                         <span className="rounded-md bg-accent-teal px-1.5 py-0.5 text-[10px] font-bold text-bg-main">
                           {discountBadge}
@@ -771,8 +777,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
                 )}
                 <p className="flex items-center gap-2 text-[11.5px] text-text-faint">
                   <AppIcon icon={Truck} size="xs" className="text-accent-gold" />
-                  {t("product.freeDeliveryOver", {
-                    amount: formatPrice(FREE_DELIVERY_THRESHOLD),
+                  {rich("product.freeDeliveryOver", {
+                    amount: <Price amount={FREE_DELIVERY_THRESHOLD} />,
                   })}
                 </p>
               </div>

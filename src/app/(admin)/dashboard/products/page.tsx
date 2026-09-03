@@ -47,9 +47,9 @@ import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { Spinner } from "@/components/ui/Spinner";
 import { productCover } from "@/lib/products/gallery";
 import { DataTable } from "@/components/table";
-import { formatPrice } from "@/config/brand";
 import { mockAdminTableProducts } from "@/app/(admin)/dashboard/_mocks/product-table-mock";
-import { useFormatPrice, useTranslations } from "@/i18n/use-translations";
+import { useTranslations } from "@/i18n/use-translations";
+import { Price } from "@/components/ui/Price";
 
 type FeatureDraft = ProductFeatureInput;
 type GalleryItem = ProductImageInput;
@@ -137,7 +137,6 @@ export default function AdminProductsPage() {
   const { data: products, refetch, isPending: isProductsPending } = useAdminProducts();
   const { runAction, isPending: isActionPending } = useFormAction();
   const { t } = useTranslations();
-  const formatLocalizedPrice = useFormatPrice();
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -467,9 +466,7 @@ export default function AdminProductsPage() {
         accessorKey: "price",
         header: t("admin.products.colPrice"),
         cell: ({ getValue }) => (
-          <span className="whitespace-nowrap">
-            {formatLocalizedPrice(Number(getValue()))}
-          </span>
+          <Price amount={Number(getValue())} />
         ),
       },
       {
@@ -569,7 +566,7 @@ export default function AdminProductsPage() {
         ),
       },
     ],
-    [t, runAction, stockDrafts, formatLocalizedPrice, openEdit],
+    [t, runAction, stockDrafts, openEdit],
   );
 
   return (
