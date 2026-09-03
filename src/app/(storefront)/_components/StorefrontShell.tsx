@@ -9,6 +9,9 @@ import { StorefrontHeader } from "@/app/(storefront)/_components/StorefrontHeade
 import { cn } from "@/app/utils/cn";
 import { STOREFRONT_CONTAINER } from "@/config/layout";
 
+/** Temporarily hidden on the live site — keep the component, just don't render it. */
+const SHOW_FOOTER = false;
+
 export function StorefrontShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isProductDetail = pathname.startsWith("/products/");
@@ -53,7 +56,7 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </div>
-      {!hideMobileNav && <StorefrontFooter />}
+      {SHOW_FOOTER && !hideMobileNav && <StorefrontFooter />}
       {!hideMobileNav && <BottomNav />}
       <PwaProvider />
       <AddressGateModal />
