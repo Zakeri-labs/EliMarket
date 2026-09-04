@@ -89,6 +89,7 @@ export function OffersView() {
   const { t, dir, locale, messages: m } = useTranslations();
   const { data: products, isPending } = useProducts();
   const isSkeleton = isPending;
+  const bannerSrc = locale === "en" ? "/offerltr.png" : "/offerrtl.png";
 
   const { deals, endsAt, viewAllHref } = useMemo(() => {
     if (isSkeleton) {
@@ -122,8 +123,32 @@ export function OffersView() {
   return (
     <main dir={dir} className="py-6 md:py-10">
       <section className="relative overflow-hidden rounded-3xl border border-border-subtle bg-black">
-        <div className="relative flex min-h-[220px] items-center sm:min-h-[280px] lg:min-h-[320px]">
-          <div className="relative z-10 max-w-xl px-5 py-8 sm:px-10 sm:py-10">
+        <div className="relative flex min-h-[240px] items-center sm:min-h-[300px] lg:min-h-[380px]">
+          <div className="pointer-events-none absolute inset-0">
+            <StorefrontImage
+              key={bannerSrc}
+              src={bannerSrc}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              withBlur={false}
+              className={cn(
+                "object-cover",
+                locale === "en" ? "object-right" : "object-left",
+              )}
+            />
+          </div>
+          <div
+            aria-hidden
+            className={cn(
+              "absolute inset-0",
+              locale === "en"
+                ? "bg-gradient-to-r from-black/80 via-black/45 to-transparent"
+                : "bg-gradient-to-l from-black/80 via-black/45 to-transparent",
+            )}
+          />
+          <div className="relative z-10 w-[min(100%,36rem)] px-5 py-8 sm:px-10 sm:py-12">
             <p className="inline-flex items-center gap-2 rounded-full border border-gold-hairline bg-bg-main/50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-gold">
               <AppIcon icon={Sparkles} size="xs" />
               {m.offers.activeDeals}
@@ -149,17 +174,6 @@ export function OffersView() {
                 </Button>
               </Link>
             </div>
-          </div>
-          <div className="pointer-events-none absolute inset-y-0 end-0 w-[55%] sm:w-[48%]">
-            <StorefrontImage
-              src="/suggestion.png"
-              alt=""
-              fill
-              priority
-              sizes="(max-width: 640px) 55vw, 48vw"
-              withBlur={false}
-              className="object-contain object-center"
-            />
           </div>
         </div>
       </section>
