@@ -1,12 +1,10 @@
 import type { HeroBanner } from "@/app/_types/database.types";
 import type { Locale } from "@/i18n/config";
+import { firstFitting } from "@/lib/i18n/locale-text";
 
 export type HeroBannerTextField = "badge" | "title" | "subtitle" | "cta_label";
 
-/**
- * Pick a hero banner text field for the active locale, falling back to the
- * other languages and finally to the legacy single-value column.
- */
+/** Pick a hero banner text field for the active locale — no cross-language fallback. */
 export function resolveHeroBannerText(
   banner: HeroBanner,
   field: HeroBannerTextField,
@@ -18,12 +16,5 @@ export function resolveHeroBannerText(
     en: banner[`${field}_en`],
   };
 
-  return (
-    byLocale[locale]?.trim() ||
-    byLocale.fa?.trim() ||
-    byLocale.ar?.trim() ||
-    byLocale.en?.trim() ||
-    banner[field]?.trim() ||
-    ""
-  );
+  return firstFitting(locale, byLocale[locale], banner[field]) ?? "";
 }

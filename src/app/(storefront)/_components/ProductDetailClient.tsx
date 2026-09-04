@@ -35,7 +35,7 @@ import { useRichText } from "@/i18n/rich-text";
 import { resolveProductDescription } from "@/lib/i18n/product-description";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 import { resolveFeatureText } from "@/lib/i18n/product-feature";
-import { resolveProductName } from "@/lib/i18n/product-name";
+import { productNameSnapshot, resolveProductName } from "@/lib/i18n/product-name";
 import { productCover } from "@/lib/products/gallery";
 import { productCompareAtPrice, productDiscountBadge } from "@/lib/products/pricing";
 import { getProductReviewsAction } from "@/app/_actions/review-actions";
@@ -54,9 +54,15 @@ type Props = {
 const SIZE_LABEL_PATTERN =
   /^(weight|size|volume|package|وزن|حجم|اندازه|الوزن|الحجم|الحجم\/الوزن)$/i;
 
+function featureLabelCandidates(feature: NonNullable<Product["features"]>[number]): string[] {
+  return [feature.label_en, feature.label_fa, feature.label_ar, feature.label]
+    .map((value) => value?.trim() ?? "")
+    .filter(Boolean);
+}
+
 function resolveProductSubtitle(product: Product, locale: Locale): string | null {
   const sizeFeature = product.features?.find((feature) =>
-    SIZE_LABEL_PATTERN.test(resolveFeatureText(feature, locale).label.trim()),
+    featureLabelCandidates(feature).some((label) => SIZE_LABEL_PATTERN.test(label)),
   );
   const sizeValue = sizeFeature ? resolveFeatureText(sizeFeature, locale).value.trim() : "";
   if (sizeValue) return sizeValue;
@@ -76,6 +82,7 @@ function AtAGlanceGrid({
     <div className="grid grid-cols-2 gap-1.5">
       {features.map((feature) => {
         const { label, value } = resolveFeatureText(feature, locale);
+        if (!label || !value) return null;
         return (
           <div
             key={feature.id}
@@ -160,6 +167,7 @@ function SpecificationsTable({
     <dl>
       {features.map((feature) => {
         const { label, value } = resolveFeatureText(feature, locale);
+        if (!label || !value) return null;
         return (
         <div
           key={feature.id}
@@ -205,6 +213,7 @@ function ProductCartControl({
             {
               productId: product.id,
               name: resolveProductName(product, locale),
+              ...productNameSnapshot(product),
               slug: product.slug,
               price: Number(product.price),
               currency: product.currency,
@@ -328,6 +337,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
         {
           productId: product.id,
           name: productName,
+          ...productNameSnapshot(product),
           slug: product.slug,
           price: Number(product.price),
           currency: product.currency,

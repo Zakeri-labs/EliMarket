@@ -15,6 +15,7 @@ type Props = {
   hasChildren?: boolean;
   expanded?: boolean;
   depth?: number;
+  isSkeleton?: boolean;
   onSelect: () => void;
   onToggleExpand?: () => void;
 };
@@ -28,11 +29,12 @@ export function CategoryListItem({
   depth = 0,
   onSelect,
   onToggleExpand,
+  isSkeleton = false,
 }: Props) {
   const THUMB = depth > 0 ? 32 : 44;
   const src = resolveCategoryImage(category);
   const [imgFailed, setImgFailed] = useState(false);
-  const showImage = Boolean(src) && !imgFailed;
+  const showImage = Boolean(src) && !imgFailed && !isSkeleton;
 
   return (
     <div
@@ -61,6 +63,7 @@ export function CategoryListItem({
           {showImage ? (
             // eslint-disable-next-line @next/next/no-img-element -- fixed small thumb only
             <img
+              key={src}
               src={src!}
               alt=""
               width={THUMB}

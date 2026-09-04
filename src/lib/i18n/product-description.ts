@@ -1,25 +1,19 @@
 import type { Product } from "@/app/_types/database.types";
 import type { Locale } from "@/i18n/config";
+import { firstFitting } from "@/lib/i18n/locale-text";
 
-/** Pick storefront description for the active locale with sensible fallbacks. */
+/** Pick storefront description for the active locale — no cross-language fallback. */
 export function resolveProductDescription(
   product: Product,
   locale: Locale,
 ): string | null {
-  const localized = {
-    fa: product.description_fa,
-    ar: product.description_ar,
-    en: product.description_en,
-  }[locale];
-
-  return (
-    localized?.trim() ||
-    product.description_fa?.trim() ||
-    product.description_ar?.trim() ||
-    product.description_en?.trim() ||
-    product.description?.trim() ||
-    null
-  );
+  if (locale === "en") {
+    return firstFitting("en", product.description_en);
+  }
+  if (locale === "ar") {
+    return firstFitting("ar", product.description_ar);
+  }
+  return firstFitting("fa", product.description_fa, product.description);
 }
 
 /** Short storefront blurb for product cards. */

@@ -1,9 +1,10 @@
 import type { DeliveryArea } from "@/app/_types/database.types";
 import type { Locale } from "@/i18n/config";
+import { firstFitting, humanizeSlug } from "@/lib/i18n/locale-text";
 
-/** Pick the delivery-area label for the active locale with sensible fallbacks. */
+/** Pick the delivery-area label for the active locale — never mix in another language. */
 export function resolveDeliveryAreaName(
-  area: Pick<DeliveryArea, "name_fa" | "name_ar" | "name_en">,
+  area: Pick<DeliveryArea, "name_fa" | "name_ar" | "name_en"> & { slug?: string },
   locale: Locale,
 ): string {
   const localized = {
@@ -12,11 +13,5 @@ export function resolveDeliveryAreaName(
     en: area.name_en,
   }[locale];
 
-  return (
-    localized?.trim() ||
-    area.name_fa?.trim() ||
-    area.name_ar?.trim() ||
-    area.name_en?.trim() ||
-    ""
-  );
+  return firstFitting(locale, localized) || (area.slug ? humanizeSlug(area.slug) : "");
 }

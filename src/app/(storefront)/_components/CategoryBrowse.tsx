@@ -1,12 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getCategoriesAction } from "@/app/_actions/product-actions";
 import { BrowseWithSidebar } from "@/app/(storefront)/_components/BrowseWithSidebar";
 import { CategoryProductList } from "@/app/(storefront)/_components/CategoryProductList";
 import { CategorySideNav } from "@/app/(storefront)/_components/CategorySideNav";
 import { FilterPanel } from "@/app/(storefront)/_components/FilterPanel";
-import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
+import { useCategories } from "@/app/(storefront)/_hooks/use-categories";
 import { useTranslations } from "@/i18n/use-translations";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 
@@ -16,16 +14,9 @@ type Props = {
 
 export function CategoryBrowse({ slug }: Props) {
   const { t, locale, dir } = useTranslations();
-  const { data: categories, isPending } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const r = await getCategoriesAction();
-      if (!r.success) throw new Error(r.error);
-      return r.data;
-    },
-  });
+  const { data: categories, isPending } = useCategories();
 
-  const list = isPending ? mockCategories(locale) : (categories ?? []);
+  const list = categories ?? [];
   const selected = slug ? list.find((item) => item.slug === slug) : undefined;
   const title = selected ? resolveCategoryName(selected, locale) : t("categories.title");
 
@@ -40,6 +31,7 @@ export function CategoryBrowse({ slug }: Props) {
               selectedSlug={slug}
               hrefFor={(next) => (next ? `/categories/${next}` : "/categories")}
               withThumbnails
+              isSkeleton={isPending}
             />
           </FilterPanel>
         }

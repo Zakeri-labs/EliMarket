@@ -1,19 +1,18 @@
 import type { Category } from "@/app/_types/database.types";
 import type { Locale } from "@/i18n/config";
+import { englishFromSlug, firstFitting } from "@/lib/i18n/locale-text";
 
-/** Pick storefront category label for the active locale with sensible fallbacks. */
+/** Pick storefront category label for the active locale — never mix in another language. */
 export function resolveCategoryName(category: Category, locale: Locale): string {
-  const localized = {
-    fa: category.name_fa,
-    ar: category.name_ar,
-    en: category.name_en,
-  }[locale];
-
+  if (locale === "en") {
+    return firstFitting("en", category.name_en, category.name) || englishFromSlug(category.slug);
+  }
+  if (locale === "ar") {
+    return firstFitting("ar", category.name_ar) || englishFromSlug(category.slug);
+  }
   return (
-    localized?.trim() ||
-    category.name_fa?.trim() ||
-    category.name_ar?.trim() ||
-    category.name_en?.trim() ||
-    category.name
+    firstFitting("fa", category.name_fa, category.name) ||
+    category.name ||
+    englishFromSlug(category.slug)
   );
 }

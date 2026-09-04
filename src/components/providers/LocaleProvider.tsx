@@ -21,10 +21,6 @@ export function LocaleProvider({
   const locale = useLocaleStore((s) => s.locale);
 
   useEffect(() => {
-    void useLocaleStore.persist.rehydrate();
-  }, []);
-
-  useEffect(() => {
     const m = getMessages(locale);
     document.documentElement.lang = locale;
     document.documentElement.dir = getDirection(locale);

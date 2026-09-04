@@ -2,29 +2,22 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getCategoriesAction } from "@/app/_actions/product-actions";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { getCategoryIcon } from "@/config/category-icons";
+import { useCategories } from "@/app/(storefront)/_hooks/use-categories";
 import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
+import { resolveCategoryImage } from "@/lib/categories/image";
 
 const HOME_CATEGORY_SLOTS = 16;
 
 export function CategoryGrid() {
   const { t, locale, dir } = useTranslations();
-  const { data: categories, isPending } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const r = await getCategoriesAction();
-      if (!r.success) throw new Error(r.error);
-      return r.data;
-    },
-  });
+  const { data: categories, isPending } = useCategories();
 
   const isSkeleton = isPending;
 
@@ -47,7 +40,8 @@ export function CategoryGrid() {
       </div>
       <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
         {items.map((cat) => {
-          const hasImage = Boolean(cat.image_url);
+          const imageSrc = resolveCategoryImage(cat);
+          const hasImage = Boolean(imageSrc);
 
           return (
             <Link
@@ -66,9 +60,9 @@ export function CategoryGrid() {
               <span className="relative flex h-14 w-full items-center justify-center bg-transparent sm:h-16">
                 {isSkeleton ? (
                   <SkeletonImage />
-                ) : hasImage && cat.image_url ? (
+                ) : hasImage && imageSrc ? (
                   <StorefrontImage
-                    src={cat.image_url}
+                    src={imageSrc}
                     blurHash={cat.blur_hash}
                     alt=""
                     fill

@@ -10,6 +10,7 @@ import {
 import { hasOpenAiApiKey } from "@/lib/ai/openai-client";
 import { enhanceProductImageAction } from "@/app/_actions/smart-product-actions";
 import { publicEnv } from "@/config/env";
+import { onlyIfLocale } from "@/lib/i18n/locale-text";
 
 async function callEdgeFunction(
   name: string,
@@ -28,22 +29,22 @@ async function callEdgeFunction(
   return res.json();
 }
 
+function asLocaleText(value: unknown, locale: "fa" | "ar" | "en"): string {
+  return onlyIfLocale(typeof value === "string" ? value : "", locale);
+}
+
 function normalizeAiDescriptions(
   result: Record<string, unknown>,
   fallback: GeneratedProductNameAndDescriptions,
 ): GeneratedProductNameAndDescriptions | null {
   const fa =
-    (typeof result.description_fa === "string" && result.description_fa) ||
-    (typeof result.description === "string" && result.description) ||
+    asLocaleText(result.description_fa, "fa") ||
+    asLocaleText(result.description, "fa") ||
     fallback.description_fa;
-  const ar =
-    (typeof result.description_ar === "string" && result.description_ar) ||
-    fallback.description_ar;
-  const en =
-    (typeof result.description_en === "string" && result.description_en) ||
-    fallback.description_en;
-  const name_ar = (typeof result.name_ar === "string" && result.name_ar) || fallback.name_ar;
-  const name_en = (typeof result.name_en === "string" && result.name_en) || fallback.name_en;
+  const ar = asLocaleText(result.description_ar, "ar") || fallback.description_ar;
+  const en = asLocaleText(result.description_en, "en") || fallback.description_en;
+  const name_ar = asLocaleText(result.name_ar, "ar") || fallback.name_ar;
+  const name_en = asLocaleText(result.name_en, "en") || fallback.name_en;
 
   if (!fa && !ar && !en) return null;
 
@@ -74,8 +75,8 @@ export async function generateProductDescriptionAction(input: {
     await requireAdmin();
     const fallback = {
       ...buildProductDescriptionStub(input),
-      name_ar: input.name,
-      name_en: input.name,
+      name_ar: onlyIfLocale(input.name, "ar"),
+      name_en: onlyIfLocale(input.name, "en"),
     };
 
     if (hasOpenAiApiKey()) {

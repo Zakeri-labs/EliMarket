@@ -19,6 +19,7 @@ import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard"
 import { mockFlashDeals } from "@/app/(storefront)/_mocks/product-mock";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { Button } from "@/components/ui/Button";
+import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { useTranslations } from "@/i18n/use-translations";
 import { campaignSearchPath } from "@/lib/campaigns/href";
 import { sortFlashDealProducts } from "@/lib/products/pricing";
@@ -120,39 +121,46 @@ export function OffersView() {
 
   return (
     <main dir={dir} className="py-6 md:py-10">
-      <section className="relative overflow-hidden rounded-3xl border border-gold-wash-border bg-gold-wash-bg px-5 py-10 sm:px-10 sm:py-14">
-        <div
-          className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-accent-teal/15 blur-3xl"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -bottom-20 -start-10 h-56 w-56 rounded-full bg-accent-gold/10 blur-3xl"
-          aria-hidden
-        />
-        <p className="inline-flex items-center gap-2 rounded-full border border-gold-hairline bg-bg-main/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-gold">
-          <AppIcon icon={Sparkles} size="xs" />
-          {m.offers.activeDeals}
-        </p>
-        <h1
-          className={cn(
-            "mt-4 max-w-2xl text-3xl font-bold tracking-tight text-text-primary sm:text-5xl",
-            locale === "en" && "font-logo",
-          )}
-        >
-          {m.offers.title}
-        </h1>
-        <p className="mt-3 max-w-xl text-sm leading-7 text-text-secondary sm:text-base">
-          {m.offers.subtitle}
-        </p>
-        <div className="mt-7 flex flex-wrap gap-3">
-          <Link href="/search?sale=1">
-            <Button size="lg">{m.offers.browseCta}</Button>
-          </Link>
-          <Link href="/categories">
-            <Button variant="secondary" size="lg">
-              {t("home.shopByCategory")}
-            </Button>
-          </Link>
+      <section className="relative overflow-hidden rounded-3xl border border-border-subtle bg-black">
+        <div className="relative flex min-h-[220px] items-center sm:min-h-[280px] lg:min-h-[320px]">
+          <div className="relative z-10 max-w-xl px-5 py-8 sm:px-10 sm:py-10">
+            <p className="inline-flex items-center gap-2 rounded-full border border-gold-hairline bg-bg-main/50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-gold">
+              <AppIcon icon={Sparkles} size="xs" />
+              {m.offers.activeDeals}
+            </p>
+            <h1
+              className={cn(
+                "mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl",
+                locale === "en" && "font-logo",
+              )}
+            >
+              {m.offers.title}
+            </h1>
+            <p className="mt-3 max-w-md text-sm leading-7 text-white/70 sm:text-base">
+              {m.offers.subtitle}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="/search?sale=1">
+                <Button size="lg">{m.offers.browseCta}</Button>
+              </Link>
+              <Link href="/categories">
+                <Button variant="secondary" size="lg">
+                  {t("home.shopByCategory")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+          <div className="pointer-events-none absolute inset-y-0 end-0 w-[55%] sm:w-[48%]">
+            <StorefrontImage
+              src="/suggestion.png"
+              alt=""
+              fill
+              priority
+              sizes="(max-width: 640px) 55vw, 48vw"
+              withBlur={false}
+              className="object-contain object-center"
+            />
+          </div>
         </div>
       </section>
 

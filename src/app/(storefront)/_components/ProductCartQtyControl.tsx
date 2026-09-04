@@ -9,7 +9,7 @@ import { AppIcon } from "@/components/icons/AppIcon";
 import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import { productCover } from "@/lib/products/gallery";
-import { resolveProductName } from "@/lib/i18n/product-name";
+import { resolveProductName, productNameSnapshot } from "@/lib/i18n/product-name";
 import { notifyFormSuccess } from "@/app/utils/form-notify";
 
 type Props = {
@@ -46,6 +46,7 @@ export function ProductCartQtyControl({ product, disabled = false, className }: 
       {
         productId: product.id,
         name: resolveProductName(product, locale),
+        ...productNameSnapshot(product),
         slug: product.slug,
         price: Number(product.price),
         currency: product.currency,

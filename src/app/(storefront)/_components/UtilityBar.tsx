@@ -21,6 +21,9 @@ export function UtilityBar() {
           {rich("home.utilityFreeDelivery", { amount: <Price amount={5} /> })}
         </p>
         <div className="flex shrink-0 items-center gap-6">
+          <Link href="/about" className="hover:text-text-primary" suppressHydrationWarning>
+            {t("nav.about")}
+          </Link>
           <Link href="/offers" className="hover:text-text-primary" suppressHydrationWarning>
             {t("nav.offers")}
           </Link>

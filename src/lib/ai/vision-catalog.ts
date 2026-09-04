@@ -2,6 +2,7 @@ import { slugifyProductName } from "@/lib/products/slug";
 import { buildProductDescriptionStub } from "@/lib/ai/product-description-stub";
 import { AI_VISION_MODEL } from "@/lib/ai/ai-config";
 import type { ProductFeatureInput } from "@/app/_types/database.types";
+import { onlyIfLocale } from "@/lib/i18n/locale-text";
 
 export type VisionCatalogDraft = {
   name_fa: string;
@@ -45,11 +46,11 @@ function asFeatures(value: unknown): ProductFeatureInput[] {
       if (!label_fa || !value_fa) return null;
       return {
         label_fa,
-        label_ar: asString(row.label_ar) || label_fa,
-        label_en: asString(row.label_en) || label_fa,
+        label_ar: onlyIfLocale(asString(row.label_ar), "ar"),
+        label_en: onlyIfLocale(asString(row.label_en), "en"),
         value_fa,
-        value_ar: asString(row.value_ar) || value_fa,
-        value_en: asString(row.value_en) || value_fa,
+        value_ar: onlyIfLocale(asString(row.value_ar), "ar"),
+        value_en: onlyIfLocale(asString(row.value_en), "en"),
       };
     })
     .filter((item): item is ProductFeatureInput => item != null)
@@ -220,9 +221,9 @@ export async function draftCatalogFromImages(input: {
   if (!parsed) {
     return {
       name_fa: fallbackName,
-      name_ar: fallbackName,
-      name_en: fallbackName,
-      slug: slugifyProductName(fallbackName),
+      name_ar: onlyIfLocale(fallbackName, "ar"),
+      name_en: onlyIfLocale(fallbackName, "en"),
+      slug: slugifyProductName(onlyIfLocale(fallbackName, "en") || fallbackName),
       ...stub,
       features: [],
       usedModel: false,
@@ -230,17 +231,17 @@ export async function draftCatalogFromImages(input: {
   }
 
   const name_fa = asString(parsed.name_fa) || asString(parsed.name) || fallbackName;
-  const name_ar = asString(parsed.name_ar) || name_fa;
-  const name_en = asString(parsed.name_en) || name_fa;
-  const slug = slugifyProductName(asString(parsed.slug) || name_en);
+  const name_ar = onlyIfLocale(asString(parsed.name_ar), "ar");
+  const name_en = onlyIfLocale(asString(parsed.name_en), "en");
+  const slug = slugifyProductName(asString(parsed.slug) || name_en || name_fa);
   return {
     name_fa,
     name_ar,
     name_en,
     slug,
-    description_fa: asString(parsed.description_fa) || stub.description_fa,
-    description_ar: asString(parsed.description_ar) || stub.description_ar,
-    description_en: asString(parsed.description_en) || stub.description_en,
+    description_fa: onlyIfLocale(asString(parsed.description_fa), "fa") || stub.description_fa,
+    description_ar: onlyIfLocale(asString(parsed.description_ar), "ar") || stub.description_ar,
+    description_en: onlyIfLocale(asString(parsed.description_en), "en") || stub.description_en,
     features: asFeatures(parsed.features),
     suggestedCategoryName: asString(parsed.category_name) || undefined,
     usedModel: true,

@@ -21,6 +21,7 @@ import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
 import { useRichText } from "@/i18n/rich-text";
 import { Price } from "@/components/ui/Price";
+import { resolveLocalizedName } from "@/lib/i18n/product-name";
 
 function CartQtyStepper({
   quantity,
@@ -61,7 +62,7 @@ function CartQtyStepper({
 function CartPageContent() {
   const { items, updateQuantity, removeItem, clearCart, totalPrice, totalItems, isSyncing } =
     useCartStore();
-  const { t, dir } = useTranslations();
+  const { t, dir, locale } = useTranslations();
   const rich = useRichText();
   const [pendingDelete, setPendingDelete] = useState<"all" | string | null>(null);
   const isSkeleton = isSyncing;
@@ -163,7 +164,7 @@ function CartPageContent() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="text-start text-sm font-semibold leading-snug">
-                            {item.name}
+                            {resolveLocalizedName(item, locale)}
                           </p>
                           <Price
                             amount={item.price}
@@ -288,7 +289,9 @@ function CartPageContent() {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{item.name}</p>
+                    <p className="truncate text-sm font-medium">
+                      {resolveLocalizedName(item, locale)}
+                    </p>
                     <Price amount={item.price} currency={item.currency} className="block text-xs text-accent" />
                     <div className="mt-2">
                       <CartQtyStepper

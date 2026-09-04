@@ -18,6 +18,7 @@ export type Messages = {
     blog: string;
     offers: string;
     contact: string;
+    about: string;
   };
   home: {
     deliverTo: string;
@@ -1216,11 +1217,28 @@ export type Messages = {
     faqHoursQ: string;
     faqHoursA: string;
   };
+  about: {
+    title: string;
+    subtitle: string;
+    story: string;
+    valuesFresh: string;
+    valuesFreshDesc: string;
+    valuesDelivery: string;
+    valuesDeliveryDesc: string;
+    valuesLocal: string;
+    valuesLocalDesc: string;
+    visitTitle: string;
+    visitBody: string;
+    shopCta: string;
+    contactCta: string;
+  };
   meta: {
     offersTitle: string;
     offersDescription: string;
     contactTitle: string;
     contactDescription: string;
+    aboutTitle: string;
+    aboutDescription: string;
     siteDescription: string;
     storefrontTitle: string;
     productFallback: string;
@@ -1253,6 +1271,7 @@ const fa: Messages = {
     blog: "بلاگ",
     offers: "پیشنهادها",
     contact: "تماس با ما",
+    about: "درباره ما",
   },
   home: {
     deliverTo: "تحویل به",
@@ -2534,11 +2553,28 @@ const fa: Messages = {
     faqHoursQ: "ساعات کاری فروشگاه چیست؟",
     faqHoursA: "شنبه تا پنجشنبه ۸ صبح تا ۱۱ شب، جمعه ۲ بعدازظهر تا ۱۱ شب.",
   },
+  about: {
+    title: "فروشگاه محله در المولح",
+    subtitle: "هیلز الی مارت — خرید روزانه، تازه و نزدیک خانه",
+    story: "هیلز الی مارت یک سوپرمارکت محله‌ای در المولح، سیب است. برای خرید حضوری بازیم و سفارش‌های آنلاین را در مسقط و سیب همان روز می‌رسانیم. میوه، سبزی و اقلام روزانه را با دقت انتخاب می‌کنیم تا سفره خانه ساده و تازه بماند.",
+    valuesFresh: "تازه هر روز",
+    valuesFreshDesc: "میوه و سبزی منتخب، به‌همراه اقلام روزانه برای آشپزخانه خانه.",
+    valuesDelivery: "ارسال همان روز",
+    valuesDeliveryDesc: "سفارش بدهید؛ در مسقط و سیب همان روز دم در تحویل می‌گیرید.",
+    valuesLocal: "نزدیک شما",
+    valuesLocalDesc: "فروشگاه حضوری در المولح — برای یک خرید سریع یا سفارش آنلاین.",
+    visitTitle: "به فروشگاه سر بزنید",
+    visitBody: "پین دقیق روی نقشه همان آدرسی است که با مشتریان به اشتراک می‌گذاریم.",
+    shopCta: "شروع خرید",
+    contactCta: "تماس با ما",
+  },
   meta: {
     offersTitle: "پیشنهادها — هیلز الی مارت",
     offersDescription: "بهترین تخفیف‌ها و پیشنهادهای ویژه فروشگاه هیلز الی مارت.",
     contactTitle: "تماس با ما — هیلز الی مارت",
     contactDescription: "راه‌های ارتباط با فروشگاه هیلز الی مارت در المولح، مسقط.",
+    aboutTitle: "درباره ما — هیلز الی مارت",
+    aboutDescription: "هیلز الی مارت، سوپرمارکت محله در المولح، سیب — مسقط. خرید حضوری و ارسال در مسقط و سیب.",
     siteDescription: "خرید آنلاین — EliMarket",
     storefrontTitle: "فروشگاه",
     productFallback: "محصول",
@@ -2571,6 +2607,7 @@ const ar: Messages = {
     blog: "المدوّنة",
     offers: "العروض",
     contact: "اتصل بنا",
+    about: "من نحن",
   },
   home: {
     deliverTo: "التوصيل إلى",
@@ -3852,11 +3889,28 @@ const ar: Messages = {
     faqHoursQ: "ما هي ساعات عمل المتجر؟",
     faqHoursA: "السبت – الخميس ٨ صباحًا – ١١ مساءً، الجمعة ٢ ظهرًا – ١١ مساءً.",
   },
+  about: {
+    title: "متجر الحي في المولح",
+    subtitle: "هيلز إيلي مارت — تسوّق يومي طازج وقريب من البيت",
+    story: "هيلز إيلي مارت سوبرماركت حي في المولح بالسيب. نرحّب بالشراء من المتجر، ونوصّل طلباتكم في مسقط والسيب في نفس اليوم. نختار الفاكهة والخضار واحتياجات البيت بعناية حتى تبقى مائدتكم بسيطة وطازجة.",
+    valuesFresh: "طازج كل يوم",
+    valuesFreshDesc: "فاكهة وخضار مختارة، مع أساسيات المطبخ اليومية.",
+    valuesDelivery: "توصيل في نفس اليوم",
+    valuesDeliveryDesc: "اطلبوا؛ نصل إلى بابكم في مسقط والسيب في اليوم نفسه.",
+    valuesLocal: "قريب منكم",
+    valuesLocalDesc: "متجر في المولح — لزيارة سريعة أو طلب عبر الإنترنت.",
+    visitTitle: "زوروا المتجر",
+    visitBody: "الدبوس على الخريطة هو نفس الموقع الذي نشاركه مع زبائننا.",
+    shopCta: "ابدأ التسوق",
+    contactCta: "اتصل بنا",
+  },
   meta: {
     offersTitle: "العروض — هيلز إيلي مارت",
     offersDescription: "أفضل العروض والخصومات من هيلز إيلي مارت.",
     contactTitle: "اتصل بنا — هيلز إيلي مارت",
     contactDescription: "طرق التواصل مع هيلز إيلي مارت في المعبيلة، مسقط.",
+    aboutTitle: "من نحن — هيلز إيلي مارت",
+    aboutDescription: "هيلز إيلي مارت، سوبرماركت الحي في المولح بالسيب — مسقط. تسوّق من المتجر وتوصيل في مسقط والسيب.",
     siteDescription: "تسوق إلكتروني — إلي ماركت",
     storefrontTitle: "المتجر",
     productFallback: "منتج",
@@ -3889,6 +3943,7 @@ const en: Messages = {
     blog: "Blog",
     offers: "Offers",
     contact: "Contact",
+    about: "About",
   },
   home: {
     deliverTo: "Deliver to",
@@ -5170,11 +5225,28 @@ const en: Messages = {
     faqHoursQ: "What are your working hours?",
     faqHoursA: "Saturday–Thursday 8 AM–11 PM, Friday 2 PM–11 PM.",
   },
+  about: {
+    title: "A neighbourhood store in Al Mawaleh",
+    subtitle: "Hills Eli Mart — everyday groceries, fresh and close to home",
+    story: "Hills Eli Mart is a neighbourhood supermarket in Al Mawaleh, Seeb. We're open for walk-ins, and we deliver online orders across Muscat and Seeb the same day. We pick fruit, vegetables and daily essentials with care so the table at home stays simple and fresh.",
+    valuesFresh: "Fresh every day",
+    valuesFreshDesc: "Selected produce, plus the everyday kitchen staples.",
+    valuesDelivery: "Same-day delivery",
+    valuesDeliveryDesc: "Order in; we bring it to your door across Muscat and Seeb the same day.",
+    valuesLocal: "Close by",
+    valuesLocalDesc: "A shop in Al Mawaleh — drop in for a quick visit, or order online.",
+    visitTitle: "Visit the store",
+    visitBody: "The pin on the map is the same location we share with customers.",
+    shopCta: "Start shopping",
+    contactCta: "Contact us",
+  },
   meta: {
     offersTitle: "Offers — Hills Eli Mart",
     offersDescription: "The best deals and offers from Hills Eli Mart.",
     contactTitle: "Contact Us — Hills Eli Mart",
     contactDescription: "Get in touch with Hills Eli Mart in Al Mawaleh, Muscat.",
+    aboutTitle: "About us — Hills Eli Mart",
+    aboutDescription: "Hills Eli Mart, a neighbourhood supermarket in Al Mawaleh, Seeb — Muscat. Walk-ins and delivery across Muscat and Seeb.",
     siteDescription: "Online shopping — EliMarket",
     storefrontTitle: "Store",
     productFallback: "Product",

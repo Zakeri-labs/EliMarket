@@ -1,10 +1,9 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import {
   DEFAULT_LOCALE,
   getDirection,
   type Locale,
 } from "@/i18n/config";
+import { create } from "zustand";
 
 const LOCALE_COOKIE = "elimarket-locale";
 
@@ -25,28 +24,21 @@ function applyDocumentLocale(locale: Locale) {
   syncLocaleCookie(locale);
 }
 
-export const useLocaleStore = create<LocaleState>()(
-  persist(
-    (set) => ({
-      locale: DEFAULT_LOCALE,
-      setLocale: (locale) => {
-        applyDocumentLocale(locale);
-        set({ locale });
-      },
-    }),
-    {
-      name: "elimarket-locale",
-      // Avoid SSR/client mismatch: seed from server cookie first, then rehydrate.
-      skipHydration: true,
-      onRehydrateStorage: () => (state) => {
-        if (state?.locale) applyDocumentLocale(state.locale);
-      },
-    },
-  ),
-);
+export const useLocaleStore = create<LocaleState>()((set) => ({
+  locale: DEFAULT_LOCALE,
+  setLocale: (locale) => {
+    applyDocumentLocale(locale);
+    set({ locale });
+  },
+}));
 
 /** Call once from LocaleProvider with the request cookie locale. */
 export function seedLocaleFromServer(locale: Locale) {
   useLocaleStore.setState({ locale });
   applyDocumentLocale(locale);
+  try {
+    window.localStorage.removeItem("elimarket-locale");
+  } catch {
+    // private mode / SSR
+  }
 }

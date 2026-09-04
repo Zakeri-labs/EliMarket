@@ -128,6 +128,7 @@ export function ShopSidebar({
                   expanded={expanded}
                   onSelect={() => selectCategory(cat.id)}
                   onToggleExpand={() => toggleExpand(cat.id)}
+                  isSkeleton={isSkeleton}
                 />
                 {hasChildren && expanded ? (
                   <div className="mt-0.5 flex flex-col gap-0.5 border-s border-border-subtle ms-3.5">
@@ -139,6 +140,7 @@ export function ShopSidebar({
                         active={selectedCategoryId === child.id}
                         depth={1}
                         onSelect={() => selectCategory(child.id)}
+                        isSkeleton={isSkeleton}
                       />
                     ))}
                   </div>

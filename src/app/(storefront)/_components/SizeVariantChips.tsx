@@ -6,6 +6,7 @@ import { getProductVariantsAction } from "@/app/_actions/product-actions";
 import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
+import { firstFitting, humanizeSlug } from "@/lib/i18n/locale-text";
 
 type Props = {
   productId: string;
@@ -13,7 +14,7 @@ type Props = {
 };
 
 export function SizeVariantChips({ productId, currentProductId }: Props) {
-  const { t, dir } = useTranslations();
+  const { t, dir, locale } = useTranslations();
 
   const { data: variants } = useQuery({
     queryKey: ["product-variants", productId],
@@ -50,7 +51,7 @@ export function SizeVariantChips({ productId, currentProductId }: Props) {
               }}
             >
               <span className="text-sm font-semibold">
-                {variant.variant_label || variant.slug}
+                {firstFitting(locale, variant.variant_label) || humanizeSlug(variant.slug)}
               </span>
               <Price
                 amount={Number(variant.price)}

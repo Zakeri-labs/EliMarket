@@ -1,34 +1,28 @@
 import type { ProductFeature } from "@/app/_types/database.types";
 import type { Locale } from "@/i18n/config";
+import { firstFitting } from "@/lib/i18n/locale-text";
 
-/** Pick a product spec's label/value for the active locale with sensible fallbacks. */
+/** Pick a product spec's label/value for the active locale — no cross-language mix. */
 export function resolveFeatureText(
   feature: ProductFeature,
   locale: Locale,
 ): { label: string; value: string } {
-  const localizedLabel = {
-    fa: feature.label_fa,
-    ar: feature.label_ar,
-    en: feature.label_en,
-  }[locale];
-  const localizedValue = {
-    fa: feature.value_fa,
-    ar: feature.value_ar,
-    en: feature.value_en,
-  }[locale];
+  if (locale === "en") {
+    return {
+      label: firstFitting("en", feature.label_en) ?? "",
+      value: firstFitting("en", feature.value_en) ?? "",
+    };
+  }
 
-  const label =
-    localizedLabel?.trim() ||
-    feature.label_fa?.trim() ||
-    feature.label_ar?.trim() ||
-    feature.label_en?.trim() ||
-    feature.label;
-  const value =
-    localizedValue?.trim() ||
-    feature.value_fa?.trim() ||
-    feature.value_ar?.trim() ||
-    feature.value_en?.trim() ||
-    feature.value;
+  if (locale === "ar") {
+    return {
+      label: firstFitting("ar", feature.label_ar) ?? "",
+      value: firstFitting("ar", feature.value_ar) ?? "",
+    };
+  }
 
-  return { label, value };
+  return {
+    label: firstFitting("fa", feature.label_fa, feature.label) ?? "",
+    value: firstFitting("fa", feature.value_fa, feature.value) ?? "",
+  };
 }

@@ -15,12 +15,13 @@ import { ProductPlaceholder } from "@/components/icons/ProductPlaceholder";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
+import { resolveProductName } from "@/lib/i18n/product-name";
 
 export default function OrderTrackingClient({ orderId }: { orderId: string }) {
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(true);
-  const { t, dir } = useTranslations();
+  const { t, dir, locale } = useTranslations();
 
   useEffect(() => {
     let mounted = true;
@@ -190,7 +191,9 @@ export default function OrderTrackingClient({ orderId }: { orderId: string }) {
                   </span>
                   <div className="min-w-0 flex-1 text-start">
                     <p className="truncate text-sm font-medium text-text-primary md:text-[15px]">
-                      {item.product?.name ?? t("product.fallbackName")}
+                      {item.product
+                        ? resolveProductName(item.product, locale)
+                        : t("product.fallbackName")}
                     </p>
                     <p className="mt-0.5 text-xs text-text-secondary md:text-sm">
                       ×{item.quantity}

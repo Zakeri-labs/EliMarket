@@ -1,22 +1,19 @@
 import type { BlogPost } from "@/app/_types/database.types";
 import type { Locale } from "@/i18n/config";
+import { firstFitting, humanizeSlug } from "@/lib/i18n/locale-text";
 
 type LocalizedTriple = { fa: string | null; ar: string | null; en: string | null };
 
 function pick(triple: LocalizedTriple, locale: Locale): string {
-  const localized = triple[locale];
-  return (
-    localized?.trim() ||
-    triple.fa?.trim() ||
-    triple.ar?.trim() ||
-    triple.en?.trim() ||
-    ""
-  );
+  return firstFitting(locale, triple[locale]) ?? "";
 }
 
-/** Post headline for the active locale, with fa → ar → en fallback. */
+/** Post headline for the active locale — never mix in another language. */
 export function resolveBlogTitle(post: BlogPost, locale: Locale): string {
-  return pick({ fa: post.title_fa, ar: post.title_ar, en: post.title_en }, locale);
+  return (
+    pick({ fa: post.title_fa, ar: post.title_ar, en: post.title_en }, locale) ||
+    humanizeSlug(post.slug)
+  );
 }
 
 /** Short summary for the active locale (may be empty). */

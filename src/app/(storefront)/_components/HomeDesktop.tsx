@@ -1,15 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getCategoriesAction } from "@/app/_actions/product-actions";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
+import { useCategories } from "@/app/(storefront)/_hooks/use-categories";
 import { FlashDeals } from "@/app/(storefront)/_components/FlashDeals";
 import { HeroBanner } from "@/app/(storefront)/_components/HeroBanner";
 import { HomeFilterBar } from "@/app/(storefront)/_components/HomeFilterBar";
 import { ShopSidebar, type ShopRefine } from "@/app/(storefront)/_components/ShopSidebar";
 import { StableProductGrid } from "@/app/(storefront)/_components/StableProductGrid";
-import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { mockProducts } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import {
@@ -25,16 +23,9 @@ type SortKey = "newest" | "price-asc" | "price-desc";
 export function HomeDesktop() {
   const { t, locale } = useTranslations();
   const { data: products, isPending } = useProducts();
-  const { data: categories, isPending: categoriesPending } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const result = await getCategoriesAction();
-      if (!result.success) throw new Error(result.error);
-      return result.data;
-    },
-  });
+  const { data: categories, isPending: categoriesPending } = useCategories();
 
-  const categoryList = categories?.length ? categories : mockCategories(locale);
+  const categoryList = categories ?? [];
   const catalog = products?.length ? products : mockProducts(locale);
   const [refine, setRefine] = useState<ShopRefine>({
     inStock: true,

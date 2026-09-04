@@ -8,6 +8,7 @@ import { getDirection, getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
 import type { Order, StoreSettings } from "@/app/_types/database.types";
+import { resolveProductName } from "@/lib/i18n/product-name";
 
 type Width = "58" | "80";
 const WIDTH_KEY = "elimarket-receipt-width";
@@ -244,7 +245,9 @@ export default function OrderInvoiceClient({ orderId }: { orderId: string }) {
                 <div key={item.id} style={{ marginTop: 4 }}>
                   <div style={{ display: "flex", gap: 6 }}>
                     <span style={{ flex: 1, wordBreak: "break-word" }}>
-                      {item.product?.name ?? item.product_id}
+                      {item.product
+                        ? resolveProductName(item.product, locale)
+                        : item.product_id}
                     </span>
                     <Price amount={line} currency={order.currency} />
                   </div>

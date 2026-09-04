@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { getCategoriesAction } from "@/app/_actions/product-actions";
-import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
+import { useCategories } from "@/app/(storefront)/_hooks/use-categories";
 import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
 import { topLevelCategories } from "@/lib/categories/tree";
@@ -24,16 +22,9 @@ const NAV_SLUGS = [
 export function CategoryNav() {
   const pathname = usePathname();
   const { t, locale } = useTranslations();
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const result = await getCategoriesAction();
-      if (!result.success) throw new Error(result.error);
-      return result.data;
-    },
-  });
+  const { data: categories } = useCategories();
 
-  const catalog = topLevelCategories(categories?.length ? categories : mockCategories(locale));
+  const catalog = topLevelCategories(categories ?? []);
   const items = NAV_SLUGS.map((slug) => catalog.find((cat) => cat.slug === slug)).filter(
     (cat): cat is NonNullable<typeof cat> => Boolean(cat),
   );

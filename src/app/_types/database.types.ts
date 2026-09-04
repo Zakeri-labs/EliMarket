@@ -381,6 +381,9 @@ export type OrderItem = {
 export type CartItem = {
   productId: string;
   name: string;
+  name_fa?: string | null;
+  name_ar?: string | null;
+  name_en?: string | null;
   slug: string;
   price: number;
   currency: string;

@@ -3,6 +3,7 @@ import {
   type ProductDescriptionsI18n,
 } from "@/lib/ai/product-description-stub";
 import { openAiChatJson } from "@/lib/ai/openai-client";
+import { onlyIfLocale } from "@/lib/i18n/locale-text";
 
 export type GeneratedProductNameAndDescriptions = ProductDescriptionsI18n & {
   name_ar: string;
@@ -44,11 +45,14 @@ Rules:
 
   if (!parsed) return null;
 
-  const description_fa = asString(parsed.description_fa) || fallback.description_fa;
-  const description_ar = asString(parsed.description_ar) || fallback.description_ar;
-  const description_en = asString(parsed.description_en) || fallback.description_en;
-  const name_ar = asString(parsed.name_ar) || input.name;
-  const name_en = asString(parsed.name_en) || input.name;
+  const description_fa =
+    onlyIfLocale(asString(parsed.description_fa), "fa") || fallback.description_fa;
+  const description_ar =
+    onlyIfLocale(asString(parsed.description_ar), "ar") || fallback.description_ar;
+  const description_en =
+    onlyIfLocale(asString(parsed.description_en), "en") || fallback.description_en;
+  const name_ar = onlyIfLocale(asString(parsed.name_ar), "ar");
+  const name_en = onlyIfLocale(asString(parsed.name_en), "en");
 
   if (!description_fa && !description_ar && !description_en) return null;
 

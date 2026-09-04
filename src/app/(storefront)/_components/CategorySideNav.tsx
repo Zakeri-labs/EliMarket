@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/app/utils/cn";
 import type { Category } from "@/app/_types/database.types";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
 import { childCategories, topLevelCategories } from "@/lib/categories/tree";
+import { resolveCategoryImage } from "@/lib/categories/image";
 import { getCategoryIcon } from "@/config/category-icons";
 import { resolveCategoryName } from "@/lib/i18n/category-name";
 
@@ -17,33 +19,55 @@ type Props = {
   onSelect?: (slug: string) => void;
   /** Show a small category image/icon next to each label. */
   withThumbnails?: boolean;
+  isSkeleton?: boolean;
 };
 
 /**
- * Monochrome category glyph on a theme-aware chip. We intentionally do not use
- * the category photos here: those images carry baked-in (light or dark) studio
- * backdrops that cannot follow the active theme, so at this small size they
- * render as stray light/dark discs. An icon on `bg-bg-tile` stays dark in dark
- * mode and light in light mode.
+ * Same photographic thumbs as the home "Shop by category" list.
+ * Falls back to the category glyph only if the image is missing or fails.
  */
 function CategoryThumb({
   category,
   size,
   active,
+  hideImage = false,
 }: {
   category: Category;
   size: number;
   active: boolean;
+  hideImage?: boolean;
 }) {
+  const src = resolveCategoryImage(category);
+  const [imgFailed, setImgFailed] = useState(false);
+  const showImage = Boolean(src) && !imgFailed && !hideImage;
+
   return (
     <span
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-full border bg-bg-tile",
-        active ? "border-accent text-accent" : "border-border-subtle text-accent/70",
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border bg-bg-card",
+        active ? "border-accent-teal" : "border-border-subtle",
       )}
-      style={{ width: size, height: size }}
+      style={{ width: size, height: size, minWidth: size, minHeight: size }}
     >
-      <AppIcon icon={getCategoryIcon(category.slug)} size="xs" />
+      {showImage ? (
+        // eslint-disable-next-line @next/next/no-img-element -- fixed small thumb only
+        <img
+          key={src}
+          src={src!}
+          alt=""
+          width={size}
+          height={size}
+          className="absolute inset-0 z-[1] box-border object-contain p-0.5"
+          style={{ width: size, height: size, maxWidth: size, maxHeight: size }}
+          onError={() => setImgFailed(true)}
+        />
+      ) : (
+        <AppIcon
+          icon={getCategoryIcon(category.slug)}
+          size={size <= 28 ? "xs" : "sm"}
+          className="text-accent-teal/70"
+        />
+      )}
     </span>
   );
 }
@@ -54,6 +78,7 @@ export function CategorySideNav({
   hrefFor,
   onSelect,
   withThumbnails = false,
+  isSkeleton = false,
 }: Props) {
   const { t, locale } = useTranslations();
   const parents = topLevelCategories(categories);
@@ -83,8 +108,9 @@ export function CategorySideNav({
         {withThumbnails ? (
           <CategoryThumb
             category={category}
-            size={nested ? 22 : 28}
+            size={nested ? 32 : 44}
             active={active}
+            hideImage={isSkeleton}
           />
         ) : null}
         <span className="min-w-0 flex-1 truncate">{label}</span>
