@@ -2,6 +2,7 @@
 
 import L from "leaflet";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { cn } from "@/app/utils/cn";
 import { STORE_LOCATION } from "@/config/store-location";
 
 const pin = L.divIcon({
@@ -11,7 +12,7 @@ const pin = L.divIcon({
   iconAnchor: [9, 9],
 });
 
-export default function StoreLocationMap() {
+export default function StoreLocationMap({ className }: { className?: string }) {
   const { lat, lng } = STORE_LOCATION.coordinates;
   const center: [number, number] = [lat, lng];
 
@@ -19,7 +20,7 @@ export default function StoreLocationMap() {
     <MapContainer
       center={center}
       zoom={17}
-      className="h-72 w-full min-h-72"
+      className={cn("h-72 w-full min-h-72", className)}
       scrollWheelZoom={false}
     >
       <TileLayer
