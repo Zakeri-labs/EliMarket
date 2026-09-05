@@ -1216,6 +1216,45 @@ export type Messages = {
     faqReturnA: string;
     faqHoursQ: string;
     faqHoursA: string;
+    heroEyebrow: string;
+    heroHeadline: string;
+    heroDescription: string;
+    whatsappHotlineLabel: string;
+    whatsappHotlineNote: string;
+    callHotlineLabel: string;
+    callHotlineNote: string;
+    topicsLabel: string;
+    topicOrderIssue: string;
+    topicOrderIssueNote: string;
+    topicDelivery: string;
+    topicDeliveryNote: string;
+    topicReturns: string;
+    topicReturnsNote: string;
+    topicProduct: string;
+    topicProductNote: string;
+    topicPayment: string;
+    topicPaymentNote: string;
+    topicOther: string;
+    topicOtherNote: string;
+    formNote: string;
+    mobileLabel: string;
+    mobilePlaceholder: string;
+    orderNumberLabel: string;
+    orderNumberPlaceholder: string;
+    findOrderLink: string;
+    sendCopyLabel: string;
+    clearBtn: string;
+    flagshipStoreLabel: string;
+    deliveryCutoffValue: string;
+    openNowBadge: string;
+    closedNowBadge: string;
+    otherWaysLabel: string;
+    emailChannelNote: string;
+    trackOrderChannelTitle: string;
+    trackOrderChannelNote: string;
+    wholesaleTitle: string;
+    wholesaleBody: string;
+    wholesaleCta: string;
   };
   about: {
     title: string;
@@ -2552,6 +2591,45 @@ const fa: Messages = {
     faqReturnA: "بله، تا ۲۴ ساعت پس از تحویل می‌توانید کالا را مرجوع کنید.",
     faqHoursQ: "ساعات کاری فروشگاه چیست؟",
     faqHoursA: "شنبه تا پنجشنبه ۸ صبح تا ۱۱ شب، جمعه ۲ بعدازظهر تا ۱۱ شب.",
+    heroEyebrow: "ما اینجا هستیم تا کمک کنیم",
+    heroHeadline: "با کسانی صحبت کنید که سفارش شما را آماده می‌کنند",
+    heroDescription: "یک تیم، یک فروشگاه — برای هر موضوع فوری درباره‌ی سفارش جاری از واتساپ استفاده کنید، یا فرم زیر را پر کنید تا حداکثر تا یک روز کاری پاسخ دهیم.",
+    whatsappHotlineLabel: "واتساپ · سفارش‌های جاری",
+    whatsappHotlineNote: "سریع‌ترین راه — در ساعات کاری",
+    callHotlineLabel: "تماس با فروشگاه",
+    callHotlineNote: "همان شماره، هر روز",
+    topicsLabel: "موضوع پیام شما چیست؟",
+    topicOrderIssue: "مشکل سفارش",
+    topicOrderIssueNote: "کالای ناقص یا آسیب‌دیده",
+    topicDelivery: "ارسال و زمان تحویل",
+    topicDeliveryNote: "تغییر زمان یا آدرس",
+    topicReturns: "مرجوعی و بازپرداخت",
+    topicReturnsNote: "تا ۲۴ ساعت پس از تحویل",
+    topicProduct: "درخواست کالا",
+    topicProductNote: "از ما بخواهید موجود کنیم",
+    topicPayment: "پرداخت",
+    topicPaymentNote: "کارت یا نقدی درب منزل",
+    topicOther: "موضوع دیگر",
+    topicOtherNote: "نظر یا پرسش دیگر",
+    formNote: "پاسخ تا ۱ روز کاری",
+    mobileLabel: "شماره موبایل",
+    mobilePlaceholder: "9XXX XXXX",
+    orderNumberLabel: "شماره سفارش (اختیاری)",
+    orderNumberPlaceholder: "مثلاً ۱۰۰۲۳۴",
+    findOrderLink: "پیدا کردن شماره",
+    sendCopyLabel: "یک نسخه برای من ایمیل شود",
+    clearBtn: "پاک کردن",
+    flagshipStoreLabel: "فروشگاه ما",
+    deliveryCutoffValue: "تا ساعت ۴ بعدازظهر سفارش دهید، همان شب بین ساعت ۸ تا ۱۰ تحویل بگیرید.",
+    openNowBadge: "الان باز است — تا ۱۱ شب",
+    closedNowBadge: "الان بسته است",
+    otherWaysLabel: "راه‌های دیگر ارتباط",
+    emailChannelNote: "پشتیبانی عمومی — پاسخ تا ۱ روز",
+    trackOrderChannelTitle: "پیگیری سفارش",
+    trackOrderChannelNote: "وضعیت و زمان تحویل را ببینید",
+    wholesaleTitle: "سفارش عمده و سازمانی",
+    wholesaleBody: "دفاتر، کافه‌ها و ویلاها — برای سفارش‌های دوره‌ای با ما تماس بگیرید.",
+    wholesaleCta: "ایمیل بزنید",
   },
   about: {
     title: "فروشگاه محله در المولح",
@@ -3888,6 +3966,45 @@ const ar: Messages = {
     faqReturnA: "نعم، يمكنك إرجاع المنتجات خلال ٢٤ ساعة من التسليم.",
     faqHoursQ: "ما هي ساعات عمل المتجر؟",
     faqHoursA: "السبت – الخميس ٨ صباحًا – ١١ مساءً، الجمعة ٢ ظهرًا – ١١ مساءً.",
+    heroEyebrow: "نحن هنا للمساعدة",
+    heroHeadline: "تحدث مع الفريق الذي يجهّز طلبك",
+    heroDescription: "فريق واحد، متجر واحد — تواصل معنا عبر واتساب لأي أمر عاجل بخصوص طلب جارٍ، أو أرسل النموذج أدناه وسنرد خلال يوم عمل واحد.",
+    whatsappHotlineLabel: "واتساب · الطلبات الجارية",
+    whatsappHotlineNote: "الأسرع — خلال ساعات العمل",
+    callHotlineLabel: "الاتصال بالمتجر",
+    callHotlineNote: "نفس الرقم كل يوم",
+    topicsLabel: "ما موضوع رسالتك؟",
+    topicOrderIssue: "مشكلة في الطلب",
+    topicOrderIssueNote: "منتج ناقص أو تالف",
+    topicDelivery: "التوصيل والمواعيد",
+    topicDeliveryNote: "تغيير الوقت أو العنوان",
+    topicReturns: "الإرجاع والاسترداد",
+    topicReturnsNote: "خلال ٢٤ ساعة من التسليم",
+    topicProduct: "طلب توفير منتج",
+    topicProductNote: "اطلب منا توفيره",
+    topicPayment: "الدفع",
+    topicPaymentNote: "بطاقة أو نقدًا عند الاستلام",
+    topicOther: "أمر آخر",
+    topicOtherNote: "ملاحظات أو استفسارات أخرى",
+    formNote: "الرد خلال يوم عمل واحد",
+    mobileLabel: "رقم الجوال",
+    mobilePlaceholder: "9XXX XXXX",
+    orderNumberLabel: "رقم الطلب (اختياري)",
+    orderNumberPlaceholder: "مثل ١٠٠٢٣٤",
+    findOrderLink: "أين أجده؟",
+    sendCopyLabel: "أرسل لي نسخة بالبريد الإلكتروني",
+    clearBtn: "مسح",
+    flagshipStoreLabel: "متجرنا",
+    deliveryCutoffValue: "اطلب قبل الساعة ٤ عصرًا لتستلم مساء اليوم بين الساعة ٨ و١٠.",
+    openNowBadge: "مفتوح الآن — حتى ١١ مساءً",
+    closedNowBadge: "مغلق الآن",
+    otherWaysLabel: "طرق أخرى للتواصل",
+    emailChannelNote: "دعم عام — الرد خلال يوم واحد",
+    trackOrderChannelTitle: "تتبع الطلب",
+    trackOrderChannelNote: "تحقق من الحالة ووقت التوصيل",
+    wholesaleTitle: "طلبات الجملة والشركات",
+    wholesaleBody: "المكاتب والمقاهي والفلل — تواصلوا معنا للطلبات المتكررة.",
+    wholesaleCta: "راسلنا بالبريد",
   },
   about: {
     title: "متجر الحي في المولح",
@@ -5224,6 +5341,45 @@ const en: Messages = {
     faqReturnA: "Yes, you can return products within 24 hours of delivery.",
     faqHoursQ: "What are your working hours?",
     faqHoursA: "Saturday–Thursday 8 AM–11 PM, Friday 2 PM–11 PM.",
+    heroEyebrow: "We're here to help",
+    heroHeadline: "Talk to the people who pack your order",
+    heroDescription: "One team, one store — reach us on WhatsApp for anything urgent about a live order, or send the form below and we'll reply within one working day.",
+    whatsappHotlineLabel: "WhatsApp · Live Orders",
+    whatsappHotlineNote: "Fastest — during working hours",
+    callHotlineLabel: "Call the Store",
+    callHotlineNote: "Same number, every day",
+    topicsLabel: "What is this about?",
+    topicOrderIssue: "Order issue",
+    topicOrderIssueNote: "Missing or damaged item",
+    topicDelivery: "Delivery & slots",
+    topicDeliveryNote: "Change time or address",
+    topicReturns: "Returns & refunds",
+    topicReturnsNote: "Within 24 hours",
+    topicProduct: "Product request",
+    topicProductNote: "Ask us to stock it",
+    topicPayment: "Payment",
+    topicPaymentNote: "Card or cash on delivery",
+    topicOther: "Something else",
+    topicOtherNote: "Feedback or other questions",
+    formNote: "Replies within 1 working day",
+    mobileLabel: "Mobile number",
+    mobilePlaceholder: "9XXX XXXX",
+    orderNumberLabel: "Order number (optional)",
+    orderNumberPlaceholder: "e.g. 100234",
+    findOrderLink: "Find it",
+    sendCopyLabel: "Send me a copy by email",
+    clearBtn: "Clear",
+    flagshipStoreLabel: "Our Store",
+    deliveryCutoffValue: "Order before 4 PM for tonight's 8–10 PM slot.",
+    openNowBadge: "Open now — closes 11 PM",
+    closedNowBadge: "Closed now",
+    otherWaysLabel: "Other ways to reach us",
+    emailChannelNote: "General support — we reply within 1 day",
+    trackOrderChannelTitle: "Track an order",
+    trackOrderChannelNote: "Check status and delivery time",
+    wholesaleTitle: "Wholesale & corporate orders",
+    wholesaleBody: "Offices, cafés and villas — get in touch for recurring orders.",
+    wholesaleCta: "Email us",
   },
   about: {
     title: "A neighbourhood store in Al Mawaleh",

@@ -48,3 +48,24 @@ export function storeAddressLine(locale: LocaleKey): string {
     STORE_LOCATION.country[locale],
   ].join(sep);
 }
+
+/** Store hours, in 24-hour Muscat local time (Oman has no DST). */
+const STORE_HOURS = {
+  saturdayToThursday: { openHour: 8, closeHour: 23 },
+  friday: { openHour: 14, closeHour: 23 },
+} as const;
+
+/** Whether the store is open right now, in Muscat local time. */
+export function isStoreOpenNow(date: Date = new Date()): boolean {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Muscat",
+    hour: "numeric",
+    hour12: false,
+    weekday: "short",
+  }).formatToParts(date);
+  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0") % 24;
+  const weekday = parts.find((p) => p.type === "weekday")?.value;
+  const { openHour, closeHour } =
+    weekday === "Fri" ? STORE_HOURS.friday : STORE_HOURS.saturdayToThursday;
+  return hour >= openHour && hour < closeHour;
+}
