@@ -51,7 +51,7 @@ export function OffersView() {
   }, [isSkeleton, locale, products]);
 
   return (
-    <main dir={dir} className="py-6 md:py-8">
+    <main dir={dir} className="py-8 md:py-12">
       <section className="relative overflow-hidden rounded-2xl bg-black">
         <div className="relative flex min-h-[200px] items-center sm:min-h-[260px] lg:min-h-[300px]">
           <div className="pointer-events-none absolute inset-0">
