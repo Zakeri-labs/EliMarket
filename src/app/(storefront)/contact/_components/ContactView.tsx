@@ -173,7 +173,7 @@ export function ContactView({ phone = "" }: Props) {
         )}
       </header>
 
-      <section className="mt-10 grid gap-10 lg:grid-cols-[1fr_360px] lg:gap-14">
+      <section className="mt-10 grid items-start gap-10 lg:grid-cols-[1fr_360px] lg:gap-14">
         <div className="flex flex-col gap-8">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.14em] text-text-faint">
