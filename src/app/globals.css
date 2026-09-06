@@ -36,6 +36,9 @@ html.theme-dark {
   --max-mobile: 480px;
   --bg-tile: #1b2120;
   --bg-field: #131616;
+  /* Product cards sit slightly above the page surface so a grid of them
+     reads as distinct tiles rather than blending into the background. */
+  --bg-product-card: var(--surface);
   --line-soft: rgba(255, 255, 255, 0.06);
   --line-field: rgba(255, 255, 255, 0.07);
   --text-dim: #8b9694;
@@ -77,6 +80,7 @@ html.theme-light {
   --skeleton: #e4e4e7;
   --bg-tile: #eeeeee;
   --bg-field: #fafafa;
+  --bg-product-card: var(--surface);
   --line-soft: #e4e4e7;
   --line-field: #e4e4e7;
   --text-dim: #71717a;
@@ -115,6 +119,7 @@ html.theme-light {
   --color-success: var(--success);
   --color-bg-tile: var(--bg-tile);
   --color-bg-field: var(--bg-field);
+  --color-product-card: var(--bg-product-card);
   --color-line-soft: var(--line-soft);
   --color-line-field: var(--line-field);
   --color-text-dim: var(--text-dim);
@@ -245,6 +250,9 @@ body {
   --gold: var(--accent-gold);
   --bg-tile: #1b2120;
   --bg-field: #131616;
+  /* A touch lifted from --bg-main (#0b1210) so product cards separate
+     from the page without looking like elevated panels. */
+  --bg-product-card: #161d1b;
   --line-soft: rgba(255, 255, 255, 0.06);
   --line-field: rgba(255, 255, 255, 0.07);
   --text-dim: #8b9694;
@@ -282,6 +290,8 @@ html.theme-light .storefront-hills {
   --gold: var(--accent-gold);
   --bg-tile: #eeeeee;
   --bg-field: #fafafa;
+  /* Page is #f5f5f5; cards stay pure white so they read as distinct tiles. */
+  --bg-product-card: #ffffff;
   --line-soft: #e4e4e7;
   --line-field: #e4e4e7;
   --text-dim: #71717a;

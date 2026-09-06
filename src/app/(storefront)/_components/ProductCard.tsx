@@ -30,7 +30,7 @@ export function ProductCard({ product, compact, isSkeleton = false }: Props) {
       <div
         dir={dir}
         className={cn(
-          "relative flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 transition-all duration-300 ease-out",
+          "relative flex items-center gap-3 rounded-2xl border border-border bg-product-card p-3 transition-all duration-300 ease-out",
           !isSkeleton && "hover:z-10 hover:-translate-y-1 hover:shadow-xl",
           isSkeleton && "skeleton",
         )}

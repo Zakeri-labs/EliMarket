@@ -321,6 +321,27 @@ export function ContactView({ phone = "" }: Props) {
               </div>
             </div>
           </form>
+
+          <section className="max-w-xl">
+            <h2 className="text-base font-medium text-text-primary">{m.contact.faq}</h2>
+            <ul className="mt-4 divide-y divide-border-subtle border-y border-border-subtle">
+              {FAQ_ITEMS.map((item) => (
+                <li key={item.q}>
+                  <details className="group">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3.5 text-sm text-text-primary [&::-webkit-details-marker]:hidden">
+                      {m.contact[item.q]}
+                      <AppIcon
+                        icon={ChevronDown}
+                        size="xs"
+                        className="shrink-0 text-text-faint transition-transform group-open:rotate-180"
+                      />
+                    </summary>
+                    <p className="pb-4 text-sm leading-6 text-text-secondary">{m.contact[item.a]}</p>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
 
         <div className="flex flex-col gap-5">
@@ -405,27 +426,6 @@ export function ContactView({ phone = "" }: Props) {
             </a>
           </div>
         </div>
-      </section>
-
-      <section className="mt-16 max-w-2xl">
-        <h2 className="text-base font-medium text-text-primary">{m.contact.faq}</h2>
-        <ul className="mt-4 divide-y divide-border-subtle border-y border-border-subtle">
-          {FAQ_ITEMS.map((item) => (
-            <li key={item.q}>
-              <details className="group">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3.5 text-sm text-text-primary [&::-webkit-details-marker]:hidden">
-                  {m.contact[item.q]}
-                  <AppIcon
-                    icon={ChevronDown}
-                    size="xs"
-                    className="shrink-0 text-text-faint transition-transform group-open:rotate-180"
-                  />
-                </summary>
-                <p className="pb-4 text-sm leading-6 text-text-secondary">{m.contact[item.a]}</p>
-              </details>
-            </li>
-          ))}
-        </ul>
       </section>
     </main>
   );

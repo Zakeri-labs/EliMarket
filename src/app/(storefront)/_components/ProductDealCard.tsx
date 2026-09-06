@@ -44,7 +44,7 @@ export function ProductDealCard({
     <article
       dir={dir}
       className={cn(
-        "relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-2.5 transition-all duration-300 ease-out lg:rounded-lg",
+        "relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-product-card p-2.5 transition-all duration-300 ease-out lg:rounded-lg",
         !isSkeleton && "hover:z-10 hover:-translate-y-1.5 hover:shadow-xl",
         layout === "rail" ? "w-36 sm:w-40" : "w-full",
         isSkeleton && "skeleton",
