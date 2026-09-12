@@ -93,7 +93,7 @@ export function ProductGallery({
       <div className={rail ? "flex flex-1 flex-col gap-2" : "contents"}>
       <div className={cn("relative", showThumbs ? "aspect-square overflow-hidden rounded-2xl" : "h-full w-full")}>
         {isSkeleton ? (
-          <SkeletonImage className="absolute inset-0 p-8" />
+          <SkeletonImage className="absolute inset-0" />
         ) : current ? (
           <button
             type="button"

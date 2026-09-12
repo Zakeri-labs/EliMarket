@@ -64,7 +64,7 @@ function HeroSlidePanel({
     >
       {isSkeleton ? (
         <div className={styles.mediaLayer}>
-          <SkeletonImage className="p-10 sm:p-16" />
+          <SkeletonImage />
         </div>
       ) : hasImage && imageSrc ? (
         <div className={styles.mediaLayer}>

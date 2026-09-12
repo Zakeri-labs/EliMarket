@@ -8,6 +8,7 @@ import { cn } from "@/app/utils/cn";
 // import { AppIcon } from "@/components/icons/AppIcon";
 import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { StripePlaceholder } from "@/components/ui/StripePlaceholder";
+import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { useTranslations } from "@/i18n/use-translations";
 
 const AUTO_INTERVAL_MS = 6000;
@@ -41,10 +42,18 @@ export function HeroBanner() {
   if (slides.length === 0) {
     return (
       <section
-        className="relative h-[400px] overflow-hidden rounded-2xl border border-border-subtle"
+        className={cn(
+          "relative h-[400px] overflow-hidden rounded-2xl border border-border-subtle",
+          isSkeleton && "skeleton",
+        )}
         aria-hidden
+        aria-busy={isSkeleton}
       >
-        <StripePlaceholder className="absolute inset-0" label="produce basket photo" />
+        {isSkeleton ? (
+          <SkeletonImage className="absolute inset-0" />
+        ) : (
+          <StripePlaceholder className="absolute inset-0" label="produce basket photo" />
+        )}
       </section>
     );
   }
@@ -54,9 +63,13 @@ export function HeroBanner() {
 
   return (
     <section
-      className="relative h-[400px] w-full overflow-hidden rounded-2xl border border-border-subtle"
+      className={cn(
+        "relative h-[400px] w-full overflow-hidden rounded-2xl border border-border-subtle",
+        isSkeleton && "skeleton",
+      )}
       aria-roledescription="carousel"
       aria-label={t("home.heroCarouselLabel")}
+      aria-busy={isSkeleton}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -66,7 +79,9 @@ export function HeroBanner() {
         }
       }}
     >
-      {!isSkeleton && slide?.imageUrl ? (
+      {isSkeleton ? (
+        <SkeletonImage className="absolute inset-0" />
+      ) : slide?.imageUrl ? (
         <div className="absolute inset-0">
           <StorefrontImage
             key={slide.id}
