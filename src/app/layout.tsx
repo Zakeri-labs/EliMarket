@@ -98,14 +98,14 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       siteName: "Hills Eli Mart",
-      title: BRAND_NAME_FA,
+      title: "Hills Eli Mart",
       description: meta.siteDescription,
       url: publicEnv.appUrl,
       locale,
     },
     twitter: {
       card: "summary_large_image",
-      title: BRAND_NAME_FA,
+      title: "Hills Eli Mart",
       description: meta.siteDescription,
     },
     verification: publicEnv.googleSiteVerification
