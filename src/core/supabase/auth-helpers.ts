@@ -63,10 +63,10 @@ export async function requireRole(role: UserRole) {
   return ctx;
 }
 
+/** Oman mobile numbers: 8 local digits, country code +968 (no trunk 0 prefix). */
 export function normalizePhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
-  if (digits.startsWith("98") && digits.length === 12) return `+${digits}`;
-  if (digits.startsWith("0") && digits.length === 11) return `+98${digits.slice(1)}`;
-  if (digits.length === 10) return `+98${digits}`;
+  if (digits.startsWith("968") && digits.length === 11) return `+${digits}`;
+  if (digits.length === 8) return `+968${digits}`;
   return phone.startsWith("+") ? phone : `+${digits}`;
 }
