@@ -1,9 +1,15 @@
+import { fetch as undiciFetch, ProxyAgent } from "undici";
+
 /**
  * iSmart SMS (Infocomm Group LLC, Oman) — HTTP POST Method API.
  * Doc: "iSmart SMS Push-Multi Header International- HTTP POST METHOD v1.0"
  *
  * Requires SMS_USERNAME, SMS_PASSWORD and SMS_HEADER (an 11-character
  * sender ID pre-registered with Infocomm) in the environment.
+ *
+ * Infocomm requires their client IP to be whitelisted (return code 20), but
+ * this app runs on serverless hosting with no fixed outbound IP. SMS_PROXY_URL
+ * routes just this request through a forward proxy with a static IP instead.
  */
 
 const DEFAULT_API_URL =
@@ -72,10 +78,13 @@ export async function sendSms(
     Header: header,
   });
 
-  const response = await fetch(apiUrl, {
+  const proxyUrl = process.env.SMS_PROXY_URL?.trim();
+
+  const response = await undiciFetch(apiUrl, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: body.toString(),
+    ...(proxyUrl ? { dispatcher: new ProxyAgent(proxyUrl) } : {}),
   });
 
   if (!response.ok) {
