@@ -18,7 +18,31 @@ import type { Profile } from "@/app/_types/database.types";
 import { resolveAdminEmail } from "@/config/admin-auth";
 import { isOtpBypassEnabled, otpBypassCode } from "@/config/otp-bypass";
 import { actionErrorMessage } from "@/i18n/action-error";
-import { serverT } from "@/i18n/server";
+import type { Locale } from "@/i18n/config";
+import { getRequestLocale, serverT } from "@/i18n/server";
+import { consumeOtp, issueOtp } from "@/lib/otp/otp-store";
+import { sendSms, type SmsEncoding } from "@/lib/sms/ismart-sms";
+
+/** Lang=64 in the iSmart SMS API means "send as Unicode", not literally
+ * Arabic — Persian text also needs it since it isn't GSM-7 Latin script. */
+function buildOtpMessage(locale: Locale, code: string): { text: string; encoding: SmsEncoding } {
+  if (locale === "ar") {
+    return {
+      text: `رمز التحقق الخاص بك هو ${code}. صالح لمدة 5 دقائق.`,
+      encoding: "unicode",
+    };
+  }
+  if (locale === "fa") {
+    return {
+      text: `کد تایید شما ${code} است و تا ۵ دقیقه معتبر است.`,
+      encoding: "unicode",
+    };
+  }
+  return {
+    text: `Your verification code is ${code}. It expires in 5 minutes.`,
+    encoding: "latin",
+  };
+}
 
 // TEMPORARY: fixed OTP until a real SMS provider is configured.
 // Disable with OTP_BYPASS_ENABLED=false (and NEXT_PUBLIC_OTP_BYPASS_ENABLED=false).
@@ -106,11 +130,19 @@ export async function sendOtpAction(model: SendOtpModel) {
       return { success: true as const, data: { phone } };
     }
 
-    const supabase = await createClient();
-    const { error } = await supabase.auth.signInWithOtp({ phone });
-    if (error) throw error;
+    const code = await issueOtp(phone);
+    const locale = await getRequestLocale();
+    const { text, encoding } = buildOtpMessage(locale, code);
+    await sendSms(phone, text, encoding);
+
     return { success: true as const, data: { phone } };
   } catch (err) {
+    if (err instanceof Error && err.message === "otp_rate_limited") {
+      return {
+        success: false as const,
+        error: await serverT("errors.otpRateLimited"),
+      };
+    }
     return {
       success: false as const,
       error: await actionErrorMessage("errors.otpSendFailed", err),
@@ -122,28 +154,16 @@ export async function verifyOtpAction(model: VerifyOtpModel) {
   try {
     const phone = normalizePhone(model.phone);
 
-    if (isOtpBypassEnabled() && model.token.trim() === otpBypassCode()) {
+    if (isOtpBypassEnabled()) {
+      if (model.token.trim() !== otpBypassCode()) {
+        throw new Error(await serverT("errors.invalidOtp"));
+      }
       return await bypassOtpSignIn(phone);
     }
 
-    const supabase = await createClient();
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone,
-      token: model.token,
-      type: "sms",
-    });
-    if (error) throw error;
-    if (!data.user) throw new Error(await serverT("errors.loginFailed"));
-
-    const profile = await getCurrentProfile();
-    const session = mapProfileToSession(
-      data.user.id,
-      profile,
-      data.user.phone,
-      data.user.email,
-    );
-
-    return { success: true as const, data: session };
+    const verified = await consumeOtp(phone, model.token);
+    if (!verified) throw new Error(await serverT("errors.invalidOtp"));
+    return await bypassOtpSignIn(phone);
   } catch (err) {
     return {
       success: false as const,

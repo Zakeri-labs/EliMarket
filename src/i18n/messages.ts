@@ -369,6 +369,7 @@ export type Messages = {
     done: string;
     warning: string;
     otpSendFailed: string;
+    otpRateLimited: string;
     loginFailed: string;
     invalidOtp: string;
     adminForbidden: string;
@@ -1722,6 +1723,7 @@ const fa: Messages = {
     done: "انجام شد",
     warning: "هشدار",
     otpSendFailed: "ارسال کد تأیید ناموفق بود",
+    otpRateLimited: "کمی صبر کنید و دوباره درخواست کد بدهید",
     loginFailed: "ورود ناموفق بود",
     invalidOtp: "کد تأیید نامعتبر است",
     adminForbidden: "این حساب دسترسی ادمین ندارد",
@@ -3097,6 +3099,7 @@ const ar: Messages = {
     done: "تم",
     warning: "تحذير",
     otpSendFailed: "فشل إرسال رمز التحقق",
+    otpRateLimited: "يرجى الانتظار قليلاً قبل طلب رمز جديد",
     loginFailed: "فشل تسجيل الدخول",
     invalidOtp: "رمز التحقق غير صالح",
     adminForbidden: "هذا الحساب لا يملك صلاحية الإدارة",
@@ -4472,6 +4475,7 @@ const en: Messages = {
     done: "Done",
     warning: "Warning",
     otpSendFailed: "Failed to send verification code",
+    otpRateLimited: "Please wait a bit before requesting another code",
     loginFailed: "Sign-in failed",
     invalidOtp: "Invalid verification code",
     adminForbidden: "This account does not have admin access",
