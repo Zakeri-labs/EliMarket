@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const canonicalHost = "eli-market-omega.vercel.app";
+const canonicalHost = "hillselimart.com";
 
 function supabaseRemotePattern() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
