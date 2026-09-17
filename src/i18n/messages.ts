@@ -172,6 +172,9 @@ export type Messages = {
     getCode: string;
     otpPlaceholder: string;
     confirm: string;
+    resendCode: string;
+    resendIn: string;
+    changeNumber: string;
     title: string;
     addressTitle: string;
     change: string;
@@ -261,6 +264,9 @@ export type Messages = {
     getCode: string;
     otpPlaceholder: string;
     confirm: string;
+    resendCode: string;
+    resendIn: string;
+    changeNumber: string;
     ordersLabel: string;
     addressesLabel: string;
     favouritesLabel: string;
@@ -1465,6 +1471,9 @@ const fa: Messages = {
     getCode: "دریافت کد",
     otpPlaceholder: "کد ۶ رقمی",
     confirm: "تأیید",
+    resendCode: "ارسال دوباره کد",
+    resendIn: "ارسال دوباره تا {seconds} ثانیه",
+    changeNumber: "تغییر شماره",
     title: "تسویه حساب",
     addressTitle: "آدرس تحویل",
     change: "تغییر",
@@ -1560,6 +1569,9 @@ const fa: Messages = {
     getCode: "دریافت کد",
     otpPlaceholder: "کد ۶ رقمی",
     confirm: "تأیید",
+    resendCode: "ارسال دوباره کد",
+    resendIn: "ارسال دوباره تا {seconds} ثانیه",
+    changeNumber: "تغییر شماره",
     ordersLabel: "سفارش‌ها",
     addressesLabel: "آدرس‌ها",
     favouritesLabel: "علاقه‌مندی‌ها",
@@ -2841,6 +2853,9 @@ const ar: Messages = {
     getCode: "استلام الرمز",
     otpPlaceholder: "رمز ٦ أرقام",
     confirm: "تأكيد",
+    resendCode: "إعادة إرسال الرمز",
+    resendIn: "إعادة الإرسال خلال {seconds} ثانية",
+    changeNumber: "تغيير الرقم",
     title: "إتمام الشراء",
     addressTitle: "عنوان التوصيل",
     change: "تغيير",
@@ -2936,6 +2951,9 @@ const ar: Messages = {
     getCode: "استلام الرمز",
     otpPlaceholder: "رمز ٦ أرقام",
     confirm: "تأكيد",
+    resendCode: "إعادة إرسال الرمز",
+    resendIn: "إعادة الإرسال خلال {seconds} ثانية",
+    changeNumber: "تغيير الرقم",
     ordersLabel: "الطلبات",
     addressesLabel: "العناوين",
     favouritesLabel: "المفضلة",
@@ -4217,6 +4235,9 @@ const en: Messages = {
     getCode: "Get code",
     otpPlaceholder: "6-digit code",
     confirm: "Confirm",
+    resendCode: "Resend code",
+    resendIn: "Resend in {seconds}s",
+    changeNumber: "Change number",
     title: "Checkout",
     addressTitle: "Delivery address",
     change: "Change",
@@ -4312,6 +4333,9 @@ const en: Messages = {
     getCode: "Get code",
     otpPlaceholder: "6-digit code",
     confirm: "Confirm",
+    resendCode: "Resend code",
+    resendIn: "Resend in {seconds}s",
+    changeNumber: "Change number",
     ordersLabel: "Orders",
     addressesLabel: "Addresses",
     favouritesLabel: "Favourites",

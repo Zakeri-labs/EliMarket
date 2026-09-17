@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -21,7 +21,8 @@ import { AccountAvatarEditor } from "@/app/(storefront)/account/_components/Acco
 import { AccountFavouritesPanel } from "@/app/(storefront)/account/_components/AccountFavouritesPanel";
 import { AccountOrdersPanel } from "@/app/(storefront)/account/_components/AccountOrdersPanel";
 import { StorefrontBreadcrumbs } from "@/app/(storefront)/_components/StorefrontBreadcrumbs";
-import { sendOtpAction, signOutAction, verifyOtpAction } from "@/app/_actions/auth-actions";
+import { OtpLoginForm } from "@/app/(storefront)/_components/OtpLoginForm";
+import { signOutAction } from "@/app/_actions/auth-actions";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -89,9 +90,6 @@ function AccountPageContent() {
   const { session, status, updateSession, clearSession } = useAuthStore();
   const { runAction, isPending } = useFormAction();
   const { t } = useTranslations();
-  const [otpStep, setOtpStep] = useState<"phone" | "code">("phone");
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
 
   const section = parseSection(searchParams.get("section"));
 
@@ -234,71 +232,13 @@ function AccountPageContent() {
           <LanguageTabs />
         </div>
         <div className="rounded-2xl border border-border bg-surface p-4 md:rounded-3xl md:p-6">
-          {otpStep === "phone" ? (
-            <form
-              className="space-y-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                runAction(() => sendOtpAction({ phone }), {
-                  successMessage: t("notifications.otpSent"),
-                  onSuccess: () => setOtpStep("code"),
-                });
-              }}
-            >
-              <input
-                className="w-full rounded-2xl border border-border bg-surface-elevated px-4 py-3 outline-none focus:border-accent md:py-3.5"
-                placeholder={t("account.phonePlaceholder")}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                dir="ltr"
-              />
-              <Button
-                type="submit"
-                fullWidth
-                loading={isPending}
-                loadingLabel={t("common.processing")}
-              >
-                {t("account.getCode")}
-              </Button>
-            </form>
-          ) : (
-            <form
-              className="space-y-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                runAction(() => verifyOtpAction({ phone, token: otp }), {
-                  successMessage: t("notifications.loginSuccess"),
-                  onSuccess: async () => {
-                    await updateSession();
-                    await queryClient.invalidateQueries({ queryKey: ["addresses"] });
-                    setOtpStep("phone");
-                  },
-                });
-              }}
-            >
-              <input
-                className="w-full rounded-2xl border border-border bg-surface-elevated px-4 py-3 outline-none focus:border-accent md:py-3.5"
-                placeholder={t("account.otpPlaceholder")}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                dir="ltr"
-              />
-              {process.env.NEXT_PUBLIC_OTP_BYPASS_ENABLED !== "false" && (
-                <p className="text-xs text-muted" dir="ltr">
-                  Temporary OTP — any phone, code:{" "}
-                  <strong>{process.env.NEXT_PUBLIC_OTP_BYPASS_CODE || "213141"}</strong>
-                </p>
-              )}
-              <Button
-                type="submit"
-                fullWidth
-                loading={isPending}
-                loadingLabel={t("common.processing")}
-              >
-                {t("account.confirm")}
-              </Button>
-            </form>
-          )}
+          <OtpLoginForm
+            ns="account"
+            onVerified={async () => {
+              await updateSession();
+              await queryClient.invalidateQueries({ queryKey: ["addresses"] });
+            }}
+          />
         </div>
       </div>
     </main>

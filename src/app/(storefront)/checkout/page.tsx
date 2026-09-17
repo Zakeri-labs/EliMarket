@@ -22,7 +22,6 @@ import {
   updateAddressAction,
 } from "@/app/_actions/address-actions";
 import { createOrderAction } from "@/app/_actions/order-actions";
-import { sendOtpAction, verifyOtpAction } from "@/app/_actions/auth-actions";
 import { useCartStore } from "@/app/_store/cart-store";
 import { useAuthStore } from "@/app/_store/auth-store";
 import { useStoreSettings } from "@/app/_hooks/use-store-settings";
@@ -34,6 +33,7 @@ import { DEFAULT_MAP_CENTER } from "@/config/geo";
 import type { Address } from "@/app/_types/database.types";
 import { CartGate } from "@/app/(storefront)/_components/CartGate";
 import { StorefrontBreadcrumbs } from "@/app/(storefront)/_components/StorefrontBreadcrumbs";
+import { OtpLoginForm } from "@/app/(storefront)/_components/OtpLoginForm";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
@@ -107,9 +107,6 @@ function CheckoutPageContent() {
   const [coverageOk, setCoverageOk] = useState<boolean | null>(null);
   const [deliverySlot, setDeliverySlot] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online">("online");
-  const [otpStep, setOtpStep] = useState<"phone" | "code">("phone");
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
   const [editAddressOpen, setEditAddressOpen] = useState(false);
   const [editTimeOpen, setEditTimeOpen] = useState(false);
 
@@ -169,60 +166,11 @@ function CheckoutPageContent() {
         </Link>
         <h1 className="mb-2 text-xl font-bold">{t("checkout.loginTitle")}</h1>
         <p className="mb-6 text-sm text-text-secondary">{t("checkout.loginSubtitle")}</p>
-        {otpStep === "phone" ? (
-          <form
-            className="space-y-3"
-            onSubmit={(e) => {
-              e.preventDefault();
-              runAction(() => sendOtpAction({ phone }), {
-                successMessage: t("notifications.otpSent"),
-                onSuccess: () => setOtpStep("code"),
-              });
-            }}
-          >
-            <input
-              className={inputClass}
-              placeholder={t("checkout.phonePlaceholder")}
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              dir="ltr"
-            />
-            <Button type="submit" fullWidth loading={isPending} loadingLabel={t("common.processing")}>
-              {t("checkout.getCode")}
-            </Button>
-          </form>
-        ) : (
-          <form
-            className="space-y-3"
-            onSubmit={(e) => {
-              e.preventDefault();
-              runAction(() => verifyOtpAction({ phone, token: otp }), {
-                successMessage: t("notifications.loginSuccess"),
-                onSuccess: async () => {
-                  await updateSession();
-                  setOtpStep("phone");
-                },
-              });
-            }}
-          >
-            <input
-              className={inputClass}
-              placeholder={t("checkout.otpPlaceholder")}
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              dir="ltr"
-            />
-            {process.env.NEXT_PUBLIC_OTP_BYPASS_ENABLED !== "false" && (
-              <p className="text-xs text-muted" dir="ltr">
-                Temporary OTP — code:{" "}
-                <strong>{process.env.NEXT_PUBLIC_OTP_BYPASS_CODE || "213141"}</strong>
-              </p>
-            )}
-            <Button type="submit" fullWidth loading={isPending} loadingLabel={t("common.processing")}>
-              {t("checkout.confirm")}
-            </Button>
-          </form>
-        )}
+        <OtpLoginForm
+          ns="checkout"
+          inputClassName={inputClass}
+          onVerified={() => updateSession()}
+        />
       </main>
     );
   }

@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { createServiceRoleClient } from "@/core/supabase/service";
 
 const OTP_TTL_MINUTES = 5;
-const OTP_RESEND_COOLDOWN_SECONDS = 60;
+const OTP_RESEND_COOLDOWN_SECONDS = 120;
 const OTP_MAX_ATTEMPTS = 5;
 
 function hashCode(phone: string, code: string) {
