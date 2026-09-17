@@ -144,6 +144,7 @@ export async function sendOtpAction(model: SendOtpModel) {
         error: await serverT("errors.otpRateLimited"),
       };
     }
+    console.error("sendOtpAction failed:", err);
     return {
       success: false as const,
       error: await actionErrorMessage("errors.otpSendFailed", err),
