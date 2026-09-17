@@ -16,7 +16,7 @@ import type {
 } from "@/app/_types/auth.types";
 import type { Profile } from "@/app/_types/database.types";
 import { resolveAdminEmail } from "@/config/admin-auth";
-import { isOtpBypassEnabled, otpBypassCode } from "@/config/otp-bypass";
+import { isOtpBypassEnabled, isTestPhone, otpBypassCode } from "@/config/otp-bypass";
 import { actionErrorMessage } from "@/i18n/action-error";
 import type { Locale } from "@/i18n/config";
 import { getRequestLocale, serverT } from "@/i18n/server";
@@ -125,8 +125,9 @@ export async function sendOtpAction(model: SendOtpModel) {
   try {
     const phone = normalizePhone(model.phone);
 
-    if (isOtpBypassEnabled()) {
-      // No SMS provider yet — skip send; client verifies with otpBypassCode().
+    if (isOtpBypassEnabled() || isTestPhone(phone)) {
+      // No SMS provider yet, or a designated test number — skip send;
+      // client verifies with otpBypassCode().
       return { success: true as const, data: { phone } };
     }
 
@@ -154,7 +155,7 @@ export async function verifyOtpAction(model: VerifyOtpModel) {
   try {
     const phone = normalizePhone(model.phone);
 
-    if (isOtpBypassEnabled()) {
+    if (isOtpBypassEnabled() || isTestPhone(phone)) {
       if (model.token.trim() !== otpBypassCode()) {
         throw new Error(await serverT("errors.invalidOtp"));
       }

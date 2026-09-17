@@ -37,3 +37,20 @@ export function otpBypassCodePublic() {
   const code = process.env.NEXT_PUBLIC_OTP_BYPASS_CODE?.trim();
   return code || DEFAULT_CODE;
 }
+
+/**
+ * Comma-separated phone numbers (any format) that skip real SMS and accept
+ * otpBypassCode(), even with OTP_BYPASS_ENABLED=false. For developer testing
+ * without a real Oman number, without exposing the fixed code publicly.
+ */
+export function isTestPhone(phone: string) {
+  const digits = phone.replace(/[^0-9]/g, "");
+  if (!digits) return false;
+  const configured = process.env.OTP_TEST_PHONES?.trim();
+  if (!configured) return false;
+  return configured
+    .split(",")
+    .map((p) => p.replace(/[^0-9]/g, ""))
+    .filter(Boolean)
+    .includes(digits);
+}
