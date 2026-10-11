@@ -14,7 +14,7 @@ import {
   updateFaqItemAction,
   type FaqInput,
 } from "@/app/_actions/faq-actions";
-import type { FaqItem } from "@/lib/faq/types";
+import { resolveFaqText, type FaqItem } from "@/lib/faq/types";
 import { Plus } from "lucide-react";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
@@ -158,19 +158,21 @@ export default function AdminQuestionsPage() {
             <div className="h-24 animate-pulse rounded-2xl border border-[#e4e4e7] bg-white" />
           ) : faqItems?.length ? (
             <ul className="space-y-2">
-              {faqItems.map((item) => (
+              {faqItems.map((item) => {
+                const text = resolveFaqText(item, locale);
+                return (
                 <li key={item.id} className="rounded-2xl border border-[#e4e4e7] bg-white p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-sm font-semibold text-[#18181b]">{item.question_fa}</p>
+                        <p dir="auto" className="text-sm font-semibold text-[#18181b]">{text.question}</p>
                         {!item.is_active && (
                           <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600">
                             {t("admin.questions.faqInactiveBadge")}
                           </span>
                         )}
                       </div>
-                      <p className="mt-1.5 line-clamp-2 text-sm text-[#52525b]">{item.answer_fa}</p>
+                      <p dir="auto" className="mt-1.5 line-clamp-2 text-start text-sm text-[#52525b]">{text.answer}</p>
                     </div>
                     <RowIconActions
                       editLabel={t("admin.questions.faqEdit")}
@@ -182,7 +184,8 @@ export default function AdminQuestionsPage() {
                     />
                   </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           ) : (
             <p className="rounded-2xl border border-dashed border-[#e4e4e7] bg-white px-4 py-8 text-center text-sm text-[#71717a]">
