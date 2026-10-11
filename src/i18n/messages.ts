@@ -433,6 +433,7 @@ export type Messages = {
     deliveryAreaUpdateFailed: string;
     deliveryAreaDeleteFailed: string;
     deliveryAreasLoadFailed: string;
+    faqFailed: string;
     deliveryAreaBoundaryFailed: string;
     blogPostsLoadFailed: string;
     blogPostCreateFailed: string;
@@ -822,6 +823,21 @@ export type Messages = {
       subtitle: string;
       newCategory: string;
       editCategory: string;
+      faqTitle: string;
+      faqSubtitle: string;
+      faqAdd: string;
+      faqNewTitle: string;
+      faqEditTitle: string;
+      faqQuestionLabel: string;
+      faqAnswerLabel: string;
+      faqEmpty: string;
+      faqActiveLabel: string;
+      faqLangHint: string;
+      faqSave: string;
+      faqInactiveBadge: string;
+      faqDelete: string;
+      faqEdit: string;
+      customerQuestionsTitle: string;
       namePlaceholder: string;
       nameFaPlaceholder: string;
       nameArPlaceholder: string;
@@ -1799,6 +1815,7 @@ const fa: Messages = {
     blogPostUpdateFailed: "به‌روزرسانی نوشته ناموفق بود",
     blogPostDeleteFailed: "حذف نوشته ناموفق بود",
     aiBlogDraftFailed: "نوشتن پیش‌نویس ناموفق بود",
+    faqFailed: "عملیات سؤالات متداول ناموفق بود",
     heroUpdateFailed: "ذخیره بنر ناموفق بود",
     bannersLoadFailed: "بارگذاری بنرها ناموفق بود",
     bannerCreateFailed: "ایجاد بنر ناموفق بود",
@@ -2188,6 +2205,21 @@ const fa: Messages = {
       nameEnPlaceholder: "نام دسته (انگلیسی)",
       nameLangHint: "نام دسته را برای هر سه زبان وارد کنید. اگر زبانی خالی بماند، از نام فارسی استفاده می‌شود.",
       slugPlaceholder: "slug-دسته",
+      faqTitle: "سؤالات متداول",
+      faqSubtitle: "این سؤال‌ها در صفحه «تماس با ما» به مشتریان نمایش داده می‌شوند",
+      faqAdd: "سؤال جدید",
+      faqNewTitle: "سؤال متداول جدید",
+      faqEditTitle: "ویرایش سؤال متداول",
+      faqQuestionLabel: "سؤال",
+      faqAnswerLabel: "پاسخ",
+      faqEmpty: "هنوز سؤال متداولی ثبت نشده است.",
+      faqActiveLabel: "نمایش در سایت",
+      faqLangHint: "متن را برای هر سه زبان وارد کنید. اگر زبانی خالی بماند، متن فارسی نمایش داده می‌شود.",
+      faqSave: "ذخیره",
+      faqInactiveBadge: "غیرفعال",
+      faqDelete: "حذف",
+      faqEdit: "ویرایش",
+      customerQuestionsTitle: "سؤالات مشتریان درباره محصولات",
       sortOrderLabel: "ترتیب نمایش",
       imageUrlPlaceholder: "آدرس تصویر دسته",
       uploadImage: "آپلود تصویر",
@@ -3187,6 +3219,7 @@ const ar: Messages = {
     bannerUpdateFailed: "فشل تحديث البانر",
     bannerDeleteFailed: "فشل حذف البانر",
     campaignsLoadFailed: "فشل تحميل الحملات",
+    faqFailed: "فشلت عملية الأسئلة الشائعة",
     campaignCreateFailed: "فشل إنشاء الحملة",
     campaignUpdateFailed: "فشل تحديث الحملة",
     campaignDeleteFailed: "فشل حذف الحملة",
@@ -3576,6 +3609,21 @@ const ar: Messages = {
       removeImage: "إزالة الصورة",
       save: "حفظ",
       create: "إنشاء",
+      faqTitle: "الأسئلة الشائعة",
+      faqSubtitle: "تظهر هذه الأسئلة للعملاء في صفحة «اتصل بنا»",
+      faqAdd: "سؤال جديد",
+      faqNewTitle: "سؤال شائع جديد",
+      faqEditTitle: "تعديل السؤال الشائع",
+      faqQuestionLabel: "السؤال",
+      faqAnswerLabel: "الإجابة",
+      faqEmpty: "لا توجد أسئلة شائعة بعد.",
+      faqActiveLabel: "عرض في المتجر",
+      faqLangHint: "أدخل النص لكل اللغات الثلاث. إذا تُركت لغة فارغة، يُعرض النص الفارسي.",
+      faqSave: "حفظ",
+      faqInactiveBadge: "غير مفعّل",
+      faqDelete: "حذف",
+      faqEdit: "تعديل",
+      customerQuestionsTitle: "أسئلة العملاء حول المنتجات",
       cancel: "إلغاء",
       edit: "تعديل",
       delete: "حذف",
@@ -4575,6 +4623,7 @@ const en: Messages = {
     campaignNameRequired: "Campaign name is required",
     campaignDatesRequired: "Start and end dates are required",
     campaignWindowInvalid: "End time must be after start time",
+    faqFailed: "FAQ operation failed",
     campaignDiscountRequired: "Discount value is invalid",
     campaignPercentMax: "Percent discount cannot exceed 90",
     campaignProductsRequired: "Select at least one product",
@@ -4964,6 +5013,21 @@ const en: Messages = {
       loading: "Loading…",
       empty: "No categories yet.",
       validationName: "Category name is required",
+      faqTitle: "Frequently asked questions",
+      faqSubtitle: "These appear to customers on the Contact page",
+      faqAdd: "New question",
+      faqNewTitle: "New FAQ",
+      faqEditTitle: "Edit FAQ",
+      faqQuestionLabel: "Question",
+      faqAnswerLabel: "Answer",
+      faqEmpty: "No FAQs yet.",
+      faqActiveLabel: "Show on the store",
+      faqLangHint: "Enter the text for all three languages. If a language is left empty, the Persian text is shown.",
+      faqSave: "Save",
+      faqInactiveBadge: "Inactive",
+      faqDelete: "Delete",
+      faqEdit: "Edit",
+      customerQuestionsTitle: "Customer questions about products",
       validationSlug: "Slug is required",
       parentLabel: "Parent category",
       noParent: "No parent (top-level)",

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import dynamic from "next/dynamic";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -22,6 +23,8 @@ import {
   storeAddressLine,
   storeGeoUrl,
 } from "@/config/store-location";
+import { getFaqItemsAction } from "@/app/_actions/faq-actions";
+import { resolveFaqText } from "@/lib/faq/types";
 import { useNotification } from "@/app/hooks/use-notification";
 import { useTranslations } from "@/i18n/use-translations";
 import type { Messages } from "@/i18n/messages";
@@ -64,6 +67,21 @@ const fieldClass =
 export function ContactView({ phone = "" }: Props) {
   const { messages: m, locale, dir } = useTranslations();
   const { showSuccess } = useNotification();
+  const { data: faqRows } = useQuery({
+    queryKey: ["faq-items"],
+    queryFn: async () => {
+      const result = await getFaqItemsAction();
+      return result.success ? result.data : [];
+    },
+    staleTime: 60_000,
+  });
+  const faqItems: { id: string; question: string; answer: string }[] = faqRows?.length
+    ? faqRows.map((row) => ({ id: row.id, ...resolveFaqText(row, locale) }))
+    : FAQ_ITEMS.map((item) => ({
+        id: item.q,
+        question: m.contact[item.q],
+        answer: m.contact[item.a],
+      }));
   const addressLine = storeAddressLine(locale);
   const mapsUrl = storeGeoUrl();
   const email = STORE_LOCATION.email;
@@ -325,18 +343,18 @@ export function ContactView({ phone = "" }: Props) {
           <section className="max-w-xl">
             <h2 className="text-base font-medium text-text-primary">{m.contact.faq}</h2>
             <ul className="mt-4 divide-y divide-border-subtle border-y border-border-subtle">
-              {FAQ_ITEMS.map((item) => (
-                <li key={item.q}>
+              {faqItems.map((item) => (
+                <li key={item.id}>
                   <details className="group">
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3.5 text-sm text-text-primary [&::-webkit-details-marker]:hidden">
-                      {m.contact[item.q]}
+                      {item.question}
                       <AppIcon
                         icon={ChevronDown}
                         size="xs"
                         className="shrink-0 text-text-faint transition-transform group-open:rotate-180"
                       />
                     </summary>
-                    <p className="pb-4 text-sm leading-6 text-text-secondary">{m.contact[item.a]}</p>
+                    <p className="pb-4 text-sm leading-6 text-text-secondary">{item.answer}</p>
                   </details>
                 </li>
               ))}
