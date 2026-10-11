@@ -32,8 +32,7 @@ const FIDELITY_RULES =
 function coverPrompt(title: string) {
   return `${FIDELITY_RULES}
 
-Create the PRIMARY, standard e-commerce cover image of this product.
-Position: product prominently centered, fully visible and completely inside the frame, balanced comfortable negative space around it.
+EDIT this photo into the PRIMARY, standard e-commerce cover image: keep the product exactly as it is — same shape, size, angle and position, centered and completely inside the frame with generous empty margin on every side (never cropped or enlarged). Replace only the plain background and add the studio lighting and contact shadow described below.
 Camera: straightforward, product-focused angle, natural perspective, sharp details, minimal distortion, high-end studio camera look.
 
 ${AI_IMAGE_STYLE_BLOCK}
@@ -61,6 +60,8 @@ ${AI_IMAGE_STYLE_BLOCK}
 Product title: ${title}`;
 }
 
+const SQUARE_PRODUCT_SIZE = 760;
+
 const SHOT_PROMPTS = [coverPrompt, secondaryPrompt, marketingPrompt];
 
 /**
@@ -85,13 +86,19 @@ export async function generateProductCoverShots(input: {
 }): Promise<Buffer[]> {
   if (!AI_IMAGE_GENERATION_ENABLED) return [];
 
-  const png = await sharp(input.bytes)
+  // The edit endpoint outputs a 1024x1024 square. Feeding it a non-square
+  // photo (e.g. a wide 3:2 shot) makes the model re-crop/outpaint and redraw the
+  // product, so the result comes out cropped and no longer matches. Instead,
+  // place the product on a white square with a generous margin: the model then
+  // only has to swap the background and add light + shadow, in-frame.
+  const product = await sharp(input.bytes)
     .rotate()
-    .resize(1024, 1024, {
-      fit: "inside",
-      withoutEnlargement: true,
-      background: { r: 255, g: 255, b: 255, alpha: 0 },
-    })
+    .resize(SQUARE_PRODUCT_SIZE, SQUARE_PRODUCT_SIZE, { fit: "inside", withoutEnlargement: false })
+    .toBuffer();
+  const png = await sharp({
+    create: { width: 1024, height: 1024, channels: 3, background: "#ffffff" },
+  })
+    .composite([{ input: product, gravity: "center" }])
     .png()
     .toBuffer();
 
