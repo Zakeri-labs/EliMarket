@@ -20,6 +20,7 @@ import type { FinancialReport, PeriodBucket } from "@/app/_actions/report-action
 import { getNumberLocale, type Locale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
+import { Select } from "@/components/ui/Select";
 
 const SAGE = "#0d9488";
 const SAGE_DARK = "#0f766e";
@@ -114,15 +115,15 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
       <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-semibold text-[#18181b]">{t("admin.dashboard.salesTrend")}</h2>
-          <select
-            className="h-9 rounded-xl border border-[#e4e4e7] px-3 text-sm"
+          <Select
+            className="!w-auto"
             value={period}
             onChange={(event) => setPeriod(event.target.value as PeriodKey)}
           >
             <option value="daily">{t("admin.reports.daily")}</option>
             <option value="weekly">{t("admin.reports.weekly")}</option>
             <option value="monthly">{t("admin.reports.monthly")}</option>
-          </select>
+          </Select>
         </div>
         {salesData.every((row) => row.total === 0 && row.count === 0) ? (
           <p className="py-10 text-center text-sm text-[#71717a]">{t("admin.reports.noData")}</p>

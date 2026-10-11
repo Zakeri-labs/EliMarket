@@ -10,6 +10,7 @@ import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
 import type { Order, OrderStatus } from "@/app/_types/database.types";
+import { Select } from "@/components/ui/Select";
 
 const STATUS_KEYS: OrderStatus[] = [
   "pending",
@@ -61,8 +62,8 @@ export default function AdminReportsPage() {
           !value || String(row.original.status) === String(value),
         meta: {
           filterComponent: ({ value, onFilterChange }) => (
-            <select
-              className="h-9 w-full rounded-xl border border-[#e4e4e7] px-3 text-sm"
+            <Select
+              
               value={typeof value === "string" ? value : ""}
               onChange={(e) => onFilterChange(e.target.value || null)}
             >
@@ -72,7 +73,7 @@ export default function AdminReportsPage() {
                   {t(`admin.status.${k}`)}
                 </option>
               ))}
-            </select>
+            </Select>
           ),
         },
       },
@@ -131,15 +132,15 @@ export default function AdminReportsPage() {
                       ? t("admin.reports.monthly")
                       : t("admin.reports.revenue14Days")}
                 </h2>
-                <select
-                  className="h-9 rounded-xl border border-[#e4e4e7] px-3 text-sm"
+                <Select
+                  className="!w-auto"
                   value={period}
                   onChange={(e) => setPeriod(e.target.value as typeof period)}
                 >
                   <option value="daily">{t("admin.reports.daily")}</option>
                   <option value="weekly">{t("admin.reports.weekly")}</option>
                   <option value="monthly">{t("admin.reports.monthly")}</option>
-                </select>
+                </Select>
               </div>
               {(() => {
                 const rows =

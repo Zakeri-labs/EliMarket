@@ -23,6 +23,8 @@ import {
   Download,
   Plus,
   RefreshCw,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -35,6 +37,7 @@ import { Button } from "@/components/ui/Button";
 import { ColumnFilter } from "@/components/table/ColumnFilter";
 import { TableInput } from "@/components/table/TableInput";
 import "@/components/table/_types/table.types";
+import { Select } from "@/components/ui/Select";
 
 const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
 
@@ -140,6 +143,13 @@ function attachHoverWheelScroll(el: HTMLElement | null): () => void {
 
   el.addEventListener("wheel", onWheel, { passive: false });
   return () => el.removeEventListener("wheel", onWheel);
+}
+
+const SKELETON_ROWS = 6;
+const SKELETON_WIDTHS = [70, 45, 85, 55, 65, 40];
+
+function isImageColumn(id: string) {
+  return /image|photo|thumb/i.test(id);
 }
 
 function getColumnHeaderLabel<T>(column: Column<T, unknown>): string {
@@ -329,6 +339,8 @@ export function DataTable<T>({
       : undefined,
   });
 
+  const hasImageColumn = table.getVisibleLeafColumns().some((column) => isImageColumn(column.id));
+
   const filteredCount = table.getFilteredRowModel().rows.length;
   const totalItems = totalItemsProp ?? (manualPagination ? data.length : filteredCount);
 
@@ -392,7 +404,7 @@ export function DataTable<T>({
   const mobileFilterableHeaders = enableColumnFilters
     ? table
         .getHeaderGroups()
-        .flatMap((hg) => hg.headers.filter((h) => canShowColumnFilter(h.column)))
+        .flatMap((hg) => hg.headers.filter((h) => canShowColumnFilter(h.column) && !isImageColumn(h.column.id)))
     : [];
 
   const pageCount = manualPagination
@@ -417,9 +429,9 @@ export function DataTable<T>({
           {onRefresh && (
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="border-[#e4e4e7] text-[#71717a]"
+              className="text-[#71717a] hover:bg-[#f4f4f5] hover:!text-[#18181b]"
               onClick={onRefresh}
             >
               <AppIcon icon={RefreshCw} size="xs" className="me-1.5" />
@@ -430,9 +442,9 @@ export function DataTable<T>({
           {enableExport && (
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="border-[#e4e4e7] text-[#71717a]"
+              className="text-[#71717a] hover:bg-[#f4f4f5] hover:!text-[#18181b]"
               onClick={() => void handleExport()}
             >
               <AppIcon icon={Download} size="xs" className="me-1.5" />
@@ -444,8 +456,8 @@ export function DataTable<T>({
             <Button
               type="button"
               size="sm"
-              variant="outline"
-              className="border-[#e4e4e7] text-[#71717a]"
+              variant="ghost"
+              className="text-[#71717a] hover:bg-[#f4f4f5] hover:!text-[#18181b]"
               onClick={() => setColumnPanelOpen((p) => !p)}
             >
               {t("table.columns")}
@@ -480,6 +492,7 @@ export function DataTable<T>({
             <Button
               type="button"
               size="sm"
+              className="!shadow-none"
               onClick={onCreateClick}
             >
               <AppIcon icon={Plus} size="xs" className="me-1.5" />
@@ -496,15 +509,19 @@ export function DataTable<T>({
       )}
 
       {mobileFilterableHeaders.length > 0 && (
-        <div className="space-y-3 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-3 md:hidden">
-          <div className="text-xs font-semibold text-[#18181b]">{t("table.columnFilters")}</div>
+        <details className="group rounded-xl border border-[#e4e4e7] bg-white lg:hidden">
+          <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-[#18181b] [&::-webkit-details-marker]:hidden">
+            {t("table.columnFilters")}
+            <AppIcon icon={ChevronDown} size="xs" className="text-[#71717a] transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="grid grid-cols-1 gap-3 border-t border-[#f0f0f2] p-4 sm:grid-cols-2">
           {mobileFilterableHeaders.map((header) => {
             const columnId = header.column.id;
             const filterValue = getColumnFilterValue(columnId);
             return (
               <div
                 key={header.id}
-                className="space-y-2 border-b border-[#e4e4e7]/80 pb-3 last:border-b-0 last:pb-0"
+                className="space-y-2"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-medium text-[#71717a]">
@@ -526,18 +543,18 @@ export function DataTable<T>({
               </div>
             );
           })}
-        </div>
+          </div>
+        </details>
       )}
 
-      <div className="hidden min-w-0 w-full max-w-full md:block">
+      <div className="hidden min-w-0 w-full max-w-full lg:block">
         <div
           ref={desktopScrollRef}
-          className="admin-thin-scroll max-w-full overflow-auto overscroll-contain rounded-xl bg-white"
+          className="admin-thin-scroll max-w-full overflow-auto overscroll-contain rounded-xl border border-[#e4e4e7] bg-white"
           style={{
             maxHeight: maxBodyHeight,
-            border: "2px solid #0d9488",
             scrollbarWidth: "thin",
-            scrollbarColor: "#0d9488 #f4f4f5",
+            scrollbarColor: "#d4d4d8 transparent",
           }}
         >
           <table
@@ -556,7 +573,7 @@ export function DataTable<T>({
                 : undefined
             }
           >
-            <thead className="sticky top-0 z-20 bg-[#f4f4f5]">
+            <thead className="sticky top-0 z-20 bg-white">
               {table.getHeaderGroups().map((hg) => (
                 <tr key={hg.id}>
                   {hg.headers.map((header, headerIndex) => {
@@ -571,8 +588,7 @@ export function DataTable<T>({
                       <th
                         key={header.id}
                         className={cn(
-                          "relative border-b border-[#e4e4e7] bg-[#f4f4f5] px-4 py-2.5 text-start text-xs whitespace-nowrap text-[#0f766e]",
-                          enableColumnResizing && "border-e border-[#e4e4e7]",
+                          "group/th relative border-b border-[#e4e4e7] bg-white px-4 py-3 text-start text-xs font-medium whitespace-nowrap text-[#71717a]",
                         )}
                         style={
                           enableColumnResizing
@@ -650,7 +666,24 @@ export function DataTable<T>({
             </thead>
 
             <tbody className={cn(isSkeleton && "skeleton")}>
-              {table.getRowModel().rows.length === 0 && !isSkeleton ? (
+              {isSkeleton ? (
+                Array.from({ length: SKELETON_ROWS }, (_, rowIndex) => (
+                  <tr key={rowIndex} className="border-b border-[#f0f0f2] last:border-b-0">
+                    {table.getVisibleLeafColumns().map((column, colIndex) => (
+                      <td key={column.id} className="px-4 py-3.5">
+                        {isImageColumn(column.id) ? (
+                          <div className="target h-10 w-10 rounded-lg" />
+                        ) : (
+                          <div
+                            className="target h-3 rounded-full"
+                            style={{ width: `${SKELETON_WIDTHS[(rowIndex + colIndex) % SKELETON_WIDTHS.length]}%` }}
+                          />
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : table.getRowModel().rows.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length} className="h-48 text-center text-[#71717a]">
                     {t("table.noData")}
@@ -660,19 +693,15 @@ export function DataTable<T>({
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className={cn(
-                      "border-b border-[#e4e4e7]/80 transition-colors even:bg-[#fafafa] hover:bg-[#0d9488]/5",
-                      isSkeleton && "pointer-events-none",
-                    )}
-                    aria-busy={isSkeleton}
+                    className="border-b border-[#f0f0f2] transition-colors last:border-b-0 hover:bg-[#fafafa]"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
                         title={getCellTitle(cell)}
                         className={cn(
-                          "px-4 py-2.5 text-sm whitespace-nowrap text-ellipsis",
-                          enableColumnResizing && "overflow-hidden border-e border-[#e4e4e7]/60",
+                          "px-4 py-3 text-sm whitespace-nowrap text-ellipsis",
+                          enableColumnResizing && "overflow-hidden",
                         )}
                         style={
                           enableColumnResizing
@@ -693,52 +722,84 @@ export function DataTable<T>({
 
       <div
         ref={mobileScrollRef}
-        className="admin-thin-scroll space-y-3 overflow-y-auto overscroll-contain md:hidden"
+        className="admin-thin-scroll overflow-y-auto overscroll-contain lg:hidden"
         style={{
           maxHeight: maxBodyHeight,
           scrollbarWidth: "thin",
-          scrollbarColor: "#0d9488 #f4f4f5",
+          scrollbarColor: "#d4d4d8 transparent",
         }}
       >
-        {table.getRowModel().rows.length === 0 && !isSkeleton ? (
+        {isSkeleton ? (
+          <div className="skeleton grid grid-cols-1 gap-3 sm:grid-cols-2" aria-busy>
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white">
+                {hasImageColumn ? <div className="target aspect-[4/3] w-full !rounded-none" /> : null}
+                <div className="space-y-3 p-4">
+                  <div className="target h-4 w-3/4 rounded-full" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="target h-3 w-2/3 rounded-full" />
+                    <div className="target h-3 w-1/2 rounded-full" />
+                    <div className="target h-3 w-1/2 rounded-full" />
+                    <div className="target h-3 w-2/3 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : table.getRowModel().rows.length === 0 ? (
           <div className="flex min-h-48 items-center justify-center rounded-2xl border border-[#e4e4e7] bg-white p-4 text-sm text-[#71717a]">
             {t("table.noData")}
           </div>
         ) : (
-          table.getRowModel().rows.map((row) => {
-            const cells = row.getVisibleCells();
-            const actionCell = cells.find((cell) => cell.column.id === "actions");
-            const dataCells = cells.filter((cell) => cell.column.id !== "actions");
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {table.getRowModel().rows.map((row) => {
+              const cells = row.getVisibleCells();
+              const actionCell = cells.find((cell) => cell.column.id === "actions");
+              const imageCell = cells.find((cell) => isImageColumn(cell.column.id));
+              const rest = cells.filter((cell) => cell !== actionCell && cell !== imageCell);
+              const titleCell = rest[0];
+              const detailCells = rest.slice(1);
 
-            return (
-              <article
-                key={row.id}
-                className={cn(
-                  "rounded-2xl border border-[#e4e4e7] bg-white p-4 shadow-sm",
-                  isSkeleton && "skeleton pointer-events-none",
-                )}
-                aria-busy={isSkeleton}
-              >
-                <dl className="space-y-3">
-                  {dataCells.map((cell) => (
-                    <div key={cell.id} className="min-w-0">
-                      <dt className="text-[11px] font-medium text-[#71717a]">
-                        {getColumnHeaderLabel(cell.column)}
-                      </dt>
-                      <dd className="mt-1 min-w-0 text-sm leading-relaxed text-[#18181b] [overflow-wrap:anywhere]">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </dd>
+              return (
+                <article
+                  key={row.id}
+                  className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white"
+                >
+                  {imageCell ? (
+                    <div className="flex aspect-square w-full items-center justify-center overflow-hidden bg-[#f4f4f5] sm:aspect-[4/3] [&>div]:!h-full [&>div]:!w-full [&_img]:!object-cover">
+                      {flexRender(imageCell.column.columnDef.cell, imageCell.getContext())}
                     </div>
-                  ))}
-                </dl>
-                {actionCell ? (
-                  <div className="mt-3 flex justify-end border-t border-[#e4e4e7] pt-3">
-                    {flexRender(actionCell.column.columnDef.cell, actionCell.getContext())}
+                  ) : null}
+                  <div className="flex min-w-0 flex-1 flex-col gap-3 p-4">
+                    {titleCell ? (
+                      <div className="min-w-0 text-base leading-snug font-semibold text-[#18181b] [overflow-wrap:anywhere]">
+                        {flexRender(titleCell.column.columnDef.cell, titleCell.getContext())}
+                      </div>
+                    ) : null}
+                    {detailCells.length > 0 ? (
+                      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-[#f0f0f2] pt-3">
+                        {detailCells.map((cell) => (
+                          <div key={cell.id} className="min-w-0">
+                            <dt className="text-[11px] text-[#a1a1aa]">
+                              {getColumnHeaderLabel(cell.column)}
+                            </dt>
+                            <dd className="mt-0.5 min-w-0 text-sm leading-relaxed text-[#18181b] [overflow-wrap:anywhere]">
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    ) : null}
+                    {actionCell ? (
+                      <div className="mt-auto flex justify-end border-t border-[#f0f0f2] pt-3">
+                        {flexRender(actionCell.column.columnDef.cell, actionCell.getContext())}
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-              </article>
-            );
-          })
+                </article>
+              );
+            })}
+          </div>
         )}
       </div>
 
@@ -753,7 +814,7 @@ export function DataTable<T>({
           </div>
           <div className="flex items-center gap-2">
             <span className="whitespace-nowrap">{t("table.pageSize")}</span>
-            <select
+            <Select
               value={String(pagination.pageSize)}
               onChange={(e) => {
                 const nextSize = Number(e.target.value);
@@ -763,7 +824,7 @@ export function DataTable<T>({
                   pageIndex: 0,
                 }));
               }}
-              className="h-8 rounded-lg border border-[#e4e4e7] bg-white px-2 text-sm"
+              className="!w-auto min-h-8 py-1"
               aria-label={t("table.pageSize")}
             >
               {(pageSizeOptions.includes(pagination.pageSize)
@@ -774,7 +835,7 @@ export function DataTable<T>({
                   {size}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         </div>
 
@@ -782,22 +843,28 @@ export function DataTable<T>({
           <Button
             type="button"
             size="sm"
+            aria-label={t("table.prev")}
+            title={t("table.prev")}
+            className="!px-2.5"
             onClick={() =>
               onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
             }
             disabled={pagination.pageIndex === 0}
           >
-            {t("table.prev")}
+            <AppIcon icon={tableDir === "rtl" ? ChevronRight : ChevronLeft} size="sm" />
           </Button>
           <Button
             type="button"
             size="sm"
+            aria-label={t("table.next")}
+            title={t("table.next")}
+            className="!px-2.5"
             onClick={() =>
               onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex + 1 }))
             }
             disabled={pagination.pageIndex >= pageCount - 1}
           >
-            {t("table.next")}
+            <AppIcon icon={tableDir === "rtl" ? ChevronLeft : ChevronRight} size="sm" />
           </Button>
         </div>
       </div>

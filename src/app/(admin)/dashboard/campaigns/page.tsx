@@ -24,6 +24,7 @@ import { notifyFormError } from "@/app/utils/form-notify";
 import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
 import type { Campaign, CampaignType } from "@/app/_types/database.types";
+import { Select } from "@/components/ui/Select";
 
 type FormState = {
   name: string;
@@ -387,19 +388,18 @@ export default function AdminCampaignsPage() {
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block text-xs text-[#71717a]">
                 {t("admin.campaigns.typeLabel")}
-                <select
-                  className={`${inputClass} mt-1`}
+                <Select className="mt-1"
                   value={form.type}
                   onChange={(e) => setForm((s) => ({ ...s, type: e.target.value as CampaignType }))}
                 >
                   <option value="percent">{t("admin.campaigns.typePercent")}</option>
                   <option value="fixed">{t("admin.campaigns.typeFixed")}</option>
-                </select>
+                </Select>
               </label>
               <label className="block text-xs text-[#71717a]">
                 {t("admin.campaigns.valueLabel")}
                 <input
-                  className={`${inputClass} mt-1`}
+                  className="mt-1"
                   type="number"
                   min={0.001}
                   step={form.type === "percent" ? 1 : 0.001}

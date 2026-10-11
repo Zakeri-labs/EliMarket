@@ -80,7 +80,7 @@ export function mockAdminTableProducts(): Product[] {
     stock: row.stock,
     inventory_unit: "count",
     low_stock_threshold: 5,
-    image_url: "/icon.png",
+    image_url: null,
     blur_hash: null,
     is_active: row.is_active,
     created_at: MOCK_TIMESTAMP,

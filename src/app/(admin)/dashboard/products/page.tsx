@@ -50,6 +50,7 @@ import { DataTable } from "@/components/table";
 import { mockAdminTableProducts } from "@/app/(admin)/dashboard/_mocks/product-table-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
+import { Select } from "@/components/ui/Select";
 
 type FeatureDraft = ProductFeatureInput;
 type GalleryItem = ProductImageInput;
@@ -534,15 +535,15 @@ export default function AdminProductsPage() {
         },
         meta: {
           filterComponent: ({ value, onFilterChange }) => (
-            <select
-              className="h-9 w-full rounded-xl border border-[#e4e4e7] px-3 text-sm"
+            <Select
+              
               value={typeof value === "string" ? value : "all"}
               onChange={(e) => onFilterChange(e.target.value)}
             >
               <option value="all">{t("admin.products.filterAll")}</option>
               <option value="active">{t("admin.products.filterActive")}</option>
               <option value="inactive">{t("admin.products.filterInactive")}</option>
-            </select>
+            </Select>
           ),
         },
       },
@@ -764,16 +765,18 @@ export default function AdminProductsPage() {
               <label className="mb-1 block text-xs text-[#71717a]">
                 {t("admin.products.inventoryUnit")}
               </label>
-              <select
-                {...form.register("inventory_unit")}
-                className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+              <Select
+                value={String(form.watch("inventory_unit") ?? "")}
+                onChange={(e) =>
+                form.setValue("inventory_unit", e.target.value as never, { shouldDirty: true })
+                }
               >
                 {INVENTORY_UNITS.map((unit) => (
                   <option key={unit} value={unit}>
                     {t(`admin.products.${unit === "count" ? "unitCount" : unit === "weight" ? "unitWeight" : "unitPack"}`)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
           <div>
@@ -788,9 +791,11 @@ export default function AdminProductsPage() {
             />
           </div>
 
-          <select
-            {...form.register("category_id")}
-            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+          <Select
+            value={String(form.watch("category_id") ?? "")}
+            onChange={(e) =>
+            form.setValue("category_id", e.target.value as never, { shouldDirty: true })
+            }
           >
             <option value="">{t("admin.products.noCategory")}</option>
             {flattenCategoryTree(categories).map((c) => (
@@ -798,11 +803,13 @@ export default function AdminProductsPage() {
                 {`${"— ".repeat(categoryDepth(categories, c))}${c.name}`}
               </option>
             ))}
-          </select>
+          </Select>
 
-          <select
-            {...form.register("brand_id")}
-            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+          <Select
+            value={String(form.watch("brand_id") ?? "")}
+            onChange={(e) =>
+            form.setValue("brand_id", e.target.value as never, { shouldDirty: true })
+            }
           >
             <option value="">{t("admin.products.noBrand")}</option>
             {brands.map((brand) => (
@@ -810,7 +817,7 @@ export default function AdminProductsPage() {
                 {brand.name}
               </option>
             ))}
-          </select>
+          </Select>
 
           <input
             {...form.register("sku")}
@@ -819,9 +826,11 @@ export default function AdminProductsPage() {
             dir="ltr"
           />
 
-          <select
-            {...form.register("parent_product_id")}
-            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+          <Select
+            value={String(form.watch("parent_product_id") ?? "")}
+            onChange={(e) =>
+            form.setValue("parent_product_id", e.target.value as never, { shouldDirty: true })
+            }
           >
             <option value="">{t("admin.products.noVariantParent")}</option>
             {(products ?? [])
@@ -831,7 +840,7 @@ export default function AdminProductsPage() {
                   {p.name}
                 </option>
               ))}
-          </select>
+          </Select>
 
           <input
             {...form.register("variant_label")}

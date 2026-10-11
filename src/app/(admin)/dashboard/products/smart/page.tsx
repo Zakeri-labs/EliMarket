@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/Button";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
 import type { Category } from "@/app/_types/database.types";
+import { Select } from "@/components/ui/Select";
 
 const MAX_PHOTOS = 6;
 
@@ -175,10 +176,9 @@ export default function SmartProductPage() {
             <label className="mb-1 block text-xs text-[#71717a]">
               {t("admin.smartProduct.categoryOptional")}
             </label>
-            <select
+            <Select
               value={categoryId}
               onChange={(event) => setCategoryId(event.target.value)}
-              className={inputClass}
             >
               <option value="">{t("admin.products.noCategory")}</option>
               {categories.map((category) => (
@@ -186,7 +186,7 @@ export default function SmartProductPage() {
                   {category.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         </section>
 

@@ -7,14 +7,25 @@ import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard"
 import { mockProducts } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import { categoryAndDescendantSlugs } from "@/lib/categories/tree";
+import { productCompareAtPrice } from "@/lib/products/pricing";
 
 const MOCK_LIST_COUNT = 6;
 
-type Props = {
-  slug?: string;
+export type CategorySortKey = "newest" | "price-asc" | "price-desc";
+
+export type CategoryListFilters = {
+  minPrice: string;
+  maxPrice: string;
+  onSale: boolean;
+  sort: CategorySortKey;
 };
 
-export function CategoryProductList({ slug }: Props) {
+type Props = {
+  slug?: string;
+  filters?: CategoryListFilters;
+};
+
+export function CategoryProductList({ slug, filters }: Props) {
   const { locale } = useTranslations();
   const { data: products, isPending } = useQuery({
     queryKey: ["products", slug ?? "all"],
@@ -33,13 +44,26 @@ export function CategoryProductList({ slug }: Props) {
   });
 
   const isSkeleton = isPending;
-  const items = useMemo(
-    () =>
-      isSkeleton
-        ? mockProducts(locale).slice(0, MOCK_LIST_COUNT)
-        : (products ?? []),
-    [isSkeleton, locale, products],
-  );
+  const { minPrice, maxPrice, onSale, sort } = filters ?? {};
+  const items = useMemo(() => {
+    if (isSkeleton) return mockProducts(locale).slice(0, MOCK_LIST_COUNT);
+    const min = minPrice ? Number(minPrice) : null;
+    const max = maxPrice ? Number(maxPrice) : null;
+    const list = (products ?? []).filter((p) => {
+      if (min != null && !Number.isNaN(min) && Number(p.price) < min) return false;
+      if (max != null && !Number.isNaN(max) && Number(p.price) > max) return false;
+      if (onSale) {
+        const compareAt = productCompareAtPrice(p);
+        if (compareAt == null || compareAt <= Number(p.price)) return false;
+      }
+      return true;
+    });
+    return [...list].sort((a, b) => {
+      if (sort === "price-asc") return Number(a.price) - Number(b.price);
+      if (sort === "price-desc") return Number(b.price) - Number(a.price);
+      return b.created_at.localeCompare(a.created_at);
+    });
+  }, [isSkeleton, locale, products, minPrice, maxPrice, onSale, sort]);
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">

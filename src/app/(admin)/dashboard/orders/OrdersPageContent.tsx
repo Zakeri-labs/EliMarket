@@ -35,6 +35,7 @@ import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
 import type { Order, OrderStatus } from "@/app/_types/database.types";
+import { Select } from "@/components/ui/Select";
 
 const STATUS_FLOW: OrderStatus[] = [
   "pending",
@@ -331,8 +332,7 @@ export default function OrdersPageContent() {
                     <label className="mb-1 block text-xs font-medium text-[#71717a]">
                       {t("admin.orders.statusLabel")}
                     </label>
-                    <select
-                      className={cn(selectClass, "w-full")}
+                    <Select
                       value={status}
                       disabled={isSkeleton || isActionPending || status === "delivered"}
                       onChange={(e) => {
@@ -360,7 +360,7 @@ export default function OrdersPageContent() {
                           {t(`admin.orders.status.${status}`)}
                         </option>
                       ) : null}
-                    </select>
+                    </Select>
                     <p className="mt-1 text-[11px] leading-relaxed text-[#a1a1aa]">
                       {t("admin.orders.statusHint")}
                     </p>
@@ -370,8 +370,7 @@ export default function OrdersPageContent() {
                     <label className="mb-1 block text-xs font-medium text-[#71717a]">
                       {t("admin.orders.riderLabel")}
                     </label>
-                    <select
-                      className={cn(selectClass, "w-full")}
+                    <Select
                       disabled={
                         isSkeleton ||
                         ridersQuery.isLoading ||
@@ -389,7 +388,7 @@ export default function OrdersPageContent() {
                           {rider.full_name || rider.phone || rider.id.slice(0, 8)}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                     {!assignReady && status !== "out_for_delivery" && status !== "delivered" ? (
                       <p className="mt-1 text-[11px] leading-relaxed text-amber-700">
                         {t("admin.orders.assignAfterPreparing")}

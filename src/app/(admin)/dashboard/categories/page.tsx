@@ -28,6 +28,7 @@ import { useTranslations } from "@/i18n/use-translations";
 import { LOCALES, LOCALE_LABELS, getDirection, type Locale } from "@/i18n/config";
 import { flattenCategoryTree, categoryDepth, validCategoryParents } from "@/lib/categories/tree";
 import type { Category } from "@/app/_types/database.types";
+import { Select } from "@/components/ui/Select";
 
 type FormValues = {
   name: string;
@@ -356,14 +357,14 @@ export default function AdminCategoriesPage() {
                 {t("admin.categories.parentLabel")}
               </label>
               <p className="mb-1 text-[11px] text-[#71717a]">{t("admin.categories.nestedHint")}</p>
-              <select {...form.register("parent_id")} className={inputClass}>
+              <Select value={String(form.watch("parent_id") ?? "")} onChange={(e) => form.setValue("parent_id", e.target.value as never, { shouldDirty: true }) }>
                 <option value="">{t("admin.categories.noParent")}</option>
                 {validCategoryParents(categories ?? [], editing?.id).map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {`${"— ".repeat(categoryDepth(categories ?? [], cat))}${cat.name}`}
                     </option>
                   ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label className="mb-1 block text-xs text-[#71717a]">

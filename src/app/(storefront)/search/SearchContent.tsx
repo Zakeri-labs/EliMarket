@@ -16,6 +16,7 @@ import { categoryAndDescendantSlugs } from "@/lib/categories/tree";
 import { matchesProductQuery } from "@/lib/products/search";
 import { productCompareAtPrice } from "@/lib/products/pricing";
 import type { LiveCampaignOption } from "@/lib/campaigns/load";
+import { Select } from "@/components/ui/Select";
 
 type SortKey = "newest" | "price-asc" | "price-desc";
 
@@ -168,15 +169,15 @@ export function SearchContent() {
         </div>
         <label className="hidden items-center gap-2 text-sm md:flex">
           <span className="text-muted">{t("search.sortLabel")}</span>
-          <select
-            className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm outline-none focus:border-accent"
+          <Select
+            className="!w-auto"
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
           >
             <option value="newest">{t("search.sortNewest")}</option>
             <option value="price-asc">{t("search.sortPriceAsc")}</option>
             <option value="price-desc">{t("search.sortPriceDesc")}</option>
-          </select>
+          </Select>
         </label>
       </div>
 
@@ -211,8 +212,7 @@ export function SearchContent() {
             {(campaigns?.length || campaignParam) ? (
               <label className="block space-y-1.5">
                 <span className="text-xs font-medium text-muted">{t("search.campaignLabel")}</span>
-                <select
-                  className={fieldClass}
+                <Select
                   value={selectedCampaign?.id || campaignParam}
                   onChange={(e) => applyCampaignFilter(e.target.value)}
                 >
@@ -222,7 +222,7 @@ export function SearchContent() {
                       {campaign.name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             ) : null}
             <fieldset className="space-y-1.5">
@@ -259,15 +259,14 @@ export function SearchContent() {
             </label>
             <label className="block space-y-1.5 md:hidden">
               <span className="text-xs font-medium text-muted">{t("search.sortLabel")}</span>
-              <select
-                className={fieldClass}
+              <Select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortKey)}
               >
                 <option value="newest">{t("search.sortNewest")}</option>
                 <option value="price-asc">{t("search.sortPriceAsc")}</option>
                 <option value="price-desc">{t("search.sortPriceDesc")}</option>
-              </select>
+              </Select>
             </label>
           </FilterPanel>
         }

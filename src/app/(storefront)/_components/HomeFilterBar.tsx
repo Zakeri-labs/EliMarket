@@ -5,6 +5,7 @@ import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { useTranslations } from "@/i18n/use-translations";
 import type { HomePill } from "@/lib/products/home-filters";
+import { Select } from "@/components/ui/Select";
 
 type SortKey = "newest" | "price-asc" | "price-desc";
 
@@ -105,15 +106,15 @@ export function HomeFilterBar({
       </div>
       <label className="hidden h-8 shrink-0 items-center gap-2 text-xs text-muted sm:flex">
         <span className="whitespace-nowrap">{t("search.sortLabel")}</span>
-        <select
-          className="h-8 rounded-lg border border-border bg-surface px-2 text-xs text-foreground outline-none"
+        <Select
+          className="!w-auto min-h-8 py-1 text-xs"
           value={sort}
           onChange={(e) => onSort(e.target.value as SortKey)}
         >
           <option value="newest">{t("search.sortNewest")}</option>
           <option value="price-asc">{t("search.sortPriceAsc")}</option>
           <option value="price-desc">{t("search.sortPriceDesc")}</option>
-        </select>
+        </Select>
       </label>
     </div>
   );
