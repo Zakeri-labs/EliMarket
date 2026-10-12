@@ -106,45 +106,6 @@ function resolveColumnSizingStorageKey(
   return `elimarket-column-sizing:${entityName}`;
 }
 
-function attachHoverWheelScroll(el: HTMLElement | null): () => void {
-  if (!el) return () => {};
-  const onWheel = (e: WheelEvent) => {
-    const canScrollY = el.scrollHeight > el.clientHeight + 1;
-    const canScrollX = el.scrollWidth > el.clientWidth + 1;
-    if (!canScrollY && !canScrollX) return;
-
-    const deltaY = e.deltaY;
-    const deltaX = e.deltaX !== 0 ? e.deltaX : e.shiftKey ? e.deltaY : 0;
-    let handled = false;
-
-    if (canScrollY && deltaY !== 0 && !e.shiftKey) {
-      const atTop = el.scrollTop <= 0;
-      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
-      if ((deltaY < 0 && !atTop) || (deltaY > 0 && !atBottom)) {
-        el.scrollTop += deltaY;
-        handled = true;
-      }
-    }
-
-    if (canScrollX && deltaX !== 0) {
-      const atStart = el.scrollLeft <= 0;
-      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
-      if ((deltaX < 0 && !atStart) || (deltaX > 0 && !atEnd)) {
-        el.scrollLeft += deltaX;
-        handled = true;
-      }
-    }
-
-    if (handled) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  el.addEventListener("wheel", onWheel, { passive: false });
-  return () => el.removeEventListener("wheel", onWheel);
-}
-
 const SKELETON_ROWS = 6;
 const SKELETON_WIDTHS = [70, 45, 85, 55, 65, 40];
 
@@ -186,12 +147,6 @@ export function DataTable<T>({
   const locale = useLocaleStore((s) => s.locale);
   const tableDir = getDirection(locale);
   const resolvedEntityName = entityName ?? t("table.defaultEntity");
-
-  const desktopScrollRef = React.useRef<HTMLDivElement>(null);
-  const mobileScrollRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => attachHoverWheelScroll(desktopScrollRef.current), []);
-  React.useEffect(() => attachHoverWheelScroll(mobileScrollRef.current), []);
 
   const [internalPagination, setInternalPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -549,8 +504,7 @@ export function DataTable<T>({
 
       <div className="hidden min-w-0 w-full max-w-full lg:block">
         <div
-          ref={desktopScrollRef}
-          className="admin-thin-scroll max-w-full overflow-auto overscroll-contain rounded-xl border border-[#e4e4e7] bg-white"
+          className="admin-thin-scroll max-w-full overflow-auto overscroll-auto rounded-xl border border-[#e4e4e7] bg-white"
           style={{
             maxHeight: maxBodyHeight,
             scrollbarWidth: "thin",
@@ -721,8 +675,7 @@ export function DataTable<T>({
       </div>
 
       <div
-        ref={mobileScrollRef}
-        className="admin-thin-scroll overflow-y-auto overscroll-contain lg:hidden"
+        className="admin-thin-scroll overflow-y-auto overscroll-auto lg:hidden"
         style={{
           maxHeight: maxBodyHeight,
           scrollbarWidth: "thin",
