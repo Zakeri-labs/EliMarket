@@ -43,7 +43,7 @@ Product title: ${title}`;
 function secondaryPrompt(title: string) {
   return `${FIDELITY_RULES}
 
-Create a SECOND professional photograph of this SAME product for a secondary product-detail view — vary the camera angle or composition from a plain straight-on shot (three-quarter view, slight side angle, or slightly elevated angle — whichever best presents this specific product), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions).
+Create a SECOND professional photograph of this SAME product for a secondary product-detail view — re-photograph it from a clearly DIFFERENT camera angle than the input — a three-quarter view turned about 30–40° to the side, showing the product's side/depth — keeping the whole product inside the frame with generous empty margin (never cropped), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions).
 
 ${AI_IMAGE_STYLE_BLOCK}
 
@@ -53,7 +53,7 @@ Product title: ${title}`;
 function marketingPrompt(title: string) {
   return `${FIDELITY_RULES}
 
-Create a THIRD, premium marketing-style commercial photograph of this SAME product — a more visually appealing composition than a plain catalog shot (elegant three-quarter framing, close but complete product framing), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions). No lifestyle scene, no people, hands, props, or watermarks.
+Create a THIRD, premium marketing-style commercial photograph of this SAME product — a more visually appealing composition than a plain catalog shot (a slightly elevated, high-angle view looking down at about 30° so the top and front are both visible; the whole product stays inside the frame with generous margin, never cropped), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions). No lifestyle scene, no people, hands, props, or watermarks.
 
 ${AI_IMAGE_STYLE_BLOCK}
 

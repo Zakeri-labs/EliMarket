@@ -58,7 +58,7 @@ export const AI_IMAGE_QUALITY = str("OPENAI_IMAGE_QUALITY", "low");
 
 /** How many AI shots to attempt per source photo (the free deterministic
  *  framer fills any remaining gallery slots). */
-export const AI_MAX_STUDIO_SHOTS = int("AI_MAX_STUDIO_SHOTS", 1);
+export const AI_MAX_STUDIO_SHOTS = int("AI_MAX_STUDIO_SHOTS", 3);
 export const AI_MAX_CONTEXT_SHOTS = int("AI_MAX_CONTEXT_SHOTS", 0);
 
 /** Master switch for OpenAI web image search (billed web_search tool). */

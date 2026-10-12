@@ -115,8 +115,10 @@ async function editWithOpenAi(png: Buffer, prompt: string): Promise<Buffer | nul
       const imgRes = await fetch(first.url);
       return imgRes.ok ? Buffer.from(await imgRes.arrayBuffer()) : null;
     }
+    console.error("[image-edit] OpenAI returned no image data");
     return null;
-  } catch {
+  } catch (err) {
+    console.error("[image-edit] OpenAI request threw:", err instanceof Error ? err.message : err);
     return null;
   }
 }
