@@ -519,3 +519,10 @@ html.admin-lock-scroll body {
     @apply pointer-events-none select-none;
   }
 }
+
+/* Leaflet's internal panes/controls use z-index up to 1000; contain them in
+   their own stacking context so a map never paints over drawers, menus or
+   modals (e.g. the mobile admin sidebar). */
+.leaflet-container {
+  isolation: isolate;
+}
