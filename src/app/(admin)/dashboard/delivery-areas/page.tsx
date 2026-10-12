@@ -517,6 +517,7 @@ export default function AdminDeliveryAreasPage() {
                   size="sm"
                   variant="secondary"
                   disabled={isActionPending || !osmQuery.trim()}
+                  className="disabled:border-[#e4e4e7] disabled:bg-[#f4f4f5] disabled:text-[#a1a1aa] disabled:opacity-100 disabled:shadow-none"
                   onClick={fetchBoundary}
                 >
                   {t("admin.deliveryAreas.fetchBoundary")}
