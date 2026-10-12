@@ -128,9 +128,10 @@ function CheckoutPageContent() {
       getAddressesAction().then((r) => {
         if (r.success && r.data) {
           setAddresses(r.data);
-          const def = r.data.find((a) => a.is_default) ?? r.data[0];
-          if (def) setAddressId(def.id);
-          if (r.data.length === 0) setEditAddressOpen(true);
+          // One saved address: use it. Several: make the user pick each time,
+          // so an order never ships to a pre-selected address by accident.
+          if (r.data.length === 1) setAddressId(r.data[0].id);
+          if (r.data.length !== 1) setEditAddressOpen(true);
         }
       });
     }
