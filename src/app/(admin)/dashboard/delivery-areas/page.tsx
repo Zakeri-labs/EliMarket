@@ -30,7 +30,7 @@ import {
   latLngsToBoundary,
   type AreaDraft,
   type LatLng,
-} from "@/app/(admin)/dashboard/delivery-areas/_components/DeliveryAreasMap";
+} from "@/app/(admin)/dashboard/delivery-areas/_components/area-geometry";
 
 const DeliveryAreasMap = dynamic(
   () => import("@/app/(admin)/dashboard/delivery-areas/_components/DeliveryAreasMap"),

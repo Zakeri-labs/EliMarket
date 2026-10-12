@@ -12,19 +12,12 @@ import {
 } from "react-leaflet";
 import type { AreaBoundary, DeliveryArea } from "@/app/_types/database.types";
 import { DEFAULT_MAP_CENTER } from "@/config/geo";
+import {
+  boundaryToLatLngs,
+  type AreaDraft,
+  type LatLng,
+} from "@/app/(admin)/dashboard/delivery-areas/_components/area-geometry";
 import "leaflet/dist/leaflet.css";
-
-export type LatLng = { lat: number; lng: number };
-
-export type AreaDraft = {
-  /** Manually placed / edited polygon vertices (Leaflet [lat,lng]); 0..n points. */
-  ring: [number, number][];
-  /** A boundary fetched from OSM, shown when `ring` is empty (may be a MultiPolygon). */
-  boundary: AreaBoundary | null;
-  center: LatLng | null;
-  radiusKm: number;
-  drawing: boolean;
-};
 
 const vertexIcon = L.divIcon({
   className: "",
@@ -42,28 +35,6 @@ const centerIcon = L.divIcon({
 
 const TEAL = "#0d9488";
 const GREY = "#9ca3af";
-
-/** GeoJSON Polygon ([lng,lat] rings) → Leaflet [lat,lng] outer ring, closing point dropped. */
-export function boundaryToLatLngs(b: AreaBoundary | null): [number, number][] {
-  if (!b || b.type !== "Polygon") return [];
-  const ring = (b.coordinates[0] ?? []).map(([lng, lat]) => [lat, lng] as [number, number]);
-  if (ring.length > 1) {
-    const [f0, f1] = ring[0];
-    const [l0, l1] = ring[ring.length - 1];
-    if (f0 === l0 && f1 === l1) ring.pop();
-  }
-  return ring;
-}
-
-/** Leaflet [lat,lng] ring → closed GeoJSON Polygon. */
-export function latLngsToBoundary(points: [number, number][]): AreaBoundary | null {
-  if (points.length < 3) return null;
-  const ring = points.map(([lat, lng]) => [lng, lat] as [number, number]);
-  const [fx, fy] = ring[0];
-  const [lx, ly] = ring[ring.length - 1];
-  if (fx !== lx || fy !== ly) ring.push([fx, fy]);
-  return { type: "Polygon", coordinates: [ring] };
-}
 
 function boundaryKey(b: AreaBoundary | null): string {
   return b ? `${b.type}:${JSON.stringify(b.coordinates).length}` : "none";
