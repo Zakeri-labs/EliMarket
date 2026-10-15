@@ -42,6 +42,14 @@ const args = process.argv.slice(2);
 const commit = args.includes("--commit");
 const gallery = args.includes("--gallery");
 const onlySlugs = args.filter((a) => !a.startsWith("--"));
+// --from-manifest=<manifest.json>: re-process from the ORIGINAL photos recorded
+// by an earlier run instead of the (already relit) current covers.
+const manifestArg = args.find((a) => a.startsWith("--from-manifest="));
+const originals = new Map();
+if (manifestArg) {
+  const prev = JSON.parse(await readFile(manifestArg.slice("--from-manifest=".length), "utf8"));
+  for (const e of prev) originals.set(e.slug, e);
+}
 
 async function blurHashFromBuffer(buffer) {
   const { data, info } = await sharp(buffer)
@@ -108,13 +116,16 @@ let failed = 0;
 for (const product of products) {
   const slug = product.slug;
   try {
-    const cover = await relightUrl(product.image_url, slug);
+    const sourceUrl = originals.get(slug)?.old_image_url ?? product.image_url;
+    const cover = await relightUrl(sourceUrl, slug);
     const { data: rows } = await sb
       .from("product_images")
       .select("id, image_url")
       .eq("product_id", product.id);
-    const coverRows = (rows ?? []).filter((r) => r.image_url === product.image_url);
-    const galleryRows = gallery ? (rows ?? []).filter((r) => r.image_url !== product.image_url) : [];
+    const coverRows = (rows ?? []).filter(
+      (r) => r.image_url === product.image_url || r.image_url === sourceUrl,
+    );
+    const galleryRows = gallery ? (rows ?? []).filter((r) => !coverRows.includes(r)) : [];
 
     const galleryResults = [];
     for (const row of galleryRows) {
@@ -128,8 +139,8 @@ for (const product of products) {
     manifest.push({
       slug,
       product_id: product.id,
-      old_image_url: product.image_url,
-      old_blur_hash: product.blur_hash,
+      old_image_url: originals.get(slug)?.old_image_url ?? product.image_url,
+      old_blur_hash: originals.get(slug)?.old_blur_hash ?? product.blur_hash,
       new_image_url: cover.newUrl,
       new_blur_hash: cover.blurHash,
       cover_row_ids: coverRows.map((r) => r.id),

@@ -137,7 +137,7 @@ export async function relightBackdrop(input) {
       const mean = (r[0] + r[1] + r[2]) / 3;
       const spread = Math.max(...r) - Math.min(...r);
       const chroma = Math.min(1, Math.max(0, (spread - 0.10) / 0.10));
-      const bright = Math.min(1, Math.max(0, (mean - 1.04) / 0.06));
+      const bright = Math.min(1, Math.max(0, (mean - 1.16) / 0.12));
       const dark = Math.min(1, Math.max(0, (0.30 - mean) / 0.10));
       mask[i] = Math.round(Math.max(chroma, bright, dark) * 255);
     }
@@ -164,7 +164,8 @@ export async function relightBackdrop(input) {
       const lumB = 0.2126 * bgRgb[i * 3] + 0.7152 * bgRgb[i * 3 + 1] + 0.0722 * bgRgb[i * 3 + 2];
       // Backdrop + shadow are neutral grey by nature: relight on luminance only,
       // which also removes any colour cast / bounce tint of the old sweep.
-      const relit = Math.min(255, tgt * (lumP / lumB));
+      // A backdrop pixel can never be brighter than the sweep itself (no glow).
+      const relit = Math.min(tgt + 3, tgt * (lumP / lumB));
       for (let c = 0; c < 3; c += 1) {
         const p = data[i * 3 + c];
         out[i * 3 + c] = Math.max(0, Math.min(255, Math.round(m * p + (1 - m) * relit)));
