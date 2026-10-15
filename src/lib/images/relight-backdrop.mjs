@@ -11,9 +11,9 @@ import sharp from "sharp";
 
 /** Target look: light studio grey, brighter toward the bottom, soft light pool. */
 export const TARGET = {
-  top: 205, // grey level at the top edge
-  bottom: 226, // grey level at the bottom edge
-  glow: 7, // extra brightness of the soft light pool behind the product
+  top: 194, // grey level at the top edge
+  bottom: 224, // grey level at the bottom edge
+  glow: 6, // extra brightness of the soft light pool behind the product
   corner: 9, // corner fall-off
 };
 
@@ -121,9 +121,9 @@ export async function relightBackdrop(input) {
     model = [0, 1, 2].map((c) => diffuse(grid[c], fixed));
   }
 
-  // Full-resolution backdrop model + product mask.
-  const mask = new Uint8Array(W * H);
+  // Full-resolution backdrop model.
   const bgRgb = new Float32Array(W * H * 3);
+  const stray = new Uint8Array(W * H); // colourful or very dark pixels: surely product
   for (let y = 0; y < H; y += 1) {
     for (let x = 0; x < W; x += 1) {
       const nx = x / (W - 1);
@@ -136,19 +136,69 @@ export async function relightBackdrop(input) {
       const r = [data[i * 3] / bg[0], data[i * 3 + 1] / bg[1], data[i * 3 + 2] / bg[2]];
       const mean = (r[0] + r[1] + r[2]) / 3;
       const spread = Math.max(...r) - Math.min(...r);
-      const chroma = Math.min(1, Math.max(0, (spread - 0.10) / 0.10));
-      const bright = Math.min(1, Math.max(0, (mean - 1.16) / 0.12));
-      const dark = Math.min(1, Math.max(0, (0.30 - mean) / 0.10));
-      mask[i] = Math.round(Math.max(chroma, bright, dark) * 255);
+      // colourful, much brighter than the sweep (white product), or near-black
+      stray[i] = spread > 0.13 || mean > 1.12 || mean < 0.3 ? 1 : 0;
     }
   }
 
-  // Grow + soften so antialiased product edges stay product.
+  // Product mask by connectivity: the backdrop is whatever can be reached from
+  // the image border WITHOUT crossing a strong edge. Everything enclosed by a
+  // silhouette (white eggs, a shaded milk bottle, glossy packs) is product even
+  // when its brightness is close to the backdrop's.
+  const { data: lumSoft, info: lInfo } = await sharp(data, { raw: { width: W, height: H, channels: 3 } })
+    .greyscale()
+    .blur(1.0)
+    .toColourspace("b-w")
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const ls = lInfo.channels;
+  const barrier = new Uint8Array(W * H);
+  for (let y = 0; y < H; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      const i = y * W + x;
+      const xl = lumSoft[(y * W + Math.max(x - 1, 0)) * ls];
+      const xr = lumSoft[(y * W + Math.min(x + 1, W - 1)) * ls];
+      const yu = lumSoft[(Math.max(y - 1, 0) * W + x) * ls];
+      const yd = lumSoft[(Math.min(y + 1, H - 1) * W + x) * ls];
+      const grad = Math.abs(xr - xl) + Math.abs(yd - yu);
+      barrier[i] = grad > 5 || stray[i] ? 1 : 0;
+    }
+  }
+  const reached = new Uint8Array(W * H);
+  const stack = [];
+  const push = (x, y) => {
+    const i = y * W + x;
+    if (!reached[i] && !barrier[i]) {
+      reached[i] = 1;
+      stack.push(i);
+    }
+  };
+  for (let x = 0; x < W; x += 1) {
+    push(x, 0);
+    push(x, H - 1);
+  }
+  for (let y = 0; y < H; y += 1) {
+    push(0, y);
+    push(W - 1, y);
+  }
+  while (stack.length) {
+    const i = stack.pop();
+    const x = i % W;
+    const y = (i - x) / W;
+    if (x > 0) push(x - 1, y);
+    if (x < W - 1) push(x + 1, y);
+    if (y > 0) push(x, y - 1);
+    if (y < H - 1) push(x, y + 1);
+  }
+  const mask = new Uint8Array(W * H);
+  for (let i = 0; i < mask.length; i += 1) mask[i] = reached[i] ? 0 : 255;
+
+  // Shrink by a pixel (drops the edge band) and soften slightly.
   const { data: grown, info: gInfo } = await sharp(Buffer.from(mask), {
     raw: { width: W, height: H, channels: 1 },
   })
-    .dilate(3)
-    .blur(1.6)
+    .dilate(1) // sharp's dilate grows the dark side, i.e. it shrinks the product mask
+    .blur(1.0)
     .toColourspace("b-w")
     .raw()
     .toBuffer({ resolveWithObject: true });
