@@ -53,7 +53,7 @@ export function CashSurchargeSetting({ className }: Props) {
               value={value}
               onChange={(e) => setDraft(e.target.value)}
               disabled={isLoading}
-              className="w-32 rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm outline-none focus:border-[#0f766e]"
+              className="w-32 rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </span>
           <OmrSymbol className="h-3.5 text-[#71717a]" label={messages.brand.currency} />

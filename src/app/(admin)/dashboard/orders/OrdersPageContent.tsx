@@ -47,15 +47,15 @@ const STATUS_FLOW: OrderStatus[] = [
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
   pending: "bg-amber-50 text-amber-800 border-amber-200",
-  confirmed: "bg-[#0d9488]/12 text-[#0f766e] border-[#0d9488]/35",
-  preparing: "bg-[#0f766e]/15 text-[#3f5c44] border-[#0f766e]/40",
+  confirmed: "bg-zinc-100 text-foreground border-zinc-200",
+  preparing: "bg-zinc-100 text-zinc-700 border-zinc-200",
   out_for_delivery: "bg-sky-50 text-sky-800 border-sky-200",
   delivered: "bg-emerald-50 text-emerald-800 border-emerald-200",
   cancelled: "bg-red-50 text-red-700 border-red-200",
 };
 
 const selectClass =
-  "rounded-xl border border-[#e4e4e7] bg-[#fafafa] px-3 py-2 text-sm text-[#18181b] outline-none focus:border-[#0f766e] disabled:cursor-not-allowed disabled:opacity-55";
+  "rounded-xl border border-[#e4e4e7] bg-[#fafafa] px-3 py-2 text-sm text-[#18181b] outline-none focus:border-accent disabled:cursor-not-allowed disabled:opacity-55";
 
 function allowedStatusOptions(current: OrderStatus): OrderStatus[] {
   if (current === "cancelled" || current === "delivered") {
@@ -99,7 +99,7 @@ function ProofButton({
       type="button"
       disabled={loading}
       className={cn(
-        "inline-flex items-center gap-1.5 text-sm font-medium text-[#0f766e] underline-offset-2 hover:underline disabled:opacity-50",
+        "inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-2 hover:underline disabled:opacity-50",
         className,
       )}
       onClick={async () => {
@@ -174,18 +174,18 @@ export default function OrdersPageContent() {
               key={order.id}
               id={`order-${order.id}`}
               className={cn(
-                "overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white shadow-sm",
+                "overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white",
                 isSkeleton && "skeleton pointer-events-none",
                 highlightId === order.id &&
-                  "border-[#0f766e] ring-2 ring-[#0f766e]/25",
+                  "border-accent ring-2 ring-accent/25",
               )}
               aria-busy={isSkeleton}
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f4f4f5] bg-[#f7faf7] px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f4f4f5] bg-zinc-50 px-4 py-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-[#18181b]">
                     {t("admin.orders.orderPrefix")}{" "}
-                    <span className="font-mono text-[#0f766e]" dir="ltr">
+                    <span className="font-mono text-foreground" dir="ltr">
                       {isSkeleton
                         ? mockAdminOrderIdPreview(locale)
                         : `${order.id.slice(0, 8)}…`}
@@ -209,7 +209,7 @@ export default function OrdersPageContent() {
                   <Price
                     amount={Number(order.total)}
                     currency={order.currency}
-                    className="rounded-full bg-[#0f766e] px-2.5 py-1 text-xs font-bold text-white"
+                    className="rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-white"
                   />
                 </div>
               </div>
@@ -218,7 +218,7 @@ export default function OrdersPageContent() {
                 <div className="space-y-2 text-sm">
                   {(order.customer?.full_name || order.customer?.phone) && (
                     <p className="flex items-start gap-2 text-[#3f3f46]">
-                      <AppIcon icon={UserRound} size="sm" className="mt-0.5 text-[#0d9488]" />
+                      <AppIcon icon={UserRound} size="sm" className="mt-0.5 text-foreground" />
                       <span>
                         <span className="text-[#71717a]">{t("admin.orders.customer")}: </span>
                         {order.customer.full_name || order.customer.phone}
@@ -227,13 +227,13 @@ export default function OrdersPageContent() {
                   )}
                   {order.customer?.phone ? (
                     <p className="flex items-start gap-2 text-[#3f3f46]">
-                      <AppIcon icon={Phone} size="sm" className="mt-0.5 text-[#0d9488]" />
+                      <AppIcon icon={Phone} size="sm" className="mt-0.5 text-foreground" />
                       <span>
                         <span className="text-[#71717a]">{t("admin.orders.phone")}: </span>
                         <a
                           href={`tel:${order.customer.phone}`}
                           dir="ltr"
-                          className="font-medium text-[#0f766e] hover:underline"
+                          className="font-medium text-foreground hover:underline"
                         >
                           {order.customer.phone}
                         </a>
@@ -242,12 +242,12 @@ export default function OrdersPageContent() {
                   ) : null}
                   {order.address?.address_line ? (
                     <p className="flex items-start gap-2 text-[#3f3f46]">
-                      <AppIcon icon={MapPin} size="sm" className="mt-0.5 text-[#0d9488]" />
+                      <AppIcon icon={MapPin} size="sm" className="mt-0.5 text-foreground" />
                       <span>{order.address.address_line}</span>
                     </p>
                   ) : null}
                   <p className="flex items-start gap-2 text-[#3f3f46]">
-                    <AppIcon icon={CreditCard} size="sm" className="mt-0.5 text-[#0d9488]" />
+                    <AppIcon icon={CreditCard} size="sm" className="mt-0.5 text-foreground" />
                     <span>
                       {t("admin.orders.payment")}:{" "}
                       {t(`admin.payment.${order.payment_method}`)}
@@ -256,7 +256,7 @@ export default function OrdersPageContent() {
                   </p>
                   {assignedName ? (
                     <p className="flex items-start gap-2 text-[#3f3f46]">
-                      <AppIcon icon={Bike} size="sm" className="mt-0.5 text-[#0d9488]" />
+                      <AppIcon icon={Bike} size="sm" className="mt-0.5 text-foreground" />
                       <span>
                         {t("admin.orders.assignedRider")}: {assignedName}
                       </span>
@@ -267,7 +267,7 @@ export default function OrdersPageContent() {
                       <AppIcon
                         icon={PackageCheck}
                         size="sm"
-                        className="mt-0.5 text-[#0d9488]"
+                        className="mt-0.5 text-foreground"
                       />
                       <span>
                         {t("admin.orders.pickedUpAt")}:{" "}
@@ -318,7 +318,7 @@ export default function OrdersPageContent() {
                   <ul className="mt-3 space-y-1.5 rounded-xl border border-[#e4e4e7] bg-[#fafafa] px-3 py-2.5 text-[#52525b]">
                     {order.order_items?.map((item) => (
                       <li key={item.id} className="flex items-center gap-2">
-                        <AppIcon icon={Package} size="xs" className="text-[#0d9488]" />
+                        <AppIcon icon={Package} size="xs" className="text-foreground" />
                         <span>
                           {item.product?.name ?? item.product_id} × {item.quantity}
                         </span>
@@ -327,7 +327,7 @@ export default function OrdersPageContent() {
                   </ul>
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-2xl border border-[#e4e4e7] bg-[#f7faf7] p-3">
+                <div className="flex flex-col gap-3 rounded-2xl border border-[#e4e4e7] bg-zinc-50 p-3">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-[#71717a]">
                       {t("admin.orders.statusLabel")}
@@ -407,7 +407,7 @@ export default function OrdersPageContent() {
                       !selectedRider ||
                       isActionPending
                     }
-                    className="!rounded-xl !bg-[#0f766e] !text-white !shadow-none hover:!bg-[#3f5c44] disabled:!bg-[#e4e4e7] disabled:!text-[#a1a1aa]"
+                    className="!rounded-xl !bg-accent !text-white !shadow-none hover:!bg-accent-dark disabled:!bg-[#e4e4e7] disabled:!text-[#a1a1aa]"
                     onClick={() => {
                       if (isSkeleton || !selectedRider) return;
                       setPendingOrderId(order.id);
@@ -440,7 +440,7 @@ export default function OrdersPageContent() {
                         "noopener,noreferrer",
                       );
                     }}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#3f3f46] hover:border-[#0f766e] hover:text-[#0f766e] disabled:cursor-not-allowed disabled:opacity-55"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#3f3f46] hover:border-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-55"
                   >
                     <AppIcon icon={Printer} size="sm" />
                     {t("admin.orders.printInvoice")}

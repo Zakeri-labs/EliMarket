@@ -48,7 +48,7 @@ const LANGS = [
 ] as const;
 
 const faqFieldClass =
-  "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm outline-none focus:border-[#0d9488]";
+  "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm outline-none focus:border-accent";
 
 export default function AdminQuestionsPage() {
   const { t, locale } = useTranslations();
@@ -222,7 +222,7 @@ export default function AdminQuestionsPage() {
                         className={cn(
                           "rounded-md px-1.5 py-0.5 text-[10px] font-medium",
                           question.answer
-                            ? "bg-[#0d9488]/12 text-[#0f766e]"
+                            ? "bg-zinc-100 text-foreground"
                             : "bg-amber-100 text-amber-700",
                         )}
                       >
@@ -296,7 +296,7 @@ export default function AdminQuestionsPage() {
               <p className="text-xs text-[#71717a]">{t("admin.questions.faqLangHint")}</p>
               {LANGS.map((lang) => (
                 <div key={lang.code} className="space-y-2 rounded-xl border border-[#f0f0f2] p-3">
-                  <p className="text-xs font-semibold text-[#0f766e]">{lang.label}</p>
+                  <p className="text-xs font-semibold text-foreground">{lang.label}</p>
                   <input
                     dir={lang.dir}
                     value={faqForm[`question_${lang.code}`] ?? ""}

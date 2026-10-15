@@ -505,6 +505,7 @@ export type Messages = {
       coverage: string;
       deliveryAreas: string;
       customers: string;
+      settings: string;
       riders: string;
       smartProduct: string;
       reviews: string;
@@ -517,6 +518,7 @@ export type Messages = {
       marketing: string;
       operations: string;
       insights: string;
+      system: string;
     };
     blog: {
       title: string;
@@ -1061,6 +1063,36 @@ export type Messages = {
       offDesc: string;
       on: string;
       off: string;
+    };
+    aiSettings: {
+      title: string;
+      subtitle: string;
+      imagesTitle: string;
+      modelsTitle: string;
+      styleTitle: string;
+      styleDesc: string;
+      generation: string;
+      generationHint: string;
+      provider: string;
+      imageModel: string;
+      imageModelHint: string;
+      quality: string;
+      maxStudio: string;
+      maxContext: string;
+      webSearch: string;
+      webSearchHint: string;
+      textModel: string;
+      visionModel: string;
+      webSearchModel: string;
+      styleBackground: string;
+      styleLighting: string;
+      styleShadow: string;
+      styleRealism: string;
+      styleLabels: string;
+      resetStyle: string;
+      save: string;
+      saved: string;
+      keysNote: string;
     };
     cashSurcharge: {
       title: string;
@@ -1881,6 +1913,7 @@ const fa: Messages = {
       coverage: "محدوده پوشش",
       deliveryAreas: "مناطق ارسال",
       customers: "مشتریان",
+      settings: "تنظیمات",
       riders: "پیک‌ها",
       smartProduct: "ثبت هوشمند",
       reviews: "نظرات مشتریان",
@@ -1893,6 +1926,7 @@ const fa: Messages = {
       marketing: "بازاریابی",
       operations: "عملیات",
       insights: "گزارش‌ها",
+      system: "سیستم",
     },
     blog: {
       title: "بلاگ",
@@ -2460,6 +2494,36 @@ const fa: Messages = {
       offDesc: "این بخش‌ها در صفحه جزئیات محصول مخفی هستند",
       on: "جزئیات: روشن",
       off: "جزئیات: خاموش",
+    },
+    aiSettings: {
+      title: "تنظیمات هوش مصنوعی",
+      subtitle: "کنترل هزینه و ظاهر تصاویر و متن‌های تولیدشده با AI. تغییرات بلافاصله اعمال می‌شود.",
+      imagesTitle: "تولید تصویر",
+      modelsTitle: "مدل‌ها",
+      styleTitle: "سبک تصاویر",
+      styleDesc: "این جمله‌ها به‌صورت ثابت در همه‌ی پرامپت‌های تصویر قرار می‌گیرند.",
+      generation: "تولید تصویر با AI",
+      generationHint: "پولی است؛ در حالت خاموش فقط پس‌زمینه‌ی خاکستری رایگان اعمال می‌شود.",
+      provider: "سرویس تصویر",
+      imageModel: "مدل تصویر",
+      imageModelHint: "خالی = مدل پیش‌فرض سرویس",
+      quality: "کیفیت (OpenAI)",
+      maxStudio: "حداکثر عکس استودیویی برای هر تصویر",
+      maxContext: "حداکثر عکس زمینه‌ای",
+      webSearch: "جست‌وجوی تصویر در وب",
+      webSearchHint: "پولی است؛ به‌طور پیش‌فرض خاموش.",
+      textModel: "مدل متن",
+      visionModel: "مدل بینایی",
+      webSearchModel: "مدل جست‌وجوی وب",
+      styleBackground: "پس‌زمینه",
+      styleLighting: "نورپردازی",
+      styleShadow: "سایه",
+      styleRealism: "واقع‌گرایی",
+      styleLabels: "وفاداری برچسب‌ها",
+      resetStyle: "بازگشت به پیش‌فرض",
+      save: "ذخیره",
+      saved: "تنظیمات هوش مصنوعی ذخیره شد",
+      keysNote: "کلیدهای API (OpenAI / Gemini) به‌دلیل امنیت همچنان در متغیرهای محیطی سرور می‌مانند.",
     },
     cashSurcharge: {
       title: "هزینه پرداخت در محل",
@@ -3279,6 +3343,7 @@ const ar: Messages = {
       coverage: "نطاق التغطية",
       deliveryAreas: "مناطق التوصيل",
       customers: "العملاء",
+      settings: "الإعدادات",
       riders: "السائقون",
       smartProduct: "تسجيل ذكي",
       reviews: "تقييمات العملاء",
@@ -3291,6 +3356,7 @@ const ar: Messages = {
       marketing: "التسويق",
       operations: "العمليات",
       insights: "التقارير",
+      system: "النظام",
     },
     blog: {
       title: "المدوّنة",
@@ -3858,6 +3924,36 @@ const ar: Messages = {
       offDesc: "هذه الأقسام مخفية في صفحة تفاصيل المنتج",
       on: "التفاصيل: تشغيل",
       off: "التفاصيل: إيقاف",
+    },
+    aiSettings: {
+      title: "إعدادات الذكاء الاصطناعي",
+      subtitle: "تحكم في تكلفة ومظهر الصور والنصوص المولّدة بالذكاء الاصطناعي. تُطبَّق التغييرات فورًا.",
+      imagesTitle: "توليد الصور",
+      modelsTitle: "النماذج",
+      styleTitle: "نمط الصور",
+      styleDesc: "تُدرج هذه الجمل في كل أوامر الصور كما هي.",
+      generation: "توليد الصور بالذكاء الاصطناعي",
+      generationHint: "مدفوع؛ عند الإيقاف تُطبَّق الخلفية الرمادية المجانية فقط.",
+      provider: "مزوّد الصور",
+      imageModel: "نموذج الصور",
+      imageModelHint: "فارغ = النموذج الافتراضي للمزوّد",
+      quality: "الجودة (OpenAI)",
+      maxStudio: "أقصى عدد للقطات الاستوديو لكل صورة",
+      maxContext: "أقصى عدد للقطات السياقية",
+      webSearch: "البحث عن الصور في الويب",
+      webSearchHint: "مدفوع؛ متوقف افتراضيًا.",
+      textModel: "نموذج النص",
+      visionModel: "نموذج الرؤية",
+      webSearchModel: "نموذج البحث في الويب",
+      styleBackground: "الخلفية",
+      styleLighting: "الإضاءة",
+      styleShadow: "الظل",
+      styleRealism: "الواقعية",
+      styleLabels: "دقة الملصقات",
+      resetStyle: "استعادة الافتراضي",
+      save: "حفظ",
+      saved: "تم حفظ إعدادات الذكاء الاصطناعي",
+      keysNote: "تبقى مفاتيح API (OpenAI / Gemini) في متغيرات بيئة الخادم لأسباب أمنية.",
     },
     cashSurcharge: {
       title: "رسوم الدفع عند الاستلام",
@@ -4677,6 +4773,7 @@ const en: Messages = {
       coverage: "Coverage area",
       deliveryAreas: "Delivery areas",
       customers: "Customers",
+      settings: "Settings",
       riders: "Riders",
       smartProduct: "Smart listing",
       reviews: "Customer reviews",
@@ -4689,6 +4786,7 @@ const en: Messages = {
       marketing: "Marketing",
       operations: "Operations",
       insights: "Insights",
+      system: "System",
     },
     blog: {
       title: "Blog",
@@ -5256,6 +5354,36 @@ const en: Messages = {
       offDesc: "These sections are hidden on the product detail page",
       on: "Extras: on",
       off: "Extras: off",
+    },
+    aiSettings: {
+      title: "AI settings",
+      subtitle: "Control the cost and look of AI-generated images and text. Changes apply immediately.",
+      imagesTitle: "Image generation",
+      modelsTitle: "Models",
+      styleTitle: "Image style",
+      styleDesc: "These clauses are injected verbatim into every image prompt.",
+      generation: "AI image generation",
+      generationHint: "Paid. When off, only the free grey studio background is applied.",
+      provider: "Image provider",
+      imageModel: "Image model",
+      imageModelHint: "Empty = provider default model",
+      quality: "Quality (OpenAI)",
+      maxStudio: "Max studio shots per photo",
+      maxContext: "Max context shots",
+      webSearch: "Web image search",
+      webSearchHint: "Paid. Off by default.",
+      textModel: "Text model",
+      visionModel: "Vision model",
+      webSearchModel: "Web search model",
+      styleBackground: "Background",
+      styleLighting: "Lighting",
+      styleShadow: "Shadow",
+      styleRealism: "Realism",
+      styleLabels: "Label fidelity",
+      resetStyle: "Reset to default",
+      save: "Save",
+      saved: "AI settings saved",
+      keysNote: "API keys (OpenAI / Gemini) stay in the server environment for security.",
     },
     cashSurcharge: {
       title: "Cash on delivery fee",

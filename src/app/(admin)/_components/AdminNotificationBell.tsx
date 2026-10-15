@@ -195,7 +195,7 @@ export function AdminNotificationBell() {
       >
         <AppIcon icon={Bell} size="sm" />
         {unreadCount > 0 ? (
-          <span className="absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0f766e] px-1 text-[10px] font-bold text-white">
+          <span className="absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : null}
@@ -244,7 +244,7 @@ export function AdminNotificationBell() {
                   key={n.id}
                   className={cn(
                     "border-b border-[#f4f4f5] last:border-b-0",
-                    !n.read_at && "bg-[#0f766e]/5",
+                    !n.read_at && "bg-zinc-100",
                   )}
                 >
                   <div className="flex gap-1">

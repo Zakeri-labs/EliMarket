@@ -21,6 +21,7 @@ import {
   Star,
   MessageCircleQuestion,
   Bike,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 import { signOutAction } from "@/app/_actions/auth-actions";
@@ -79,6 +80,10 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/dashboard/customers", key: "admin.nav.customers", icon: Users },
     ],
   },
+  {
+    groupKey: "admin.navGroups.system",
+    items: [{ href: "/dashboard/settings", key: "admin.nav.settings", icon: Settings }],
+  },
 ];
 
 export function AdminShell({
@@ -117,16 +122,16 @@ export function AdminShell({
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 flex-col overflow-hidden border-e border-[#e4e4e7] bg-white p-5 shadow-lg transition-transform md:static md:h-full md:translate-x-0 md:shadow-none",
+          "fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 flex-col overflow-hidden border-e border-border bg-white px-3 py-5 shadow-lg transition-transform md:static md:h-full md:translate-x-0 md:shadow-none",
           mobileOpen
             ? "translate-x-0"
             : "max-md:-translate-x-full max-md:rtl:translate-x-full",
         )}
       >
-        <div className="mb-6 flex shrink-0 items-start justify-between gap-2">
+        <div className="mb-6 flex shrink-0 items-start justify-between gap-2 px-3">
           <div>
-            <p className="text-xs text-[#0d9488]">{t("admin.panelLabel")}</p>
-            <p className="font-logo text-lg font-semibold tracking-wide text-[#0f766e]">
+            <p className="text-[11px] uppercase tracking-wider text-muted">{t("admin.panelLabel")}</p>
+            <p className="font-logo text-lg font-semibold tracking-wide text-accent-dark">
               {t("admin.brandAdmin")}
             </p>
           </div>
@@ -139,10 +144,10 @@ export function AdminShell({
             <AppIcon icon={X} size="md" />
           </button>
         </div>
-        <nav className="admin-thin-scroll min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain">
+        <nav className="admin-thin-scroll min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain">
           {NAV_GROUPS.map((group) => (
             <div key={group.groupKey} className="space-y-1">
-              <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-[#a1a1aa]">
+              <p className="px-3 text-[10px] font-medium uppercase tracking-widest text-zinc-400">
                 {t(group.groupKey)}
               </p>
               {group.items.map((item) => {
@@ -153,16 +158,16 @@ export function AdminShell({
                     href={item.href}
                     onClick={closeMobile}
                     className={cn(
-                      "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-colors",
+                      "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
                       active
-                        ? "bg-[#0d9488]/15 font-medium text-[#0f766e]"
-                        : "text-[#71717a] hover:bg-[#f4f4f5]",
+                        ? "bg-accent/10 font-medium text-accent-dark"
+                        : "text-muted hover:bg-zinc-50 hover:text-accent-dark",
                     )}
                   >
                     <AppIcon
                       icon={item.icon}
                       size="sm"
-                      className={active ? "text-[#0f766e]" : "text-[#a1a1aa]"}
+                      className={active ? "text-accent" : "text-zinc-400"}
                     />
                     {t(item.key)}
                   </Link>
@@ -175,7 +180,7 @@ export function AdminShell({
           type="button"
           variant="outline"
           fullWidth
-          className="mt-8 shrink-0 border-[#e4e4e7] text-[#71717a]"
+          className="mx-3 mt-6 shrink-0 !rounded-lg border-border text-muted hover:!border-zinc-300 hover:text-foreground"
           loading={isPending}
           loadingLabel={t("common.processing")}
           onClick={() =>
@@ -193,14 +198,14 @@ export function AdminShell({
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="shrink-0 border-b border-[#e4e4e7] bg-white px-4 py-4 md:px-8">
+        <header className="shrink-0 border-b border-border bg-white px-4 py-3.5 md:px-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button type="button" className="md:hidden" onClick={toggleMobile} aria-label={t("admin.menu")}>
                 <AppIcon icon={Menu} size="md" />
               </button>
               <div>
-                <h1 className="text-lg font-bold text-[#18181b]">{title}</h1>
+                <h1 className="text-base font-semibold tracking-tight text-foreground">{title}</h1>
                 {subtitle && <p className="text-sm text-[#71717a]">{subtitle}</p>}
               </div>
             </div>
@@ -210,7 +215,7 @@ export function AdminShell({
               <ProductDetailExtrasToggle compact />
               <LanguageTabs
                 compact
-                className="border-[#e4e4e7] bg-[#fafafa] [&_button[aria-selected=true]]:bg-[#0d9488] [&_button[aria-selected=true]]:text-white"
+                className="border-border bg-zinc-50 [&_button[aria-selected=true]]:bg-accent [&_button[aria-selected=true]]:text-white"
               />
             </div>
           </div>

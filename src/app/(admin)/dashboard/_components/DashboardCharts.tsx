@@ -112,7 +112,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+      <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-semibold text-[#18181b]">{t("admin.dashboard.salesTrend")}</h2>
           <Select
@@ -163,7 +163,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+        <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
           <h2 className="mb-4 font-semibold text-[#18181b]">{t("admin.dashboard.topSellers")}</h2>
           {topSellerData.length === 0 ? (
             <p className="py-10 text-center text-sm text-[#71717a]">
@@ -207,7 +207,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
           )}
         </section>
 
-        <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+        <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
           <h2 className="mb-4 font-semibold text-[#18181b]">{t("admin.dashboard.inventorySplit")}</h2>
           {inventoryData.length === 0 ? (
             <p className="py-10 text-center text-sm text-[#71717a]">{t("admin.reports.noData")}</p>
@@ -236,7 +236,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
         </section>
       </div>
 
-      <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+      <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
         <h2 className="mb-4 font-semibold text-[#18181b]">{t("admin.dashboard.orderStatusChart")}</h2>
         {orderStatusData.length === 0 ? (
           <p className="py-10 text-center text-sm text-[#71717a]">{t("admin.reports.noData")}</p>

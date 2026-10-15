@@ -1,9 +1,7 @@
 import sharp from "sharp";
 import { editProductImage } from "@/lib/ai/image-edit";
-import {
-  AI_IMAGE_GENERATION_ENABLED,
-  AI_IMAGE_STYLE_BLOCK,
-} from "@/lib/ai/ai-config";
+import { getAiConfig } from "@/lib/ai/ai-config";
+import { buildStyleBlock } from "@/lib/ai/ai-config-defaults";
 
 // This regenerates the product's pixels (unlike enhance-product-photo.ts),
 // so it carries a real risk: an image model can still alter label text even
@@ -27,35 +25,35 @@ const FIDELITY_RULES =
   "Never generate a cartoon, illustration, 3D render, CGI look, deformed product, incorrect proportions, extra or missing components, fake logos/text/labels, people, hands, props, watermarks, or promotional text — the result must be photorealistic.";
 
 // Every prompt ends with the shared, config-driven style mandate
-// (AI_IMAGE_STYLE_BLOCK): light-grey studio backdrop + studio lighting +
-// soft contact shadow + photoreal. Edit those clauses in ai-config.ts.
-function coverPrompt(title: string) {
+// (the admin "style" settings): light-grey studio backdrop + studio lighting +
+// soft contact shadow + photoreal. Edit those clauses in Dashboard → Settings → AI.
+function coverPrompt(title: string, style: string) {
   return `${FIDELITY_RULES}
 
 EDIT this photo into the PRIMARY, standard e-commerce cover image: keep the product exactly as it is — same shape, size, angle and position, centered and completely inside the frame with generous empty margin on every side (never cropped or enlarged). Replace only the plain background and add the studio lighting and contact shadow described below.
 Camera: straightforward, product-focused angle, natural perspective, sharp details, minimal distortion, high-end studio camera look.
 
-${AI_IMAGE_STYLE_BLOCK}
+${style}
 
 Product title: ${title}`;
 }
 
-function secondaryPrompt(title: string) {
+function secondaryPrompt(title: string, style: string) {
   return `${FIDELITY_RULES}
 
 Create a SECOND professional photograph of this SAME product for a secondary product-detail view — re-photograph it from a clearly DIFFERENT camera angle than the input — a three-quarter view turned about 30–40° to the side, showing the product's side/depth — keeping the whole product inside the frame with generous empty margin (never cropped), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions).
 
-${AI_IMAGE_STYLE_BLOCK}
+${style}
 
 Product title: ${title}`;
 }
 
-function marketingPrompt(title: string) {
+function marketingPrompt(title: string, style: string) {
   return `${FIDELITY_RULES}
 
 Create a THIRD, premium marketing-style commercial photograph of this SAME product — a more visually appealing composition than a plain catalog shot (a slightly elevated, high-angle view looking down at about 30° so the top and front are both visible; the whole product stays inside the frame with generous margin, never cropped), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions). No lifestyle scene, no people, hands, props, or watermarks.
 
-${AI_IMAGE_STYLE_BLOCK}
+${style}
 
 Product title: ${title}`;
 }
@@ -84,7 +82,9 @@ export async function generateProductCoverShots(input: {
   title: string;
   count?: number;
 }): Promise<Buffer[]> {
-  if (!AI_IMAGE_GENERATION_ENABLED) return [];
+  const config = await getAiConfig();
+  if (!config.imageGenerationEnabled) return [];
+  const style = buildStyleBlock(config.style);
 
   // The edit endpoint outputs a 1024x1024 square. Feeding it a non-square
   // photo (e.g. a wide 3:2 shot) makes the model re-crop/outpaint and redraw the
@@ -104,7 +104,7 @@ export async function generateProductCoverShots(input: {
 
   const title = input.title.trim() || "grocery product";
   const count = Math.max(1, Math.min(input.count ?? 1, SHOT_PROMPTS.length));
-  const prompts = SHOT_PROMPTS.slice(0, count).map((build) => build(title));
+  const prompts = SHOT_PROMPTS.slice(0, count).map((build) => build(title, style));
 
   const results = await Promise.all(prompts.map((prompt) => editProductImage(png, prompt)));
   return results.filter((buffer): buffer is Buffer => buffer != null);

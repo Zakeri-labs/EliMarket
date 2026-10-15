@@ -120,7 +120,7 @@ function BannerImageField({
         <label className={cn("cursor-pointer", uploading && "pointer-events-none opacity-60")}>
           <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
             {uploading ? (
-              <Spinner size="sm" className="text-[#0d9488]" />
+              <Spinner size="sm" className="text-foreground" />
             ) : (
               <AppIcon icon={Upload} size="sm" />
             )}
@@ -317,7 +317,7 @@ export default function AdminBannersPage() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="flex h-full items-center justify-center bg-gradient-to-l from-[#0d9488] to-[#2dd4bf] text-sm font-medium text-white">
+                      <span className="flex h-full items-center justify-center bg-accent text-sm font-medium text-white">
                         {banner.title || t("admin.banners.formTitle")}
                       </span>
                     )}
@@ -456,7 +456,7 @@ export default function AdminBannersPage() {
                     className={cn(
                       "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                       langTab === loc
-                        ? "bg-white text-[#18181b] shadow-sm"
+                        ? "bg-white text-[#18181b]"
                         : "text-[#71717a] hover:text-[#18181b]",
                     )}
                     onClick={() => setLangTab(loc)}

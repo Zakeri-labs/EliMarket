@@ -270,7 +270,7 @@ export default function AdminBlogPage() {
                 key={post.id}
                 className={cn(
                   "flex items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3 transition-colors",
-                  editing?.id === post.id ? "border-[#0d9488]" : "border-[#e4e4e7]",
+                  editing?.id === post.id ? "border-accent" : "border-[#e4e4e7]",
                 )}
               >
                 <span className="w-5 shrink-0 text-[11px] text-[#a1a1aa]">
@@ -291,7 +291,7 @@ export default function AdminBlogPage() {
                     href={`/blog/${post.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block truncate text-sm font-semibold text-[#18181b] hover:text-[#0f766e] hover:underline"
+                    className="block truncate text-sm font-semibold text-[#18181b] hover:text-foreground hover:underline"
                   >
                     {resolveBlogTitle(post, locale)}
                   </Link>
@@ -309,7 +309,7 @@ export default function AdminBlogPage() {
                   className={cn(
                     "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
                     post.published
-                      ? "bg-[#0d9488]/12 text-[#0f766e]"
+                      ? "bg-zinc-100 text-foreground"
                       : "bg-[#f4f4f5] text-[#71717a]",
                   )}
                 >
@@ -405,7 +405,7 @@ export default function AdminBlogPage() {
                     className={cn(
                       "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                       tab === loc
-                        ? "bg-white text-[#18181b] shadow-sm"
+                        ? "bg-white text-[#18181b]"
                         : "text-[#71717a] hover:text-[#18181b]",
                     )}
                     onClick={() => setTab(loc)}

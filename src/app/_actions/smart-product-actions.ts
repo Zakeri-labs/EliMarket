@@ -18,14 +18,8 @@ import {
 import { searchProductImagesWithOpenAi } from "@/lib/ai/web-image-search";
 import { generateProductContextShots } from "@/lib/ai/generate-product-context-shots";
 import { generateProductCoverShots } from "@/lib/ai/generate-product-cover-shot";
-import {
-  AI_IMAGE_GENERATION_ENABLED,
-  AI_IMAGE_MODEL,
-  AI_IMAGE_PROVIDER,
-  AI_MAX_CONTEXT_SHOTS,
-  AI_MAX_STUDIO_SHOTS,
-  AI_WEB_IMAGE_SEARCH_ENABLED,
-} from "@/lib/ai/ai-config";
+import { getAiConfig } from "@/lib/ai/ai-config";
+import { resolveImageModel } from "@/lib/ai/ai-config-defaults";
 import { getGeminiApiKey } from "@/lib/ai/gemini-client";
 import { getOpenAiApiKey } from "@/lib/ai/openai-client";
 import { slugifyProductName } from "@/lib/products/slug";
@@ -46,7 +40,6 @@ export type SmartProductImage = {
 
 const MAX_DRAFT_IMAGES = 8;
 const MAX_WEB_IMAGES = 3;
-const MAX_AI_CONTEXT_SHOTS = AI_MAX_CONTEXT_SHOTS;
 
 function guessMime(url: string, header: string | null) {
   if (header?.startsWith("image/")) return header.split(";")[0]!;
@@ -119,6 +112,7 @@ async function buildEnhancedImages(
   hintName: string,
 ): Promise<SmartProductImage[]> {
   const images: SmartProductImage[] = [];
+  const ai = await getAiConfig();
 
   // Generate at least 3 high-quality images overall, spreading them across
   // however many source photos were uploaded (capped at 6).
@@ -132,7 +126,7 @@ async function buildEnhancedImages(
     // Only attempt a few paid AI shots per photo (0 when generation is
     // disabled); the free deterministic framer below fills the rest of the
     // gallery so the total image count is unchanged.
-    const aiWanted = Math.min(perImage, AI_MAX_STUDIO_SHOTS);
+    const aiWanted = Math.min(perImage, ai.maxStudioShots);
     let aiCovers: Buffer[] = [];
     if (aiWanted > 0) {
       try {
@@ -196,9 +190,10 @@ async function generateContextShots(
   original: { bytes: Buffer; mime: string },
   originalUrl: string,
 ): Promise<SmartProductImage[]> {
+  const { maxContextShots } = await getAiConfig();
   const shots = await generateProductContextShots({
     ...original,
-    count: MAX_AI_CONTEXT_SHOTS,
+    count: maxContextShots,
   }).catch(() => []);
 
   const images: SmartProductImage[] = [];
@@ -362,16 +357,17 @@ async function runQueuedProductGeneration(input: {
   categories: { id: string; name: string }[];
 }) {
   const supabase = createServiceRoleClient();
+  const ai = await getAiConfig();
 
   // One clear line in the Vercel function log so it's obvious what the AI
   // config actually resolved to at runtime (env vars not redeployed is the
   // usual reason "AI generation did nothing").
   console.log(
-    `[smart-product] AI image gen: ${AI_IMAGE_GENERATION_ENABLED ? "ON" : "OFF"} | ` +
-      `provider=${AI_IMAGE_PROVIDER} model=${AI_IMAGE_MODEL} | ` +
+    `[smart-product] AI image gen: ${ai.imageGenerationEnabled ? "ON" : "OFF"} | ` +
+      `provider=${ai.imageProvider} model=${resolveImageModel(ai)} | ` +
       `gemini key=${getGeminiApiKey() ? "yes" : "no"} openai key=${getOpenAiApiKey() ? "yes" : "no"} | ` +
-      `web search=${AI_WEB_IMAGE_SEARCH_ENABLED ? "ON" : "OFF"} | ` +
-      `studio shots=${AI_MAX_STUDIO_SHOTS} context shots=${AI_MAX_CONTEXT_SHOTS}`,
+      `web search=${ai.webImageSearchEnabled ? "ON" : "OFF"} | ` +
+      `studio shots=${ai.maxStudioShots} context shots=${ai.maxContextShots}`,
   );
 
   try {
@@ -399,7 +395,7 @@ async function runQueuedProductGeneration(input: {
       images.push(...contextShots.slice(0, Math.max(0, MAX_DRAFT_IMAGES - images.length)));
     }
 
-    if (AI_WEB_IMAGE_SEARCH_ENABLED && catalog.usedModel && images.length < MAX_DRAFT_IMAGES) {
+    if (ai.webImageSearchEnabled && catalog.usedModel && images.length < MAX_DRAFT_IMAGES) {
       const query = [catalog.name_en, catalog.name_fa].filter(Boolean).join(" ");
       const webImages = await findWebImages(supabase, query);
       images.push(...webImages.slice(0, Math.max(0, MAX_DRAFT_IMAGES - images.length)));
@@ -410,7 +406,7 @@ async function runQueuedProductGeneration(input: {
     console.log(
       `[smart-product] ${input.hintName}: ${images.length} images ` +
         `(${aiCount} ai, ${webCount} web, ${images.length - aiCount - webCount} deterministic)` +
-        `${AI_IMAGE_GENERATION_ENABLED && aiCount === 0 ? " — AI was ON but produced 0; check earlier [image-edit] logs" : ""}`,
+        `${ai.imageGenerationEnabled && aiCount === 0 ? " — AI was ON but produced 0; check earlier [image-edit] logs" : ""}`,
     );
 
     const categoryId =
@@ -427,7 +423,7 @@ async function runQueuedProductGeneration(input: {
     // generation is switched on at all, force review even if it silently fell
     // back to the deterministic framer, so the admin always gets a look.
     const needsReview =
-      AI_IMAGE_GENERATION_ENABLED || images.some((image) => image.source !== "upload");
+      ai.imageGenerationEnabled || images.some((image) => image.source !== "upload");
 
     const { error: updateError } = await supabase
       .from("products")

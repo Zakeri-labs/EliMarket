@@ -348,11 +348,11 @@ html.theme-light .storefront-hills {
 
 /* Admin light theme override */
 .theme-admin {
-  --background: #f4f4f5;
+  --background: #fafafa;
   --foreground: #18181b;
   --surface: #ffffff;
-  --surface-elevated: #fafafa;
-  --border: #e4e4e7;
+  --surface-elevated: #ffffff;
+  --border: #e8e8ea;
   --muted: #71717a;
   --muted-foreground: #71717a;
   --card: #ffffff;
@@ -365,6 +365,10 @@ html.theme-light .storefront-hills {
   --gold: #8a6d3b;
   --skeleton: #e4e4e7;
   --skeleton-strong: #cfcfd4;
+  --danger: #dc2626;
+  --destructive: #dc2626;
+  --success: #16a34a;
+  color-scheme: light;
 }
 
 .theme-admin input,
@@ -525,4 +529,19 @@ html.admin-lock-scroll body {
    modals (e.g. the mobile admin sidebar). */
 .leaflet-container {
   isolation: isolate;
+}
+
+/* Dropdown (ui/Select) open animation */
+@keyframes select-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.select-pop {
+  animation: select-pop-in 0.14s ease-out;
 }

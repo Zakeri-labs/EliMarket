@@ -1,9 +1,7 @@
 import sharp from "sharp";
 import { editProductImage } from "@/lib/ai/image-edit";
-import {
-  AI_IMAGE_GENERATION_ENABLED,
-  AI_IMAGE_STYLE_BLOCK,
-} from "@/lib/ai/ai-config";
+import { getAiConfig } from "@/lib/ai/ai-config";
+import { buildStyleBlock } from "@/lib/ai/ai-config-defaults";
 
 // Unlike enhance-product-photo.ts (which never touches pixels), these prompts
 // deliberately generate brand-new supplementary images. They never ask the
@@ -13,13 +11,12 @@ import {
 // still mark these as AI-generated so an admin can verify accuracy before
 // publishing, since the model can still get color/shape/texture wrong.
 // Shared, config-driven mandate: light-grey studio backdrop + studio
-// lighting + soft contact shadow + photoreal. Edit in ai-config.ts.
-const STUDIO_STYLE = `${AI_IMAGE_STYLE_BLOCK}
-Framing: generous empty margin around the subject — it should not fill the whole frame.`;
+// lighting + soft contact shadow + photoreal. Edit in Dashboard → Settings → AI.
+const framing = "Framing: generous empty margin around the subject — it should not fill the whole frame.";
 
 const CONTEXT_SHOT_PROMPTS = [
-  `Create a NEW product photo for a grocery catalog showing the actual contents of this package (the food/drink/treats itself) placed or poured next to the package — for example in a glass, bowl, or small pile beside it. Do not render any readable text, brand name, or label wording anywhere in the image; keep the package shape plain and unlabeled. Keep the color, shape, and texture of the contents realistic and consistent with what this actual product looks like. ${STUDIO_STYLE}`,
-  `Create a NEW close-up product photo showing ONLY the actual contents of this package (the food/drink/treats itself, not the package) — a close-up that reveals its real texture and color. Do not render any readable text, brand name, logo, or packaging anywhere in the image. ${STUDIO_STYLE}`,
+  (studioStyle: string) => `Create a NEW product photo for a grocery catalog showing the actual contents of this package (the food/drink/treats itself) placed or poured next to the package — for example in a glass, bowl, or small pile beside it. Do not render any readable text, brand name, or label wording anywhere in the image; keep the package shape plain and unlabeled. Keep the color, shape, and texture of the contents realistic and consistent with what this actual product looks like. ${studioStyle}`,
+  (studioStyle: string) => `Create a NEW close-up product photo showing ONLY the actual contents of this package (the food/drink/treats itself, not the package) — a close-up that reveals its real texture and color. Do not render any readable text, brand name, logo, or packaging anywhere in the image. ${studioStyle}`,
 ];
 
 /**
@@ -35,7 +32,10 @@ export async function generateProductContextShots(input: {
   mime: string;
   count?: number;
 }): Promise<Buffer[]> {
-  if (!AI_IMAGE_GENERATION_ENABLED) return [];
+  const config = await getAiConfig();
+  if (!config.imageGenerationEnabled) return [];
+  const studioStyle = `${buildStyleBlock(config.style)}
+${framing}`;
 
   const png = await sharp(input.bytes)
     .rotate()
@@ -48,7 +48,7 @@ export async function generateProductContextShots(input: {
     .toBuffer();
 
   const count = Math.max(1, Math.min(input.count ?? 1, CONTEXT_SHOT_PROMPTS.length));
-  const prompts = CONTEXT_SHOT_PROMPTS.slice(0, count);
+  const prompts = CONTEXT_SHOT_PROMPTS.slice(0, count).map((build) => build(studioStyle));
 
   const results = await Promise.all(prompts.map((prompt) => editProductImage(png, prompt)));
   return results.filter((buffer): buffer is Buffer => buffer != null);

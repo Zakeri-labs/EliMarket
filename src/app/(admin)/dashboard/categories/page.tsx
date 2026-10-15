@@ -202,8 +202,8 @@ export default function AdminCategoriesPage() {
                   className={cn(
                     "group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all",
                     editing?.id === cat.id
-                      ? "border-[#0d9488] shadow-[0_8px_24px_rgba(107,143,113,0.18)]"
-                      : "border-[#e4e4e7] hover:-translate-y-0.5 hover:border-[#0d9488]/50 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
+                      ? "border-accent shadow-[0_8px_24px_rgba(107,143,113,0.18)]"
+                      : "border-[#e4e4e7] hover:-translate-y-0.5 hover:border-zinc-200 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
                   )}
                 >
                   <button
@@ -221,7 +221,7 @@ export default function AdminCategoriesPage() {
                           className="max-h-full max-w-full object-contain"
                         />
                       ) : (
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0d9488]/12 text-sm font-semibold text-[#0f766e]">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 text-sm font-semibold text-foreground">
                           {cat.name.slice(0, 2)}
                         </span>
                       )}
@@ -231,7 +231,7 @@ export default function AdminCategoriesPage() {
                         {cat.name}
                       </span>
                       {cat.parent_id ? (
-                        <span className="text-[10px] text-[#0d9488]">
+                        <span className="text-[10px] text-foreground">
                           {t("admin.categories.childBadge")}
                           {categories.find((item) => item.id === cat.parent_id)
                             ? ` · ${categories.find((item) => item.id === cat.parent_id)?.name}`
@@ -317,7 +317,7 @@ export default function AdminCategoriesPage() {
                     className={cn(
                       "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                       nameTab === loc
-                        ? "bg-white text-[#18181b] shadow-sm"
+                        ? "bg-white text-[#18181b]"
                         : "text-[#71717a] hover:text-[#18181b]",
                     )}
                     onClick={() => setNameTab(loc)}

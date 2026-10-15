@@ -45,7 +45,7 @@ body.admin-lock-scroll {
 .admin-thin-scroll::-webkit-scrollbar-track,
 .app-modal-scroll::-webkit-scrollbar-track,
 .admin-page-scroll::-webkit-scrollbar-track {
-  background: #f4f4f5;
+  background: transparent;
 }
 .admin-thin-scroll::-webkit-scrollbar-thumb,
 .app-modal-scroll::-webkit-scrollbar-thumb,
@@ -107,7 +107,7 @@ export function AdminDirRoot({ children }: { children: React.ReactNode }) {
   return (
     <div
       dir={getDirection(locale)}
-      className="theme-admin fixed inset-0 z-0 flex flex-col overflow-hidden bg-[#f4f4f5] text-[#18181b]"
+      className="theme-admin fixed inset-0 z-0 flex flex-col overflow-hidden bg-[#fafafa] text-[#18181b]"
     >
       {children}
     </div>

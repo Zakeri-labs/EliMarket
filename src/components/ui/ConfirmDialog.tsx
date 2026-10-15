@@ -29,31 +29,31 @@ export function ConfirmDialog({
           className="fixed inset-0"
           style={{
             zIndex: 100050,
-            background: "rgba(15, 23, 18, 0.55)",
+            background: "rgba(24, 24, 27, 0.4)",
             backdropFilter: "blur(6px)",
           }}
         />
         <Dialog.Content
-          className="fixed overflow-hidden rounded-2xl bg-white text-[#18181b]"
+          className="theme-admin fixed overflow-hidden rounded-2xl bg-white text-[#18181b]"
           style={{
             zIndex: 100051,
             left: "50%",
             top: "50%",
             transform: "translate(-50%, -50%)",
             width: "min(24rem, calc(100vw - 1.5rem))",
-            border: "1px solid #0d9488",
-            boxShadow: "0 24px 60px rgba(82, 117, 89, 0.22)",
+            border: "1px solid #e4e4e7",
+            boxShadow: "0 24px 64px rgba(24, 24, 27, 0.18)",
           }}
         >
-          <div className="border-b border-[#0d9488]/30 bg-[#0d9488] px-4 py-3 text-white">
+          <div className="px-5 pt-5 text-foreground">
             <Dialog.Title className="text-lg font-semibold tracking-tight">
               {title}
             </Dialog.Title>
           </div>
-          <Dialog.Description className="px-4 py-4 text-sm leading-6 text-[#3f3f46]">
+          <Dialog.Description className="px-5 pb-4 pt-1.5 text-sm leading-6 text-muted">
             {description}
           </Dialog.Description>
-          <div className="flex flex-col-reverse gap-2 border-t border-[#0d9488]/25 bg-[#fafafa] px-4 py-3 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-2 border-t border-zinc-100 bg-zinc-50/60 px-5 py-3 sm:flex-row sm:justify-end">
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
               {cancelLabel}
             </Button>

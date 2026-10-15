@@ -1,5 +1,5 @@
 import { getOpenAiApiKey } from "@/lib/ai/openai-client";
-import { AI_WEB_IMAGE_SEARCH_ENABLED, AI_WEB_SEARCH_MODEL } from "@/lib/ai/ai-config";
+import { getAiConfig } from "@/lib/ai/ai-config";
 
 export type WebImageCandidate = {
   url: string;
@@ -33,7 +33,8 @@ export async function searchProductImagesWithOpenAi(input: {
   count?: number;
 }): Promise<WebImageCandidate[]> {
   const key = getOpenAiApiKey();
-  if (!AI_WEB_IMAGE_SEARCH_ENABLED) return [];
+  const config = await getAiConfig();
+  if (!config.webImageSearchEnabled) return [];
   if (!key || !input.query.trim()) {
     console.error(`[web-image-search] skipped: ${!key ? "no OPENAI_API_KEY" : "empty query"}`);
     return [];
@@ -50,7 +51,7 @@ export async function searchProductImagesWithOpenAi(input: {
         Authorization: `Bearer ${key}`,
       },
       body: JSON.stringify({
-        model: AI_WEB_SEARCH_MODEL,
+        model: config.webSearchModel,
         tools: [{ type: "web_search_preview" }],
         input: [
           {
@@ -80,7 +81,7 @@ Rules:
   }
 
   if (!res.ok) {
-    console.error(`[web-image-search] ${AI_WEB_SEARCH_MODEL} ${res.status}: ${(await res.text()).slice(0, 250)}`);
+    console.error(`[web-image-search] ${config.webSearchModel} ${res.status}: ${(await res.text()).slice(0, 250)}`);
     return [];
   }
 

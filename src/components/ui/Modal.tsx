@@ -55,12 +55,12 @@ export function Modal({
           className="fixed inset-0"
           style={{
             zIndex: 100000,
-            background: "rgba(15, 23, 18, 0.55)",
+            background: "rgba(24, 24, 27, 0.4)",
             backdropFilter: "blur(6px)",
           }}
         />
         <Dialog.Content
-          className="fixed overflow-hidden rounded-2xl bg-white text-[#18181b]"
+          className="theme-admin fixed overflow-hidden rounded-2xl bg-white text-[#18181b]"
           style={{
             zIndex: 100001,
             left: "50%",
@@ -70,22 +70,22 @@ export function Modal({
             maxHeight: "min(88dvh, 52rem)",
             display: "grid",
             gridTemplateRows: footer ? "auto minmax(0, 1fr) auto" : "auto minmax(0, 1fr)",
-            border: "1px solid #0d9488",
-            boxShadow: "0 24px 60px rgba(82, 117, 89, 0.22)",
+            border: "1px solid #e4e4e7",
+            boxShadow: "0 24px 64px rgba(24, 24, 27, 0.18)",
           }}
         >
-          <div className="flex shrink-0 items-start justify-between gap-2 border-b border-[#0d9488]/30 bg-[#0d9488] px-4 py-3 text-white">
+          <div className="flex shrink-0 items-start justify-between gap-2 border-b border-zinc-100 px-5 py-4 text-foreground">
             <div className="min-w-0 flex-1 pe-1">
               <Dialog.Title className="flex items-center gap-2 text-lg font-semibold tracking-tight sm:text-xl">
-                {busy ? <Spinner size="sm" className="text-white" label={busyLabel} /> : null}
+                {busy ? <Spinner size="sm" className="text-muted" label={busyLabel} /> : null}
                 {title}
               </Dialog.Title>
               {busy && busyLabel ? (
-                <Dialog.Description className="mt-1 text-sm text-white/90">
+                <Dialog.Description className="mt-1 text-sm text-muted">
                   {busyLabel}
                 </Dialog.Description>
               ) : description ? (
-                <Dialog.Description className="mt-1 text-sm text-white/90">
+                <Dialog.Description className="mt-1 text-sm text-muted">
                   {description}
                 </Dialog.Description>
               ) : (
@@ -96,7 +96,7 @@ export function Modal({
               <button
                 type="button"
                 disabled={busy}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors hover:bg-white/15 disabled:opacity-40"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors text-muted hover:bg-zinc-100 hover:text-foreground disabled:opacity-40"
                 aria-label={t("table.close")}
               >
                 <X className="h-5 w-5" />
@@ -105,14 +105,14 @@ export function Modal({
           </div>
 
           <div
-            className="app-modal-scroll relative min-h-0 overflow-y-auto overscroll-contain px-4 py-3"
-            style={{ scrollbarWidth: "thin", scrollbarColor: "#0d9488 #f4f4f5" }}
+            className="app-modal-scroll relative min-h-0 overflow-y-auto overscroll-contain px-5 py-4"
+            style={{ scrollbarWidth: "thin", scrollbarColor: "#d4d4d8 transparent" }}
           >
             {children}
           </div>
 
           {footer ? (
-            <div className="relative flex shrink-0 flex-col gap-2 border-t border-[#0d9488]/25 bg-[#fafafa] px-4 py-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-3 [&_button]:w-full sm:[&_button]:w-auto sm:[&_button]:min-w-32">
+            <div className="relative flex shrink-0 flex-col gap-2 border-t border-zinc-100 bg-zinc-50/60 px-5 py-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-3 [&_button]:w-full sm:[&_button]:w-auto sm:[&_button]:min-w-32">
               {footer}
             </div>
           ) : null}

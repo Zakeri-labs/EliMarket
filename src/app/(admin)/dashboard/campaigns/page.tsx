@@ -467,7 +467,7 @@ export default function AdminCampaignsPage() {
                 {filteredProducts.map((product) => {
                   const checked = form.product_ids.includes(product.id);
                   return (
-                    <label key={product.id} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-[#f7faf7]">
+                    <label key={product.id} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-zinc-50">
                       <input
                         type="checkbox"
                         checked={checked}

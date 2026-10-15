@@ -108,14 +108,14 @@ export default function SmartProductPage() {
       subtitle={t("admin.smartProduct.subtitle")}
     >
       <div className="space-y-4">
-        <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+        <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
           <h2 className="text-sm font-semibold text-[#18181b]">
             {t("admin.smartProduct.uploadTitle")}
           </h2>
           <p className="mt-1 text-sm text-[#71717a]">{t("admin.smartProduct.uploadHint")}</p>
-          <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#0d9488] bg-[#f7faf7] px-4 py-10">
-            <AppIcon icon={Upload} size="lg" className="text-[#0d9488]" />
-            <span className="mt-2 text-sm font-medium text-[#0f766e]">
+          <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-accent bg-zinc-50 px-4 py-10">
+            <AppIcon icon={Upload} size="lg" className="text-foreground" />
+            <span className="mt-2 text-sm font-medium text-foreground">
               {t("admin.smartProduct.uploadButton")}
             </span>
             <span className="mt-1 text-xs text-[#71717a]">
@@ -158,7 +158,7 @@ export default function SmartProductPage() {
           )}
         </section>
 
-        <section className="grid gap-3 rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm sm:grid-cols-2">
+        <section className="grid gap-3 rounded-2xl border border-[#e4e4e7] bg-white p-5 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs text-[#71717a]">
               {t("admin.smartProduct.hintName")}

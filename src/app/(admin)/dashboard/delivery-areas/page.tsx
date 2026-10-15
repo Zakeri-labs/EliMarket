@@ -354,7 +354,7 @@ export default function AdminDeliveryAreasPage() {
                 key={area.id}
                 className={cn(
                   "flex items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3 transition-colors",
-                  editing?.id === area.id ? "border-[#0d9488]" : "border-[#e4e4e7]",
+                  editing?.id === area.id ? "border-accent" : "border-[#e4e4e7]",
                 )}
               >
                 <button
@@ -377,7 +377,7 @@ export default function AdminDeliveryAreasPage() {
                     className={cn(
                       "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
                       area.serviceable
-                        ? "bg-[#0d9488]/12 text-[#0f766e]"
+                        ? "bg-zinc-100 text-foreground"
                         : "bg-[#f4f4f5] text-[#71717a]",
                     )}
                   >
@@ -450,7 +450,7 @@ export default function AdminDeliveryAreasPage() {
                     className={cn(
                       "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                       nameTab === loc
-                        ? "bg-white text-[#18181b] shadow-sm"
+                        ? "bg-white text-[#18181b]"
                         : "text-[#71717a] hover:text-[#18181b]",
                     )}
                     onClick={() => setNameTab(loc)}

@@ -93,7 +93,7 @@ export function ReceiptSettings({ className }: Props) {
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm outline-none focus:border-[#0f766e] disabled:opacity-55";
+    "w-full rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm outline-none focus:border-accent disabled:opacity-55";
   const fieldDir = langTab === "en" ? "ltr" : "rtl";
 
   return (
@@ -111,7 +111,7 @@ export function ReceiptSettings({ className }: Props) {
             className={cn(
               "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
               langTab === loc
-                ? "bg-white text-[#18181b] shadow-sm"
+                ? "bg-white text-[#18181b]"
                 : "text-[#71717a] hover:text-[#18181b]",
             )}
             onClick={() => setLangTab(loc)}

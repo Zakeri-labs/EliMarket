@@ -63,7 +63,7 @@ export function PriceVisibilityToggle({ className, compact }: Props) {
         loadingLabel={t("common.saving")}
         onClick={toggle}
         className={cn(
-          !showPrices && "bg-[#0f766e] text-white hover:opacity-90",
+          !showPrices && "bg-accent text-white hover:opacity-90",
           showPrices && "border-[#e4e4e7]",
         )}
       >

@@ -488,7 +488,7 @@ export default function AdminProductsPage() {
               type="button"
               title={t("admin.products.saveStock")}
               aria-label={t("admin.products.saveStock")}
-              className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-[#0d9488] text-white transition-colors hover:bg-[#0f766e] disabled:opacity-50"
+              className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-accent text-white transition-colors hover:bg-accent disabled:opacity-50"
               disabled={isActionPending}
               onClick={() => saveStock(row.original.id)}
             >
@@ -578,13 +578,13 @@ export default function AdminProductsPage() {
       <div className="space-y-4">
         <Link
           href="/dashboard/products/smart"
-          className="flex items-center justify-between gap-3 rounded-2xl border border-[#0d9488]/40 bg-[#0d9488]/8 px-4 py-3"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-zinc-100 px-4 py-3"
         >
           <div>
-            <p className="text-sm font-semibold text-[#0f766e]">{t("admin.products.smartRegister")}</p>
+            <p className="text-sm font-semibold text-foreground">{t("admin.products.smartRegister")}</p>
             <p className="text-xs text-[#71717a]">{t("admin.smartProduct.subtitle")}</p>
           </div>
-          <span className="shrink-0 text-sm font-medium text-[#0d9488]">→</span>
+          <span className="shrink-0 text-sm font-medium text-foreground">→</span>
         </Link>
         <Modal
           open={formOpen}
@@ -624,7 +624,7 @@ export default function AdminProductsPage() {
                 type="button"
                 className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
                   descriptionTab === tab.key
-                    ? "bg-white text-[#18181b] shadow-sm"
+                    ? "bg-white text-[#18181b]"
                     : "text-[#71717a] hover:text-[#18181b]"
                 }`}
                 onClick={() => setDescriptionTab(tab.key)}
@@ -869,7 +869,7 @@ export default function AdminProductsPage() {
                   type="button"
                   className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
                     featuresTab === tab.key
-                      ? "bg-white text-[#18181b] shadow-sm"
+                      ? "bg-white text-[#18181b]"
                       : "text-[#71717a] hover:text-[#18181b]"
                   }`}
                   onClick={() => setFeaturesTab(tab.key)}
@@ -949,13 +949,13 @@ export default function AdminProductsPage() {
                   <li
                     key={`${image.image_url}-${index}`}
                     className={`relative overflow-hidden rounded-xl border ${
-                      index === 0 ? "border-[#0d9488] ring-2 ring-[#0d9488]/30" : "border-[#e4e4e7]"
+                      index === 0 ? "border-accent ring-2 ring-accent/30" : "border-[#e4e4e7]"
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={image.image_url} alt="" className="aspect-square w-full bg-[#f4f4f5] object-contain" />
                     {index === 0 && (
-                      <span className="absolute start-1 top-1 rounded-md bg-[#0d9488] px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      <span className="absolute start-1 top-1 rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-medium text-white">
                         {t("admin.products.primaryImage")}
                       </span>
                     )}
@@ -964,7 +964,7 @@ export default function AdminProductsPage() {
                         <button
                           type="button"
                           title={t("admin.products.setPrimaryImage")}
-                          className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-[#0f766e]"
+                          className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-foreground"
                           onClick={() =>
                             setGallery((current) => {
                               const next = [...current];
@@ -979,7 +979,7 @@ export default function AdminProductsPage() {
                       <button
                         type="button"
                         title={t("admin.products.aiImage")}
-                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-[#0f766e]"
+                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-foreground"
                         onClick={() =>
                           runAction(
                             () =>

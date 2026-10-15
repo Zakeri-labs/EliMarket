@@ -22,7 +22,7 @@ export function RowIconActions({ editLabel, deleteLabel, onEdit, onDelete }: Pro
       {onEdit ? (
         <button
           type="button"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#0f766e] transition-colors hover:bg-[#0d9488]/12"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-accent-dark transition-colors hover:bg-accent/10"
           aria-label={editLabel}
           title={editLabel}
           onClick={onEdit}

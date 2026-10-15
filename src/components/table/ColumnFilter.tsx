@@ -45,7 +45,7 @@ export function ColumnFilter({
         className={cn(
           "!h-7 !w-7 !rounded-lg !p-0 transition-opacity",
           isActive
-            ? "!text-[#0f766e]"
+            ? "!text-foreground"
             : "opacity-0 group-hover/th:opacity-100 focus-visible:opacity-100 max-lg:opacity-100",
         )}
         onClick={() => setOpen((v) => !v)}

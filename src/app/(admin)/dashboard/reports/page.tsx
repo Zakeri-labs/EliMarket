@@ -23,9 +23,9 @@ const STATUS_KEYS: OrderStatus[] = [
 
 function StatCard({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
       <p className="text-sm text-[#71717a]">{label}</p>
-      <p className="mt-2 text-2xl font-bold text-[#0f766e]">{value}</p>
+      <p className="mt-2 text-2xl font-bold text-foreground">{value}</p>
       {sub && <p className="mt-1 text-xs text-[#71717a]">{sub}</p>}
     </div>
   );
@@ -123,7 +123,7 @@ export default function AdminReportsPage() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+            <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <h2 className="font-semibold">
                   {period === "weekly"
@@ -168,10 +168,10 @@ export default function AdminReportsPage() {
               })()}
             </section>
 
-            <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+            <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-semibold">{t("admin.reports.lowStock")}</h2>
-                <Link href="/dashboard/products" className="text-xs text-[#0f766e]">
+                <Link href="/dashboard/products" className="text-xs text-foreground">
                   {t("admin.reports.manageProducts")}
                 </Link>
               </div>
@@ -192,7 +192,7 @@ export default function AdminReportsPage() {
             </section>
           </div>
 
-          <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-sm">
+          <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
             <h2 className="mb-4 font-semibold">{t("admin.reports.recentOrders")}</h2>
             <DataTable
               data={report.recentOrders}
