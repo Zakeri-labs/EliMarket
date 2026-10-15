@@ -131,7 +131,8 @@ async function buildEnhancedImages(
     if (aiWanted > 0) {
       try {
         aiCovers = await generateProductCoverShots({ ...original, title: hintName, count: aiWanted });
-      } catch {
+      } catch (err) {
+        console.error("[smart-product] AI cover generation threw:", err);
         aiCovers = [];
       }
     }
@@ -151,7 +152,8 @@ async function buildEnhancedImages(
     if (deterministicCount > 0) {
       try {
         framings = await buildProductPhotoFramings(original.bytes, deterministicCount);
-      } catch {
+      } catch (err) {
+        console.error("[smart-product] deterministic framing threw:", err);
         framings = [];
       }
     }
@@ -390,7 +392,7 @@ async function runQueuedProductGeneration(input: {
 
     const images = [...enhancedImages];
 
-    if (originals.length === 1 && images.length < MAX_DRAFT_IMAGES) {
+    if (ai.maxContextShots > 0 && originals.length === 1 && images.length < MAX_DRAFT_IMAGES) {
       const contextShots = await generateContextShots(supabase, originals[0]!, input.urls[0]!);
       images.push(...contextShots.slice(0, Math.max(0, MAX_DRAFT_IMAGES - images.length)));
     }

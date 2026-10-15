@@ -35,15 +35,15 @@ export type AiSettings = {
 
 export const DEFAULT_AI_STYLE: AiStyle = {
   background:
-    "Background: a clean, seamless studio backdrop in a soft, even LIGHT GREY — clearly grey, never pure white; no patterns, no props, no visible seams or banding; the product is cleanly separated from it.",
+    "Background: a seamless studio paper sweep filling the ENTIRE frame edge to edge, in neutral grey with a smooth vertical gradient — a clearly darker, cooler grey at the TOP (about #BEBEBE) that fades gradually and invisibly into a much lighter, softer grey toward the BOTTOM (about #E4E4E4). No visible horizon line, seam, band or border; no patterns, props, text or vignette rings. Pure neutral grey, never white, never tinted warm or cool.",
   lighting:
-    "Lighting: professional STUDIO LIGHTING — a soft, directional key light with gentle fill, a subtle brighter pool behind the product falling off gradually toward the corners, and realistic highlights/reflections true to the product's material. Never flat or evenly lit.",
+    "Lighting: high-end commercial STUDIO LIGHTING — one large soft box high and slightly to the left as the key light with gentle fill from the right, producing smooth natural highlights, a soft specular edge/rim highlight and rounded volume on the product, and a faint bright glow on the floor around its base. Realistic highlights/reflections true to the product's material. Never flat or evenly lit.",
   shadow:
-    "Shadow: a soft, diffused, realistic CONTACT SHADOW directly beneath the product that anchors it to the surface — never a hard or detached drop shadow.",
+    "Shadow: a soft, diffused, realistic CONTACT SHADOW falling slightly to the right and directly beneath the product, darkest right at the contact point and fading smoothly into the light grey floor, plus a very subtle soft reflection on the surface — never a hard, detached or cut-out drop shadow.",
   realism:
     "Realism: the image must look like a real DSLR studio PHOTOGRAPH — natural surface texture, micro-imperfections and true material response. Absolutely NO cartoon, illustration, 3D render, CGI, or plasticky / waxy / over-smoothed look.",
   labels:
-    "Label fidelity: the packaging, brand mark, and EVERY piece of printed text must be reproduced EXACTLY as in the source image — same wording, same script, same spelling, same layout, same fonts, same colours, character for character (including Persian/Arabic text and small print). Do NOT translate, restyle, re-typeset, paraphrase, blur, or invent any text or logo. If a detail is unreadable in the source, leave that area as a plain unlabelled surface rather than guessing.",
+    "Label fidelity (applies ONLY to the product's own physical packaging/label — NEVER to anything overlaid on the photo): the product's packaging, brand mark, and EVERY piece of text printed on it must be reproduced EXACTLY as in the source image — same wording, same script, same spelling, same layout, same fonts, same colours, character for character (including Persian/Arabic text and small print). Do NOT translate, restyle, re-typeset, paraphrase, blur, or invent any text or logo. If a detail is unreadable in the source, leave that area as a plain unlabelled surface rather than guessing.",
 };
 
 export const DEFAULT_AI_SETTINGS: AiSettings = {

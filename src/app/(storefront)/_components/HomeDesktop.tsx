@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
 import { useCategories } from "@/app/(storefront)/_hooks/use-categories";
 import { FlashDeals } from "@/app/(storefront)/_components/FlashDeals";
@@ -115,9 +116,24 @@ export function HomeDesktop() {
         />
         {!selectedCategoryId && <FlashDeals limit={5} />}
         <section id="home-product-grid">
-          <h2 className="mb-4 min-h-7 text-start text-lg font-semibold">
-            {selectedCategoryName ?? t("home.allProducts")}
-          </h2>
+          <div className="mb-4 flex min-h-7 items-center justify-between gap-3">
+            <h2 className="text-start text-lg font-semibold">
+              {selectedCategoryName ?? t("home.allProducts")}
+            </h2>
+            {selectedCategoryId || pill ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategoryId(null);
+                  setPill(null);
+                }}
+                className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-accent-gold"
+              >
+                {t("home.viewAll")}
+                <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
+              </button>
+            ) : null}
+          </div>
           <StableProductGrid
             products={isPending ? mockProducts(locale).slice(0, 10) : filtered}
             isSkeleton={isPending}

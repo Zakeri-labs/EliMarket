@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { HeroTitle } from "@/app/(storefront)/_components/HeroTitle";
 import { useCallback, useEffect, useState } from "react";
 // import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useHeroSlides } from "@/app/(storefront)/_hooks/use-hero-slides";
@@ -116,11 +118,7 @@ export function HeroBanner() {
           </p>
         ) : null}
         {!slide.imageOnly && slide.title ? (
-          <h2
-            className="mb-5 w-full max-w-md text-start text-[42px] font-bold leading-[1.15] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]"
-          >
-            {slide.title}
-          </h2>
+          <div className="mb-5 w-full"><HeroTitle title={slide.title} /></div>
         ) : null}
         {!slide.imageOnly && slide.subtitle ? (
           <p className="mb-7 w-full max-w-md text-start text-base text-white/90 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
@@ -130,12 +128,13 @@ export function HeroBanner() {
         <div className={cn("flex w-full", slide.imageOnly && "mt-auto justify-end pb-8")}>
           <Link
             href={isSkeleton ? "#" : slide.ctaHref}
-            className="rounded-lg bg-accent-teal px-6 py-3 text-sm font-semibold text-bg-main"
+            className="inline-flex items-center gap-3 rounded-lg bg-[#f1e2c6] px-6 py-3 text-sm font-semibold text-[#1a1408]"
             onClick={(e) => {
               if (isSkeleton) e.preventDefault();
             }}
           >
             {slide.ctaLabel}
+            <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
           </Link>
         </div>
       </div>

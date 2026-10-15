@@ -57,7 +57,7 @@ export default async function ProductOgImage({ params }: Props) {
               style={{ objectFit: "cover" }}
             />
           ) : (
-            <div style={{ fontSize: 48, color: "#2dd4bf" }}>🛒</div>
+            <div style={{ fontSize: 48, color: "#f1e2c6" }}>🛒</div>
           )}
         </div>
         <div
@@ -69,7 +69,7 @@ export default async function ProductOgImage({ params }: Props) {
             gap: 24,
           }}
         >
-          <div style={{ fontSize: 28, color: "#2dd4bf", fontWeight: 600 }}>
+          <div style={{ fontSize: 28, color: "#f1e2c6", fontWeight: 600 }}>
             {BRAND_NAME}
           </div>
           <div
@@ -83,7 +83,7 @@ export default async function ProductOgImage({ params }: Props) {
           >
             {name}
           </div>
-          <div style={{ fontSize: 40, color: "#2dd4bf", fontWeight: 700 }}>
+          <div style={{ fontSize: 40, color: "#f1e2c6", fontWeight: 700 }}>
             {priceLabel}
           </div>
         </div>

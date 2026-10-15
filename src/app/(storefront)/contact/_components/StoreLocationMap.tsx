@@ -7,7 +7,7 @@ import { STORE_LOCATION } from "@/config/store-location";
 
 const pin = L.divIcon({
   className: "",
-  html: `<div style="width:18px;height:18px;background:#2dd4bf;border:3px solid #fff;border-radius:50%;box-shadow:0 1px 6px rgba(0,0,0,.45)"></div>`,
+  html: `<div style="width:18px;height:18px;background:#f1e2c6;border:3px solid #fff;border-radius:50%;box-shadow:0 1px 6px rgba(0,0,0,.45)"></div>`,
   iconSize: [18, 18],
   iconAnchor: [9, 9],
 });

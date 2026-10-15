@@ -1,5 +1,6 @@
 import sharp from "sharp";
 import { editProductImage } from "@/lib/ai/image-edit";
+import { normalizeStudioBackdrop } from "@/lib/images/enhance-product-photo";
 import { getAiConfig } from "@/lib/ai/ai-config";
 import { buildStyleBlock } from "@/lib/ai/ai-config-defaults";
 
@@ -51,5 +52,6 @@ ${framing}`;
   const prompts = CONTEXT_SHOT_PROMPTS.slice(0, count).map((build) => build(studioStyle));
 
   const results = await Promise.all(prompts.map((prompt) => editProductImage(png, prompt)));
-  return results.filter((buffer): buffer is Buffer => buffer != null);
+  const shots = results.filter((buffer): buffer is Buffer => buffer != null);
+  return Promise.all(shots.map((shot) => normalizeStudioBackdrop(shot)));
 }

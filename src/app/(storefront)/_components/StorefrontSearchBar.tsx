@@ -174,7 +174,7 @@ function SearchBarForm({
       >
         <button
           type="submit"
-          className="absolute start-3.5 top-1/2 z-10 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+          className="absolute start-4 top-1/2 z-10 -translate-y-1/2 text-text-primary hover:text-text-primary"
           aria-label={t("nav.search")}
         >
           <AppIcon icon={Search} size="sm" />
@@ -195,7 +195,7 @@ function SearchBarForm({
           aria-expanded={showDropdown}
           aria-autocomplete="list"
           autoComplete="off"
-          className="h-11 w-full rounded-lg border border-border-subtle bg-bg-card pe-4 ps-10 text-sm text-text-primary outline-none placeholder:text-text-secondary focus:border-accent-teal"
+          className="h-[46px] w-full rounded-lg border border-[#2a3641] bg-white/[0.04] pe-4 ps-11 text-[14px] text-text-primary outline-none placeholder:text-[#8d99a3] focus:border-[#f1e2c6]/60"
         />
         <SuggestionsDropdown />
       </form>

@@ -71,21 +71,21 @@ export function DeliverToDropdown({
         onClick={() => setOpen((value) => !value)}
         className={cn(
           "flex w-full items-center gap-3 border border-border-subtle bg-transparent text-start",
-          variant === "header" ? "rounded-lg px-[14px] py-2.5" : "rounded-2xl px-4 py-3",
+          variant === "header" ? "h-12 rounded-lg px-[14px]" : "rounded-2xl px-4 py-3",
         )}
         aria-expanded={open}
         aria-haspopup="listbox"
       >
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border-subtle">
-          <AppIcon icon={MapPin} size="xs" className="text-text-secondary" />
+        <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-full", variant !== "header" && "border border-border-subtle")}>
+          <AppIcon icon={MapPin} size={variant === "header" ? "md" : "xs"} className={variant === "header" ? "text-text-primary" : "text-text-secondary"} />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-[11px] leading-none text-text-secondary">
+          <span className={cn("block text-[11px] leading-none text-text-secondary", variant === "header" && "hidden")}>
             {t("home.deliverTo")}
           </span>
           <span
             suppressHydrationWarning
-            className="mt-1 block truncate text-[14px] leading-tight text-text-primary"
+            className={cn("block truncate text-[14px] leading-tight text-text-primary", variant !== "header" && "mt-1")}
           >
             {selectedLabel}
           </span>

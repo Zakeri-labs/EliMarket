@@ -31,7 +31,7 @@ export function CategoryListItem({
   onToggleExpand,
   isSkeleton = false,
 }: Props) {
-  const THUMB = depth > 0 ? 32 : 44;
+  const THUMB = depth > 0 ? 32 : 50;
   const src = resolveCategoryImage(category);
   const [imgFailed, setImgFailed] = useState(false);
   const showImage = Boolean(src) && !imgFailed && !isSkeleton;
@@ -39,9 +39,14 @@ export function CategoryListItem({
   return (
     <div
       className={cn(
-        "group flex w-full max-w-full shrink-0 items-center gap-2 overflow-hidden rounded-md px-1",
-        depth > 0 ? "h-[44px] ps-3" : "h-[56px]",
-        active && "bg-accent-teal/10",
+        "group flex w-full max-w-full shrink-0 items-center gap-2 overflow-hidden px-3 transition-colors",
+        depth > 0
+          ? "h-[44px] rounded-lg ps-3"
+          : "h-[62px] rounded-xl border",
+        depth === 0 &&
+          (active
+            ? "border-transparent bg-[#f1e2c6] text-[#1a1408]"
+            : "border-border-subtle bg-bg-card hover:border-[#f1e2c6]/40"),
       )}
     >
       <button
@@ -55,8 +60,7 @@ export function CategoryListItem({
            so a hatch would show through behind the product. */}
         <span
           className={cn(
-            "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border bg-bg-card",
-            active ? "border-accent-teal" : "border-border-subtle",
+            "relative flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent",
           )}
           style={{ width: THUMB, height: THUMB, minWidth: THUMB, minHeight: THUMB }}
         >
@@ -68,7 +72,7 @@ export function CategoryListItem({
               alt=""
               width={THUMB}
               height={THUMB}
-              className="absolute inset-0 z-[1] box-border object-contain p-0.5"
+              className="absolute inset-0 z-[1] box-border object-contain"
               style={{ width: THUMB, height: THUMB, maxWidth: THUMB, maxHeight: THUMB }}
               onError={() => setImgFailed(true)}
             />
@@ -82,11 +86,9 @@ export function CategoryListItem({
         </span>
         <span
           className={cn(
-            "min-w-0 flex-1 truncate transition-colors",
-            depth > 0 ? "text-sm" : "text-[15px]",
-            active
-              ? "font-medium text-accent-teal"
-              : "text-text-primary group-hover:text-accent-teal",
+            "line-clamp-2 min-w-0 flex-1 transition-colors",
+            depth > 0 ? "text-sm" : "text-[13px] font-medium leading-tight",
+            depth === 0 && active ? "text-[#1a1408]" : "text-text-primary",
           )}
         >
           {label}
