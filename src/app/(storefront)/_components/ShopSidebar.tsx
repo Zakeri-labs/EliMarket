@@ -76,9 +76,6 @@ export function ShopSidebar({
     return map;
   }, [categories, items]);
 
-  const inStockCount = products.filter((p) => p.stock > 0).length;
-  const campaignCount = products.filter((p) => p.campaign).length;
-  const organicCount = products.filter(isOrganicProduct).length;
 
   function toggleExpand(id: string) {
     setExpandedIds((current) => {
@@ -106,13 +103,13 @@ export function ShopSidebar({
   }
 
   return (
-    <aside className="w-[280px] shrink-0 grow-0 basis-[280px] self-stretch">
-      <div className={cn("flex w-[280px] flex-col", isSkeleton && "skeleton")}>
-        <p className="mb-4 min-h-4 text-[11px] tracking-[0.1em] text-text-secondary uppercase">
+    <aside className="w-[250px] shrink-0 grow-0 basis-[250px] self-stretch">
+      <div className={cn("flex w-[250px] flex-col", isSkeleton && "skeleton")}>
+        <p className="sr-only">
           {t("home.shopByCategory")}
         </p>
 
-        <nav className="flex w-full flex-col gap-1" aria-label={t("home.shopByCategory")}>
+        <nav className="flex w-full flex-col gap-2" aria-label={t("home.shopByCategory")}>
           {items.map((cat) => {
             const children = childrenByParent.get(cat.id) ?? [];
             const hasChildren = children.length > 0;
@@ -150,64 +147,6 @@ export function ShopSidebar({
           })}
         </nav>
 
-        <div className="mt-6 w-full border-t border-border-subtle pt-6">
-          <p className="mb-4 text-[11px] tracking-[0.1em] text-text-secondary uppercase">
-            {t("home.refine")}
-          </p>
-
-          <div className="flex w-full flex-col">
-            <label className="flex h-9 w-full items-center justify-between gap-2 text-sm text-text-primary">
-              <span className="flex min-w-0 items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={refine.inStock}
-                  onChange={(e) => onRefineChange({ ...refine, inStock: e.target.checked })}
-                  className="size-4 shrink-0 rounded-[4px] border border-border-subtle accent-accent-teal"
-                />
-                <span className="truncate">{t("home.inStockOnly")}</span>
-              </span>
-              <span className="shrink-0 text-xs text-text-secondary">{inStockCount}</span>
-            </label>
-            <label className="flex h-9 w-full items-center justify-between gap-2 text-sm text-text-primary">
-              <span className="flex min-w-0 items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={refine.onCampaign}
-                  onChange={(e) => onRefineChange({ ...refine, onCampaign: e.target.checked })}
-                  className="size-4 shrink-0 rounded-[4px] border border-border-subtle accent-accent-teal"
-                />
-                <span className="truncate">{t("home.onCampaign")}</span>
-              </span>
-              <span className="shrink-0 text-xs text-text-secondary">{campaignCount}</span>
-            </label>
-            <label className="flex h-9 w-full items-center justify-between gap-2 text-sm text-text-primary">
-              <span className="flex min-w-0 items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={refine.organic}
-                  onChange={(e) => onRefineChange({ ...refine, organic: e.target.checked })}
-                  className="size-4 shrink-0 rounded-[4px] border border-border-subtle accent-accent-teal"
-                />
-                <span className="truncate">{t("home.organic")}</span>
-              </span>
-              <span className="shrink-0 text-xs text-text-secondary">{organicCount}</span>
-            </label>
-          </div>
-
-          <div className="mt-6 w-full rounded-lg border border-border-subtle bg-bg-card/40 p-4">
-            <p
-              className={cn(
-                "text-sm font-semibold text-text-primary",
-                locale === "en" && "font-logo",
-              )}
-            >
-              {t("home.sameDayDeliveryTitle")}
-            </p>
-            <p className="mt-1 text-[13px] text-text-secondary">
-              {t("home.sameDayDeliveryBody")}
-            </p>
-          </div>
-        </div>
       </div>
     </aside>
   );

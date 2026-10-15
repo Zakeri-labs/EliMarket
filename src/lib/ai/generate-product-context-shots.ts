@@ -1,5 +1,6 @@
 import sharp from "sharp";
 import { editProductImage } from "@/lib/ai/image-edit";
+import { normalizeStudioBackdrop } from "@/lib/images/enhance-product-photo";
 import {
   AI_IMAGE_GENERATION_ENABLED,
   AI_IMAGE_STYLE_BLOCK,
@@ -51,5 +52,6 @@ export async function generateProductContextShots(input: {
   const prompts = CONTEXT_SHOT_PROMPTS.slice(0, count);
 
   const results = await Promise.all(prompts.map((prompt) => editProductImage(png, prompt)));
-  return results.filter((buffer): buffer is Buffer => buffer != null);
+  const shots = results.filter((buffer): buffer is Buffer => buffer != null);
+  return Promise.all(shots.map((shot) => normalizeStudioBackdrop(shot)));
 }

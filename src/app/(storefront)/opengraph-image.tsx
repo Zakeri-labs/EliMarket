@@ -26,7 +26,7 @@ const heroSrc = `data:image/jpeg;base64,${heroPhoto.toString("base64")}`;
 
 // Storefront dark theme tokens (src/app/globals.css → html.theme-dark).
 const INK = "#f5f5f0";
-const TEAL = "#2dd4bf";
+const TEAL = "#f1e2c6";
 const GOLD = "#c9a876";
 
 export default function OgImage() {

@@ -1,5 +1,6 @@
 import sharp from "sharp";
 import { editProductImage } from "@/lib/ai/image-edit";
+import { normalizeStudioBackdrop } from "@/lib/images/enhance-product-photo";
 import {
   AI_IMAGE_GENERATION_ENABLED,
   AI_IMAGE_STYLE_BLOCK,
@@ -89,14 +90,15 @@ export async function generateProductCoverShots(input: {
   // The edit endpoint outputs a 1024x1024 square. Feeding it a non-square
   // photo (e.g. a wide 3:2 shot) makes the model re-crop/outpaint and redraw the
   // product, so the result comes out cropped and no longer matches. Instead,
-  // place the product on a white square with a generous margin: the model then
-  // only has to swap the background and add light + shadow, in-frame.
+  // place the product on a square of the target studio grey with a generous
+  // margin: the model then only has to add light + shadow, in-frame, and is
+  // anchored to the grey instead of echoing a white backdrop.
   const product = await sharp(input.bytes)
     .rotate()
     .resize(SQUARE_PRODUCT_SIZE, SQUARE_PRODUCT_SIZE, { fit: "inside", withoutEnlargement: false })
     .toBuffer();
   const png = await sharp({
-    create: { width: 1024, height: 1024, channels: 3, background: "#ffffff" },
+    create: { width: 1024, height: 1024, channels: 3, background: "#cfcfd0" },
   })
     .composite([{ input: product, gravity: "center" }])
     .png()
@@ -107,5 +109,6 @@ export async function generateProductCoverShots(input: {
   const prompts = SHOT_PROMPTS.slice(0, count).map((build) => build(title));
 
   const results = await Promise.all(prompts.map((prompt) => editProductImage(png, prompt)));
-  return results.filter((buffer): buffer is Buffer => buffer != null);
+  const shots = results.filter((buffer): buffer is Buffer => buffer != null);
+  return Promise.all(shots.map((shot) => normalizeStudioBackdrop(shot)));
 }

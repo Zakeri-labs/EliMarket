@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useMemo } from "react";
 import { cn } from "@/app/utils/cn";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
-import { FlashDealTimer } from "@/app/(storefront)/_components/FlashDealTimer";
 import { ProductDealCard } from "@/app/(storefront)/_components/ProductDealCard";
 import { mockFlashDeals } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
@@ -23,7 +23,7 @@ export function FlashDeals({ limit }: Props) {
   const isSkeleton = isPending;
   const dealCount = limit ?? HOME_DEAL_COUNT;
 
-  const { deals, endsAt, viewAllHref } = useMemo(() => {
+  const { deals, viewAllHref } = useMemo(() => {
     if (isSkeleton) {
       return {
         deals: mockFlashDeals(locale).slice(0, dealCount),
@@ -83,19 +83,20 @@ export function FlashDeals({ limit }: Props) {
         <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
           <h2
             className={cn(
-              "text-start text-base tracking-wide sm:text-lg",
+              "text-start text-2xl font-semibold tracking-wide sm:text-[32px]",
               locale === "en" && "font-logo",
             )}
           >
             {t("home.flashDeals")}
           </h2>
-          <FlashDealTimer endsAt={endsAt} fallback={!isSkeleton && deals.length > 0} />
+          <span aria-hidden className="hidden h-px w-24 bg-border-subtle sm:block" />
         </div>
         <Link
           href={viewAllHref}
-          className="shrink-0 text-sm font-medium text-accent-gold"
+          className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-accent-gold"
         >
           {t("home.viewAll")}
+          <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
         </Link>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">

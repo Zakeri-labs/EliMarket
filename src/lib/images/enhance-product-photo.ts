@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import { relightBackdrop } from "@/lib/images/relight-backdrop.mjs";
 
 const CANVAS_SIZE = 1200;
 // White in the source photo lands on this grey — a clearly grey studio sweep.
@@ -88,10 +89,20 @@ async function studioize(bytes: Buffer, zoom = 1): Promise<Buffer> {
     .png()
     .toBuffer();
 
-  return sharp(framed)
+  const lit = await sharp(framed)
     .composite([{ input: studioLightOverlay(CANVAS_SIZE) }])
     .png({ compressionLevel: 9, adaptiveFiltering: true })
     .toBuffer();
+  return relightBackdrop(lit);
+}
+
+/**
+ * Final step for every generated/enhanced shot: swap whatever backdrop the
+ * model or photo had for the one standard studio grey (see relight-backdrop.mjs).
+ * Deterministic and free — no AI call — and product pixels are never altered.
+ */
+export async function normalizeStudioBackdrop(bytes: Buffer): Promise<Buffer> {
+  return relightBackdrop(bytes);
 }
 
 /** Single studio cover shot from a real product photo. */

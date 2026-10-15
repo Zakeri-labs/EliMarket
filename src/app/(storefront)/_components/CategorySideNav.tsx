@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/app/utils/cn";
 import type { Category } from "@/app/_types/database.types";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -44,8 +45,7 @@ function CategoryThumb({
   return (
     <span
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border bg-bg-card",
-        active ? "border-accent-teal" : "border-border-subtle",
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent",
       )}
       style={{ width: size, height: size, minWidth: size, minHeight: size }}
     >
@@ -57,7 +57,7 @@ function CategoryThumb({
           alt=""
           width={size}
           height={size}
-          className="absolute inset-0 z-[1] box-border object-contain p-0.5"
+          className="absolute inset-0 z-[1] box-border object-contain"
           style={{ width: size, height: size, maxWidth: size, maxHeight: size }}
           onError={() => setImgFailed(true)}
         />
@@ -84,6 +84,14 @@ export function CategorySideNav({
   const parents = topLevelCategories(categories);
 
   function itemClass(active: boolean) {
+    if (withThumbnails) {
+      return cn(
+        "flex min-h-[62px] w-full items-center gap-3 rounded-xl border px-3 py-2 text-start text-[13px] font-medium transition-colors",
+        active
+          ? "border-transparent bg-[#f1e2c6] text-[#1a1408]"
+          : "border-border-subtle bg-bg-card text-text-primary hover:border-[#f1e2c6]/40",
+      );
+    }
     return cn(
       "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-start text-sm transition-colors",
       active
@@ -108,12 +116,13 @@ export function CategorySideNav({
         {withThumbnails ? (
           <CategoryThumb
             category={category}
-            size={nested ? 32 : 44}
+            size={nested ? 32 : 48}
             active={active}
             hideImage={isSkeleton}
           />
         ) : null}
-        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <span className={cn("min-w-0 flex-1", withThumbnails ? "line-clamp-2 leading-tight" : "truncate")}>{label}</span>
+        {withThumbnails ? <ChevronRight className="size-4 shrink-0 opacity-70 rtl:rotate-180" aria-hidden /> : null}
       </>
     );
     if (hrefFor) {
@@ -132,9 +141,9 @@ export function CategorySideNav({
 
   return (
     <nav aria-label={t("search.categoryLabel")}>
-      <p className="mb-2 text-xs font-medium text-muted">{t("search.categoryLabel")}</p>
-      <ul className="space-y-0.5">
-        <li>
+      <p className={cn("mb-2 text-xs font-medium text-muted", withThumbnails && "sr-only")}>{t("search.categoryLabel")}</p>
+      <ul className={withThumbnails ? "space-y-2" : "space-y-0.5"}>
+        <li className={withThumbnails ? "hidden" : undefined}>
           {hrefFor ? (
             <Link href={hrefFor("")} className={itemClass(!selectedSlug)}>
               {t("search.allCategories")}

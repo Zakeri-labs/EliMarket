@@ -19,13 +19,13 @@ const PALETTES: Record<Scene, Palette> = {
   directions: { from: "#128a80", to: "#0a2f2c", deep: "#0a2f2c", gold: "#e0c199" },
   delivery: { from: "#1f9b8e", to: "#0c3a45", deep: "#0c3a45", gold: "#e0c199" },
   neighbourhood: { from: "#2f7d70", to: "#123a2f", deep: "#123a2f", gold: "#e6c9a0" },
-  generic: { from: "#0f9e93", to: "#0b3b38", deep: "#0b3b38", gold: "#d9b78a" },
+  generic: { from: "#c9a876", to: "#1a1d22", deep: "#1a1d22", gold: "#d9b78a" },
 };
 
 const FALLBACK_PALETTES: [string, string][] = [
-  ["#0f9e93", "#0b3b38"],
+  ["#c9a876", "#1a1d22"],
   ["#c9a876", "#6b4f2a"],
-  ["#2dd4bf", "#0f5f57"],
+  ["#f1e2c6", "#2a2a2e"],
   ["#3f7d6e", "#123027"],
 ];
 

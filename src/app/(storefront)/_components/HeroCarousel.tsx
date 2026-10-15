@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useHeroSlides } from "@/app/(storefront)/_hooks/use-hero-slides";
 import type { HeroSlide } from "@/app/(storefront)/_types/hero-slide";
 import { cn } from "@/app/utils/cn";
@@ -11,6 +11,7 @@ import { StorefrontImage } from "@/components/ui/StorefrontImage";
 import { SkeletonImage } from "@/components/ui/SkeletonImage";
 import { heroDefaultImage } from "@/lib/images/blur-placeholders";
 import { useTranslations } from "@/i18n/use-translations";
+import { HeroTitle } from "@/app/(storefront)/_components/HeroTitle";
 import styles from "./HeroCarousel.module.css";
 
 const AUTO_INTERVAL_MS = 5000;
@@ -110,9 +111,7 @@ function HeroSlidePanel({
           </p>
         ) : null}
         {!slide.imageOnly && slide.title ? (
-          <h2 className="mt-1 w-full max-w-lg text-start text-2xl font-bold leading-tight text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] sm:text-3xl md:text-4xl">
-            {slide.title}
-          </h2>
+          <HeroTitle title={slide.title} />
         ) : null}
         {!slide.imageOnly && slide.subtitle ? (
           <p className="mt-2 w-full max-w-md text-start text-sm opacity-90 sm:text-base">
@@ -122,7 +121,7 @@ function HeroSlidePanel({
         <Link
           href={isSkeleton ? "#" : slide.ctaHref}
           className={cn(
-            "inline-flex shrink-0 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90",
+            "inline-flex shrink-0 items-center gap-3 rounded-xl bg-[#f1e2c6] px-6 py-3 text-sm font-semibold text-[#1a1408] transition-opacity hover:opacity-90",
             slide.imageOnly ? "mt-auto" : "mt-4",
           )}
           onClick={(e) => {
@@ -130,6 +129,7 @@ function HeroSlidePanel({
           }}
         >
           {slide.ctaLabel}
+          <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
         </Link>
       </div>
     </article>

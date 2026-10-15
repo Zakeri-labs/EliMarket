@@ -79,7 +79,7 @@ export const AI_WEB_SEARCH_MODEL = str("OPENAI_WEB_SEARCH_MODEL", "gpt-4o-mini")
 export const AI_IMAGE_STYLE = {
   background: str(
     "AI_IMAGE_STYLE_BACKGROUND",
-    "Background: a clean, seamless studio backdrop in a soft, even LIGHT GREY — clearly grey, never pure white; no patterns, no props, no visible seams or banding; the product is cleanly separated from it.",
+    "Background: a clean, seamless studio backdrop in a neutral mid-light GREY (about #CFCFCF, the same grey as a photographer's grey seamless paper sweep) filling the ENTIRE frame edge to edge — clearly grey, never white, never off-white, never tinted; no patterns, no props, no visible seams, borders, vignette rings or banding; the product is cleanly separated from it.",
   ),
   lighting: str(
     "AI_IMAGE_STYLE_LIGHTING",
