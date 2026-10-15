@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Sparkles, Upload } from "lucide-react";
 import { createQueuedSmartProductAction } from "@/app/_actions/smart-product-actions";
 import { getCategoriesAction } from "@/app/_actions/product-actions";
@@ -22,6 +23,7 @@ const MAX_PHOTOS = 6;
 export default function SmartProductPage() {
   const { t } = useTranslations();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { runAction, isPending } = useFormAction();
   const [categories, setCategories] = useState<Category[]>([]);
   const [rawFiles, setRawFiles] = useState<File[]>([]);
@@ -95,7 +97,13 @@ export default function SmartProductPage() {
       },
       {
         successMessage: t("admin.smartProduct.queued"),
-        onSuccess: () => router.push("/dashboard/products"),
+        onSuccess: () => {
+          // The products table may already be cached without the new product (and
+          // its "generating" badge). Mark it stale so the list refetches on arrival
+          // and the existing 5s polling takes over while generation is running.
+          void queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+          router.push("/dashboard/products");
+        },
       },
     );
   };
