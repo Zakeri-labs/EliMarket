@@ -95,7 +95,7 @@ export const AI_IMAGE_STYLE = {
   ),
   labels: str(
     "AI_IMAGE_STYLE_LABELS",
-    "Label fidelity: the packaging, brand mark, and EVERY piece of printed text must be reproduced EXACTLY as in the source image — same wording, same script, same spelling, same layout, same fonts, same colours, character for character (including Persian/Arabic text and small print). Do NOT translate, restyle, re-typeset, paraphrase, blur, or invent any text or logo. If a detail is unreadable in the source, leave that area as a plain unlabelled surface rather than guessing.",
+    "Label fidelity (applies ONLY to the product's own physical packaging/label — NEVER to anything overlaid on the photo): the product's packaging, brand mark, and EVERY piece of text printed on it must be reproduced EXACTLY as in the source image — same wording, same script, same spelling, same layout, same fonts, same colours, character for character (including Persian/Arabic text and small print). Do NOT translate, restyle, re-typeset, paraphrase, blur, or invent any text or logo. If a detail is unreadable in the source, leave that area as a plain unlabelled surface rather than guessing.",
   ),
 };
 

@@ -1,5 +1,6 @@
 import sharp from "sharp";
 import { editProductImage } from "@/lib/ai/image-edit";
+import { describeOverlays } from "@/lib/ai/describe-overlays";
 import { normalizeStudioBackdrop } from "@/lib/images/enhance-product-photo";
 import {
   AI_IMAGE_GENERATION_ENABLED,
@@ -21,19 +22,25 @@ import {
 // actually rotate the product — only lighting/background/framing vary.
 // Separate calls with their own tailored prompt (below) is what varies
 // anything; callers/UI should not promise genuinely different angles.
-const FIDELITY_RULES =
+function fidelityRules(overlays: string) {
+  return (
   "You are an expert AI commercial product photographer specializing in high-end e-commerce product photography. " +
   "The uploaded product image is the PRIMARY SOURCE OF TRUTH. Carefully analyze it and preserve: exact product shape, proportions, dimensions, geometry, colors, materials, surface texture, packaging, logos, brand identity, labels, printed text, buttons/handles/caps/components. " +
   "Do not redesign, improve, simplify, modernize, or reinterpret the product. Do not invent missing features, change its color or packaging, replace its logos, or add accessories not present in the reference. The generated product must clearly be the SAME physical product shown in the uploaded image. " +
   "If the uploaded photo has ANY existing background or surroundings — a table, shelf, countertop, floor, wall, tablecloth, scenery, other objects, hands, shadows cast on other things, text or watermarks — remove all of it completely and keep ONLY the product itself, cleanly cut out and placed on the studio backdrop described below. Nothing from the old background may remain. " +
+  (overlays
+    ? `In THIS photo the following elements are NOT part of the product and MUST be erased completely, painting the studio backdrop over them (do not reproduce them anywhere, not even smaller, not as stickers or labels): ${overlays}. ` 
+    : "") +
   "Likewise remove every piece of text or graphic that was ADDED on top of the photo — title banners, captions, price tags, stickers, logos of the photographer or website, watermarks (for example a name written across a green strip over the picture). Keep ONLY text that is physically printed on the product's own label or packaging. If the product itself has no label or packaging (fresh produce, loose goods), the result must contain no text at all. " +
-  "Never generate a cartoon, illustration, 3D render, CGI look, deformed product, incorrect proportions, extra or missing components, fake logos/text/labels, people, hands, props, watermarks, or promotional text — the result must be photorealistic.";
+  "Never generate a cartoon, illustration, 3D render, CGI look, deformed product, incorrect proportions, extra or missing components, fake logos/text/labels, people, hands, props, watermarks, or promotional text — the result must be photorealistic."
+  );
+}
 
 // Every prompt ends with the shared, config-driven style mandate
 // (AI_IMAGE_STYLE_BLOCK): light-grey studio backdrop + studio lighting +
 // soft contact shadow + photoreal. Edit those clauses in ai-config.ts.
-function coverPrompt(title: string) {
-  return `${FIDELITY_RULES}
+function coverPrompt(title: string, overlays: string) {
+  return `${fidelityRules(overlays)}
 
 EDIT this photo into the PRIMARY, standard e-commerce cover image: keep the product exactly as it is — same shape, size, angle and position, centered and completely inside the frame with generous empty margin on every side (never cropped or enlarged). Replace only the plain background (the grey gradient sweep behind the product is already provided — keep and refine it) and add the studio lighting, contact shadow and soft floor reflection described below.
 Camera: straightforward, product-focused angle, natural perspective, sharp details, minimal distortion, high-end studio camera look.
@@ -43,8 +50,8 @@ ${AI_IMAGE_STYLE_BLOCK}
 Product title: ${title}`;
 }
 
-function secondaryPrompt(title: string) {
-  return `${FIDELITY_RULES}
+function secondaryPrompt(title: string, overlays: string) {
+  return `${fidelityRules(overlays)}
 
 Create a SECOND professional photograph of this SAME product for a secondary product-detail view — re-photograph it from a clearly DIFFERENT camera angle than the input — a three-quarter view turned about 30–40° to the side, showing the product's side/depth — keeping the whole product inside the frame with generous empty margin (never cropped), while the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions).
 
@@ -53,11 +60,11 @@ ${AI_IMAGE_STYLE_BLOCK}
 Product title: ${title}`;
 }
 
-function marketingPrompt(title: string) {
-  return `${FIDELITY_RULES}
+function marketingPrompt(title: string, overlays: string) {
+  return `${fidelityRules(overlays)}
 
 Create a THIRD, premium commercial photograph of this SAME product from yet another viewpoint (a slightly elevated view looking down at about 30° so the top and front are both visible). Decide from the product itself:
-- If this product is normally sold in packaging (for example fresh produce or loose goods sold in a bag, tray, net, box, tub, jar or bottle), show the real product together with that kind of packaging side by side: the product in front, and beside it a plain, generic, UNBRANDED package of the usual kind. The invented package must carry NO text, NO logo and NO artwork at all — leave it blank and plain. Never copy any text from the photo onto it.
+- If this product is normally sold in packaging (for example fresh produce or loose goods sold in a bag, tray, net, box, tub, jar or bottle), show the real product together with that kind of packaging side by side: the product in front, and beside it a plain, generic, UNBRANDED package of the usual kind. The invented package must be completely BLANK matte white or clear: absolutely NO label, NO sticker, NO printed or written word in any language, NO logo, NO barcode, NO artwork. Never copy any text, banner, sticker or logo from the original photo onto it or anywhere else.
 - If the uploaded photo already shows a finished, branded, packaged product, show that exact package from this new viewpoint instead, with its real label unchanged.
 Keep everything inside the frame with generous margin, never cropped; the product itself stays completely identical (shape, color, materials, packaging, logo, text, components, proportions). No lifestyle scene, no people, hands, other props, or watermarks.
 
@@ -118,15 +125,15 @@ export async function generateProductCoverShots(input: {
 
   const title = input.title.trim() || "grocery product";
   const count = Math.max(1, Math.min(input.count ?? 1, SHOT_PROMPTS.length));
-  const prompts = SHOT_PROMPTS.slice(0, count).map((build) => build(title));
 
-  // The first shot becomes the catalog cover, so it must exist: retry it a
-  // couple of times (transient network / API errors are common). The other
-  // shots are best-effort and run in parallel.
-  const generate = async (prompt: string, attempts: number) => {
+  // Name the overlays (banners, watermarks, tables...) so the edit model gets a
+  // concrete "erase THIS" instruction instead of a generic one it often ignores.
+  const overlays = await describeOverlays({ bytes: input.bytes, mime: input.mime });
+
+  const generate = async (source: Buffer, prompt: string, attempts: number) => {
     for (let attempt = 1; attempt <= attempts; attempt += 1) {
       try {
-        const out = await editProductImage(png, prompt);
+        const out = await editProductImage(source, prompt);
         if (out) return out;
       } catch (err) {
         console.error(`[cover-shot] attempt ${attempt} failed:`, err instanceof Error ? err.message : err);
@@ -134,18 +141,27 @@ export async function generateProductCoverShots(input: {
     }
     return null;
   };
-  const results = await Promise.all(prompts.map((prompt, i) => generate(prompt, i === 0 ? 3 : 1)));
-
-  const finished: Buffer[] = [];
-  for (const shot of results) {
-    if (!shot) continue;
+  const finish = async (shot: Buffer) => {
     try {
-      finished.push(await normalizeStudioBackdrop(shot));
+      return await normalizeStudioBackdrop(shot);
     } catch (err) {
       // Never throw away a paid result: keep the raw AI shot if the clean-up fails.
       console.error("[cover-shot] backdrop clean-up failed, keeping raw shot:", err instanceof Error ? err.message : err);
-      finished.push(shot);
+      return shot;
     }
-  }
+  };
+
+  // 1) The cover comes first and must exist: retry it (transient errors are common).
+  const rawCover = await generate(png, SHOT_PROMPTS[0]!(title, overlays), 3);
+  const cover = rawCover ? await finish(rawCover) : null;
+  const finished: Buffer[] = cover ? [cover] : [];
+
+  // 2) The other shots start from the CLEANED cover (no banner, no watermark, no old
+  //    background) so nothing from the original photo can leak into them again.
+  const source = cover ?? png;
+  const rest = await Promise.all(
+    SHOT_PROMPTS.slice(1, count).map((build) => generate(source, build(title, overlays), 1)),
+  );
+  for (const shot of rest) if (shot) finished.push(await finish(shot));
   return finished;
 }
