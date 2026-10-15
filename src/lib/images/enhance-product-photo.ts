@@ -21,20 +21,6 @@ function toneCurve(): Float64Array {
   return lut;
 }
 
-/** Radial "studio lighting" — brighter behind the product, falling off to the
- *  corners. Applied over the whole frame so it can never leave a seam. */
-function studioLightOverlay(size: number): Buffer {
-  return Buffer.from(
-    `<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">` +
-      `<defs><radialGradient id="l" cx="50%" cy="41%" r="75%">` +
-      `<stop offset="0%" stop-color="#000" stop-opacity="0"/>` +
-      `<stop offset="50%" stop-color="#000" stop-opacity="0.02"/>` +
-      `<stop offset="100%" stop-color="#000" stop-opacity="0.17"/>` +
-      `</radialGradient></defs>` +
-      `<rect width="${size}" height="${size}" fill="url(#l)"/></svg>`,
-  );
-}
-
 /**
  * Tone-map the real photo so its white sweep + own soft shadow roll into one
  * grey, centre it on the canvas, and lay a radial studio-light gradient over
@@ -89,11 +75,10 @@ async function studioize(bytes: Buffer, zoom = 1): Promise<Buffer> {
     .png()
     .toBuffer();
 
-  const lit = await sharp(framed)
-    .composite([{ input: studioLightOverlay(CANVAS_SIZE) }])
-    .png({ compressionLevel: 9, adaptiveFiltering: true })
-    .toBuffer();
-  return relightBackdrop(lit);
+  // The standard backdrop (grey gradient, light fall-off) is applied by relightBackdrop.
+  // No SVG compositing here: the SVG renderer is not available in every sharp build
+  // (it is missing in the Next.js server runtime), which silently broke this step.
+  return relightBackdrop(framed);
 }
 
 /**

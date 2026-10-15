@@ -104,13 +104,14 @@ export async function generateProductCoverShots(input: {
     .toBuffer();
   // The sweep is the target look itself: vertical grey gradient, darker at the
   // top and fading to a lighter grey at the bottom.
-  const sweep = Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024"><defs>` +
-      `<linearGradient id="g" x1="0" y1="0" x2="0" y2="1">` +
-      `<stop offset="0" stop-color="#bdbdbd"/><stop offset="1" stop-color="#e4e4e4"/>` +
-      `</linearGradient></defs><rect width="1024" height="1024" fill="url(#g)"/></svg>`,
-  );
-  const png = await sharp(sweep)
+  // Built from raw pixels (no SVG): the SVG renderer is missing in the Next.js sharp build.
+  const SIZE = 1024;
+  const sweep = Buffer.alloc(SIZE * SIZE * 3);
+  for (let y = 0; y < SIZE; y += 1) {
+    const level = Math.round(189 + ((228 - 189) * y) / (SIZE - 1));
+    sweep.fill(level, y * SIZE * 3, (y + 1) * SIZE * 3);
+  }
+  const png = await sharp(sweep, { raw: { width: SIZE, height: SIZE, channels: 3 } })
     .composite([{ input: product, gravity: "center" }])
     .png()
     .toBuffer();
