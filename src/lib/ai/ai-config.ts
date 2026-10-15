@@ -79,15 +79,15 @@ export const AI_WEB_SEARCH_MODEL = str("OPENAI_WEB_SEARCH_MODEL", "gpt-4o-mini")
 export const AI_IMAGE_STYLE = {
   background: str(
     "AI_IMAGE_STYLE_BACKGROUND",
-    "Background: a clean, seamless studio backdrop in a neutral mid-light GREY (about #CFCFCF, the same grey as a photographer's grey seamless paper sweep) filling the ENTIRE frame edge to edge — clearly grey, never white, never off-white, never tinted; no patterns, no props, no visible seams, borders, vignette rings or banding; the product is cleanly separated from it.",
+    "Background: a seamless studio paper sweep filling the ENTIRE frame edge to edge, in neutral grey with a smooth vertical gradient — a clearly darker, cooler grey at the TOP (about #BEBEBE) that fades gradually and invisibly into a much lighter, softer grey toward the BOTTOM (about #E4E4E4). No visible horizon line, seam, band or border; no patterns, props, text or vignette rings. Pure neutral grey, never white, never tinted warm or cool.",
   ),
   lighting: str(
     "AI_IMAGE_STYLE_LIGHTING",
-    "Lighting: professional STUDIO LIGHTING — a soft, directional key light with gentle fill, a subtle brighter pool behind the product falling off gradually toward the corners, and realistic highlights/reflections true to the product's material. Never flat or evenly lit.",
+    "Lighting: high-end commercial STUDIO LIGHTING — one large soft box high and slightly to the left as the key light with gentle fill from the right, producing smooth natural highlights, a soft specular edge/rim highlight and rounded volume on the product, and a faint bright glow on the floor around its base. Realistic highlights/reflections true to the product's material. Never flat or evenly lit.",
   ),
   shadow: str(
     "AI_IMAGE_STYLE_SHADOW",
-    "Shadow: a soft, diffused, realistic CONTACT SHADOW directly beneath the product that anchors it to the surface — never a hard or detached drop shadow.",
+    "Shadow: a soft, diffused, realistic CONTACT SHADOW falling slightly to the right and directly beneath the product, darkest right at the contact point and fading smoothly into the light grey floor, plus a very subtle soft reflection on the surface — never a hard, detached or cut-out drop shadow.",
   ),
   realism: str(
     "AI_IMAGE_STYLE_REALISM",

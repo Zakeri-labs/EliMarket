@@ -394,7 +394,7 @@ async function runQueuedProductGeneration(input: {
 
     const images = [...enhancedImages];
 
-    if (originals.length === 1 && images.length < MAX_DRAFT_IMAGES) {
+    if (MAX_AI_CONTEXT_SHOTS > 0 && originals.length === 1 && images.length < MAX_DRAFT_IMAGES) {
       const contextShots = await generateContextShots(supabase, originals[0]!, input.urls[0]!);
       images.push(...contextShots.slice(0, Math.max(0, MAX_DRAFT_IMAGES - images.length)));
     }
