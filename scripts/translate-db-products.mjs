@@ -75,7 +75,7 @@ function sourceText(p, kind) {
 }
 
 async function translate(p, bad) {
-  const wanted = bad.map((f) => `${f} (${LANG_NAME[f.slice(-2)]})`);
+  const languages = Object.fromEntries(bad.map((f) => [f, LANG_NAME[f.slice(-2)]]));
   const body = {
     model: MODEL,
     temperature: 0.2,
@@ -96,7 +96,8 @@ async function translate(p, bad) {
           source_name: sourceText(p, "name") || p.slug,
           source_description: sourceText(p, "description"),
           category_hint: p.slug,
-          return_keys: wanted,
+          return_keys: bad,
+          language_of_each_key: languages,
         }),
       },
     ],
@@ -108,10 +109,12 @@ async function translate(p, bad) {
   });
   if (!res.ok) throw new Error(`OpenAI ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const json = JSON.parse((await res.json()).choices[0].message.content);
+  if (process.env.DEBUG_TR) console.log("    raw:", JSON.stringify(json), "src:", sourceText(p, "name"));
   const out = {};
   for (const f of bad) {
     const v = typeof json[f] === "string" ? json[f].trim() : "";
     if (v && fits[f.slice(-2)](v)) out[f] = v;
+    else console.log(`    rejected ${f}: ${JSON.stringify(v)}`);
   }
   return out;
 }
