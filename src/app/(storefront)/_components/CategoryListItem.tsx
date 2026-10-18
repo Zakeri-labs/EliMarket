@@ -103,14 +103,14 @@ export function CategoryListItem({
             e.stopPropagation();
             onToggleExpand?.();
           }}
-          className="flex size-7 shrink-0 items-center justify-center text-text-secondary hover:text-accent-teal"
+          className="flex size-7 shrink-0 items-center justify-center text-text-secondary group-hover:text-black hover:text-black"
           aria-expanded={expanded}
           aria-label={expanded ? "Collapse" : "Expand"}
         >
           <AppIcon
             icon={expanded ? ChevronDown : ChevronRight}
             size="xs"
-            className={cn(!expanded && "rtl:rotate-180")}
+            className={cn(!expanded && "rtl:rotate-180", "group-hover:[stroke-width:3]")}
           />
         </button>
       ) : (
