@@ -42,8 +42,12 @@ export function Price({
     [safeAmount, locale, fractionDigits],
   );
 
+  // English reads "OMR 0.495" (code first); fa/ar keep the code after the number.
+  const labelFirst = locale === "en";
+
   return (
     <span data-price className={cn("price-num tabular-nums whitespace-nowrap", className)}>
+      {labelFirst ? <>{textLabel}{" "}</> : null}
       {parts.map((part, i) =>
         part.type === "decimal" || part.type === "fraction" ? (
           <span
@@ -55,8 +59,8 @@ export function Price({
         ) : (
           <span key={i}>{part.value}</span>
         ),
-      )}{" "}
-      {textLabel}
+      )}
+      {labelFirst ? null : <>{" "}{textLabel}</>}
     </span>
   );
 }
