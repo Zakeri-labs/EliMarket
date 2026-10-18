@@ -29,9 +29,9 @@ export function Price({
   const { locale } = useTranslations();
   const safeAmount = Number.isFinite(amount) ? amount : 0;
   const fractionDigits = currency === "OMR" ? 3 : currency === "IRR" ? 0 : 2;
-  // OMR is shown as the code "OMR"; Arabic spells it out as "ريال".
+  // OMR is shown as the code "OMR"; Arabic spells it out as "ر.ع.".
   const textLabel =
-    currency === "OMR" ? (locale === "ar" ? "ريال" : "OMR") : currency === "IRR" ? getMessages(locale).brand.currency : currency;
+    currency === "OMR" ? (locale === "ar" ? "ر.ع." : "OMR") : currency === "IRR" ? getMessages(locale).brand.currency : currency;
 
   const parts = useMemo(
     () =>
