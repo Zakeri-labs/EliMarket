@@ -77,7 +77,7 @@ export function StorefrontHeader() {
           <Link
             href="/"
             dir="ltr"
-            className="flex min-w-0 flex-1 items-center justify-center gap-2"
+            className="flex min-w-0 flex-1 items-center justify-center gap-2.5"
             aria-label="Hills Eli Mart"
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- fixed brand mark */}
@@ -86,7 +86,7 @@ export function StorefrontHeader() {
               alt=""
               width={62}
               height={60}
-              className="h-9 w-auto shrink-0 [html.theme-light_&]:hidden"
+              className="h-10 w-auto shrink-0 [html.theme-light_&]:hidden"
             />
             {/* eslint-disable-next-line @next/next/no-img-element -- fixed brand mark */}
             <img
@@ -94,36 +94,12 @@ export function StorefrontHeader() {
               alt=""
               width={62}
               height={60}
-              className="hidden h-9 w-auto shrink-0 [html.theme-light_&]:block"
+              className="hidden h-10 w-auto shrink-0 [html.theme-light_&]:block"
             />
-            <span className="font-logo truncate text-[13px] font-medium uppercase leading-none tracking-[0.12em] text-text-primary">
+            <span className="font-logo truncate text-[15px] font-medium uppercase leading-none tracking-[0.12em] text-text-primary">
               Hills Eli Mart
             </span>
           </Link>
-          <ThemeToggle compact />
-          <div
-            className="inline-flex h-10 shrink-0 items-center gap-0.5 rounded-xl bg-bg-card p-0.5"
-            role="group"
-            aria-label={t("common.language")}
-          >
-            {LOCALES.map((code) => (
-              <button
-                key={code}
-                type="button"
-                onClick={() => setLocale(code)}
-                aria-pressed={locale === code}
-                suppressHydrationWarning
-                className={cn(
-                  "rounded-lg px-1.5 py-1 text-[11px] font-semibold uppercase transition-colors",
-                  locale === code
-                    ? "bg-accent-teal text-on-accent"
-                    : "text-text-secondary hover:text-text-primary",
-                )}
-              >
-                {LOCALE_SHORT[code]}
-              </button>
-            ))}
-          </div>
           <Link
             href="/cart"
             className={cn(
