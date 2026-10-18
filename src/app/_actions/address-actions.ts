@@ -188,6 +188,52 @@ export async function reverseGeocodeAction(
   }
 }
 
+/**
+ * Forward geocode a typed query (street, area, landmark) via Nominatim, limited to
+ * Oman. Returns up to 5 matches for the map picker's search box.
+ */
+export async function searchAddressAction(query: string, lang?: string) {
+  try {
+    await requireAuth();
+
+    const q = query.trim();
+    if (q.length < 3) return { success: true as const, data: [] };
+
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+    url.searchParams.set("format", "jsonv2");
+    url.searchParams.set("q", q.slice(0, 200));
+    url.searchParams.set("limit", "5");
+    url.searchParams.set("countrycodes", "om");
+
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "EliMarket-Storefront/1.0 (address map picker)",
+        "Accept-Language": lang === "fa" ? "fa" : lang === "ar" ? "ar" : "en",
+      },
+      next: { revalidate: 86400 },
+    });
+    if (!res.ok) throw new Error(`Nominatim ${res.status}`);
+
+    const rows = (await res.json()) as {
+      display_name: string;
+      lat: string;
+      lon: string;
+    }[];
+
+    return {
+      success: true as const,
+      data: rows
+        .map((r) => ({ label: r.display_name, lat: Number(r.lat), lng: Number(r.lon) }))
+        .filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng)),
+    };
+  } catch (err) {
+    return {
+      success: false as const,
+      error: await actionErrorMessage("errors.coverageCheckFailed", err),
+    };
+  }
+}
+
 export async function checkAddressCoverageAction(lat: number, lng: number) {
   try {
     const { supabase } = await requireAuth();

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { LocateFixed } from "lucide-react";
 import { mapPinIcon } from "@/lib/map-pin";
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
-import { reverseGeocodeAction } from "@/app/_actions/address-actions";
+import { reverseGeocodeAction, searchAddressAction } from "@/app/_actions/address-actions";
 import { DEFAULT_MAP_CENTER } from "@/config/geo";
 
 type Props = {
@@ -46,6 +46,8 @@ export default function AddressMapPicker({
 }: Props) {
   const [resolving, setResolving] = useState(false);
   const [locating, setLocating] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<{ label: string; lat: number; lng: number }[] | null>(null);
   // Ignore stale reverse-geocode responses when the user clicks again quickly.
   const requestId = useRef(0);
 
@@ -56,6 +58,19 @@ export default function AddressMapPicker({
 
   const locateLabel =
     lang === "fa" ? "موقعیت من" : lang === "ar" ? "موقعي" : "Use my location";
+
+  const searchPlaceholder =
+    lang === "fa" ? "جستجوی آدرس…" : lang === "ar" ? "ابحث عن عنوان…" : "Search address…";
+  const noResultsLabel =
+    lang === "fa" ? "نتیجه‌ای پیدا نشد" : lang === "ar" ? "لا توجد نتائج" : "No results";
+
+  const search = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    if (query.trim().length < 3) return;
+    searchAddressAction(query, lang).then((r) => {
+      setResults(r.success ? r.data : []);
+    });
+  };
 
   // The browser shows its own permission prompt on the first call.
   const locate = () => {
@@ -97,6 +112,46 @@ export default function AddressMapPicker({
         <Recenter lat={center[0]} lng={center[1]} />
         <Marker position={center} icon={mapPinIcon} />
       </MapContainer>
+      <div className="absolute inset-x-2 top-2 z-[1000] me-11">
+        <input
+          type="search"
+          value={query}
+          onKeyDown={(e) => {
+            // Not a <form>: the picker lives inside the checkout/address forms.
+            if (e.key === "Enter") search(e);
+          }}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setResults(null);
+          }}
+          placeholder={searchPlaceholder}
+          aria-label={searchPlaceholder}
+          className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm text-foreground shadow-md outline-none placeholder:text-muted"
+        />
+        {results ? (
+          <ul className="mt-1 max-h-36 overflow-y-auto rounded-lg border border-border bg-surface shadow-lg">
+            {results.length === 0 ? (
+              <li className="px-3 py-2 text-xs text-muted">{noResultsLabel}</li>
+            ) : (
+              results.map((r) => (
+                <li key={`${r.lat},${r.lng}`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResults(null);
+                      setQuery(r.label);
+                      handlePick(r.lat, r.lng);
+                    }}
+                    className="block w-full truncate px-3 py-2 text-start text-xs text-foreground hover:bg-surface-elevated"
+                  >
+                    {r.label}
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        ) : null}
+      </div>
       <button
         type="button"
         onClick={locate}
