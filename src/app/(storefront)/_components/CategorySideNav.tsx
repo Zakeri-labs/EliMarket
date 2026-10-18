@@ -88,8 +88,8 @@ export function CategorySideNav({
       return cn(
         "flex min-h-[62px] w-full items-center gap-3 rounded-xl border px-3 py-2 text-start text-[13px] font-medium transition-colors",
         active
-          ? "border-transparent bg-[#f1e2c6] text-[#1a1408]"
-          : "border-border-subtle bg-bg-card text-text-primary hover:border-[#f1e2c6]/40",
+          ? "border-transparent bg-[#e4e4e7] text-[#1a1408]"
+          : "border-border-subtle bg-bg-card text-text-primary hover:border-transparent hover:bg-[#f1e2c6] hover:text-[#1a1408]",
       );
     }
     return cn(

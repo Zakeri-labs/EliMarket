@@ -45,8 +45,8 @@ export function CategoryListItem({
           : "h-[62px] rounded-xl border",
         depth === 0 &&
           (active
-            ? "border-transparent bg-[#f1e2c6] text-[#1a1408]"
-            : "border-border-subtle bg-bg-card hover:border-[#f1e2c6]/40"),
+            ? "border-transparent bg-[#e4e4e7] text-[#1a1408]"
+            : "border-border-subtle bg-bg-card hover:border-transparent hover:bg-[#f1e2c6] hover:text-[#1a1408]"),
       )}
     >
       <button
@@ -88,7 +88,9 @@ export function CategoryListItem({
           className={cn(
             "line-clamp-2 min-w-0 flex-1 transition-colors",
             depth > 0 ? "text-sm" : "text-[13px] font-medium leading-tight",
-            depth === 0 && active ? "text-[#1a1408]" : "text-text-primary",
+            depth === 0 && active
+              ? "text-[#1a1408]"
+              : "text-text-primary group-hover:text-[#1a1408]",
           )}
         >
           {label}
