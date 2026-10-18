@@ -38,6 +38,8 @@ type FormState = {
   blur_hash: string;
   image_url_ltr: string;
   blur_hash_ltr: string;
+  image_url_mobile: string;
+  blur_hash_mobile: string;
   sort_order: number;
   is_active: boolean;
 };
@@ -54,6 +56,8 @@ const EMPTY_FORM: FormState = {
   blur_hash: "",
   image_url_ltr: "",
   blur_hash_ltr: "",
+  image_url_mobile: "",
+  blur_hash_mobile: "",
   sort_order: 0,
   is_active: true,
 };
@@ -225,6 +229,8 @@ export default function AdminBannersPage() {
       blur_hash: banner.blur_hash ?? "",
       image_url_ltr: banner.image_url_ltr ?? "",
       blur_hash_ltr: banner.blur_hash_ltr ?? "",
+      image_url_mobile: banner.image_url_mobile ?? "",
+      blur_hash_mobile: banner.blur_hash_mobile ?? "",
       sort_order: banner.sort_order,
       is_active: banner.is_active,
     });
@@ -242,6 +248,10 @@ export default function AdminBannersPage() {
       blur_hash: form.blur_hash,
       image_url_ltr: form.image_url_ltr,
       blur_hash_ltr: form.blur_hash_ltr,
+      // "" clears an existing mobile image; undefined leaves the column untouched.
+      image_url_mobile:
+        form.image_url_mobile || (editing?.image_url_mobile ? "" : undefined),
+      blur_hash_mobile: form.blur_hash_mobile,
       sort_order: form.sort_order,
       is_active: form.is_active,
     };
@@ -405,6 +415,7 @@ export default function AdminBannersPage() {
 
             <BannerImageField
               label={t("admin.banners.imageRtlLabel")}
+              hint={t("admin.banners.imageRtlHint")}
               value={form.image_url}
               placeholder={t("admin.banners.imageUrlPlaceholder")}
               inputClass={inputClass}
@@ -441,6 +452,27 @@ export default function AdminBannersPage() {
               }
               onRemove={() =>
                 setForm((s) => ({ ...s, image_url_ltr: "", blur_hash_ltr: "" }))
+              }
+            />
+
+            <BannerImageField
+              label={t("admin.banners.imageMobileLabel")}
+              hint={t("admin.banners.imageMobileHint")}
+              value={form.image_url_mobile}
+              placeholder={t("admin.banners.imageUrlPlaceholder")}
+              inputClass={inputClass}
+              uploading={isUploadPending}
+              uploadImage={uploadImage}
+              onUrlChange={(url) => setForm((s) => ({ ...s, image_url_mobile: url }))}
+              onUploaded={(url, hash) =>
+                setForm((s) => ({
+                  ...s,
+                  image_url_mobile: url,
+                  blur_hash_mobile: hash || s.blur_hash_mobile,
+                }))
+              }
+              onRemove={() =>
+                setForm((s) => ({ ...s, image_url_mobile: "", blur_hash_mobile: "" }))
               }
             />
 

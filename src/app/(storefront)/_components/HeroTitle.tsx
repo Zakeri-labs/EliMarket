@@ -5,7 +5,15 @@ import { useTranslations } from "@/i18n/use-translations";
 /** Mock-up headline: bold white Playfair first part, italic cream serif for the rest. */
 export function HeroTitle({ title }: { title: string }) {
   const { locale } = useTranslations();
-  const cut = locale === "en" ? title.indexOf(",") : -1;
+  /* No comma → still use the two-tone look: bold head, italic cream tail on the last words. */
+  let cut = locale === "en" ? title.indexOf(",") : -1;
+  if (locale === "en" && cut === -1) {
+    const words = title.trim().split(/\s+/);
+    if (words.length >= 3) {
+      const headWords = Math.ceil(words.length / 2);
+      cut = words.slice(0, headWords).join(" ").length - 1;
+    }
+  }
   if (cut === -1) {
     return (
       <h2

@@ -15,9 +15,10 @@ const HOME_DEAL_COUNT = 10;
 
 type Props = {
   limit?: number;
+  hideViewAll?: boolean;
 };
 
-export function FlashDeals({ limit }: Props) {
+export function FlashDeals({ limit, hideViewAll = false }: Props) {
   const { data: products, isPending } = useProducts();
   const { t, dir, locale } = useTranslations();
   const isSkeleton = isPending;
@@ -91,13 +92,15 @@ export function FlashDeals({ limit }: Props) {
           </h2>
           <span aria-hidden className="hidden h-px w-24 bg-border-subtle sm:block" />
         </div>
-        <Link
-          href={viewAllHref}
-          className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-accent-gold"
-        >
-          {t("home.viewAll")}
-          <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
-        </Link>
+        {hideViewAll ? null : (
+          <Link
+            href={viewAllHref}
+            className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-accent-gold"
+          >
+            {t("home.viewAll")}
+            <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
+          </Link>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {deals.map((product, index) => (

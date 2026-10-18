@@ -35,7 +35,7 @@ export type AiSettings = {
 
 export const DEFAULT_AI_STYLE: AiStyle = {
   background:
-    "Background: a seamless studio paper sweep filling the ENTIRE frame edge to edge, in neutral grey with a smooth vertical gradient — a clearly darker, cooler grey at the TOP (about #BEBEBE) that fades gradually and invisibly into a much lighter, softer grey toward the BOTTOM (about #E4E4E4). No visible horizon line, seam, band or border; no patterns, props, text or vignette rings. Pure neutral grey, never white, never tinted warm or cool.",
+    "Background: a seamless studio paper sweep filling the ENTIRE frame edge to edge, in neutral grey with a smooth vertical gradient — a MID-DARK grey at the TOP (about #707070) that opens up gradually and invisibly through mid grey (about #969696 around the middle) into a LIGHT soft grey (about #DCDCDC) in the lower third and at the bottom, where the product sits. No visible horizon line, seam, band or border; no patterns, props, text or vignette rings. Pure neutral grey, never white, never tinted warm or cool.",
   lighting:
     "Lighting: high-end commercial STUDIO LIGHTING — one large soft box high and slightly to the left as the key light with gentle fill from the right, producing smooth natural highlights, a soft specular edge/rim highlight and rounded volume on the product, and a faint bright glow on the floor around its base. Realistic highlights/reflections true to the product's material. Never flat or evenly lit.",
   shadow:

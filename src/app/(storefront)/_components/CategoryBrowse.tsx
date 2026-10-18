@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { BrowseWithSidebar } from "@/app/(storefront)/_components/BrowseWithSidebar";
 import {
   CategoryProductList,
@@ -44,7 +46,18 @@ export function CategoryBrowse({ slug }: Props) {
 
   return (
     <main dir={dir} className="py-4 md:py-6">
-      <h1 className="mb-4 text-start text-xl font-bold md:text-2xl">{title}</h1>
+      <div className="mb-4 flex min-h-8 items-center justify-between gap-3">
+        <h1 className="text-start text-xl font-bold md:text-2xl">{title}</h1>
+        {selected ? (
+          <Link
+            href="/categories"
+            className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-accent-gold"
+          >
+            {t("home.viewAll")}
+            <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
+          </Link>
+        ) : null}
+      </div>
       <BrowseWithSidebar
         sidebar={
           <FilterPanel

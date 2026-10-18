@@ -92,14 +92,6 @@ export function ShopSidebar({
     if (nextId && childrenByParent.has(nextId)) {
       setExpandedIds((current) => new Set(current).add(nextId));
     }
-    if (typeof document !== "undefined") {
-      requestAnimationFrame(() => {
-        document.getElementById("home-product-grid")?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      });
-    }
   }
 
   return (

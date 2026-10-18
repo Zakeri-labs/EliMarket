@@ -53,6 +53,7 @@ export type Messages = {
     flashSecLabel: string;
     flashDaysLabel: string;
     categoriesTitle: string;
+    discountOff: string;
     viewAll: string;
     allProducts: string;
     loadingProducts: string;
@@ -199,6 +200,10 @@ export type Messages = {
     deliverySlots: string[];
     paymentTitle: string;
     paymentOnline: string;
+    cardsAccepted: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    emailHint: string;
     paymentCash: string;
     summaryTitle: string;
     subtotal: string;
@@ -429,11 +434,11 @@ export type Messages = {
     brandUpdateFailed: string;
     brandDeleteFailed: string;
     brandsLoadFailed: string;
+    faqFailed: string;
     deliveryAreaCreateFailed: string;
     deliveryAreaUpdateFailed: string;
     deliveryAreaDeleteFailed: string;
     deliveryAreasLoadFailed: string;
-    faqFailed: string;
     deliveryAreaBoundaryFailed: string;
     blogPostsLoadFailed: string;
     blogPostCreateFailed: string;
@@ -463,6 +468,8 @@ export type Messages = {
     coverageCheckFailed: string;
     paymentNotFound: string;
     paymentVerifyFailed: string;
+    paymentCreateFailed: string;
+    emailInvalid: string;
     customersLoadFailed: string;
     categoryParentInvalid: string;
     aiImageFailed: string;
@@ -819,12 +826,6 @@ export type Messages = {
       awaitingBadge: string;
       answeredBadge: string;
       askedByLabel: string;
-    };
-    categories: {
-      title: string;
-      subtitle: string;
-      newCategory: string;
-      editCategory: string;
       faqTitle: string;
       faqSubtitle: string;
       faqAdd: string;
@@ -840,6 +841,12 @@ export type Messages = {
       faqDelete: string;
       faqEdit: string;
       customerQuestionsTitle: string;
+    };
+    categories: {
+      title: string;
+      subtitle: string;
+      newCategory: string;
+      editCategory: string;
       namePlaceholder: string;
       nameFaPlaceholder: string;
       nameArPlaceholder: string;
@@ -880,6 +887,9 @@ export type Messages = {
       imageRtlLabel: string;
       imageLtrLabel: string;
       imageLtrHint: string;
+      imageRtlHint: string;
+      imageMobileLabel: string;
+      imageMobileHint: string;
       uploadImage: string;
       removeImage: string;
       save: string;
@@ -1377,7 +1387,7 @@ const fa: Messages = {
     comingSoonTag: "به‌زودی",
     searchPlaceholder: "جستجوی محصول…",
     heroBadge: "خرید روزانه",
-    heroTitle: "همه‌چیز برای سفره‌ی خانه",
+    heroTitle: "هر چه لازم داری،\nامروز دم در خانه‌ات",
     heroSubtitle: "سفارش بده، همان روز دم در تحویل بگیر",
     heroCta: "همین حالا سفارش بده",
     heroSlide2Badge: "تخفیف‌های هفته",
@@ -1400,6 +1410,7 @@ const fa: Messages = {
     flashSecLabel: "ثانیه",
     flashDaysLabel: "روز",
     categoriesTitle: "خرید بر اساس دسته",
+    discountOff: "تخفیف",
     viewAll: "مشاهده همه",
     allProducts: "همه محصولات",
     loadingProducts: "در حال بارگذاری محصولات…",
@@ -1551,6 +1562,10 @@ const fa: Messages = {
     ],
     paymentTitle: "روش پرداخت",
     paymentOnline: "پرداخت آنلاین",
+    cardsAccepted: "پرداخت با کارت‌های بانکی (OmanNet، Visa و Mastercard) پذیرفته می‌شود",
+    emailLabel: "ایمیل",
+    emailPlaceholder: "name@example.com",
+    emailHint: "برای ارسال رسید پرداخت آنلاین لازم است",
     paymentCash: "پرداخت در محل",
     summaryTitle: "خلاصه سفارش",
     subtotal: "جمع جزء",
@@ -1837,6 +1852,7 @@ const fa: Messages = {
     brandUpdateFailed: "به‌روزرسانی برند ناموفق بود",
     brandDeleteFailed: "حذف برند ناموفق بود",
     brandsLoadFailed: "بارگذاری برندها ناموفق بود",
+    faqFailed: "عملیات سؤالات متداول ناموفق بود",
     deliveryAreaCreateFailed: "ایجاد منطقه ناموفق بود",
     deliveryAreaUpdateFailed: "به‌روزرسانی منطقه ناموفق بود",
     deliveryAreaDeleteFailed: "حذف منطقه ناموفق بود",
@@ -1847,7 +1863,6 @@ const fa: Messages = {
     blogPostUpdateFailed: "به‌روزرسانی نوشته ناموفق بود",
     blogPostDeleteFailed: "حذف نوشته ناموفق بود",
     aiBlogDraftFailed: "نوشتن پیش‌نویس ناموفق بود",
-    faqFailed: "عملیات سؤالات متداول ناموفق بود",
     heroUpdateFailed: "ذخیره بنر ناموفق بود",
     bannersLoadFailed: "بارگذاری بنرها ناموفق بود",
     bannerCreateFailed: "ایجاد بنر ناموفق بود",
@@ -1871,6 +1886,8 @@ const fa: Messages = {
     coverageCheckFailed: "بررسی محدوده پوشش ناموفق بود",
     paymentNotFound: "پرداخت یافت نشد",
     paymentVerifyFailed: "تأیید پرداخت ناموفق بود",
+    paymentCreateFailed: "شروع پرداخت آنلاین ممکن نشد. لطفاً دوباره تلاش کنید",
+    emailInvalid: "لطفاً یک ایمیل معتبر وارد کنید",
     customersLoadFailed: "بارگذاری مشتریان ناموفق بود",
     categoryParentInvalid: "دسته والد نامعتبر است",
     aiImageFailed: "بهبود تصویر ناموفق بود",
@@ -2227,18 +2244,6 @@ const fa: Messages = {
       awaitingBadge: "در انتظار پاسخ",
       answeredBadge: "پاسخ داده شده",
       askedByLabel: "پرسیده شده توسط {name}",
-    },
-    categories: {
-      title: "دسته‌بندی محصولات",
-      subtitle: "مدیریت دسته‌های فروشگاه",
-      newCategory: "دسته جدید",
-      editCategory: "ویرایش دسته",
-      namePlaceholder: "نام دسته",
-      nameFaPlaceholder: "نام دسته (فارسی)",
-      nameArPlaceholder: "نام دسته (عربی)",
-      nameEnPlaceholder: "نام دسته (انگلیسی)",
-      nameLangHint: "نام دسته را برای هر سه زبان وارد کنید. اگر زبانی خالی بماند، از نام فارسی استفاده می‌شود.",
-      slugPlaceholder: "slug-دسته",
       faqTitle: "سؤالات متداول",
       faqSubtitle: "این سؤال‌ها در صفحه «تماس با ما» به مشتریان نمایش داده می‌شوند",
       faqAdd: "سؤال جدید",
@@ -2254,6 +2259,18 @@ const fa: Messages = {
       faqDelete: "حذف",
       faqEdit: "ویرایش",
       customerQuestionsTitle: "سؤالات مشتریان درباره محصولات",
+    },
+    categories: {
+      title: "دسته‌بندی محصولات",
+      subtitle: "مدیریت دسته‌های فروشگاه",
+      newCategory: "دسته جدید",
+      editCategory: "ویرایش دسته",
+      namePlaceholder: "نام دسته",
+      nameFaPlaceholder: "نام دسته (فارسی)",
+      nameArPlaceholder: "نام دسته (عربی)",
+      nameEnPlaceholder: "نام دسته (انگلیسی)",
+      nameLangHint: "نام دسته را برای هر سه زبان وارد کنید. اگر زبانی خالی بماند، از نام فارسی استفاده می‌شود.",
+      slugPlaceholder: "slug-دسته",
       sortOrderLabel: "ترتیب نمایش",
       imageUrlPlaceholder: "آدرس تصویر دسته",
       uploadImage: "آپلود تصویر",
@@ -2287,7 +2304,10 @@ const fa: Messages = {
       imageUrlPlaceholder: "آدرس تصویر بنر",
       imageRtlLabel: "تصویر راست‌به‌چپ (فارسی و عربی)",
       imageLtrLabel: "تصویر چپ‌به‌راست (انگلیسی)",
-      imageLtrHint: "اختیاری؛ در فروشگاه انگلیسی استفاده می‌شود. اگر خالی بماند، همان تصویر اصلی نمایش داده می‌شود.",
+      imageLtrHint: "اختیاری؛ در فروشگاه انگلیسی استفاده می‌شود. اگر خالی بماند، همان تصویر اصلی نمایش داده می‌شود. اندازه پیشنهادی دسکتاپ: ۲۱۶۰×۸۰۰ پیکسل (نسبت ۲٫۷ به ۱)؛ محصولات سمت راست و سمت چپ خالی برای متن.",
+      imageRtlHint: "اندازه پیشنهادی دسکتاپ: ۲۱۶۰×۸۰۰ پیکسل (نسبت ۲٫۷ به ۱)، فرمت WebP زیر ۲۰۰ کیلوبایت. محصولات سمت چپ و سمت راست خالی برای متن.",
+      imageMobileLabel: "تصویر موبایل و تبلت",
+      imageMobileHint: "اختیاری؛ برای صفحه‌های کوچک (زیر ۱۰۲۴ پیکسل) برای هر سه زبان. اندازه پیشنهادی: ۱۰۸۰×۶۰۰ پیکسل (نسبت ۹ به ۵). محصولات را وسط و بالای تصویر بگذارید و پایین را برای متن خالی و تیره بگذارید. اگر خالی بماند، تصویر دسکتاپ نمایش داده می‌شود.",
       uploadImage: "آپلود تصویر",
       removeImage: "حذف تصویر",
       save: "ذخیره",
@@ -2807,7 +2827,7 @@ const ar: Messages = {
     comingSoonTag: "قريبًا",
     searchPlaceholder: "البحث عن منتج…",
     heroBadge: "تسوق يومي",
-    heroTitle: "كل ما يحتاجه مطبخك",
+    heroTitle: "كل ما تحتاجه،\nاليوم عند بابك",
     heroSubtitle: "اطلب الآن واستلم إلى باب منزلك في نفس اليوم",
     heroCta: "اطلب الآن",
     heroSlide2Badge: "عروض الأسبوع",
@@ -2830,6 +2850,7 @@ const ar: Messages = {
     flashSecLabel: "ثانية",
     flashDaysLabel: "يوم",
     categoriesTitle: "تسوق حسب الفئة",
+    discountOff: "خصم",
     viewAll: "عرض الكل",
     allProducts: "جميع المنتجات",
     loadingProducts: "جاري تحميل المنتجات…",
@@ -2981,6 +3002,10 @@ const ar: Messages = {
     ],
     paymentTitle: "طريقة الدفع",
     paymentOnline: "دفع إلكتروني",
+    cardsAccepted: "نقبل الدفع بالبطاقات المصرفية (OmanNet وVisa وMastercard)",
+    emailLabel: "البريد الإلكتروني",
+    emailPlaceholder: "name@example.com",
+    emailHint: "مطلوب لإرسال إيصال الدفع الإلكتروني",
     paymentCash: "الدفع عند الاستلام",
     summaryTitle: "ملخص الطلب",
     subtotal: "المجموع الفرعي",
@@ -3267,6 +3292,7 @@ const ar: Messages = {
     brandUpdateFailed: "فشل تحديث العلامة",
     brandDeleteFailed: "فشل حذف العلامة",
     brandsLoadFailed: "فشل تحميل العلامات",
+    faqFailed: "فشلت عملية الأسئلة الشائعة",
     deliveryAreaCreateFailed: "فشل إنشاء المنطقة",
     deliveryAreaUpdateFailed: "فشل تحديث المنطقة",
     deliveryAreaDeleteFailed: "فشل حذف المنطقة",
@@ -3283,7 +3309,6 @@ const ar: Messages = {
     bannerUpdateFailed: "فشل تحديث البانر",
     bannerDeleteFailed: "فشل حذف البانر",
     campaignsLoadFailed: "فشل تحميل الحملات",
-    faqFailed: "فشلت عملية الأسئلة الشائعة",
     campaignCreateFailed: "فشل إنشاء الحملة",
     campaignUpdateFailed: "فشل تحديث الحملة",
     campaignDeleteFailed: "فشل حذف الحملة",
@@ -3301,6 +3326,8 @@ const ar: Messages = {
     coverageCheckFailed: "فشل التحقق من نطاق التغطية",
     paymentNotFound: "الدفعة غير موجودة",
     paymentVerifyFailed: "فشل التحقق من الدفع",
+    paymentCreateFailed: "تعذّر بدء الدفع الإلكتروني. يرجى المحاولة مرة أخرى",
+    emailInvalid: "يرجى إدخال بريد إلكتروني صالح",
     customersLoadFailed: "فشل تحميل العملاء",
     categoryParentInvalid: "الفئة الأب غير صالحة",
     aiImageFailed: "فشل تحسين الصورة",
@@ -3657,6 +3684,21 @@ const ar: Messages = {
       awaitingBadge: "بانتظار الرد",
       answeredBadge: "تم الرد",
       askedByLabel: "سأل {name}",
+      faqTitle: "الأسئلة الشائعة",
+      faqSubtitle: "تظهر هذه الأسئلة للعملاء في صفحة «اتصل بنا»",
+      faqAdd: "سؤال جديد",
+      faqNewTitle: "سؤال شائع جديد",
+      faqEditTitle: "تعديل السؤال الشائع",
+      faqQuestionLabel: "السؤال",
+      faqAnswerLabel: "الإجابة",
+      faqEmpty: "لا توجد أسئلة شائعة بعد.",
+      faqActiveLabel: "عرض في المتجر",
+      faqLangHint: "أدخل النص لكل اللغات الثلاث. إذا تُركت لغة فارغة، يُعرض النص الفارسي.",
+      faqSave: "حفظ",
+      faqInactiveBadge: "غير مفعّل",
+      faqDelete: "حذف",
+      faqEdit: "تعديل",
+      customerQuestionsTitle: "أسئلة العملاء حول المنتجات",
     },
     categories: {
       title: "فئات المنتجات",
@@ -3675,21 +3717,6 @@ const ar: Messages = {
       removeImage: "إزالة الصورة",
       save: "حفظ",
       create: "إنشاء",
-      faqTitle: "الأسئلة الشائعة",
-      faqSubtitle: "تظهر هذه الأسئلة للعملاء في صفحة «اتصل بنا»",
-      faqAdd: "سؤال جديد",
-      faqNewTitle: "سؤال شائع جديد",
-      faqEditTitle: "تعديل السؤال الشائع",
-      faqQuestionLabel: "السؤال",
-      faqAnswerLabel: "الإجابة",
-      faqEmpty: "لا توجد أسئلة شائعة بعد.",
-      faqActiveLabel: "عرض في المتجر",
-      faqLangHint: "أدخل النص لكل اللغات الثلاث. إذا تُركت لغة فارغة، يُعرض النص الفارسي.",
-      faqSave: "حفظ",
-      faqInactiveBadge: "غير مفعّل",
-      faqDelete: "حذف",
-      faqEdit: "تعديل",
-      customerQuestionsTitle: "أسئلة العملاء حول المنتجات",
       cancel: "إلغاء",
       edit: "تعديل",
       delete: "حذف",
@@ -3717,7 +3744,10 @@ const ar: Messages = {
       imageUrlPlaceholder: "رابط صورة البانر",
       imageRtlLabel: "صورة من اليمين إلى اليسار (العربية والفارسية)",
       imageLtrLabel: "صورة من اليسار إلى اليمين (الإنجليزية)",
-      imageLtrHint: "اختياري؛ تُستخدم في المتجر الإنجليزي. إن تُركت فارغة تُعرض الصورة الرئيسية نفسها.",
+      imageLtrHint: "اختياري؛ تُستخدم في المتجر الإنجليزي. إن تُركت فارغة تُعرض الصورة الرئيسية نفسها. المقاس المقترح لسطح المكتب: 2160×800 بكسل (نسبة 2.7 إلى 1)؛ المنتجات على اليمين والجانب الأيسر فارغ للنص.",
+      imageRtlHint: "المقاس المقترح لسطح المكتب: 2160×800 بكسل (نسبة 2.7 إلى 1)، بصيغة WebP أقل من 200 كيلوبايت. المنتجات على اليسار والجانب الأيمن فارغ للنص.",
+      imageMobileLabel: "صورة الجوال والتابلت",
+      imageMobileHint: "اختياري؛ للشاشات الصغيرة (أقل من 1024 بكسل) لكل اللغات الثلاث. المقاس المقترح: 1080×600 بكسل (نسبة 9 إلى 5). ضع المنتجات في وسط أعلى الصورة واترك الأسفل داكناً وفارغاً للنص. إن تُركت فارغة تُعرض صورة سطح المكتب.",
       uploadImage: "رفع صورة",
       removeImage: "إزالة الصورة",
       save: "حفظ",
@@ -4237,9 +4267,9 @@ const en: Messages = {
     comingSoonTag: "Coming soon",
     searchPlaceholder: "Search products…",
     heroBadge: "Everyday grocery",
-    heroTitle: "Everything your kitchen needs",
+    heroTitle: "Whatever you need,\nat your door today",
     heroSubtitle: "Order now, delivered to your door the same day",
-    heroCta: "Shop now",
+    heroCta: "Shop groceries",
     heroSlide2Badge: "Deals of the week",
     heroSlide2Title: "Fresh produce for less",
     heroSlide2Subtitle: "Up to 25% off hand-picked items this week",
@@ -4260,6 +4290,7 @@ const en: Messages = {
     flashSecLabel: "Sec",
     flashDaysLabel: "Days",
     categoriesTitle: "Shop by category",
+    discountOff: "OFF",
     viewAll: "View all",
     allProducts: "All products",
     loadingProducts: "Loading products…",
@@ -4411,6 +4442,10 @@ const en: Messages = {
     ],
     paymentTitle: "Payment method",
     paymentOnline: "Pay online",
+    cardsAccepted: "We accept bank cards (OmanNet, Visa and Mastercard)",
+    emailLabel: "Email",
+    emailPlaceholder: "name@example.com",
+    emailHint: "Required to send your online payment receipt",
     paymentCash: "Cash on delivery",
     summaryTitle: "Order summary",
     subtotal: "Subtotal",
@@ -4697,6 +4732,7 @@ const en: Messages = {
     brandUpdateFailed: "Failed to update brand",
     brandDeleteFailed: "Failed to delete brand",
     brandsLoadFailed: "Failed to load brands",
+    faqFailed: "FAQ operation failed",
     deliveryAreaCreateFailed: "Failed to create area",
     deliveryAreaUpdateFailed: "Failed to update area",
     deliveryAreaDeleteFailed: "Failed to delete area",
@@ -4719,7 +4755,6 @@ const en: Messages = {
     campaignNameRequired: "Campaign name is required",
     campaignDatesRequired: "Start and end dates are required",
     campaignWindowInvalid: "End time must be after start time",
-    faqFailed: "FAQ operation failed",
     campaignDiscountRequired: "Discount value is invalid",
     campaignPercentMax: "Percent discount cannot exceed 90",
     campaignProductsRequired: "Select at least one product",
@@ -4731,6 +4766,8 @@ const en: Messages = {
     coverageCheckFailed: "Failed to check coverage area",
     paymentNotFound: "Payment not found",
     paymentVerifyFailed: "Failed to verify payment",
+    paymentCreateFailed: "Could not start the online payment. Please try again",
+    emailInvalid: "Please enter a valid email address",
     customersLoadFailed: "Failed to load customers",
     categoryParentInvalid: "Invalid parent category",
     aiImageFailed: "Image enhancement failed",
@@ -5087,6 +5124,21 @@ const en: Messages = {
       awaitingBadge: "Awaiting answer",
       answeredBadge: "Answered",
       askedByLabel: "Asked by {name}",
+      faqTitle: "Frequently asked questions",
+      faqSubtitle: "These appear to customers on the Contact page",
+      faqAdd: "New question",
+      faqNewTitle: "New FAQ",
+      faqEditTitle: "Edit FAQ",
+      faqQuestionLabel: "Question",
+      faqAnswerLabel: "Answer",
+      faqEmpty: "No FAQs yet.",
+      faqActiveLabel: "Show on the store",
+      faqLangHint: "Enter the text for all three languages. If a language is left empty, the Persian text is shown.",
+      faqSave: "Save",
+      faqInactiveBadge: "Inactive",
+      faqDelete: "Delete",
+      faqEdit: "Edit",
+      customerQuestionsTitle: "Customer questions about products",
     },
     categories: {
       title: "Product categories",
@@ -5111,21 +5163,6 @@ const en: Messages = {
       loading: "Loading…",
       empty: "No categories yet.",
       validationName: "Category name is required",
-      faqTitle: "Frequently asked questions",
-      faqSubtitle: "These appear to customers on the Contact page",
-      faqAdd: "New question",
-      faqNewTitle: "New FAQ",
-      faqEditTitle: "Edit FAQ",
-      faqQuestionLabel: "Question",
-      faqAnswerLabel: "Answer",
-      faqEmpty: "No FAQs yet.",
-      faqActiveLabel: "Show on the store",
-      faqLangHint: "Enter the text for all three languages. If a language is left empty, the Persian text is shown.",
-      faqSave: "Save",
-      faqInactiveBadge: "Inactive",
-      faqDelete: "Delete",
-      faqEdit: "Edit",
-      customerQuestionsTitle: "Customer questions about products",
       validationSlug: "Slug is required",
       parentLabel: "Parent category",
       noParent: "No parent (top-level)",
@@ -5147,7 +5184,10 @@ const en: Messages = {
       imageUrlPlaceholder: "Banner image URL",
       imageRtlLabel: "Right-to-left image (Persian & Arabic)",
       imageLtrLabel: "Left-to-right image (English)",
-      imageLtrHint: "Optional — used on the English storefront. Falls back to the main image when empty.",
+      imageLtrHint: "Optional — used on the English storefront. Falls back to the main image when empty. Recommended desktop size: 2160×800 px (2.7:1), products on the right, empty dark space on the left for text.",
+      imageRtlHint: "Recommended desktop size: 2160×800 px (2.7:1), WebP under 200 KB. Products on the left, empty dark space on the right for text.",
+      imageMobileLabel: "Mobile & tablet image",
+      imageMobileHint: "Optional — used on small screens (under 1024 px) for all three languages. Recommended size: 1080×600 px (9:5). Keep the products centred in the top half and leave the bottom dark and empty for text. Falls back to the desktop image when empty.",
       uploadImage: "Upload image",
       removeImage: "Remove image",
       save: "Save",

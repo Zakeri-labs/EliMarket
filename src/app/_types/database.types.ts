@@ -295,6 +295,8 @@ export type HeroBanner = {
   blur_hash: string | null;
   image_url_ltr: string | null;
   blur_hash_ltr: string | null;
+  image_url_mobile?: string | null;
+  blur_hash_mobile?: string | null;
   sort_order: number;
   is_active: boolean;
   created_at: string;

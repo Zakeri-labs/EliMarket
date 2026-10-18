@@ -48,7 +48,8 @@ function HeroSlidePanel({
   frameHeight: number;
   dir: "rtl" | "ltr";
 }) {
-  const imageSrc = slide.imageUrl ?? null;
+  const imageSrc = slide.mobileImageUrl || slide.imageUrl || null;
+  const blurHash = slide.mobileImageUrl ? slide.mobileBlurHash : slide.blurHash;
   const hasImage = Boolean(imageSrc);
 
   return (
@@ -71,7 +72,7 @@ function HeroSlidePanel({
         <div className={styles.mediaLayer}>
           <StorefrontImage
             src={imageSrc}
-            blurHash={slide.blurHash}
+            blurHash={blurHash}
             alt=""
             fill
             priority

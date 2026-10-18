@@ -44,7 +44,7 @@ export function ProductDealCard({
         // Landscape card like the client mock-up (245 x 206). The backdrop gradient matches the
         // studio photos (darker grey at the top, lighter toward the bottom), so the photo, which is
         // square and sits in the upper part, melts into the card and the text rests on the light part.
-        "relative aspect-[245/206] shrink-0 overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#c2c2c2_0%,#dedede_78%,#e3e3e3_100%)] text-[#1a1a1a] transition-all duration-300 ease-out lg:rounded-lg",
+        "relative aspect-[245/206] shrink-0 overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#707070_0%,#969696_45%,#c8c8c8_68%,#dcdcdc_78%,#dcdcdc_100%)] text-[#1a1a1a] transition-all duration-300 ease-out lg:rounded-lg",
         !isSkeleton && "hover:z-10 hover:-translate-y-1.5",
         layout === "rail" ? "w-36 sm:w-40" : "w-full",
         isSkeleton && "skeleton",

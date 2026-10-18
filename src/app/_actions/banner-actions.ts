@@ -22,6 +22,8 @@ export type HeroBannerInput = {
   blur_hash?: string | null;
   image_url_ltr?: string | null;
   blur_hash_ltr?: string | null;
+  image_url_mobile?: string | null;
+  blur_hash_mobile?: string | null;
   sort_order?: number;
   is_active?: boolean;
 };
@@ -34,6 +36,7 @@ function revalidateBannerPaths() {
 function toPayload(input: HeroBannerInput) {
   const imageUrl = input.image_url?.trim() || null;
   const imageUrlLtr = input.image_url_ltr?.trim() || null;
+  const imageUrlMobile = input.image_url_mobile?.trim() || null;
 
   const text = (field: HeroBannerText | undefined) => {
     const fa = field?.fa?.trim() || null;
@@ -70,6 +73,14 @@ function toPayload(input: HeroBannerInput) {
     blur_hash: imageUrl ? input.blur_hash?.trim() || null : null,
     image_url_ltr: imageUrlLtr,
     blur_hash_ltr: imageUrlLtr ? input.blur_hash_ltr?.trim() || null : null,
+    // Only sent when set, so saving banners keeps working before the
+    // image_url_mobile migration has been applied.
+    ...(imageUrlMobile || input.image_url_mobile === ""
+      ? {
+          image_url_mobile: imageUrlMobile,
+          blur_hash_mobile: imageUrlMobile ? input.blur_hash_mobile?.trim() || null : null,
+        }
+      : {}),
     sort_order: input.sort_order ?? 0,
     is_active: input.is_active ?? true,
   };

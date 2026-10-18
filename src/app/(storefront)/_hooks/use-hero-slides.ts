@@ -25,6 +25,8 @@ function adminSlide(
     dir === "ltr" && banner.image_url_ltr?.trim()
       ? banner.blur_hash_ltr?.trim() || banner.blur_hash?.trim() || null
       : banner.blur_hash?.trim() || null;
+  const mobileImageUrl = banner.image_url_mobile?.trim() || null;
+  const mobileBlurHash = mobileImageUrl ? banner.blur_hash_mobile?.trim() || null : null;
   const hasImage = Boolean(imageUrl);
   const badge = resolveHeroBannerText(banner, "badge", locale);
   const title = resolveHeroBannerText(banner, "title", locale);
@@ -39,7 +41,10 @@ function adminSlide(
     ctaHref: banner.cta_href?.trim() || "/categories",
     imageUrl,
     blurHash,
+    mobileImageUrl,
+    mobileBlurHash,
     imageOnly: hasImage && !badge && !title && !subtitle,
+    fullBleed: hasImage,
   };
 }
 
@@ -60,7 +65,22 @@ export function useHeroSlides() {
 
   const slides = useMemo((): HeroSlide[] => {
     if (isSkeleton) return mockHeroSlides(locale);
-    return (banners ?? []).map((banner) => adminSlide(banner, t, locale, dir));
+    if (!banners?.length) {
+      // No admin banners yet: show the brand default so the home page is never empty.
+      return [
+        {
+          id: "default-hills",
+          badge: "",
+          title: t("home.heroTitle"),
+          subtitle: "",
+          ctaLabel: t("home.heroCta"),
+          ctaHref: "/categories",
+          imageUrl: dir === "ltr" ? "/baner/hero-hills-ltr.webp" : "/baner/hero-hills-rtl.webp",
+          fullBleed: true,
+        },
+      ];
+    }
+    return banners.map((banner) => adminSlide(banner, t, locale, dir));
   }, [banners, isSkeleton, locale, dir, t]);
 
   return { slides, isSkeleton };

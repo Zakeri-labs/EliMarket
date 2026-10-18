@@ -9,13 +9,33 @@
 // so labels, text and colours cannot be altered.
 import sharp from "sharp";
 
-/** Target look: light studio grey, brighter toward the bottom, soft light pool. */
+/**
+ * Target look, measured from the client's mock-up product cards: a mid-dark
+ * grey at the top that opens up into a light studio grey toward the bottom
+ * (the card text sits on the light part). `stops` are [y 0..1, grey level].
+ */
 export const TARGET = {
-  top: 194, // grey level at the top edge
-  bottom: 224, // grey level at the bottom edge
+  stops: [
+    [0, 112],
+    [0.58, 150],
+    [0.87, 200],
+    [1, 220],
+  ],
   glow: 6, // extra brightness of the soft light pool behind the product
-  corner: 9, // corner fall-off
+  corner: 4, // corner fall-off
 };
+
+function gradientAt(y) {
+  const s = TARGET.stops;
+  if (y <= s[0][0]) return s[0][1];
+  for (let i = 1; i < s.length; i += 1) {
+    if (y <= s[i][0]) {
+      const t = (y - s[i - 1][0]) / (s[i][0] - s[i - 1][0]);
+      return s[i - 1][1] + (s[i][1] - s[i - 1][1]) * t;
+    }
+  }
+  return s[s.length - 1][1];
+}
 
 const WORK = 1024;
 const G = 48; // fitting grid
@@ -23,7 +43,7 @@ const G = 48; // fitting grid
 function targetBackdrop(x, y) {
   const u = x * 2 - 1;
   const v = y * 2 - 1;
-  const base = TARGET.top + (TARGET.bottom - TARGET.top) * y;
+  const base = gradientAt(y);
   const glow = TARGET.glow * Math.exp(-((u * u) / 0.5 + ((y - 0.45) * (y - 0.45)) / 0.18));
   const corner = TARGET.corner * Math.pow((u * u + v * v) / 2, 1.5);
   return base + glow - corner;
@@ -197,7 +217,7 @@ export async function relightBackdrop(input) {
   const { data: grown, info: gInfo } = await sharp(Buffer.from(mask), {
     raw: { width: W, height: H, channels: 1 },
   })
-    .dilate(1) // sharp's dilate grows the dark side, i.e. it shrinks the product mask
+    .dilate(2) // sharp's dilate grows the dark side, i.e. it shrinks the product mask
     .blur(1.0)
     .toColourspace("b-w")
     .raw()
