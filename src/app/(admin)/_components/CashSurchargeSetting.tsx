@@ -8,7 +8,6 @@ import { useFormAction } from "@/app/hooks/use-form-action";
 import { cn } from "@/app/utils/cn";
 import { Button } from "@/components/ui/Button";
 import { useTranslations } from "@/i18n/use-translations";
-import { OmrSymbol } from "@/components/ui/OmrSymbol";
 
 type Props = {
   className?: string;
@@ -18,7 +17,7 @@ export function CashSurchargeSetting({ className }: Props) {
   const { cashSurcharge, isLoading } = useStoreSettings();
   const { runAction, isPending } = useFormAction();
   const queryClient = useQueryClient();
-  const { t, messages } = useTranslations();
+  const { t } = useTranslations();
   // `null` means "show the persisted value"; a string means the admin is editing.
   const [draft, setDraft] = useState<string | null>(null);
   const value = draft ?? String(cashSurcharge ?? 0);
@@ -56,7 +55,7 @@ export function CashSurchargeSetting({ className }: Props) {
               className="w-32 rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </span>
-          <OmrSymbol className="h-3.5 text-[#71717a]" label={messages.brand.currency} />
+          <span className="text-xs text-[#71717a]">OMR</span>
         </label>
         <Button
           type="button"

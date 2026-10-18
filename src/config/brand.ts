@@ -42,8 +42,10 @@ export function formatPrice(
     maximumFractionDigits: fractionDigits,
   });
   const label =
-    currency === "OMR" || currency === "IRR"
-      ? getMessages(safeLocale).brand.currency
-      : currency;
+    currency === "OMR"
+      ? "OMR"
+      : currency === "IRR"
+        ? getMessages(safeLocale).brand.currency
+        : currency;
   return `${formatted} ${label}`;
 }
