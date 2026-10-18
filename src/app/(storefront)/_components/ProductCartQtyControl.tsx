@@ -16,9 +16,11 @@ type Props = {
   product: Product;
   disabled?: boolean;
   className?: string;
+  /** 40px variant used on the storefront product tiles. */
+  large?: boolean;
 };
 
-export function ProductCartQtyControl({ product, disabled = false, className }: Props) {
+export function ProductCartQtyControl({ product, disabled = false, className, large = false }: Props) {
   const { t, locale } = useTranslations();
   const { cartEnabled } = useCartEnabled();
   const addItem = useCartStore((s) => s.addItem);
@@ -73,7 +75,8 @@ export function ProductCartQtyControl({ product, disabled = false, className }: 
         }}
         onPointerDown={stop}
         className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-full border border-accent-teal/50 bg-accent-teal text-on-accent shadow-sm transition-transform duration-200 ease-out",
+          "flex items-center justify-center rounded-full border border-accent-teal/50 bg-accent-teal text-on-accent shadow-sm transition-transform duration-200 ease-out",
+          large ? "h-10 w-10" : "h-8 w-8",
           "hover:scale-110 active:scale-90",
           "disabled:pointer-events-none disabled:opacity-40 disabled:hover:scale-100",
           className,
@@ -91,7 +94,7 @@ export function ProductCartQtyControl({ product, disabled = false, className }: 
       onClick={stop}
       onPointerDown={stop}
       className={cn(
-        "inline-flex h-8 items-center overflow-hidden rounded-full border border-accent-teal/50 bg-accent-teal text-on-accent shadow-sm",
+        large ? "inline-flex h-10 items-center overflow-hidden rounded-full border border-accent-teal/50 bg-accent-teal text-on-accent shadow-sm" : "inline-flex h-8 items-center overflow-hidden rounded-full border border-accent-teal/50 bg-accent-teal text-on-accent shadow-sm",
         className,
       )}
     >

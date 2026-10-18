@@ -1,20 +1,35 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { publicEnv } from "@/config/env";
 import { toMinorUnits } from "@/config/brand";
 
-type ThawaniSession = {
+export type ThawaniSession = {
   session_id?: string;
+  client_reference_id?: string;
   payment_status?: string;
   invoice?: string;
+  total_amount?: number;
+  currency?: string;
 };
 
+export type ThawaniCustomer = {
+  name: string;
+  phone: string;
+  email: string;
+};
+
+/** In live mode there is no sandbox fallback: a failed charge must never look paid. */
+export function isThawaniLive() {
+  return process.env.THAWANI_MODE === "live";
+}
+
 function thawaniBaseUrl() {
-  return process.env.THAWANI_MODE === "live"
+  return isThawaniLive()
     ? "https://checkout.thawani.om/api/v1"
     : "https://uatcheckout.thawani.om/api/v1";
 }
 
 function thawaniPayUrl() {
-  return process.env.THAWANI_MODE === "live"
+  return isThawaniLive()
     ? "https://checkout.thawani.om/pay"
     : "https://uatcheckout.thawani.om/pay";
 }
@@ -32,6 +47,7 @@ export async function createThawaniCheckoutSession(input: {
   productName: string;
   successUrl: string;
   cancelUrl: string;
+  customer: ThawaniCustomer;
 }) {
   const secret = process.env.THAWANI_SECRET_KEY?.trim();
   const publishable = process.env.THAWANI_PUBLISHABLE_KEY?.trim();
@@ -57,7 +73,13 @@ export async function createThawaniCheckoutSession(input: {
       ],
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
-      metadata: { order_id: input.clientReferenceId },
+      // Thawani's go-live checklist requires customer details on every session.
+      metadata: {
+        order_id: input.clientReferenceId,
+        "Customer name": input.customer.name.slice(0, 100),
+        "Customer phone": input.customer.phone.slice(0, 30),
+        "Customer email": input.customer.email.slice(0, 100),
+      },
     }),
   });
 
@@ -81,7 +103,7 @@ export async function getThawaniCheckoutSession(sessionId: string) {
   if (!secret) throw new Error("Thawani keys are not configured");
 
   const response = await fetch(
-    `${thawaniBaseUrl()}/checkout/session/${sessionId}`,
+    `${thawaniBaseUrl()}/checkout/session/${encodeURIComponent(sessionId)}`,
     {
       headers: { "thawani-api-key": secret },
       cache: "no-store",
@@ -94,6 +116,36 @@ export async function getThawaniCheckoutSession(sessionId: string) {
     throw new Error(payload?.description || "Thawani lookup failed");
   }
   return payload.data;
+}
+
+/**
+ * Webhook signature: HMAC-SHA256 (hex) of `${rawBody}-${thawani-timestamp}`,
+ * keyed with the webhook secret set in the Thawani merchant portal.
+ *
+ * Thawani's sample encodes with ASCII while a body containing Arabic
+ * (customer names) is not ASCII, so both UTF-8 and ASCII encodings are tried.
+ * Callers must still re-fetch the session from Thawani before trusting it.
+ */
+export function verifyThawaniWebhookSignature(
+  rawBody: string,
+  timestamp: string | null,
+  signature: string | null,
+) {
+  const secret = process.env.THAWANI_WEBHOOK_SECRET?.trim();
+  if (!secret || !timestamp || !signature) return false;
+
+  const given = Buffer.from(signature.trim().toLowerCase(), "hex");
+  if (given.length !== 32) return false;
+
+  const message = `${rawBody}-${timestamp}`;
+  const key = Buffer.from(secret, "utf8");
+
+  return (["utf8", "ascii"] as const).some((encoding) => {
+    const expected = createHmac("sha256", key)
+      .update(Buffer.from(message, encoding))
+      .digest();
+    return timingSafeEqual(expected, given);
+  });
 }
 
 export function paymentAppUrl() {

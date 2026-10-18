@@ -15,7 +15,25 @@ const SLUG_THUMB: Record<string, string> = {
   babycare: "/categories/babycare.png",
 };
 
+/** Brand category artwork (cut from the approved design) — wins over any DB image. */
+const MOCK_THUMB: Record<string, string> = {
+  produce: "/categories/mock/produce.png",
+  dairy: "/categories/mock/dairy.png",
+  meat: "/categories/mock/meat.png",
+  bakery: "/categories/mock/bakery.png",
+  beverages: "/categories/mock/beverages.png",
+  snacks: "/categories/mock/snacks.png",
+  pantry: "/categories/mock/pantry.png",
+  "personal-care": "/categories/mock/personal-care.png",
+  household: "/categories/mock/household.png",
+  "baby-care": "/categories/mock/baby-care.png",
+  babycare: "/categories/mock/baby-care.png",
+  spices: "/categories/mock/spices.png",
+};
+
 export function resolveCategoryImage(category: Category): string | null {
+  const brand = MOCK_THUMB[category.slug];
+  if (brand) return brand;
   const remote = category.image_url?.trim();
   if (remote) return remote;
   return SLUG_THUMB[category.slug] ?? null;

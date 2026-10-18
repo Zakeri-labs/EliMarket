@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { useMemo } from "react";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -34,11 +35,11 @@ export function CategoryGrid() {
     <section dir={dir}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-start text-base font-bold sm:text-lg">{t("home.categoriesTitle")}</h2>
-        <Link href="/categories" className="shrink-0 text-sm font-medium text-accent">
+        <Link href="/categories" className="shrink-0 text-sm font-medium text-accent-gold">
           {t("home.viewAll")}
         </Link>
       </div>
-      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {items.map((cat) => {
           const imageSrc = resolveCategoryImage(cat);
           const hasImage = Boolean(imageSrc);
@@ -49,7 +50,7 @@ export function CategoryGrid() {
               href={isSkeleton ? "#" : `/categories/${cat.slug}`}
               dir={dir}
               className={cn(
-                "flex flex-col items-center rounded-xl border border-border bg-surface-elevated px-1 pb-1.5 pt-1.5 sm:rounded-2xl sm:px-2 sm:py-2",
+                "flex h-[64px] items-center gap-1 overflow-hidden rounded-xl border border-[#f1e2c6] bg-bg-card ps-1 pe-2 transition-colors",
                 isSkeleton && "skeleton pointer-events-none",
               )}
               onClick={(e) => {
@@ -57,7 +58,7 @@ export function CategoryGrid() {
               }}
               aria-busy={isSkeleton}
             >
-              <span className="relative flex h-14 w-full items-center justify-center bg-transparent sm:h-16">
+              <span className="relative flex h-[56px] w-[84px] shrink-0 items-center justify-center bg-transparent">
                 {isSkeleton ? (
                   <SkeletonImage />
                 ) : hasImage && imageSrc ? (
@@ -66,7 +67,7 @@ export function CategoryGrid() {
                     blurHash={cat.blur_hash}
                     alt=""
                     fill
-                    sizes="64px"
+                    sizes="88px"
                     withBlur={false}
                     className="object-contain"
                   />
@@ -78,9 +79,10 @@ export function CategoryGrid() {
                   />
                 )}
               </span>
-              <p className="mt-1 line-clamp-2 w-full text-center text-[10px] font-medium leading-tight text-foreground sm:text-xs">
+              <p className="line-clamp-2 min-w-0 flex-1 text-start text-[13px] font-medium leading-tight text-text-primary">
                 {resolveCategoryName(cat, locale)}
               </p>
+              <AppIcon icon={ChevronRight} size="sm" className="shrink-0 text-text-primary rtl:rotate-180" />
             </Link>
           );
         })}

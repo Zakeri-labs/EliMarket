@@ -18,6 +18,8 @@ import type {
   Product,
 } from "@/app/_types/database.types";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 /** Ensures admin inbox rows exist even if DB trigger/migration is missing. */
 async function notifyAdminsOfNewOrder(order: Order) {
   try {
@@ -127,12 +129,19 @@ export async function createOrderAction(payload: {
   addressId: string;
   deliverySlot: string;
   paymentMethod: PaymentMethod;
+  /** Required for online payment — Thawani needs customer contact details. */
+  email?: string;
 }): Promise<
   | { success: true; data: CreateOrderResult }
   | { success: false; error: string }
 > {
   try {
-    const { supabase, user } = await requireAuth();
+    const { supabase, user, profile } = await requireAuth();
+
+    const email = payload.email?.trim() ?? "";
+    if (payload.paymentMethod === "online" && !EMAIL_PATTERN.test(email)) {
+      throw new Error(await serverT("errors.emailInvalid"));
+    }
 
     const settingsResult = await getStoreSettingsAction();
     if (!settingsResult.data?.show_prices) {
@@ -237,7 +246,11 @@ export async function createOrderAction(payload: {
 
     let checkoutUrl: string | null = null;
     if (payload.paymentMethod === "online") {
-      const payment = await createPaymentForOrder(supabase, order as Order);
+      const payment = await createPaymentForOrder(supabase, order as Order, {
+        name: profile?.full_name?.trim() || "Customer",
+        phone: profile?.phone ?? "",
+        email,
+      });
       checkoutUrl = payment.checkoutUrl;
     }
 

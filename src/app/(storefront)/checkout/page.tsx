@@ -49,6 +49,8 @@ const AddressMapPicker = dynamic(
 const inputClass =
   "w-full rounded-xl border border-border-subtle bg-bg-card px-4 py-3 text-sm text-text-primary outline-none placeholder:text-text-secondary focus:border-accent-teal";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 const sectionCard =
   "rounded-2xl border border-border-subtle bg-bg-card";
 
@@ -109,6 +111,10 @@ function CheckoutPageContent() {
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online">("online");
   const [editAddressOpen, setEditAddressOpen] = useState(false);
   const [editTimeOpen, setEditTimeOpen] = useState(false);
+  const [email, setEmail] = useState("");
+
+  const emailMissing =
+    paymentMethod === "online" && !EMAIL_PATTERN.test(email.trim());
 
   const { subtotal, deliveryFee, vat, total } = useMemo(
     () => cartTotals(totalPrice()),
@@ -204,6 +210,7 @@ function CheckoutPageContent() {
           addressId,
           deliverySlot,
           paymentMethod,
+          email: paymentMethod === "online" ? email.trim() : undefined,
         }),
       {
         successMessage:
@@ -516,6 +523,27 @@ function CheckoutPageContent() {
                   </span>
                 ) : null}
               </label>
+              {paymentMethod === "online" ? (
+                <div className={cn(sectionCard, "space-y-2 p-3.5 md:col-span-2 md:p-5")}>
+                  <p className="text-xs text-text-secondary md:text-sm">
+                    {t("checkout.cardsAccepted")}
+                  </p>
+                  <label className="block text-sm font-medium text-text-primary">
+                    {t("checkout.emailLabel")}
+                    <input
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      dir="ltr"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder={t("checkout.emailPlaceholder")}
+                      className={cn(inputClass, "mt-1.5")}
+                    />
+                  </label>
+                  <p className="text-xs text-text-secondary">{t("checkout.emailHint")}</p>
+                </div>
+              ) : null}
               <label
                 className={cn(
                   sectionCard,
@@ -587,7 +615,7 @@ function CheckoutPageContent() {
               size="lg"
               loading={isPending}
               loadingLabel={t("common.processing")}
-              disabled={!addressId || coverageOk === false}
+              disabled={!addressId || coverageOk === false || emailMissing}
               onClick={placeOrder}
               className="!h-12 !rounded-xl !bg-accent-teal !text-base !text-on-accent shadow-none"
             >
@@ -605,7 +633,7 @@ function CheckoutPageContent() {
           size="lg"
           loading={isPending}
           loadingLabel={t("common.processing")}
-          disabled={!addressId || coverageOk === false}
+          disabled={!addressId || coverageOk === false || emailMissing}
           onClick={placeOrder}
           className="!rounded-xl !bg-accent-teal !text-on-accent shadow-none"
         >

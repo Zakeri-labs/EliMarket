@@ -8,10 +8,12 @@ import { serverT } from "@/i18n/server";
 import { DEFAULT_CURRENCY } from "@/config/brand";
 import {
   createThawaniCheckoutSession,
-  getThawaniCheckoutSession,
   isThawaniConfigured,
+  isThawaniLive,
   paymentAppUrl,
+  type ThawaniCustomer,
 } from "@/lib/payments/thawani";
+import { settleThawaniPayment } from "@/lib/payments/settle";
 import { restoreOrderStock } from "@/lib/inventory/stock";
 import type { Order, Payment } from "@/app/_types/database.types";
 
@@ -45,10 +47,27 @@ export async function getPaymentAction(paymentId: string) {
   }
 }
 
+/** Live mode never falls back to the sandbox, so a failed start must release the order. */
+async function abortUnpayableOrder(order: Order) {
+  const service = createServiceRoleClient();
+  await service
+    .from("orders")
+    .update({ payment_status: "failed", status: "cancelled" })
+    .eq("id", order.id);
+  await restoreOrderStock(service, order);
+}
+
 export async function createPaymentForOrder(
   supabase: DbClient,
   order: Order,
+  customer: ThawaniCustomer,
 ) {
+  if (isThawaniLive() && !isThawaniConfigured()) {
+    console.error("[thawani] live mode is on but the API keys are missing");
+    await abortUnpayableOrder(order);
+    throw new Error(await serverT("errors.paymentCreateFailed"));
+  }
+
   const { data: payment, error } = await supabase
     .from("payments")
     .insert({
@@ -76,6 +95,7 @@ export async function createPaymentForOrder(
       productName: `EliMarket #${order.id.slice(0, 8)}`,
       successUrl: `${appUrl}/pay/${payment.id}/return?session_id={SESSION_ID}`,
       cancelUrl: `${sandboxUrl}?cancelled=1`,
+      customer,
     });
 
     await supabase
@@ -94,7 +114,19 @@ export async function createPaymentForOrder(
       } as Payment,
       checkoutUrl: session.checkoutUrl,
     };
-  } catch {
+  } catch (err) {
+    console.error("[thawani] checkout session creation failed", err);
+
+    if (isThawaniLive()) {
+      await supabase
+        .from("payments")
+        .update({ status: "failed", updated_at: new Date().toISOString() })
+        .eq("id", payment.id);
+      await abortUnpayableOrder(order);
+      throw new Error(await serverT("errors.paymentCreateFailed"));
+    }
+
+    // Development / UAT only: fall back to the fake pay page.
     await supabase
       .from("payments")
       .update({
@@ -109,7 +141,7 @@ export async function createPaymentForOrder(
 export async function confirmSandboxPaymentAction(paymentId: string) {
   try {
     const { supabase, payment } = await getOwnedPayment(paymentId);
-    if (payment.provider !== "sandbox") {
+    if (payment.provider !== "sandbox" || isThawaniLive()) {
       throw new Error(await serverT("errors.paymentVerifyFailed"));
     }
     if (payment.status === "paid") {
@@ -186,49 +218,13 @@ export async function cancelPaymentAction(paymentId: string) {
   }
 }
 
-export async function verifyThawaniPaymentAction(
-  paymentId: string,
-  sessionId?: string,
-) {
+export async function verifyThawaniPaymentAction(paymentId: string) {
   try {
-    const { supabase, payment } = await getOwnedPayment(paymentId);
-    const sid = sessionId || payment.provider_session_id;
-    if (!sid) throw new Error(await serverT("errors.paymentVerifyFailed"));
-
-    const session = await getThawaniCheckoutSession(sid);
-    const paid = session.payment_status === "paid";
-
-    // We've now independently verified the charge with Thawani's API, so
-    // this is the one place allowed to write status = "paid" — via the
-    // service-role client, same reasoning as confirmSandboxPaymentAction.
-    const service = createServiceRoleClient();
-    await service
-      .from("payments")
-      .update({
-        status: paid ? "paid" : "failed",
-        provider_session_id: sid,
-        raw_payload: session,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", paymentId);
-
-    if (paid) {
-      await service
-        .from("orders")
-        .update({ payment_status: "paid", status: "confirmed" })
-        .eq("id", payment.order_id);
-    } else if (payment.order?.payment_status !== "failed") {
-      await service
-        .from("orders")
-        .update({ payment_status: "failed", status: "cancelled" })
-        .eq("id", payment.order_id);
-      if (payment.order) await restoreOrderStock(service, payment.order);
-    }
-
-    return {
-      success: true as const,
-      data: { paid, orderId: payment.order_id },
-    };
+    // Ownership check only; the state change (and the only "paid" write) lives
+    // in settleThawaniPayment, which checks the stored session with Thawani.
+    await getOwnedPayment(paymentId);
+    const { paid, orderId } = await settleThawaniPayment(paymentId);
+    return { success: true as const, data: { paid, orderId } };
   } catch (err) {
     return {
       success: false as const,
