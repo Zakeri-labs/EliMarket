@@ -50,6 +50,7 @@ const FIDELITY_RULES =
   "You are an expert AI commercial product photographer specializing in high-end e-commerce product photography. " +
   "The uploaded product image is the PRIMARY SOURCE OF TRUTH. Carefully analyze it and preserve: exact product shape, proportions, dimensions, geometry, colors, materials, surface texture, packaging, logos, brand identity, labels, printed text, buttons/handles/caps/components. " +
   "Do not redesign, improve, simplify, modernize, or reinterpret the product. Do not invent missing features, change its color or packaging, replace its logos, or add accessories not present in the reference. The generated product must clearly be the SAME physical product shown in the uploaded image. " +
+  "Never add any label, sticker, brand name, logo, product name, weight or text to a product that has none in the source photo. " +
   "Never generate a cartoon, illustration, 3D render, CGI look, deformed product, incorrect proportions, extra or missing components, fake logos/text/labels, people, hands, props, watermarks, or promotional text — the result must be photorealistic.";
 
 function coverPrompt(title) {

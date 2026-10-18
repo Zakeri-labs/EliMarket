@@ -29,7 +29,7 @@ function fidelityRules(overlays: string) {
   (overlays
     ? `In THIS photo the following elements are NOT part of the product and MUST be erased completely, painting the studio backdrop over them (do not reproduce them anywhere, not even smaller, not as stickers or labels): ${overlays}. ` 
     : "") +
-  "Likewise remove every piece of text or graphic that was ADDED on top of the photo — title banners, captions, price tags, stickers, logos of the photographer or website, watermarks (for example a name written across a green strip over the picture). Keep ONLY text that is physically printed on the product's own label or packaging. If the product itself has no label or packaging (fresh produce, loose goods), the result must contain no text at all. " +
+  "Likewise remove every piece of text or graphic that was ADDED on top of the photo — title banners, captions, price tags, stickers, logos of the photographer or website, watermarks (for example a name written across a green strip over the picture). Keep ONLY text that is physically printed on the product's own label or packaging. Never add any label, sticker, brand name, logo, product name, weight or text to a product that has none in the source photo. If the product itself has no label or packaging (fresh produce, loose goods), the result must contain no text at all. " +
   "Never generate a cartoon, illustration, 3D render, CGI look, deformed product, incorrect proportions, extra or missing components, fake logos/text/labels, people, hands, props, watermarks, or promotional text — the result must be photorealistic."
   );
 }
