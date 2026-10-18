@@ -114,8 +114,8 @@ export function CategoryListItem({
           />
         </button>
       ) : (
-        <span className="flex size-7 shrink-0 items-center justify-center text-text-secondary opacity-50">
-          <AppIcon icon={ChevronRight} size="xs" className="rtl:rotate-180" />
+        <span className="flex size-7 shrink-0 items-center justify-center text-text-secondary opacity-50 group-hover:opacity-100">
+          <AppIcon icon={ChevronRight} size="xs" className="rtl:rotate-180 group-hover:text-black group-hover:[stroke-width:3]" />
         </span>
       )}
     </div>
