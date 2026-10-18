@@ -22,7 +22,7 @@ html.theme-dark {
   --card: var(--bg-card);
   --card-foreground: var(--text-primary);
   --accent: #f1e2c6;
-  --accent-dark: #12b3a6;
+  --accent-dark: #e0cfa8;
   --accent-foreground: #1a1408;
   --accent-glow: rgba(15, 158, 147, 0.22);
   --on-accent: #1a1408;
