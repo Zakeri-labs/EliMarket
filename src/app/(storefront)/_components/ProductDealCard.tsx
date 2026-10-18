@@ -41,10 +41,10 @@ export function ProductDealCard({
     <article
       dir={dir}
       className={cn(
-        // Landscape card like the client mock-up (245 x 206). The backdrop gradient matches the
-        // studio photos (darker grey at the top, lighter toward the bottom), so the photo, which is
-        // square and sits in the upper part, melts into the card and the text rests on the light part.
-        "relative aspect-[245/206] shrink-0 overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#707070_0%,#969696_45%,#c8c8c8_68%,#dcdcdc_78%,#dcdcdc_100%)] text-[#1a1a1a] transition-all duration-300 ease-out lg:rounded-lg",
+        // Two clearly separate parts, like the client mock-up: the studio photo on top (grey
+        // gradient, darker at the top, fading to the floor colour) and a distinct, roomy info
+        // band below it. Nothing overlaps the photo, so name and price are never squeezed.
+        "relative flex shrink-0 flex-col overflow-hidden rounded-2xl bg-[#e4e4e4] text-[#1a1a1a] transition-all duration-300 ease-out lg:rounded-lg",
         !isSkeleton && "hover:z-10 hover:-translate-y-1.5",
         layout === "rail" ? "w-36 sm:w-40" : "w-full",
         isSkeleton && "skeleton",
@@ -54,62 +54,62 @@ export function ProductDealCard({
     >
       <Link
         href={isSkeleton ? "#" : `/products/${product.slug}`}
-        className="absolute inset-0 block"
+        className="flex flex-1 flex-col"
         onClick={(e) => {
           if (isSkeleton) e.preventDefault();
         }}
       >
-        {isSkeleton ? (
-          <SkeletonImage className="absolute inset-x-0 top-0 h-[78%]" />
-        ) : (
-          <div className="absolute left-1/2 top-0 aspect-square h-[78%] -translate-x-1/2 [mask-image:linear-gradient(to_right,transparent,#000_14%,#000_86%,transparent)]">
-            {cover ? (
-              <StorefrontImage
-                src={cover.image_url}
-                blurHash={cover.blur_hash}
-                alt={name}
-                fill
-                priority={priority}
-                sizes={
-                  layout === "grid"
-                    ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    : "160px"
-                }
-                withBlur={false}
-                className="bg-transparent object-contain"
-              />
-            ) : (
-              <StripePlaceholder className="absolute inset-0" />
-            )}
-          </div>
-        )}
-        {!isSkeleton && discountBadge && (
-          <span className="absolute start-[3.5%] top-[4%] z-10 rounded-md bg-[#f1e2c6] px-2 py-0.5 text-xs font-bold text-[#3a2d14] lg:text-sm">
-            {discountBadge}
-          </span>
-        )}
-        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 pb-[4.5%] ps-[7%] pe-[19%] text-start">
-          <p className="line-clamp-1 text-xs font-semibold leading-4 lg:text-sm">
-            {name}
-          </p>
-          <div data-price className="flex items-baseline gap-2 tabular-nums">
+        <div className="relative aspect-[245/190] bg-[linear-gradient(180deg,#767676_0%,#9a9a9a_50%,#c4c4c4_85%,#d2d2d2_100%)]">
+          {isSkeleton ? (
+            <SkeletonImage className="absolute inset-0" />
+          ) : (
+            <div className="absolute left-1/2 top-0 aspect-square h-full -translate-x-1/2 [mask-image:linear-gradient(to_right,transparent,#000_14%,#000_86%,transparent)]">
+              {cover ? (
+                <StorefrontImage
+                  src={cover.image_url}
+                  blurHash={cover.blur_hash}
+                  alt={name}
+                  fill
+                  priority={priority}
+                  sizes={
+                    layout === "grid"
+                      ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      : "160px"
+                  }
+                  withBlur={false}
+                  className="bg-transparent object-contain"
+                />
+              ) : (
+                <StripePlaceholder className="absolute inset-0" />
+              )}
+            </div>
+          )}
+          {!isSkeleton && discountBadge && (
+            <span className="absolute start-[4%] top-[5%] z-10 rounded-md bg-[#f1e2c6] px-2 py-0.5 text-xs font-bold text-[#3a2d14] lg:text-sm">
+              {discountBadge}
+            </span>
+          )}
+        </div>
+        <div className="flex min-h-[68px] flex-col justify-center gap-1 bg-[#e4e4e4] py-3 ps-4 pe-14 text-start">
+          <p className="line-clamp-1 text-sm font-semibold leading-5">{name}</p>
+          <div data-price className="flex flex-wrap items-baseline gap-x-2 tabular-nums">
             <Price
               amount={Number(product.price)}
               currency={product.currency}
-              className="text-sm font-bold text-[#111]"
+              className="text-[15px] font-bold text-[#111]"
             />
             {compareAt != null && (
               <Price
                 amount={compareAt}
                 currency={product.currency}
-                className="text-[10px] text-[#777] line-through"
+                className="text-[11px] text-[#777] line-through"
               />
             )}
           </div>
         </div>
       </Link>
 
-      <div className="absolute bottom-[4.5%] end-[4%] z-20">
+      <div className="absolute bottom-3 end-3 z-20">
         {!isSkeleton ? (
           <ProductCartQtyControl
             product={product}
