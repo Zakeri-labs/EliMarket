@@ -90,7 +90,7 @@ export function CategoryListItem({
             depth > 0 ? "text-sm" : "text-[13px] font-medium leading-tight",
             depth === 0 && active
               ? "text-[#1a1408]"
-              : "text-text-primary group-hover:text-[#1a1408]",
+              : "text-text-primary group-hover:font-bold group-hover:text-black",
           )}
         >
           {label}
