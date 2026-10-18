@@ -59,11 +59,11 @@ export function ProductDealCard({
           if (isSkeleton) e.preventDefault();
         }}
       >
-        <div className="relative aspect-[245/190] bg-[linear-gradient(180deg,#767676_0%,#9a9a9a_50%,#c4c4c4_85%,#d2d2d2_100%)]">
+        <div className="relative aspect-[10/9] overflow-hidden bg-[linear-gradient(180deg,#767676_0%,#9a9a9a_50%,#c4c4c4_85%,#d2d2d2_100%)]">
           {isSkeleton ? (
             <SkeletonImage className="absolute inset-0" />
           ) : (
-            <div className="absolute left-1/2 top-0 aspect-square h-full -translate-x-1/2 [mask-image:linear-gradient(to_right,transparent,#000_14%,#000_86%,transparent)]">
+            <div className="absolute inset-0">
               {cover ? (
                 <StorefrontImage
                   src={cover.image_url}
@@ -77,7 +77,7 @@ export function ProductDealCard({
                       : "160px"
                   }
                   withBlur={false}
-                  className="bg-transparent object-contain"
+                  className="bg-transparent object-cover"
                 />
               ) : (
                 <StripePlaceholder className="absolute inset-0" />
