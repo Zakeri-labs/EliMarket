@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { websiteJsonLd } from "@/lib/seo/schemas";
 import { absoluteUrl, languageAlternates } from "@/lib/seo/site-url";
+import { BRAND_NAME } from "@/config/brand";
 import { getMessages } from "@/i18n/messages";
 import { getRequestLocale } from "@/i18n/server";
 import { HomeView } from "@/app/(storefront)/_components/HomeView";
@@ -12,14 +13,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const meta = getMessages(locale).meta;
 
   return {
-    title: meta.homeTitle,
+    title: { absolute: BRAND_NAME },
     description: meta.homeOgDescription,
     alternates: {
       canonical: absoluteUrl("/"),
       languages: languageAlternates("/"),
     },
     openGraph: {
-      title: meta.homeTitle,
+      title: BRAND_NAME,
       description: meta.homeOgDescription,
       url: absoluteUrl("/"),
       type: "website",

@@ -29,7 +29,7 @@ export function StorefrontHeader() {
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const session = useAuthStore((s) => s.session);
   const authStatus = useAuthStore((s) => s.status);
-  const { t, messages, locale } = useTranslations();
+  const { t, locale } = useTranslations();
   const setLocale = useLocaleStore((s) => s.setLocale);
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,11 +54,6 @@ export function StorefrontHeader() {
     prevCartCountRef.current = cartCount;
   }, [cartCount, mounted]);
 
-  const brandClass =
-    locale === "ar"
-      ? "font-bold tracking-wide"
-      : "font-logo font-semibold tracking-wide";
-
   const countBadge = mounted ? cartCount : 0;
   const isLoggedIn = mounted && authStatus === "authenticated" && Boolean(session);
   const accountPrimary = isLoggedIn
@@ -79,10 +74,31 @@ export function StorefrontHeader() {
           >
             <AppIcon icon={Menu} size="md" />
           </button>
-          <Link href="/" className="min-w-0 flex-1 text-center">
-            <p className={cn("truncate text-base", brandClass)}>
-              {messages.brand.nameLocal}
-            </p>
+          <Link
+            href="/"
+            dir="ltr"
+            className="flex min-w-0 flex-1 items-center justify-center gap-2"
+            aria-label="Hills Eli Mart"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- fixed brand mark */}
+            <img
+              src="/brand-logo.png"
+              alt=""
+              width={62}
+              height={60}
+              className="h-9 w-auto shrink-0 [html.theme-light_&]:hidden"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element -- fixed brand mark */}
+            <img
+              src="/brand-logo-light.png"
+              alt=""
+              width={62}
+              height={60}
+              className="hidden h-9 w-auto shrink-0 [html.theme-light_&]:block"
+            />
+            <span className="font-logo truncate text-[13px] font-medium uppercase leading-none tracking-[0.12em] text-text-primary">
+              Hills Eli Mart
+            </span>
           </Link>
           <ThemeToggle compact />
           <div

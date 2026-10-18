@@ -1358,7 +1358,7 @@ export type Messages = {
 };
 
 const fa: Messages = {
-  brand: { name: "EliMarket", nameLocal: "EliMarket", currency: "ر.ع." },
+  brand: { name: "Hills Eli Mart", nameLocal: "Hills Eli Mart", currency: "ر.ع." },
   nav: {
     home: "خانه",
     categories: "دسته‌ها",
@@ -1605,7 +1605,7 @@ const fa: Messages = {
   },
   pwa: {
     install: "نصب برنامه",
-    installTitle: "EliMarket را نصب کنید",
+    installTitle: "Hills Eli Mart را نصب کنید",
     installDesc: "برای دسترسی سریع‌تر مثل یک اپلیکیشن، فروشگاه را روی گوشی نصب کنید.",
     dismiss: "الان نه",
     gotIt: "متوجه شدم",
@@ -1914,7 +1914,7 @@ const fa: Messages = {
   },
   admin: {
     panelLabel: "پنل مدیریت",
-    brandAdmin: "EliMarket Admin",
+    brandAdmin: "Hills Eli Mart Admin",
     signOut: "خروج",
     closeMenu: "بستن منو",
     menu: "منو",
@@ -2783,12 +2783,12 @@ const fa: Messages = {
     contactDescription: "راه‌های ارتباط با فروشگاه هیلز الی مارت در المولح، مسقط.",
     aboutTitle: "درباره ما — هیلز الی مارت",
     aboutDescription: "هیلز الی مارت، سوپرمارکت محله در المولح، سیب — مسقط. خرید حضوری و ارسال در مسقط و سیب.",
-    siteDescription: "خرید آنلاین — EliMarket",
+    siteDescription: "خرید آنلاین — Hills Eli Mart",
     storefrontTitle: "فروشگاه",
     productFallback: "محصول",
     homeTitle: "فروشگاه آنلاین",
-    homeOgDescription: "خرید آنلاین با ارسال سریع — EliMarket",
-    categoryDescription: "خرید {name} — EliMarket",
+    homeOgDescription: "خرید آنلاین با ارسال سریع — Hills Eli Mart",
+    categoryDescription: "خرید {name} — Hills Eli Mart",
     notFoundTitle: "صفحه یافت نشد",
     notFoundMessage: "صفحه‌ای که دنبال آن هستید وجود ندارد یا حذف شده است.",
     backToHome: "بازگشت به صفحه اصلی",
@@ -2798,7 +2798,7 @@ const fa: Messages = {
 };
 
 const ar: Messages = {
-  brand: { name: "EliMarket", nameLocal: "إلي ماركت", currency: "ر.ع." },
+  brand: { name: "Hills Eli Mart", nameLocal: "Hills Eli Mart", currency: "ر.ع." },
   nav: {
     home: "الرئيسية",
     categories: "الفئات",
@@ -3045,7 +3045,7 @@ const ar: Messages = {
   },
   pwa: {
     install: "تثبيت التطبيق",
-    installTitle: "ثبّت إلي ماركت",
+    installTitle: "ثبّت Hills Eli Mart",
     installDesc: "ثبّت المتجر على هاتفك للوصول السريع مثل تطبيق حقيقي.",
     dismiss: "لاحقاً",
     gotIt: "حسناً",
@@ -3354,7 +3354,7 @@ const ar: Messages = {
   },
   admin: {
     panelLabel: "لوحة الإدارة",
-    brandAdmin: "EliMarket Admin",
+    brandAdmin: "Hills Eli Mart Admin",
     signOut: "تسجيل الخروج",
     closeMenu: "إغلاق القائمة",
     menu: "القائمة",
@@ -4223,12 +4223,12 @@ const ar: Messages = {
     contactDescription: "طرق التواصل مع هيلز إيلي مارت في المعبيلة، مسقط.",
     aboutTitle: "من نحن — هيلز إيلي مارت",
     aboutDescription: "هيلز إيلي مارت، سوبرماركت الحي في المولح بالسيب — مسقط. تسوّق من المتجر وتوصيل في مسقط والسيب.",
-    siteDescription: "تسوق إلكتروني — إلي ماركت",
+    siteDescription: "تسوق إلكتروني — Hills Eli Mart",
     storefrontTitle: "المتجر",
     productFallback: "منتج",
     homeTitle: "متجر إلكتروني",
-    homeOgDescription: "تسوق إلكتروني مع توصيل سريع — إلي ماركت",
-    categoryDescription: "تسوق {name} — إلي ماركت",
+    homeOgDescription: "تسوق إلكتروني مع توصيل سريع — Hills Eli Mart",
+    categoryDescription: "تسوق {name} — Hills Eli Mart",
     notFoundTitle: "الصفحة غير موجودة",
     notFoundMessage: "الصفحة التي تبحث عنها غير موجودة أو تمت إزالتها.",
     backToHome: "العودة إلى الصفحة الرئيسية",
@@ -4238,7 +4238,7 @@ const ar: Messages = {
 };
 
 const en: Messages = {
-  brand: { name: "EliMarket", nameLocal: "EliMarket", currency: "OMR" },
+  brand: { name: "Hills Eli Mart", nameLocal: "Hills Eli Mart", currency: "OMR" },
   nav: {
     home: "Home",
     categories: "Categories",
@@ -4485,7 +4485,7 @@ const en: Messages = {
   },
   pwa: {
     install: "Install app",
-    installTitle: "Install EliMarket",
+    installTitle: "Install Hills Eli Mart",
     installDesc: "Install the store on your phone for faster access like a real app.",
     dismiss: "Not now",
     gotIt: "Got it",
@@ -4794,7 +4794,7 @@ const en: Messages = {
   },
   admin: {
     panelLabel: "Admin panel",
-    brandAdmin: "EliMarket Admin",
+    brandAdmin: "Hills Eli Mart Admin",
     signOut: "Sign out",
     closeMenu: "Close menu",
     menu: "Menu",
@@ -5663,12 +5663,12 @@ const en: Messages = {
     contactDescription: "Get in touch with Hills Eli Mart in Al Mawaleh, Muscat.",
     aboutTitle: "About us — Hills Eli Mart",
     aboutDescription: "Hills Eli Mart, a neighbourhood supermarket in Al Mawaleh, Seeb — Muscat. Walk-ins and delivery across Muscat and Seeb.",
-    siteDescription: "Online shopping — EliMarket",
+    siteDescription: "Online shopping — Hills Eli Mart",
     storefrontTitle: "Store",
     productFallback: "Product",
     homeTitle: "Online Store",
-    homeOgDescription: "Online shopping with fast delivery — EliMarket",
-    categoryDescription: "Shop {name} — EliMarket",
+    homeOgDescription: "Online shopping with fast delivery — Hills Eli Mart",
+    categoryDescription: "Shop {name} — Hills Eli Mart",
     notFoundTitle: "Page not found",
     notFoundMessage: "The page you are looking for does not exist or has been removed.",
     backToHome: "Back to homepage",

@@ -1,5 +1,5 @@
-export const BRAND_NAME = "EliMarket";
-export const BRAND_NAME_FA = "EliMarket";
+export const BRAND_NAME = "Hills Eli Mart";
+export const BRAND_NAME_FA = "Hills Eli Mart";
 
 export const DEFAULT_CURRENCY = "OMR";
 export const FREE_DELIVERY_THRESHOLD = 10;
