@@ -43,7 +43,9 @@ export function formatPrice(
   });
   const label =
     currency === "OMR"
-      ? "OMR"
+      ? safeLocale === "ar"
+        ? "ريال"
+        : "OMR"
       : currency === "IRR"
         ? getMessages(safeLocale).brand.currency
         : currency;
