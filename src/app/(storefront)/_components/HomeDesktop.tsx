@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useProducts } from "@/app/(storefront)/_hooks/use-products";
 import { useCategories } from "@/app/(storefront)/_hooks/use-categories";
@@ -36,15 +36,6 @@ export function HomeDesktop() {
   const [pill, setPill] = useState<HomePill | null>(null);
   const [sort, setSort] = useState<SortKey>("newest");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-
-  /* Scroll after commit so the heading + "View all" land below the sticky header. */
-  useEffect(() => {
-    if (!selectedCategoryId) return;
-    document.getElementById("home-product-grid")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, [selectedCategoryId]);
 
   const selectedCategoryIds = useMemo(() => {
     if (!selectedCategoryId) return null;
