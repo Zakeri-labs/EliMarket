@@ -86,7 +86,7 @@ export function StorefrontHeader() {
               alt=""
               width={640}
               height={619}
-              className=""
+              className="h-10 w-auto shrink-0"
             />
             <span className="font-logo truncate text-[15px] font-medium uppercase leading-none tracking-[0.12em] text-text-primary">
               Hills Eli Mart
@@ -125,7 +125,7 @@ export function StorefrontHeader() {
               alt=""
               width={640}
               height={619}
-              className=""
+              className="h-[clamp(44px,4.2vw,64px)] w-auto shrink-0"
             />
             <span>
               <span className="font-logo block whitespace-nowrap text-[clamp(16px,1.7vw,27px)] font-medium leading-none tracking-[0.16em] text-text-primary uppercase">
