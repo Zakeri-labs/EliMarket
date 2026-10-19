@@ -55,6 +55,14 @@ function oldestBackup(slug) {
   return null;
 }
 
+// Originals stored in Supabase for products whose only local source would be a torn-edge cover.
+const SB_PRODUCTS = "https://rjyboivgcjcfghkutdbb.supabase.co/storage/v1/object/public/product-images/products/";
+const ORIGINAL_URLS = {
+  "product-mv9vh3ms-tbe16a": `${SB_PRODUCTS}1792088911999-9qppahkm4he.webp`,
+  "product-mv9x1iy9-nti5io": `${SB_PRODUCTS}ai/1792091673349-1e5bezy5kjo.png`,
+  "product-mtcv05ky-tbhcnc": `${SB_PRODUCTS}ai/1787916008947-57vqjbis7gs.png`,
+};
+
 const key = process.env.OPENAI_API_KEY?.trim();
 const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -96,6 +104,30 @@ async function transcribeLabel(png) {
   return Array.isArray(lines) ? lines.filter((l) => typeof l === "string" && l.trim()).map((l) => l.trim()) : [];
 }
 
+/** Which side the main cast shadow falls on: "left" | "right" | "both" | "none". Image models ignore the direction rule often, so every result is checked. */
+async function shadowSide(png) {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      model: VISION_MODEL,
+      temperature: 0,
+      response_format: { type: "json_object" },
+      messages: [{
+        role: "user",
+        content: [
+          { type: "text", text: 'Look at the soft shadow the product casts on the grey floor. Judge from the VIEWER point of view: does the visible shadow extend to the viewer LEFT of the product, to the RIGHT, on BOTH sides, or is there NONE? Also say whether a white/light halo or torn jagged edge surrounds the product. Reply JSON only: {"side":"left"|"right"|"both"|"none","halo":boolean}.' },
+          { type: "image_url", image_url: { url: `data:image/png;base64,${png.toString("base64")}` } },
+        ],
+      }],
+    }),
+  });
+  if (!res.ok) throw new Error(`vision ${res.status}`);
+  const j = JSON.parse((await res.json()).choices?.[0]?.message?.content ?? "{}");
+  return { side: j.side ?? "none", halo: Boolean(j.halo) };
+}
+const shadowOk = (v) => v.side === "left" && !v.halo;
+
 function coverPrompt(title, lines) {
   const labelRule = lines.length
     ? `EXACT PACKAGING TEXT (read from the real photo): ${lines.map((l) => `"${l}"`).join(" / ")}. The label must show exactly this text, character for character, same script, spelling, order and layout; never paraphrase, translate, complete or invent any word. Copy every logo and illustration from the uploaded photo; if a line cannot be rendered perfectly, keep that area as it looks in the uploaded photo.`
@@ -134,6 +166,7 @@ async function editImage(png, prompt) {
 
 const args = process.argv.slice(2);
 const commit = args.includes("--commit");
+const onlyBad = args.includes("--only-bad"); // audit current covers, redo only those with a wrong shadow
 const onlySlugs = args.filter((a) => !a.startsWith("--"));
 
 const { data: all, error: listErr } = await sb.from("products").select("id, slug, name_en, name, image_url, blur_hash");
@@ -149,11 +182,19 @@ for (const product of targets) {
   const slug = product.slug;
   try {
     const title = (product.name_en || product.name || slug).trim();
+    if (onlyBad) {
+      const cur = Buffer.from(await (await fetch(product.image_url)).arrayBuffer());
+      const v = await shadowSide(await sharp(cur).resize(768, 768, { fit: "inside" }).png().toBuffer());
+      console.log(`
+? ${slug}: shadow=${v.side} halo=${v.halo}`);
+      if (shadowOk(v)) continue;
+    }
     let srcBuffer;
     let srcLabel;
     const seed = ORIGINAL_FILES[slug] && join("public", "products-original", `${ORIGINAL_FILES[slug]}.png`);
     const backup = oldestBackup(slug);
-    if (seed && existsSync(seed)) [srcBuffer, srcLabel] = [await readFile(seed), seed];
+    if (ORIGINAL_URLS[slug]) [srcBuffer, srcLabel] = [Buffer.from(await (await fetch(ORIGINAL_URLS[slug])).arrayBuffer()), ORIGINAL_URLS[slug]];
+    else if (seed && existsSync(seed)) [srcBuffer, srcLabel] = [await readFile(seed), seed];
     else if (backup) [srcBuffer, srcLabel] = [await readFile(backup), backup];
     else [srcBuffer, srcLabel] = [Buffer.from(await (await fetch(product.image_url)).arrayBuffer()), "current cover"];
     console.log(`\n• ${slug}  ("${title}")  source: ${srcLabel}`);
@@ -168,16 +209,44 @@ for (const product of targets) {
     const lines = await transcribeLabel(png);
     console.log(lines.length ? `   label text: ${lines.join(" / ").slice(0, 160)}` : "   no printed text → NO label allowed");
 
-    let out;
-    for (let attempt = 1; attempt <= 2 && !out; attempt += 1) {
+    // Generate until the shadow is on the left with no halo (up to 4 tries). A bare product
+    // (no printed text) with the shadow on the right is simply mirrored; labelled ones are redrawn.
+    let shot;
+    for (let attempt = 1; attempt <= 4; attempt += 1) {
+      let out;
       try {
         out = await editImage(png, coverPrompt(title, lines));
       } catch (err) {
         console.error(`   attempt ${attempt} failed: ${err.message}`);
+        continue;
+      }
+      let cand = await sharp(out).resize(1024, 1024, { fit: "inside" }).png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer();
+      let v = await shadowSide(cand);
+      if (v.side === "right" && !lines.length) {
+        cand = await sharp(cand).flop().png().toBuffer();
+        v = { ...v, side: "left" };
+        console.log("   shadow was on the right → mirrored (no label on this product)");
+      }
+      console.log(`   attempt ${attempt}: shadow=${v.side} halo=${v.halo}`);
+      shot = cand;
+      if (shadowOk(v)) break;
+    }
+    // Labelled product still wrong: a focused second pass that changes ONLY the shadow.
+    for (let fix = 1; shot && fix <= 2; fix += 1) {
+      const v = await shadowSide(shot);
+      if (shadowOk(v)) break;
+      console.log(`   fix pass ${fix} (shadow=${v.side} halo=${v.halo})`);
+      try {
+        const out = await editImage(
+          shot,
+          `Edit ONLY the shadow in this product photo and keep everything else pixel-identical: the product, its label and every printed character, the colours, the framing and the grey backdrop must not change at all. Remove the product's cast shadow from the RIGHT side of the product completely (the floor on the right must be clean grey) and paint ONE soft, neutral dark-grey contact shadow on the viewer's LEFT side of the product instead, fading smoothly into the floor. No white or light halo or outline anywhere around the product. Do not add any text, label or object.`,
+        );
+        shot = await sharp(out).resize(1024, 1024, { fit: "inside" }).png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer();
+      } catch (err) {
+        console.error(`   fix pass failed: ${err.message}`);
       }
     }
-    if (!out) throw new Error("image generation failed");
-    const shot = await sharp(out).resize(1024, 1024, { fit: "inside" }).png({ compressionLevel: 9, adaptiveFiltering: true }).toBuffer();
+    if (!shot) throw new Error("image generation failed");
     await writeFile(join(backupDir, `${slug}--new.png`), shot);
 
     const blurHash = await blurHashFromBuffer(shot);
