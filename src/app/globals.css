@@ -306,6 +306,19 @@ html.theme-light .storefront-hills {
   color-scheme: light;
 }
 
+/* Site-only chrome (e.g. the storefront footer): hidden when the storefront
+   runs as the installed app. CSS, not JS, so there is no flash or hydration
+   mismatch — the server can't know the display mode. */
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  .browser-only {
+    display: none !important;
+  }
+}
+/* iOS home-screen apps may not match display-mode; PwaProvider sets this from navigator.standalone. */
+.is-standalone .browser-only {
+  display: none !important;
+}
+
 .desktop-range {
   pointer-events: none;
   position: absolute;

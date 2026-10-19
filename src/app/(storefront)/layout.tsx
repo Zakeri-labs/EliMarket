@@ -15,7 +15,7 @@ export default async function StorefrontLayout({
       className="flex min-h-0 flex-1 flex-col"
       data-hide-prices={settings.show_prices ? undefined : ""}
     >
-      <StorefrontShell>{children}</StorefrontShell>
+      <StorefrontShell storePhone={settings.receipt_store_phone ?? null}>{children}</StorefrontShell>
     </div>
   );
 }

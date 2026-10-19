@@ -77,7 +77,11 @@ export function PwaProvider() {
       }
     }
 
-    if (isStandaloneDisplay() || wasDismissedRecently()) return;
+    if (isStandaloneDisplay()) {
+      document.documentElement.classList.add("is-standalone");
+      return;
+    }
+    if (wasDismissedRecently()) return;
 
     const onPrompt = (event: Event) => {
       event.preventDefault();

@@ -9,10 +9,14 @@ import { StorefrontHeader } from "@/app/(storefront)/_components/StorefrontHeade
 import { cn } from "@/app/utils/cn";
 import { STOREFRONT_CONTAINER } from "@/config/layout";
 
-/** Temporarily hidden on the live site — keep the component, just don't render it. */
-const SHOW_FOOTER = false;
-
-export function StorefrontShell({ children }: { children: React.ReactNode }) {
+export function StorefrontShell({
+  children,
+  storePhone,
+}: {
+  children: React.ReactNode;
+  /** From the server-side store settings, so the footer needs no client fetch. */
+  storePhone: string | null;
+}) {
   const pathname = usePathname();
   const isProductDetail = pathname.startsWith("/products/");
   const isCart = pathname === "/cart";
@@ -41,7 +45,6 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
           "flex-1",
           isProductDetail && "max-lg:flex max-lg:min-h-0 max-lg:flex-col max-lg:overflow-hidden",
           isCart && "max-lg:flex max-lg:min-h-0 max-lg:flex-col max-lg:overflow-hidden",
-          !hideMobileNav && "pb-[calc(4.25rem+env(safe-area-inset-bottom))] lg:pb-0",
           isCheckout && "pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-0",
         )}
       >
@@ -56,8 +59,15 @@ export function StorefrontShell({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </div>
-      {SHOW_FOOTER && !hideMobileNav && <StorefrontFooter />}
-      {!hideMobileNav && <BottomNav />}
+      {/* Pages with a full-height mobile layout or sticky CTA only get the footer on desktop. */}
+      <StorefrontFooter storePhone={storePhone} className={cn(hideMobileNav && "max-lg:hidden")} />
+      {!hideMobileNav && (
+        <>
+          {/* Clears the fixed bottom nav, below the footer so it isn't covered. */}
+          <div aria-hidden className="h-[calc(4.25rem+env(safe-area-inset-bottom))] shrink-0 lg:hidden" />
+          <BottomNav />
+        </>
+      )}
       <PwaProvider />
       <AddressGateModal />
     </div>

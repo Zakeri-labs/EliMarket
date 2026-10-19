@@ -1339,6 +1339,13 @@ export type Messages = {
     shopCta: string;
     contactCta: string;
   };
+  footer: {
+    tagline: string;
+    shop: string;
+    help: string;
+    contact: string;
+    rights: string;
+  };
   meta: {
     offersTitle: string;
     offersDescription: string;
@@ -2781,6 +2788,13 @@ const fa: Messages = {
     visitBody: "پین دقیق روی نقشه همان آدرسی است که با مشتریان به اشتراک می‌گذاریم.",
     shopCta: "شروع خرید",
     contactCta: "تماس با ما",
+  },
+  footer: {
+    tagline: "سوپرمارکت محله‌ی شما در سیب؛ محصولات تازه و ارسال سریع در مسقط و سیب.",
+    shop: "فروشگاه",
+    help: "راهنما",
+    contact: "ارتباط با ما",
+    rights: "تمامی حقوق محفوظ است.",
   },
   meta: {
     offersTitle: "پیشنهادها — هیلز الی مارت",
@@ -4225,6 +4239,13 @@ const ar: Messages = {
     shopCta: "ابدأ التسوق",
     contactCta: "اتصل بنا",
   },
+  footer: {
+    tagline: "سوبرماركت حيّك في السيب؛ منتجات طازجة وتوصيل سريع في مسقط والسيب.",
+    shop: "المتجر",
+    help: "المساعدة",
+    contact: "تواصل معنا",
+    rights: "جميع الحقوق محفوظة.",
+  },
   meta: {
     offersTitle: "العروض — هيلز إيلي مارت",
     offersDescription: "أفضل العروض والخصومات من هيلز إيلي مارت.",
@@ -5667,6 +5688,13 @@ const en: Messages = {
     visitBody: "The pin on the map is the same location we share with customers.",
     shopCta: "Start shopping",
     contactCta: "Contact us",
+  },
+  footer: {
+    tagline: "Your neighbourhood market in Seeb — fresh groceries, delivered fast across Muscat and Seeb.",
+    shop: "Shop",
+    help: "Help",
+    contact: "Contact",
+    rights: "All rights reserved.",
   },
   meta: {
     offersTitle: "Offers — Hills Eli Mart",
