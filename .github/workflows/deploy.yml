@@ -30,8 +30,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # next-env.d.ts (image module types) and route types are gitignored;
+      # typegen recreates them without a full build.
       - name: Typecheck
-        run: npx tsc --noEmit
+        run: |
+          npx next typegen
+          npx tsc --noEmit
       # Not blocking yet: src has existing react-hooks errors. Drop
       # continue-on-error once `npx eslint src scripts` is clean.
       - name: Lint
