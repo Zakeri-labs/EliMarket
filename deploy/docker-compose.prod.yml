@@ -1,0 +1,18 @@
+# Production stack on the VPS. CI copies this file to ~/elimarket-deploy and
+# runs it with IMAGE set to the image it just pushed to GHCR — nothing is
+# built on the server. Runtime secrets stay in ~/EliMarket/.env.local.
+name: elimarket
+
+services:
+  app:
+    image: ${IMAGE:?IMAGE is not set}
+    env_file:
+      - ${APP_ENV_FILE:-/home/deploy/EliMarket/.env.local}
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
