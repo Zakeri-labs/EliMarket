@@ -10,6 +10,7 @@ import { HomeFilterBar } from "@/app/(storefront)/_components/HomeFilterBar";
 import { LocationBar, SearchBar } from "@/app/(storefront)/_components/HomeSections";
 import type { ShopRefine } from "@/app/(storefront)/_components/ShopSidebar";
 import { StableProductGrid } from "@/app/(storefront)/_components/StableProductGrid";
+import { StoreClock } from "@/app/(storefront)/_components/StoreClock";
 import { mockProducts } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import { applyHomeFilters, isOrganicProduct, type HomePill } from "@/lib/products/home-filters";
@@ -89,6 +90,9 @@ export function HomeMobile() {
       </div>
       <HeroCarousel />
       <CategoryGrid />
+      <div dir={dir}>
+        <StoreClock layout="inline" />
+      </div>
       <div dir={dir}>
         <HomeFilterBar
           pills={pills}

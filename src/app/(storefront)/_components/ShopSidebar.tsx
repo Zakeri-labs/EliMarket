@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Category, Product } from "@/app/_types/database.types";
 import { CategoryListItem } from "@/app/(storefront)/_components/CategoryListItem";
+import { StoreClock } from "@/app/(storefront)/_components/StoreClock";
 import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
 import {
@@ -140,6 +141,7 @@ export function ShopSidebar({
         </nav>
 
       </div>
+      <StoreClock className="mt-4 w-[250px]" />
     </aside>
   );
 }

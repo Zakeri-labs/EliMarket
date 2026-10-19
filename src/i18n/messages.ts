@@ -65,6 +65,9 @@ export type Messages = {
     searchPlaceholderDesktop: string;
     utilityFreeDelivery: string;
     shopByCategory: string;
+    storeClockCity: string;
+    storeOpen24h: string;
+    storeClockLabel: string;
     refine: string;
     inStockOnly: string;
     onCampaign: string;
@@ -1422,6 +1425,9 @@ const fa: Messages = {
     searchPlaceholderDesktop: "جستجوی محصول، برند و دسته…",
     utilityFreeDelivery: "ارسال رایگان برای سفارش‌های بالای {amount} · مسقط و سیب",
     shopByCategory: "خرید بر اساس دسته",
+    storeClockCity: "مسقط",
+    storeOpen24h: "۲۴ ساعته باز",
+    storeClockLabel: "ساعت کنونی مسقط: {time}",
     refine: "فیلتر",
     inStockOnly: "فقط موجود",
     onCampaign: "در کمپین",
@@ -2862,6 +2868,9 @@ const ar: Messages = {
     searchPlaceholderDesktop: "ابحث عن منتجات وعلامات وفئات…",
     utilityFreeDelivery: "توصيل مجاني للطلبات فوق {amount} · مسقط والسيب",
     shopByCategory: "تسوق حسب الفئة",
+    storeClockCity: "مسقط",
+    storeOpen24h: "مفتوح ٢٤ ساعة",
+    storeClockLabel: "الوقت الآن في مسقط: {time}",
     refine: "تصفية",
     inStockOnly: "المتوفّر فقط",
     onCampaign: "ضمن حملة",
@@ -4302,6 +4311,9 @@ const en: Messages = {
     searchPlaceholderDesktop: "Search for products, brands and categories",
     utilityFreeDelivery: "Free delivery on orders over {amount} · Muscat & Seeb",
     shopByCategory: "Shop by category",
+    storeClockCity: "Muscat",
+    storeOpen24h: "24h open",
+    storeClockLabel: "Current time in Muscat: {time}",
     refine: "Refine",
     inStockOnly: "In stock only",
     onCampaign: "On campaign",
