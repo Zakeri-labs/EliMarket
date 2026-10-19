@@ -82,19 +82,11 @@ export function StorefrontHeader() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- fixed brand mark */}
             <img
-              src="/brand-logo.png"
+              src="/logo-hills.png"
               alt=""
-              width={62}
-              height={60}
-              className="h-10 w-auto shrink-0 [html.theme-light_&]:hidden"
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element -- fixed brand mark */}
-            <img
-              src="/brand-logo-light.png"
-              alt=""
-              width={62}
-              height={60}
-              className="hidden h-10 w-auto shrink-0 [html.theme-light_&]:block"
+              width={640}
+              height={619}
+              className=""
             />
             <span className="font-logo truncate text-[15px] font-medium uppercase leading-none tracking-[0.12em] text-text-primary">
               Hills Eli Mart
@@ -129,19 +121,11 @@ export function StorefrontHeader() {
           <Link href="/" className="flex shrink-0 items-center gap-4" aria-label="Hills Eli Mart">
             {/* eslint-disable-next-line @next/next/no-img-element -- fixed brand mark */}
             <img
-              src="/brand-logo.png"
+              src="/logo-hills.png"
               alt=""
-              width={62}
-              height={60}
-              className="h-[clamp(44px,4.2vw,64px)] w-auto [html.theme-light_&]:hidden"
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element -- fixed brand mark */}
-            <img
-              src="/brand-logo-light.png"
-              alt=""
-              width={62}
-              height={60}
-              className="hidden h-[clamp(44px,4.2vw,64px)] w-auto [html.theme-light_&]:block"
+              width={640}
+              height={619}
+              className=""
             />
             <span>
               <span className="font-logo block whitespace-nowrap text-[clamp(16px,1.7vw,27px)] font-medium leading-none tracking-[0.16em] text-text-primary uppercase">
