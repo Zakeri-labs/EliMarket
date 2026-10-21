@@ -1345,6 +1345,8 @@ export type Messages = {
     help: string;
     contact: string;
     rights: string;
+    backToTop: string;
+    mapsLink: string;
   };
   meta: {
     offersTitle: string;
@@ -2795,6 +2797,8 @@ const fa: Messages = {
     help: "راهنما",
     contact: "ارتباط با ما",
     rights: "تمامی حقوق محفوظ است.",
+    backToTop: "بازگشت به بالا",
+    mapsLink: "مسیریابی در نقشه",
   },
   meta: {
     offersTitle: "پیشنهادها — هیلز الی مارت",
@@ -4245,6 +4249,8 @@ const ar: Messages = {
     help: "المساعدة",
     contact: "تواصل معنا",
     rights: "جميع الحقوق محفوظة.",
+    backToTop: "العودة إلى الأعلى",
+    mapsLink: "الاتجاهات على الخريطة",
   },
   meta: {
     offersTitle: "العروض — هيلز إيلي مارت",
@@ -5695,6 +5701,8 @@ const en: Messages = {
     help: "Help",
     contact: "Contact",
     rights: "All rights reserved.",
+    backToTop: "Back to top",
+    mapsLink: "Get directions",
   },
   meta: {
     offersTitle: "Offers — Hills Eli Mart",

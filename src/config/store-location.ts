@@ -29,7 +29,7 @@ export const STORE_LOCATION = {
     en: "Muscat and Seeb",
   },
   /** Public inbox — used on the contact page and mailto form. */
-  email: "hello@hillseli.om",
+  email: "info@hillseli.om",
 } as const;
 
 /** Opens the store's official Google Maps pin (the short link customers share). */
