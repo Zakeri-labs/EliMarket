@@ -29,12 +29,15 @@ const MOCK_THUMB: Record<string, string> = {
   "baby-care": "/categories/mock/baby-care.png",
   babycare: "/categories/mock/baby-care.png",
   spices: "/categories/mock/spices.png",
+  spice: "/categories/mock/spices.png",
 };
 
 export function resolveCategoryImage(category: Category): string | null {
-  const brand = MOCK_THUMB[category.slug];
+  // Admin-entered slugs may differ in case (e.g. "Spice").
+  const slug = category.slug.trim().toLowerCase();
+  const brand = MOCK_THUMB[slug];
   if (brand) return brand;
   const remote = category.image_url?.trim();
   if (remote) return remote;
-  return SLUG_THUMB[category.slug] ?? null;
+  return SLUG_THUMB[slug] ?? null;
 }
