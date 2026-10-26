@@ -102,7 +102,13 @@ async function relightUrl(oldUrl, label) {
   let newUrl = null;
   if (commit) {
     const path = `products/relit/${Date.now()}-${label}.png`;
-    const up = await sb.storage.from(BUCKET).upload(path, out, { contentType: "image/png", upsert: false });
+    // Slow connections drop large uploads now and then: retry a few times.
+    let up;
+    for (let attempt = 1; attempt <= 5; attempt += 1) {
+      up = await sb.storage.from(BUCKET).upload(path, out, { contentType: "image/png", upsert: true });
+      if (!up.error) break;
+      await new Promise((r) => setTimeout(r, 3000 * attempt));
+    }
     if (up.error) throw new Error(`upload: ${up.error.message}`);
     newUrl = publicPrefix + path;
   }

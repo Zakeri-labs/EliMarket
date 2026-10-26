@@ -12,14 +12,27 @@ import sharp from "sharp";
 /**
  * Target look, measured from the client's mock-up product cards: a mid-dark
  * grey at the top that opens up into a light studio grey toward the bottom
- * (the card text sits on the light part). `stops` are [y 0..1, grey level].
+ * (the card text sits on the light part). The bottom stop equals the card's
+ * name/price band (#dcdbda), so the photo fades into it without a step.
+ * `stops` are [y 0..1, grey level]; `tint` is the mock-up's faint warmth as
+ * [y 0..1, red offset, blue offset] around that level.
  */
 export const TARGET = {
   stops: [
-    [0, 112],
-    [0.58, 150],
-    [0.87, 200],
-    [1, 220],
+    [0, 104],
+    [0.45, 136],
+    [0.65, 156],
+    [0.8, 192],
+    [0.9, 212],
+    // The card shows the square photo at 10:9 (object-cover crops 5% off the
+    // bottom), so the band colour must already be reached by y = 0.95.
+    [0.95, 219],
+    [1, 219],
+  ],
+  tint: [
+    [0, 4, -3],
+    [0.6, 5, -2],
+    [1, 1, -1],
   ],
   glow: 6, // extra brightness of the soft light pool behind the product
   corner: 4, // corner fall-off
@@ -35,6 +48,17 @@ function gradientAt(y) {
     }
   }
   return s[s.length - 1][1];
+}
+
+/** Per-channel gain that turns the neutral level `base` into the warm grey. */
+function tintAt(y, base) {
+  const s = TARGET.tint;
+  let i = 1;
+  while (i < s.length - 1 && y > s[i][0]) i += 1;
+  const t = Math.min(Math.max((y - s[i - 1][0]) / (s[i][0] - s[i - 1][0]), 0), 1);
+  const r = s[i - 1][1] + (s[i][1] - s[i - 1][1]) * t;
+  const b = s[i - 1][2] + (s[i][2] - s[i - 1][2]) * t;
+  return [(base + r) / base, 1, (base + b) / base];
 }
 
 const WORK = 1024;
@@ -210,8 +234,42 @@ export async function relightBackdrop(input) {
     if (y > 0) push(x, y - 1);
     if (y < H - 1) push(x, y + 1);
   }
+  // Soft contact shadows have enough texture to raise barriers, so patches of
+  // them end up enclosed and would keep the OLD backdrop's grey — visible as
+  // dark speckles/blotches beside the product. A pixel darker than the sweep
+  // (but not near-black) that keeps the sweep's own colour balance is shadow:
+  // relight it with the backdrop (softly, by how far its colour drifts from
+  // the sweep's, so there is no hard edge).
+  // Shadows tinted by the product's bounce light (yellow under bananas) are
+  // too colourful for that, so they stay "product" — but they still get
+  // `lift`: the same brightening as the backdrop around them, keeping their
+  // own colour, fading out for saturated or near-black (real product) pixels.
+  const smooth = (a, b, v) => {
+    const t = Math.min(Math.max((v - a) / (b - a), 0), 1);
+    return t * t * (3 - 2 * t);
+  };
   const mask = new Uint8Array(W * H);
-  for (let i = 0; i < mask.length; i += 1) mask[i] = reached[i] ? 0 : 255;
+  const lift = new Uint8Array(W * H);
+  for (let i = 0; i < mask.length; i += 1) {
+    if (reached[i]) continue;
+    const r = [0, 1, 2].map((c) => data[i * 3 + c] / bgRgb[i * 3 + c]);
+    const mean = (r[0] + r[1] + r[2]) / 3;
+    const spread = Math.max(...r) - Math.min(...r);
+    let shadow = 0;
+    if (mean > 0.3 && mean < 1.02) {
+      // measured: floor shadow ~0.03-0.04, a cream bottle's shaded edge ~0.09
+      shadow = 1 - smooth(0.05, 0.08, spread);
+    }
+    mask[i] = Math.round(255 * (1 - shadow));
+    lift[i] = Math.round(
+      255 * (1 - smooth(0.05, 0.3, spread)) * smooth(0.1, 0.3, mean) * (1 - smooth(0.95, 1.05, mean)),
+    );
+  }
+  const liftSoft = await sharp(Buffer.from(lift), { raw: { width: W, height: H, channels: 1 } })
+    .blur(1.5)
+    .toColourspace("b-w")
+    .raw()
+    .toBuffer();
 
   // Shrink by a pixel (drops the edge band) and soften slightly.
   const { data: grown, info: gInfo } = await sharp(Buffer.from(mask), {
@@ -236,9 +294,18 @@ export async function relightBackdrop(input) {
       // which also removes any colour cast / bounce tint of the old sweep.
       // A backdrop pixel can never be brighter than the sweep itself (no glow).
       const relit = Math.min(tgt + 3, tgt * (lumP / lumB));
+      const tint = tintAt(y / (H - 1), tgt);
+      const l = reached[i] ? 0 : liftSoft[i] / 255;
+      // Lifted pixels are relit per channel RELATIVE to the old sweep (so its
+      // colour cast goes away like the backdrop's), with strong bounce tints
+      // (red under tomatoes) halved so they do not read as a stain.
+      const ratio = [0, 1, 2].map((c) => data[i * 3 + c] / bgRgb[i * 3 + c]);
+      const rMean = (ratio[0] + ratio[1] + ratio[2]) / 3;
+      const keep = 1 - 0.5 * smooth(0.08, 0.2, Math.max(...ratio) - Math.min(...ratio));
       for (let c = 0; c < 3; c += 1) {
-        const p = data[i * 3 + c];
-        out[i * 3 + c] = Math.max(0, Math.min(255, Math.round(m * p + (1 - m) * relit)));
+        const lifted = Math.min(tgt + 3, tgt * (rMean + (ratio[c] - rMean) * keep)) * tint[c];
+        const p = data[i * 3 + c] + (lifted - data[i * 3 + c]) * l;
+        out[i * 3 + c] = Math.max(0, Math.min(255, Math.round(m * p + (1 - m) * relit * tint[c])));
       }
     }
   }

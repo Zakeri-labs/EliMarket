@@ -44,7 +44,7 @@ export function ProductDealCard({
         // Two clearly separate parts, like the client mock-up: the studio photo on top (grey
         // gradient, darker at the top, fading to the floor colour) and a distinct, roomy info
         // band below it. Nothing overlaps the photo, so name and price are never squeezed.
-        "relative flex shrink-0 flex-col overflow-hidden rounded-2xl bg-[#e4e4e4] text-[#1a1a1a] transition-all duration-300 ease-out lg:rounded-lg",
+        "relative flex shrink-0 flex-col overflow-hidden rounded-2xl bg-[#dcdbda] text-[#1a1a1a] transition-all duration-300 ease-out lg:rounded-lg",
         !isSkeleton && "hover:z-10 hover:-translate-y-1.5",
         layout === "rail" ? "w-36 sm:w-40" : "w-full",
         isSkeleton && "skeleton",
@@ -59,7 +59,7 @@ export function ProductDealCard({
           if (isSkeleton) e.preventDefault();
         }}
       >
-        <div className="relative aspect-[10/9] overflow-hidden bg-[linear-gradient(180deg,#767676_0%,#9a9a9a_50%,#c4c4c4_85%,#d2d2d2_100%)]">
+        <div className="relative aspect-[10/9] overflow-hidden bg-[linear-gradient(180deg,#6c6865_0%,#8d8886_45%,#a19c9a_65%,#c2bebc_80%,#dcdbda_100%)]">
           {isSkeleton ? (
             <SkeletonImage className="absolute inset-0" />
           ) : (
@@ -90,7 +90,7 @@ export function ProductDealCard({
             </span>
           )}
         </div>
-        <div className="flex min-h-[68px] flex-col justify-center gap-1 bg-[#e4e4e4] py-3 ps-4 pe-14 text-start">
+        <div className="flex min-h-[68px] flex-col justify-center gap-1 bg-[#dcdbda] py-3 ps-4 pe-14 text-start">
           <p className="line-clamp-1 text-sm font-semibold leading-5">{name}</p>
           <div data-price className="flex flex-wrap items-baseline gap-x-2 tabular-nums">
             <Price
