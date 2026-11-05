@@ -1,5 +1,6 @@
 "use client";
 
+import { CompactItemCard } from "@/app/(admin)/_components/CompactItemCard";
 import { KpiRow } from "@/app/(admin)/_components/KpiCards";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -25,7 +26,6 @@ import {
   useAdminImageUpload,
 } from "@/app/hooks/use-admin-image-upload";
 import { notifyFormError } from "@/app/utils/form-notify";
-import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
 import type { Brand } from "@/app/_types/database.types";
 
@@ -158,56 +158,25 @@ export default function AdminBrandsPage() {
         {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
         <ListControls list={list} entity={t("admin.nav.brands")} />
         {loadError && !brands ? null : isPending ? (
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+          <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
             {SKELETON_KEYS.map((key) => (
-              <li key={key} className="aspect-[4/5] animate-pulse motion-reduce:animate-none rounded-2xl bg-[var(--skeleton)]" />
+              <li key={key} className="h-16 animate-pulse motion-reduce:animate-none rounded-[var(--card-radius)] bg-[var(--skeleton)]" />
             ))}
           </ul>
         ) : brands?.length ? (
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+          <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
             {list.visible.map((brand) => (
               <li key={brand.id}>
-                <article
-                  className={cn(
-                    "group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all",
-                    editing?.id === brand.id
-                      ? "border-accent shadow-[0_8px_24px_rgba(107,143,113,0.18)]"
-                      : "border-border hover:-translate-y-0.5 hover:border-border hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
-                  )}
-                >
-                  <button
-                    type="button"
-                    className="flex flex-1 flex-col text-start"
-                    onClick={() => openEdit(brand)}
-                    aria-label={t("admin.brands.edit")}
-                  >
-                    <span className="relative flex aspect-square items-center justify-center bg-background p-3">
-                      {brand.logo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={brand.logo_url}
-                          alt=""
-                          className="max-h-full max-w-full object-contain"
-                        />
-                      ) : (
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-background text-sm font-semibold text-foreground">
-                          {brand.name.slice(0, 2)}
-                        </span>
-                      )}
-                    </span>
-                    <span className="flex flex-1 flex-col gap-0.5 px-3 pt-2.5 pb-1">
-                      <span className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">
-                        {brand.name}
-                      </span>
-                      <span className="truncate text-xs text-muted" dir="ltr">
-                        {brand.slug}
-                      </span>
-                    </span>
-                  </button>
-                  <div className="mt-auto flex items-center justify-between border-t border-border px-2 py-1">
-                    <span className="rounded-md bg-background px-1.5 py-0.5 text-xs text-muted">
-                      {t("admin.brands.sortOrderLabel")} {brand.sort_order}
-                    </span>
+                <CompactItemCard
+                  image={brand.logo_url}
+                  title={brand.name}
+                  subtitle={<span dir="ltr">{brand.slug}</span>}
+                  order={brand.sort_order}
+                  orderLabel={t("admin.brands.sortOrderLabel")}
+                  selected={editing?.id === brand.id}
+                  openLabel={t("admin.brands.edit")}
+                  onOpen={() => openEdit(brand)}
+                  actions={
                     <RowIconActions
                       editLabel={t("admin.brands.edit")}
                       deleteLabel={t("admin.brands.delete")}
@@ -222,13 +191,13 @@ export default function AdminBrandsPage() {
                         })
                       }
                     />
-                  </div>
-                </article>
+                  }
+                />
               </li>
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
+          <p className="admin-card px-4 py-10 text-center text-sm text-muted">
             {t("admin.brands.empty")}
           </p>
         )}

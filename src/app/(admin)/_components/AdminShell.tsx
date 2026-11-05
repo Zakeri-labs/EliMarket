@@ -272,7 +272,7 @@ export function AdminShell({
                     className={cn(
                       "group flex min-h-11 items-center gap-2.5 rounded-full px-3.5 text-sm font-medium transition-all duration-200 lg:min-h-9",
                       active
-                        ? "admin-gradient admin-shine text-white shadow-[0_6px_16px_-6px_rgba(13,138,127,0.8)]"
+                        ? "admin-gradient text-white"
                         : "hover:bg-[var(--sidebar-accent)] hover:ps-5 hover:text-[var(--sidebar-strong)]",
                     )}
                   >
@@ -370,28 +370,21 @@ export function AdminShell({
             <div
               ref={titleCardRef}
               data-no-reveal
-              className="admin-card relative mb-5 overflow-hidden px-5 py-5 md:px-7"
+              className="admin-card relative mb-4 overflow-hidden px-4 py-3.5 md:px-5"
             >
               <div className="admin-gradient pointer-events-none absolute -end-16 -top-20 h-56 w-56 rounded-full opacity-[.12] blur-2xl" />
-              <div className="pointer-events-none absolute -bottom-28 end-[38%] h-56 w-56 rounded-full bg-sky-600 opacity-[.06] blur-3xl" />
-              {activeItem ? (
-                <AppIcon
-                  icon={activeItem.icon}
-                  className="admin-float pointer-events-none absolute -bottom-6 end-[22%] hidden !size-28 -rotate-12 text-accent opacity-[.06] lg:block"
-                />
-              ) : null}
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-4">
                   {activeItem ? (
                     <span
                       data-title-tile
-                      className="admin-gradient grid size-14 shrink-0 place-items-center rounded-2xl text-white shadow-[0_10px_20px_-10px_rgba(17,28,45,0.55)]"
+                      className="admin-gradient grid size-11 shrink-0 place-items-center rounded-xl text-white"
                     >
-                      <AppIcon icon={activeItem.icon} size="md" />
+                      <AppIcon icon={activeItem.icon} size="sm" />
                     </span>
                   ) : null}
                   <div data-title-text className="min-w-0">
-                    <div className="mb-0.5 flex items-center gap-1.5 text-sm text-muted">
+                    <div className="flex items-center gap-1.5 text-xs text-muted">
                       {eyebrow ??
                         (activeGroup ? (
                           <>
@@ -401,10 +394,10 @@ export function AdminShell({
                           </>
                         ) : null)}
                     </div>
-                    <h1 className="text-2xl leading-tight font-bold text-foreground md:text-[26px]">
+                    <h1 className="text-xl leading-tight font-bold text-foreground md:text-2xl">
                       {title}
                     </h1>
-                    {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
+                    {subtitle && <p className="mt-0.5 text-sm text-muted">{subtitle}</p>}
                   </div>
                 </div>
                 {actions ? (

@@ -134,13 +134,13 @@ export function KpiCard({ item }: { item: KpiItem }) {
         style={{
           backgroundImage: `linear-gradient(135deg, rgb(${rgb} / .1), rgb(${rgb} / .03) 70%)`,
         }}
-        className="admin-card group relative h-full min-w-0 overflow-hidden p-4 transition-shadow duration-300 hover:shadow-[var(--card-shadow-hover)] md:p-5"
+        className="admin-card group relative h-full min-w-0 overflow-hidden p-3.5 transition-shadow duration-300 hover:shadow-[var(--card-shadow-hover)] md:p-4"
       >
         <svg
           data-kpi-corner
           viewBox="0 0 60 82"
           aria-hidden
-          className="pointer-events-none absolute end-0 top-0 h-[82px] w-[60px] opacity-80 transition-opacity duration-500 group-hover:opacity-100 rtl:-scale-x-100"
+          className="pointer-events-none absolute end-0 top-0 h-[62px] w-[45px] opacity-60 transition-opacity duration-500 group-hover:opacity-100 rtl:-scale-x-100"
         >
           <path
             d="M60 0H8c-6 0-9 6-6 11 5 9 13 12 13 24 0 14-10 18-10 30 0 10 9 17 22 17h33Z"
@@ -159,18 +159,18 @@ export function KpiCard({ item }: { item: KpiItem }) {
             background: `rgb(${rgb})`,
             boxShadow: `0 6px 14px -6px rgb(${rgb} / .7)`,
           }}
-          className="relative grid size-11 place-items-center rounded-full text-white"
+          className="relative grid size-9 place-items-center rounded-full text-white"
         >
           <AppIcon
             icon={ICONS[item.icon]}
-            size="md"
+            size="sm"
             className="transition-transform duration-300 group-hover:scale-125 group-hover:-rotate-12"
           />
         </span>
-        <p className="relative mt-4 truncate text-sm font-medium text-muted" title={item.label}>
+        <p className="relative mt-2.5 truncate text-xs font-medium text-muted" title={item.label}>
           {item.label}
         </p>
-        <div className="relative mt-0.5 min-h-8 text-xl leading-tight md:text-[26px] font-bold text-foreground [overflow-wrap:break-word]">
+        <div className="relative mt-0.5 min-h-7 text-lg leading-tight md:text-[22px] font-bold text-foreground [overflow-wrap:break-word]">
           {item.value === undefined ? (
             <span className="block h-7 w-20 animate-pulse rounded-lg bg-[var(--skeleton)]" aria-hidden />
           ) : typeof item.value === "number" ? (
@@ -193,7 +193,7 @@ const COLUMNS: Record<number, string> = {
 export function KpiRow({
   items,
   columns,
-  spacing = "mb-5",
+  spacing = "mb-4",
 }: {
   items: KpiItem[];
   columns?: string;
