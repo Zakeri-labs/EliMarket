@@ -108,7 +108,7 @@ export default function SmartProductPage() {
     );
   };
 
-  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
 
   return (
     <AdminShell
@@ -121,7 +121,7 @@ export default function SmartProductPage() {
             {t("admin.smartProduct.uploadTitle")}
           </h2>
           <p className="mt-1 text-sm text-muted">{t("admin.smartProduct.uploadHint")}</p>
-          <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-accent bg-zinc-50 px-4 py-10">
+          <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-accent bg-background px-4 py-10">
             <AppIcon icon={Upload} size="lg" className="text-foreground" />
             <span className="mt-2 text-sm font-medium text-foreground">
               {t("admin.smartProduct.uploadButton")}
@@ -134,7 +134,7 @@ export default function SmartProductPage() {
               accept="image/*"
               capture="environment"
               multiple
-              className="hidden"
+              className="sr-only"
               onChange={(event) => {
                 addFiles(event.target.files);
                 event.target.value = "";

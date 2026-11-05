@@ -1,5 +1,7 @@
 "use client";
 
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
+import { omanYmd } from "@/config/oman-time";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +17,7 @@ import {
   updateBlogPostAction,
 } from "@/app/_actions/blog-actions";
 import { DatePicker } from "@/components/ui/DatePicker";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -74,7 +77,7 @@ const SKELETON_KEYS = ["s1", "s2", "s3", "s4"] as const;
 function toDateInput(value: string | null | undefined) {
   if (!value) return "";
   const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
+  return Number.isNaN(d.getTime()) ? "" : omanYmd(d);
 }
 
 export default function AdminBlogPage() {
@@ -112,7 +115,7 @@ export default function AdminBlogPage() {
 
   const coverUrl = form.watch("cover_url");
 
-  const { data: posts, isPending } = useQuery({
+  const { data: posts, isPending, error: loadError } = useQuery({
     queryKey: ["admin-blog-posts"],
     queryFn: async () => {
       const result = await getAdminBlogPostsAction();
@@ -216,7 +219,10 @@ export default function AdminBlogPage() {
       cover_url: values.cover_url?.trim() || null,
       published: values.published,
       sort_order: values.sort_order,
-      published_at: values.published_at?.trim() || null,
+      published_at:
+        editing && (!values.published_at?.trim() || values.published_at === toDateInput(editing.published_at))
+          ? editing.published_at
+          : values.published_at?.trim() || null,
     };
 
     if (editing) {
@@ -238,24 +244,35 @@ export default function AdminBlogPage() {
     }
   });
 
-  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
   const postList = useMemo(() => posts ?? [], [posts]);
   const titleField = `title_${tab}` as const;
   const excerptField = `excerpt_${tab}` as const;
   const bodyField = `body_${tab}` as const;
   const busy = isActionPending || isUploadPending;
 
+  const list = useListControls(postList);
+
   return (
-    <AdminShell title={t("admin.blog.title")} subtitle={t("admin.blog.subtitle")}>
-      <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
+    <AdminShell
+      actions={
+        <>
           <Button type="button" size="sm" onClick={openCreate}>
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
             {t("admin.blog.newPost")}
           </Button>
-        </div>
+        </>
+      } title={t("admin.blog.title")} subtitle={t("admin.blog.subtitle")}>
+      <KpiRow
+        items={[{ label: t("adminUi.total"), value: posts?.length, icon: "file", tone: "teal" },
+{ label: t("adminUi.published"), value: posts?.filter((p) => p.published).length, icon: "check", tone: "sky" },
+{ label: t("adminUi.drafts"), value: posts?.filter((p) => !p.published).length, icon: "dashed", tone: "amber" },]}
+      />
+      <div className="space-y-4">
 
-        {isPending ? (
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ListControls list={list} entity={t("admin.blog.title")} />
+        {loadError && !posts ? null : isPending ? (
           <ul className="space-y-2">
             {SKELETON_KEYS.map((key) => (
               <li
@@ -266,7 +283,7 @@ export default function AdminBlogPage() {
           </ul>
         ) : postList.length ? (
           <ul className="space-y-2">
-            {postList.map((post) => (
+            {list.visible.map((post) => (
               <li
                 key={post.id}
                 className={cn(
@@ -310,7 +327,7 @@ export default function AdminBlogPage() {
                   className={cn(
                     "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
                     post.published
-                      ? "bg-zinc-100 text-foreground"
+                      ? "bg-background text-foreground"
                       : "bg-background text-muted",
                   )}
                 >
@@ -398,13 +415,13 @@ export default function AdminBlogPage() {
 
             {/* Per-language content */}
             <div className="space-y-2">
-              <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
+              <div className="flex gap-1 rounded-xl bg-background p-1">
                 {LOCALES.map((loc) => (
                   <button
                     key={loc}
                     type="button"
                     className={cn(
-                      "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+                      "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
                       tab === loc
                         ? "bg-white text-foreground"
                         : "text-muted hover:text-foreground",
@@ -416,20 +433,25 @@ export default function AdminBlogPage() {
                 ))}
               </div>
 
-              <input
+              <label className="block space-y-1.5">
+              <span className="text-xs text-muted">{t("admin.blog.fieldTitle")}</span>
+<input
                 key={`title-${tab}`}
                 {...form.register(titleField)}
                 placeholder={t("admin.blog.titlePlaceholder")}
                 className={inputClass}
                 dir={getDirection(tab)}
               />
+            </label>
               {form.formState.errors.title_fa ? (
                 <p className="text-xs text-red-600">
                   {form.formState.errors.title_fa.message}
                 </p>
               ) : null}
 
-              <textarea
+              <label className="block space-y-1.5">
+              <span className="text-xs text-muted">{t("admin.blog.fieldExcerpt")}</span>
+<textarea
                 key={`excerpt-${tab}`}
                 {...form.register(excerptField)}
                 placeholder={t("admin.blog.excerptPlaceholder")}
@@ -437,15 +459,19 @@ export default function AdminBlogPage() {
                 className={inputClass}
                 dir={getDirection(tab)}
               />
+            </label>
 
-              <textarea
+              <label className="block space-y-1.5">
+              <span className="text-xs text-muted">{t("admin.blog.fieldBody")}</span>
+<textarea
                 key={`body-${tab}`}
                 {...form.register(bodyField)}
                 placeholder={t("admin.blog.bodyPlaceholder")}
                 rows={10}
-                className={cn(inputClass, "font-mono text-sm leading-6")}
+                className={cn(inputClass, "leading-6")}
                 dir={getDirection(tab)}
               />
+            </label>
               {form.formState.errors.body_fa ? (
                 <p className="text-xs text-red-600">
                   {form.formState.errors.body_fa.message}
@@ -456,12 +482,15 @@ export default function AdminBlogPage() {
             </div>
 
             {/* Meta */}
-            <input
+            <label className="block space-y-1.5">
+              <span className="text-xs text-muted">{t("admin.blog.fieldSlug")}</span>
+<input
               {...form.register("slug")}
               placeholder={t("admin.blog.slugPlaceholder")}
               className={inputClass}
               dir="ltr"
             />
+            </label>
             {form.formState.errors.slug ? (
               <p className="text-xs text-red-600">{form.formState.errors.slug.message}</p>
             ) : null}
@@ -476,22 +505,25 @@ export default function AdminBlogPage() {
                 />
               </div>
             ) : null}
-            <input
+            <label className="block space-y-1.5">
+              <span className="text-xs text-muted">{t("admin.blog.fieldCover")}</span>
+<input
               {...form.register("cover_url")}
               placeholder={t("admin.blog.coverUrlPlaceholder")}
               className={inputClass}
               dir="ltr"
             />
+            </label>
             <div className="flex flex-wrap gap-2">
               <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
+                <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-input bg-card px-5 text-sm font-medium md:min-h-10">
                   <AppIcon icon={Upload} size="sm" />
                   {t("admin.blog.uploadCover")}
                 </span>
                 <input
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  className="sr-only"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
@@ -525,27 +557,28 @@ export default function AdminBlogPage() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs text-muted">
+                <span className="mb-1 block text-xs text-muted">
                   {t("admin.blog.publishedAtLabel")}
-                </label>
+                </span>
                 <DatePicker
+                  aria-label={t("admin.blog.publishedAtLabel")}
                   value={form.watch("published_at") ?? ""}
                   onChange={(next) =>
                     form.setValue("published_at", next, { shouldDirty: true })
                   }
                 />
               </div>
-              <div>
-                <label className="mb-1 block text-xs text-muted">
+              <label className="block">
+                <span className="mb-1 block text-xs text-muted">
                   {t("admin.blog.sortOrderLabel")}
-                </label>
+                </span>
                 <input
                   {...form.register("sort_order", { valueAsNumber: true })}
                   type="number"
                   min={0}
                   className={inputClass}
                 />
-              </div>
+              </label>
             </div>
 
             <label className="flex items-center gap-2 text-sm">

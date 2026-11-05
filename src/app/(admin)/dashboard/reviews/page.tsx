@@ -1,11 +1,14 @@
 "use client";
 
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import {
   deleteReviewAction,
   getAdminReviewsAction,
 } from "@/app/_actions/review-actions";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { RowIconActions } from "@/components/admin/RowIconActions";
@@ -37,7 +40,7 @@ export default function AdminReviewsPage() {
   const queryClient = useQueryClient();
   const { runAction } = useFormAction();
 
-  const { data: reviews, isPending } = useQuery({
+  const { data: reviews, isPending, error: loadError } = useQuery({
     queryKey: ["admin-reviews"],
     queryFn: async () => {
       const result = await getAdminReviewsAction();
@@ -50,10 +53,20 @@ export default function AdminReviewsPage() {
     void queryClient.invalidateQueries({ queryKey: ["admin-reviews"] });
   };
 
+  const list = useListControls(reviews ?? []);
+
   return (
     <AdminShell title={t("admin.reviews.title")} subtitle={t("admin.reviews.subtitle")}>
+      <KpiRow
+        items={[{ label: t("adminUi.total"), value: reviews?.length, icon: "star", tone: "teal" },
+{ label: t("adminUi.avgRating"), value: reviews ? (reviews.length ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0) : undefined, decimals: 1, icon: "star", tone: "amber" },
+{ label: t("adminUi.fiveStar"), value: reviews?.filter((r) => r.rating === 5).length, icon: "check", tone: "sky" },
+{ label: t("adminUi.lowRated"), value: reviews?.filter((r) => r.rating <= 2).length, icon: "alert", tone: "rose" },]}
+      />
       <div className="space-y-4">
-        {isPending ? (
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ListControls list={list} entity={t("admin.nav.reviews")} />
+        {loadError && !reviews ? null : isPending ? (
           <ul className="space-y-2">
             {["s1", "s2", "s3"].map((key) => (
               <li
@@ -64,7 +77,7 @@ export default function AdminReviewsPage() {
           </ul>
         ) : reviews?.length ? (
           <ul className="space-y-2">
-            {reviews.map((review) => (
+            {list.visible.map((review) => (
               <li
                 key={review.id}
                 className="admin-card p-4"
@@ -81,10 +94,10 @@ export default function AdminReviewsPage() {
                       </span>
                     </div>
                     {review.comment && (
-                      <p className="mt-2 text-sm text-[#3f3f46]">{review.comment}</p>
+                      <p className="mt-2 text-sm text-foreground">{review.comment}</p>
                     )}
                     <p className="mt-2 text-xs text-muted">
-                      {new Date(review.created_at).toLocaleDateString(locale)}
+                      {new Date(review.created_at).toLocaleDateString(locale, { timeZone: OMAN_TIME_ZONE })}
                     </p>
                   </div>
                   <RowIconActions

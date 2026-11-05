@@ -1,5 +1,6 @@
 "use client";
 
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ import {
   getAdminDeliveryAreasAction,
   updateDeliveryAreaAction,
 } from "@/app/_actions/delivery-area-actions";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -133,7 +135,7 @@ export default function AdminDeliveryAreasPage() {
     defaultValues: DEFAULT_FORM_VALUES,
   });
 
-  const { data: areas, isPending } = useQuery({
+  const { data: areas, isPending, error: loadError } = useQuery({
     queryKey: ["admin-delivery-areas"],
     queryFn: async () => {
       const result = await getAdminDeliveryAreasAction();
@@ -310,15 +312,22 @@ export default function AdminDeliveryAreasPage() {
     }
   });
 
-  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
   const nameField = nameTab === "fa" ? "name_fa" : nameTab === "ar" ? "name_ar" : "name_en";
   const hasShape = ring.length >= 3 || Boolean(osmBoundary);
+
+  const list = useListControls(areas ?? []);
 
   return (
     <AdminShell
       title={t("admin.deliveryAreas.title")}
       subtitle={t("admin.deliveryAreas.subtitle")}
     >
+      <KpiRow
+        items={[{ label: t("adminUi.total"), value: areas?.length, icon: "map", tone: "teal" },
+{ label: t("adminUi.serviceable"), value: areas?.filter((a) => a.serviceable).length, icon: "truck", tone: "sky" },
+{ label: t("adminUi.active"), value: areas?.filter((a) => a.active).length, icon: "check", tone: "slate" },]}
+      />
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-muted">{t("admin.deliveryAreas.mapHint")}</p>
@@ -341,7 +350,9 @@ export default function AdminDeliveryAreasPage() {
           <MapLoading />
         )}
 
-        {isPending ? (
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ListControls list={list} entity={t("admin.nav.deliveryAreas")} />
+        {loadError && !areas ? null : isPending ? (
           <ul className="space-y-2">
             {SKELETON_KEYS.map((key) => (
               <li key={key} className="h-14 animate-pulse admin-card" />
@@ -349,7 +360,7 @@ export default function AdminDeliveryAreasPage() {
           </ul>
         ) : areas?.length ? (
           <ul className="space-y-2">
-            {areas.map((area) => (
+            {list.visible.map((area) => (
               <li
                 key={area.id}
                 className={cn(
@@ -377,7 +388,7 @@ export default function AdminDeliveryAreasPage() {
                     className={cn(
                       "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
                       area.serviceable
-                        ? "bg-zinc-100 text-foreground"
+                        ? "bg-background text-foreground"
                         : "bg-background text-muted",
                     )}
                   >
@@ -442,13 +453,13 @@ export default function AdminDeliveryAreasPage() {
         >
           <form id="admin-delivery-area-form" onSubmit={onSubmit} className="space-y-3">
             <div className="space-y-2">
-              <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
+              <div className="flex gap-1 rounded-xl bg-background p-1">
                 {LOCALES.map((loc) => (
                   <button
                     key={loc}
                     type="button"
                     className={cn(
-                      "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+                      "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
                       nameTab === loc
                         ? "bg-white text-foreground"
                         : "text-muted hover:text-foreground",

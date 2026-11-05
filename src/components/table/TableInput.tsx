@@ -8,7 +8,7 @@ export function TableInput({
   return (
     <input
       className={cn(
-        "h-9 w-full admin-card px-3 text-sm outline-none focus:border-accent",
+        "w-full border-input bg-card px-3 outline-none focus-visible:border-accent",
         className,
       )}
       {...props}

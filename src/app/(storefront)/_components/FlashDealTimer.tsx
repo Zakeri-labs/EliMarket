@@ -1,5 +1,6 @@
 "use client";
 
+import { omanYmd, parseOmanInput } from "@/config/oman-time";
 import { useEffect, useState } from "react";
 import { useTranslations } from "@/i18n/use-translations";
 
@@ -8,9 +9,7 @@ function secondsUntil(iso: string) {
 }
 
 function endOfTodayIso() {
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
-  return end.toISOString();
+  return parseOmanInput(`${omanYmd()}T23:59:59.999`).toISOString();
 }
 
 function breakdown(total: number) {

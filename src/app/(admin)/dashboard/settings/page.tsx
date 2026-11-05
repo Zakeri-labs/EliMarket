@@ -1,11 +1,16 @@
 "use client";
 
+import { PriceVisibilityToggle } from "@/app/(admin)/_components/PriceVisibilityToggle";
+import { ProductDetailExtrasToggle } from "@/app/(admin)/_components/ProductDetailExtrasToggle";
+import { CashSurchargeSetting } from "@/app/(admin)/_components/CashSurchargeSetting";
+import { ReceiptSettings } from "@/app/(admin)/_components/ReceiptSettings";
 import { useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getAiSettingsAction,
   updateAiSettingsAction,
 } from "@/app/_actions/ai-settings-actions";
+import { ListError } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { cn } from "@/app/utils/cn";
@@ -22,12 +27,12 @@ import {
 const QUERY_KEY = ["ai-settings"];
 
 const inputClass =
-  "min-h-10 w-full rounded-xl border border-border bg-white px-3.5 py-2 text-sm outline-none transition-[border-color,box-shadow] hover:border-zinc-300 focus:border-accent focus:ring-4 focus:ring-accent/10";
+  "min-h-10 w-full rounded-xl border border-input bg-white px-3.5 py-2 outline-none transition-[border-color,box-shadow] hover:border-zinc-300 focus:border-accent focus:ring-4 focus:ring-accent/10";
 
 function Section({ title, desc, children }: { title: string; desc?: string; children: ReactNode }) {
   return (
     <section className="rounded-2xl border border-border bg-white">
-      <div className="border-b border-zinc-100 px-5 py-4">
+      <div className="border-b border-border px-5 py-4">
         <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         {desc ? <p className="mt-0.5 text-xs text-muted">{desc}</p> : null}
       </div>
@@ -113,7 +118,8 @@ export default function AdminSettingsPage() {
     queryKey: QUERY_KEY,
     queryFn: async () => {
       const result = await getAiSettingsAction();
-      return result.success ? result.data : DEFAULT_AI_SETTINGS;
+      if (!result.success) throw new Error(result.error);
+      return result.data;
     },
   });
   // `null` = show the persisted value; an object = the admin is editing.
@@ -144,7 +150,21 @@ export default function AdminSettingsPage() {
   ];
 
   return (
-    <AdminShell title={a("title")} subtitle={a("subtitle")}>
+    <AdminShell title={t("admin.nav.settings")}>
+      <section className="admin-card mb-6 space-y-4 p-5">
+        <h2 className="text-base font-semibold text-foreground">{t("adminUi.storeSettings")}</h2>
+        <PriceVisibilityToggle />
+        <ProductDetailExtrasToggle />
+        <div className="border-t border-border pt-4">
+          <CashSurchargeSetting />
+        </div>
+        <div className="border-t border-border pt-4">
+          <ReceiptSettings />
+        </div>
+      </section>
+      <h2 className="mb-1 text-base font-semibold text-foreground">{a("title")}</h2>
+      <p className="mb-4 text-sm text-muted">{a("subtitle")}</p>
+      {query.error ? <ListError error={query.error} onRetry={() => void query.refetch()} /> : null}
       <div className="mx-auto max-w-3xl space-y-6 pb-10">
         <Section title={a("imagesTitle")}>
           <Row label={a("generation")} hint={a("generationHint")}>
@@ -233,7 +253,7 @@ export default function AdminSettingsPage() {
             type="button"
             loading={isPending}
             loadingLabel={t("common.saving")}
-            disabled={query.isLoading}
+            disabled={query.isLoading || (Boolean(query.error) && !query.data)}
             onClick={save}
           >
             {a("save")}

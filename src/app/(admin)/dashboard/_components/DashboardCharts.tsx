@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { omanYmd } from "@/config/oman-time";
+import { useMemo, useRef, useState, type ReactElement } from "react";
+import { useInView, useReducedMotion } from "motion/react";
 import {
   Area,
   AreaChart,
@@ -12,6 +14,7 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
+  Sector,
   Tooltip,
   XAxis,
   YAxis,
@@ -22,11 +25,17 @@ import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
 import { Select } from "@/components/ui/Select";
 
-const SAGE = "#0d9488";
-const SAGE_DARK = "#0f766e";
+const SAGE = "#0f766e";
+const SAGE_DARK = "#115e59";
 const AMBER = "#d97706";
 const RED = "#dc2626";
-const MUTED = "#a1a1aa";
+const MUTED = "#5c6b6b";
+const GRID = "#e4e9e9";
+
+// Hovered slices grow slightly so the active value is obvious.
+function ActiveSlice(props: React.ComponentProps<typeof Sector>) {
+  return <Sector {...props} outerRadius={Number(props.outerRadius ?? 0) + 6} />;
+}
 
 type PeriodKey = "daily" | "weekly" | "monthly";
 
@@ -34,15 +43,14 @@ function fillDaily(buckets: PeriodBucket[], locale: Locale) {
   const map = new Map(buckets.map((row) => [row.period, row]));
   const numberLocale = getNumberLocale(locale);
   const rows: { label: string; total: number; count: number }[] = [];
-  const cursor = new Date();
-  cursor.setUTCHours(12, 0, 0, 0);
+  const cursor = new Date(`${omanYmd()}T12:00:00Z`);
   for (let i = 13; i >= 0; i -= 1) {
     const day = new Date(cursor);
     day.setUTCDate(cursor.getUTCDate() - i);
     const key = day.toISOString().slice(0, 10);
     const hit = map.get(key);
     rows.push({
-      label: day.toLocaleDateString(numberLocale, { month: "numeric", day: "numeric" }),
+      label: day.toLocaleDateString(numberLocale, { timeZone: "UTC", month: "numeric", day: "numeric" }),
       total: hit?.total ?? 0,
       count: hit?.count ?? 0,
     });
@@ -58,6 +66,21 @@ function chronological(buckets: PeriodBucket[]) {
   }));
 }
 
+// Mounting on first view makes the draw and grow animations visible instead of off screen.
+function ChartOnView({ children }: { children: ReactElement }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.3 });
+  return (
+    <div ref={ref} className="h-full w-full">
+      {inView ? (
+        <ResponsiveContainer width="100%" height="100%">
+          {children}
+        </ResponsiveContainer>
+      ) : null}
+    </div>
+  );
+}
+
 function truncateName(name: string, max = 18) {
   return name.length > max ? `${name.slice(0, max)}…` : name;
 }
@@ -65,6 +88,8 @@ function truncateName(name: string, max = 18) {
 export function DashboardCharts({ report }: { report: FinancialReport }) {
   const { t, locale } = useTranslations();
   const [period, setPeriod] = useState<PeriodKey>("daily");
+  const reduceMotion = useReducedMotion();
+  const animate = !reduceMotion;
 
   const salesData = useMemo(() => {
     if (period === "weekly") return chronological(report.revenueByWeek);
@@ -106,7 +131,8 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
 
   const tooltipStyle = {
     borderRadius: 12,
-    border: "1px solid #e4e4e7",
+    border: "none",
+    boxShadow: "0 12px 30px -8px rgba(15, 24, 32, 0.25)",
     fontSize: 12,
   };
 
@@ -129,7 +155,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
           <p className="py-10 text-center text-sm text-muted">{t("admin.reports.noData")}</p>
         ) : (
           <div className="h-72 w-full" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartOnView>
               <AreaChart data={salesData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1">
@@ -137,10 +163,12 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
                     <stop offset="100%" stopColor={SAGE} stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
-                <XAxis dataKey="label" tick={{ fill: MUTED, fontSize: 11 }} />
-                <YAxis tick={{ fill: MUTED, fontSize: 11 }} width={48} />
+                <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+                <XAxis dataKey="label" tick={{ fill: MUTED, fontSize: 12 }} />
+                <YAxis tick={{ fill: MUTED, fontSize: 12 }} width={48} />
                 <Tooltip
+                  isAnimationActive={animate}
+                  animationDuration={180}
                   contentStyle={tooltipStyle}
                   formatter={(value, name) =>
                     name === "total"
@@ -155,9 +183,12 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
                   strokeWidth={2}
                   fill="url(#salesFill)"
                   name="total"
+                  isAnimationActive={animate}
+                  animationDuration={1400}
+                  activeDot={{ r: 6, strokeWidth: 2, stroke: "#ffffff" }}
                 />
               </AreaChart>
-            </ResponsiveContainer>
+            </ChartOnView>
           </div>
         )}
       </section>
@@ -171,21 +202,23 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
             </p>
           ) : (
             <div className="h-72 w-full" dir="ltr">
-              <ResponsiveContainer width="100%" height="100%">
+              <ChartOnView>
                 <BarChart
                   data={topSellerData}
                   layout="vertical"
                   margin={{ top: 4, right: 12, left: 8, bottom: 4 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" horizontal={false} />
-                  <XAxis type="number" tick={{ fill: MUTED, fontSize: 11 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={GRID} horizontal={false} />
+                  <XAxis type="number" tick={{ fill: MUTED, fontSize: 12 }} />
                   <YAxis
                     type="category"
                     dataKey="name"
                     width={110}
-                    tick={{ fill: "#3f3f46", fontSize: 11 }}
+                    tick={{ fill: "#111c1f", fontSize: 12 }}
                   />
                   <Tooltip
+                    isAnimationActive={animate}
+                    animationDuration={180}
                     contentStyle={tooltipStyle}
                     formatter={(value, name, item) => {
                       const row = item?.payload as { fullName?: string; revenue?: number };
@@ -200,9 +233,9 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
                       return [String(value), String(name)];
                     }}
                   />
-                  <Bar dataKey="quantity" fill={SAGE} radius={[0, 6, 6, 0]} name="quantity" />
+                  <Bar dataKey="quantity" fill={SAGE} radius={[0, 6, 6, 0]} name="quantity" isAnimationActive={animate} animationDuration={1100} activeBar={{ fill: SAGE_DARK }} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartOnView>
             </div>
           )}
         </section>
@@ -213,7 +246,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
             <p className="py-10 text-center text-sm text-muted">{t("admin.reports.noData")}</p>
           ) : (
             <div className="h-72 w-full" dir="ltr">
-              <ResponsiveContainer width="100%" height="100%">
+              <ChartOnView>
                 <PieChart>
                   <Pie
                     data={inventoryData}
@@ -222,15 +255,17 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
                     innerRadius={58}
                     outerRadius={90}
                     paddingAngle={2}
+                    isAnimationActive={animate}
+                    activeShape={ActiveSlice}
                   >
                     {inventoryData.map((row) => (
                       <Cell key={row.name} fill={row.color} />
                     ))}
                   </Pie>
-                  <Legend />
-                  <Tooltip contentStyle={tooltipStyle} />
+                  <Legend formatter={(value) => <span style={{ color: MUTED, fontSize: 12 }}>{value}</span>} />
+                  <Tooltip isAnimationActive={animate} animationDuration={180} contentStyle={tooltipStyle} />
                 </PieChart>
-              </ResponsiveContainer>
+              </ChartOnView>
             </div>
           )}
         </section>
@@ -242,7 +277,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
           <p className="py-10 text-center text-sm text-muted">{t("admin.reports.noData")}</p>
         ) : (
           <div className="mx-auto h-72 w-full max-w-xl" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartOnView>
               <PieChart>
                 <Pie
                   data={orderStatusData}
@@ -251,15 +286,17 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
                   innerRadius={58}
                   outerRadius={90}
                   paddingAngle={2}
+                    isAnimationActive={animate}
+                    activeShape={ActiveSlice}
                 >
                   {orderStatusData.map((row) => (
                     <Cell key={row.name} fill={row.color} />
                   ))}
                 </Pie>
-                <Legend />
-                <Tooltip contentStyle={tooltipStyle} />
+                <Legend formatter={(value) => <span style={{ color: MUTED, fontSize: 12 }}>{value}</span>} />
+                <Tooltip isAnimationActive={animate} animationDuration={180} contentStyle={tooltipStyle} />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartOnView>
           </div>
         )}
       </section>

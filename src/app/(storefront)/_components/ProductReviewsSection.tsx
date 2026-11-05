@@ -1,5 +1,6 @@
 "use client";
 
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -98,7 +99,7 @@ export function ProductReviewsSection({ productId, productSlug }: Props) {
               <div className="flex items-center justify-between gap-2">
                 <StarRow rating={review.rating} />
                 <span className="text-[11px] text-muted">
-                  {new Date(review.created_at).toLocaleDateString(locale)}
+                  {new Date(review.created_at).toLocaleDateString(locale, { timeZone: OMAN_TIME_ZONE })}
                 </span>
               </div>
               <p className="mt-1.5 text-sm font-medium">{review.reviewer_name}</p>

@@ -549,6 +549,11 @@ export type Messages = {
       slugPlaceholder: string;
       titlePlaceholder: string;
       excerptPlaceholder: string;
+      fieldTitle: string;
+      fieldExcerpt: string;
+      fieldBody: string;
+      fieldSlug: string;
+      fieldCover: string;
       bodyPlaceholder: string;
       bodyHint: string;
       langHint: string;
@@ -1119,6 +1124,49 @@ export type Messages = {
     };
     status: Record<string, string>;
   };
+  adminUi: {
+    withLogo: string;
+    withoutLogo: string;
+    searchPages: string;
+    noPages: string;
+    deliveredOrders: string;
+    cancelledOrders: string;
+    greetingMorning: string;
+    greetingAfternoon: string;
+    greetingEvening: string;
+    todaySales: string;
+    storeSettings: string;
+    omanTime: string;
+    total: string;
+    active: string;
+    inactive: string;
+    needsAction: string;
+    onTheWay: string;
+    delivered: string;
+    cancelled: string;
+    lowStock: string;
+    outOfStock: string;
+    published: string;
+    drafts: string;
+    live: string;
+    scheduled: string;
+    ended: string;
+    topLevel: string;
+    subLevel: string;
+    serviceable: string;
+    unanswered: string;
+    answered: string;
+    faqs: string;
+    avgRating: string;
+    fiveStar: string;
+    lowRated: string;
+    withOrders: string;
+    totalSpent: string;
+    newThisMonth: string;
+    activeRiders: string;
+    candidates: string;
+    recentRegistered: string;
+  };
   table: {
     searchDefault: string;
     searchIn: string;
@@ -1135,6 +1183,14 @@ export type Messages = {
     create: string;
     loading: string;
     noData: string;
+    noResults: string;
+    clearFilters: string;
+    pagination: string;
+    sortBy: string;
+    clearDate: string;
+    retry: string;
+    all: string;
+    loadFailed: string;
     closeDetails: string;
     showMore: string;
     pageSize: string;
@@ -1979,6 +2035,11 @@ const fa: Messages = {
       slugPlaceholder: "post-slug (یکتا، لاتین — خالی بگذارید تا خودکار پر شود)",
       titlePlaceholder: "عنوان نوشته",
       excerptPlaceholder: "خلاصهٔ کوتاه (در فهرست بلاگ نمایش داده می‌شود)",
+      fieldTitle: "عنوان",
+      fieldExcerpt: "خلاصه",
+      fieldBody: "متن",
+      fieldSlug: "نشانی (slug)",
+      fieldCover: "تصویر کاور",
       bodyPlaceholder: "متن نوشته…",
       bodyHint: "متن ساده. خط خالی = پاراگراف جدید. خطی که با «## » شروع شود زیرعنوان است.",
       langHint: "همهٔ زبان‌ها را پر کنید. زبان خالی به فارسی برمی‌گردد.",
@@ -2576,6 +2637,49 @@ const fa: Messages = {
       cancelled: "لغو شده",
     },
   },
+  adminUi: {
+    withLogo: "دارای لوگو",
+    withoutLogo: "بدون لوگو",
+    searchPages: "جستجوی صفحات پنل…",
+    noPages: "صفحه‌ای پیدا نشد",
+    deliveredOrders: "سفارش‌های تحویل‌شده",
+    cancelledOrders: "سفارش‌های لغوشده",
+    greetingMorning: "صبح بخیر",
+    greetingAfternoon: "ظهر بخیر",
+    greetingEvening: "عصر بخیر",
+    todaySales: "فروش امروز",
+    storeSettings: "تنظیمات فروشگاه",
+    omanTime: "به وقت عمان",
+    total: "کل",
+    active: "فعال",
+    inactive: "غیرفعال",
+    needsAction: "در انتظار اقدام",
+    onTheWay: "در راه",
+    delivered: "تحویل‌شده",
+    cancelled: "لغوشده",
+    lowStock: "موجودی کم",
+    outOfStock: "ناموجود",
+    published: "منتشرشده",
+    drafts: "پیش‌نویس",
+    live: "فعال الان",
+    scheduled: "زمان‌بندی‌شده",
+    ended: "پایان‌یافته",
+    topLevel: "دسته‌های اصلی",
+    subLevel: "زیردسته‌ها",
+    serviceable: "قابل ارسال",
+    unanswered: "بی‌پاسخ",
+    answered: "پاسخ‌داده‌شده",
+    faqs: "سؤال‌های متداول",
+    avgRating: "میانگین امتیاز",
+    fiveStar: "پنج‌ستاره",
+    lowRated: "امتیاز پایین",
+    withOrders: "دارای سفارش",
+    totalSpent: "مجموع خرید",
+    newThisMonth: "جدید این ماه",
+    activeRiders: "پیک‌ها",
+    candidates: "در انتظار تأیید",
+    recentRegistered: "ثبت‌شده این ماه",
+  },
   table: {
     searchDefault: "جستجو…",
     searchIn: "جستجو در {entity}…",
@@ -2592,6 +2696,14 @@ const fa: Messages = {
     create: "ایجاد",
     loading: "در حال بارگذاری…",
     noData: "داده‌ای یافت نشد",
+    noResults: "نتیجه‌ای برای «{query}» پیدا نشد",
+    clearFilters: "پاک کردن فیلترها",
+    pagination: "صفحه‌بندی",
+    sortBy: "مرتب‌سازی",
+    clearDate: "پاک کردن تاریخ",
+    retry: "دوباره تلاش کنید",
+    all: "همه",
+    loadFailed: "بارگذاری نشد",
     closeDetails: "بستن جزئیات",
     showMore: "نمایش {count} مورد دیگر",
     pageSize: "تعداد در صفحه",
@@ -3431,6 +3543,11 @@ const ar: Messages = {
       slugPlaceholder: "post-slug (فريد، لاتيني — اتركه فارغًا للتعبئة التلقائية)",
       titlePlaceholder: "عنوان المقال",
       excerptPlaceholder: "ملخّص قصير (يظهر في قائمة المدوّنة)",
+      fieldTitle: "العنوان",
+      fieldExcerpt: "الملخص",
+      fieldBody: "النص",
+      fieldSlug: "الرابط (slug)",
+      fieldCover: "صورة الغلاف",
       bodyPlaceholder: "نص المقال…",
       bodyHint: "نص عادي. سطر فارغ = فقرة جديدة. السطر الذي يبدأ بـ \"## \" عنوان فرعي.",
       langHint: "املأ كل اللغات. اللغة الفارغة تعود إلى الفارسية.",
@@ -4028,6 +4145,49 @@ const ar: Messages = {
       cancelled: "ملغى",
     },
   },
+  adminUi: {
+    withLogo: "بشعار",
+    withoutLogo: "بدون شعار",
+    searchPages: "ابحث في صفحات اللوحة…",
+    noPages: "لم يتم العثور على صفحة",
+    deliveredOrders: "الطلبات المسلّمة",
+    cancelledOrders: "الطلبات الملغاة",
+    greetingMorning: "صباح الخير",
+    greetingAfternoon: "مساء الخير",
+    greetingEvening: "مساء الخير",
+    todaySales: "مبيعات اليوم",
+    storeSettings: "إعدادات المتجر",
+    omanTime: "بتوقيت عُمان",
+    total: "الإجمالي",
+    active: "نشط",
+    inactive: "غير نشط",
+    needsAction: "بانتظار الإجراء",
+    onTheWay: "في الطريق",
+    delivered: "تم التسليم",
+    cancelled: "ملغى",
+    lowStock: "مخزون منخفض",
+    outOfStock: "نفد المخزون",
+    published: "منشور",
+    drafts: "مسودات",
+    live: "نشط الآن",
+    scheduled: "مجدول",
+    ended: "منتهٍ",
+    topLevel: "الفئات الرئيسية",
+    subLevel: "الفئات الفرعية",
+    serviceable: "متاح للتوصيل",
+    unanswered: "بلا إجابة",
+    answered: "تمت الإجابة",
+    faqs: "الأسئلة الشائعة",
+    avgRating: "متوسط التقييم",
+    fiveStar: "خمس نجوم",
+    lowRated: "تقييم منخفض",
+    withOrders: "لديهم طلبات",
+    totalSpent: "إجمالي المشتريات",
+    newThisMonth: "جدد هذا الشهر",
+    activeRiders: "السائقون",
+    candidates: "بانتظار الموافقة",
+    recentRegistered: "مسجلون هذا الشهر",
+  },
   table: {
     searchDefault: "بحث…",
     searchIn: "بحث في {entity}…",
@@ -4044,6 +4204,14 @@ const ar: Messages = {
     create: "إنشاء",
     loading: "جاري التحميل…",
     noData: "لا توجد بيانات",
+    noResults: "لا توجد نتائج لـ «{query}»",
+    clearFilters: "مسح عوامل التصفية",
+    pagination: "التنقل بين الصفحات",
+    sortBy: "ترتيب",
+    clearDate: "مسح التاريخ",
+    retry: "إعادة المحاولة",
+    all: "الكل",
+    loadFailed: "تعذر التحميل",
     closeDetails: "إغلاق التفاصيل",
     showMore: "عرض {count} عناصر أخرى",
     pageSize: "عدد في الصفحة",
@@ -4883,6 +5051,11 @@ const en: Messages = {
       slugPlaceholder: "post-slug (unique, latin — leave blank to auto-fill)",
       titlePlaceholder: "Post title",
       excerptPlaceholder: "Short summary (shown on the blog list)",
+      fieldTitle: "Title",
+      fieldExcerpt: "Excerpt",
+      fieldBody: "Body",
+      fieldSlug: "Slug",
+      fieldCover: "Cover image",
       bodyPlaceholder: "Post body…",
       bodyHint: "Plain text. Blank line = new paragraph. A line starting with \"## \" is a sub-heading.",
       langHint: "Fill in every language. A blank language falls back to Persian.",
@@ -5480,6 +5653,49 @@ const en: Messages = {
       cancelled: "Cancelled",
     },
   },
+  adminUi: {
+    withLogo: "With logo",
+    withoutLogo: "Without logo",
+    searchPages: "Search panel pages…",
+    noPages: "No page found",
+    deliveredOrders: "Delivered orders",
+    cancelledOrders: "Cancelled orders",
+    greetingMorning: "Good morning",
+    greetingAfternoon: "Good afternoon",
+    greetingEvening: "Good evening",
+    todaySales: "Sales today",
+    storeSettings: "Store settings",
+    omanTime: "Oman time",
+    total: "Total",
+    active: "Active",
+    inactive: "Inactive",
+    needsAction: "Needs action",
+    onTheWay: "On the way",
+    delivered: "Delivered",
+    cancelled: "Cancelled",
+    lowStock: "Low stock",
+    outOfStock: "Out of stock",
+    published: "Published",
+    drafts: "Drafts",
+    live: "Live now",
+    scheduled: "Scheduled",
+    ended: "Ended",
+    topLevel: "Main categories",
+    subLevel: "Subcategories",
+    serviceable: "Serviceable",
+    unanswered: "Unanswered",
+    answered: "Answered",
+    faqs: "FAQs",
+    avgRating: "Average rating",
+    fiveStar: "Five stars",
+    lowRated: "Low rated",
+    withOrders: "With orders",
+    totalSpent: "Total spent",
+    newThisMonth: "New this month",
+    activeRiders: "Riders",
+    candidates: "Awaiting approval",
+    recentRegistered: "Joined this month",
+  },
   table: {
     searchDefault: "Search…",
     searchIn: "Search in {entity}…",
@@ -5496,6 +5712,14 @@ const en: Messages = {
     create: "Create",
     loading: "Loading…",
     noData: "No data found",
+    noResults: "No results for “{query}”",
+    clearFilters: "Clear filters",
+    pagination: "Pagination",
+    sortBy: "Sort by",
+    clearDate: "Clear date",
+    retry: "Try again",
+    all: "All",
+    loadFailed: "Could not load",
     closeDetails: "Close details",
     showMore: "Show {count} more",
     pageSize: "Rows per page",

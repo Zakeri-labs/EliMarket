@@ -23,11 +23,14 @@ export function ColumnFilter({
   const { t } = useTranslations();
   const resolvedTitle = title ?? t("table.columnFilter");
   const [open, setOpen] = useState(false);
+  const [alignEnd, setAlignEnd] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
+      // A filter dropdown renders in a portal, outside this panel.
+      if ((e.target as Element).closest?.(".select-pop")) return;
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
@@ -48,14 +51,23 @@ export function ColumnFilter({
             ? "!text-foreground"
             : "opacity-0 group-hover/th:opacity-100 focus-visible:opacity-100 max-lg:opacity-100",
         )}
-        onClick={() => setOpen((v) => !v)}
+        onClick={(e) => {
+          // Near the row's far edge the panel opens back inward so it is never clipped.
+          const rect = e.currentTarget.getBoundingClientRect();
+          const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
+          setAlignEnd((rtl ? rect.right : window.innerWidth - rect.left) < 320);
+          setOpen((v) => !v);
+        }}
         aria-label={resolvedTitle}
       >
         <AppIcon icon={Filter} size="xs" />
       </Button>
 
       {open && (
-        <div className="absolute start-0 top-full z-50 mt-2 w-72 admin-card p-4 shadow-lg">
+        <div className={cn(
+            "absolute top-full z-50 mt-2 w-72 admin-card p-4 tracking-normal normal-case shadow-lg",
+            alignEnd ? "end-0" : "start-0",
+          )}>
           <div className="mb-3 flex items-center justify-between gap-2">
             <h4 className="text-sm font-semibold text-foreground">{resolvedTitle}</h4>
             {isActive && (

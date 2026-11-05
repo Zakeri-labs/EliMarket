@@ -1,5 +1,6 @@
 "use client";
 
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Check, Share2, User } from "lucide-react";
@@ -31,6 +32,7 @@ export function BlogCard({ post, priority }: { post: BlogPost; priority?: boolea
   const { date, minutesLabel } = useMemo(() => {
     const numberLocale = getNumberLocale(locale);
     const d = new Intl.DateTimeFormat(numberLocale, {
+      timeZone: OMAN_TIME_ZONE,
       year: "numeric",
       month: "numeric",
       day: "numeric",

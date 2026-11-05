@@ -1,5 +1,7 @@
 "use client";
 
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -17,6 +19,7 @@ import {
 import { resolveFaqText, type FaqItem } from "@/lib/faq/types";
 import { Plus } from "lucide-react";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -57,7 +60,7 @@ export default function AdminQuestionsPage() {
   const [answering, setAnswering] = useState<AdminQuestion | null>(null);
   const [answerText, setAnswerText] = useState("");
 
-  const { data: questions, isPending } = useQuery({
+  const { data: questions, isPending, error: loadError } = useQuery({
     queryKey: ["admin-questions"],
     queryFn: async () => {
       const result = await getAdminQuestionsAction();
@@ -73,7 +76,7 @@ export default function AdminQuestionsPage() {
   const [faqForm, setFaqForm] = useState<FaqInput | null>(null);
   const [faqEditingId, setFaqEditingId] = useState<string | null>(null);
 
-  const { data: faqItems, isPending: isFaqPending } = useQuery({
+  const { data: faqItems, isPending: isFaqPending, error: faqError } = useQuery({
     queryKey: ["admin-faq-items"],
     queryFn: async () => {
       const result = await getAdminFaqItemsAction();
@@ -140,8 +143,16 @@ export default function AdminQuestionsPage() {
     );
   };
 
+  const faqList = useListControls(faqItems ?? []);
+  const list = useListControls(questions ?? []);
+
   return (
     <AdminShell title={t("admin.questions.title")} subtitle={t("admin.questions.subtitle")}>
+      <KpiRow
+        items={[{ label: t("adminUi.unanswered"), value: questions?.filter((q) => !q.answer).length, icon: "question", tone: "amber" },
+{ label: t("adminUi.answered"), value: questions?.filter((q) => q.answer).length, icon: "check", tone: "teal" },
+{ label: t("adminUi.faqs"), value: faqItems?.length, icon: "file", tone: "sky" },]}
+      />
       <div className="space-y-8">
         <section className="space-y-3">
           <div className="flex items-start justify-between gap-3">
@@ -154,11 +165,13 @@ export default function AdminQuestionsPage() {
               {t("admin.questions.faqAdd")}
             </Button>
           </div>
-          {isFaqPending ? (
+          {faqError ? <ListError error={faqError} onRetry={() => void refetchFaq()} /> : null}
+          <ListControls list={faqList} entity={t("admin.nav.questions")} />
+          {faqError && !faqItems ? null : isFaqPending ? (
             <div className="h-24 animate-pulse admin-card" />
           ) : faqItems?.length ? (
             <ul className="space-y-2">
-              {faqItems.map((item) => {
+              {faqList.visible.map((item) => {
                 const text = resolveFaqText(item, locale);
                 return (
                 <li key={item.id} className="admin-card p-4">
@@ -167,7 +180,7 @@ export default function AdminQuestionsPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <p dir="auto" className="text-sm font-semibold text-foreground">{text.question}</p>
                         {!item.is_active && (
-                          <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-xs font-medium text-zinc-600">
+                          <span className="rounded-md bg-background px-1.5 py-0.5 text-xs font-medium text-zinc-600">
                             {t("admin.questions.faqInactiveBadge")}
                           </span>
                         )}
@@ -196,7 +209,9 @@ export default function AdminQuestionsPage() {
 
         <section className="space-y-3">
         <h2 className="text-base font-semibold text-foreground">{t("admin.questions.customerQuestionsTitle")}</h2>
-        {isPending ? (
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ListControls list={list} entity={t("admin.nav.questions")} />
+        {loadError && !questions ? null : isPending ? (
           <ul className="space-y-2">
             {["s1", "s2", "s3"].map((key) => (
               <li
@@ -207,7 +222,7 @@ export default function AdminQuestionsPage() {
           </ul>
         ) : questions?.length ? (
           <ul className="space-y-2">
-            {questions.map((question) => (
+            {list.visible.map((question) => (
               <li
                 key={question.id}
                 className="admin-card p-4"
@@ -222,7 +237,7 @@ export default function AdminQuestionsPage() {
                         className={cn(
                           "rounded-md px-1.5 py-0.5 text-xs font-medium",
                           question.answer
-                            ? "bg-zinc-100 text-foreground"
+                            ? "bg-background text-foreground"
                             : "bg-amber-100 text-amber-700",
                         )}
                       >
@@ -234,9 +249,9 @@ export default function AdminQuestionsPage() {
                     <p className="mt-1 text-xs text-muted">
                       {t("admin.questions.askedByLabel", { name: question.asker_name })}
                       {" · "}
-                      {new Date(question.created_at).toLocaleDateString(locale)}
+                      {new Date(question.created_at).toLocaleDateString(locale, { timeZone: OMAN_TIME_ZONE })}
                     </p>
-                    <p className="mt-2 text-sm text-[#3f3f46]">{question.question}</p>
+                    <p className="mt-2 text-sm text-foreground">{question.question}</p>
                     {question.answer && (
                       <p className="mt-2 rounded-lg bg-background px-3 py-2 text-sm text-foreground">
                         {question.answer}

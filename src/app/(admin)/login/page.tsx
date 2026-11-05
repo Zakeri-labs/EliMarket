@@ -12,7 +12,7 @@ import { BRAND_NAME } from "@/config/brand";
 import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
-  "admin-login-input w-full rounded-xl border border-border !bg-white px-4 py-3 text-sm !text-foreground outline-none caret-[#18181b] placeholder:text-muted focus:border-accent";
+  "admin-login-input w-full rounded-xl border border-input !bg-white px-4 py-3 !text-foreground outline-none caret-[#18181b] placeholder:text-muted focus:border-accent";
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -125,7 +125,7 @@ export default function AdminLoginPage() {
   const { t } = useTranslations();
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
+    <main className="admin-page-enter mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
       <div className="flex justify-center">
         <LanguageTabs className="border-border bg-white [&_button[aria-selected=true]]:bg-accent [&_button[aria-selected=true]]:text-white" />
       </div>

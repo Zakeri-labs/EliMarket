@@ -1,5 +1,6 @@
 "use server";
 
+import { parseOmanInput } from "@/config/oman-time";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/core/supabase/server";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
@@ -55,7 +56,7 @@ function normalize(input: Partial<BlogPostInput>) {
   if (input.sort_order !== undefined) payload.sort_order = input.sort_order;
   if (input.published_at !== undefined) {
     const raw = input.published_at?.trim();
-    payload.published_at = raw ? new Date(raw).toISOString() : new Date().toISOString();
+    payload.published_at = raw ? parseOmanInput(raw).toISOString() : new Date().toISOString();
   }
   return payload;
 }

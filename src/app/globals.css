@@ -99,6 +99,7 @@ html.theme-light {
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
   --color-border: var(--border);
+  --color-input: var(--input);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-card: var(--card);
@@ -361,20 +362,19 @@ html.theme-light .storefront-hills {
 
 /* Admin light theme override */
 .theme-admin {
-  --background: #f1f4f4;
-  --foreground: #111c1f;
+  --background: #fafafa;
+  --foreground: #18181b;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
-  --border: #e4e9e9;
-  --input: #84908f;
-  --muted: #5c6b6b;
-  --muted-foreground: #5c6b6b;
+  --border: #e8e8ea;
+  --muted: #71717a;
+  --muted-foreground: #71717a;
   --card: #ffffff;
-  --card-foreground: #111c1f;
+  --card-foreground: #18181b;
   --accent: #0d9488;
   --accent-dark: #0f766e;
   --accent-foreground: #ffffff;
-  --accent-glow: transparent;
+  --accent-glow: rgba(13, 148, 136, 0.12);
   --on-accent: #ffffff;
   --gold: #8a6d3b;
   --skeleton: #e4e4e7;
@@ -382,59 +382,263 @@ html.theme-light .storefront-hills {
   --danger: #dc2626;
   --destructive: #dc2626;
   --success: #16a34a;
-  --sidebar: #0f1820;
-  --sidebar-foreground: #c3cdcd;
-  --sidebar-muted: #8a9490;
-  --sidebar-accent: #17302f;
-  --card-radius: 18px;
-  --card-shadow: 0 2px 6px rgba(15, 24, 32, 0.06), 0 0 1px rgba(15, 24, 32, 0.1);
   color-scheme: light;
 }
 
-.theme-admin .admin-card {
+/* The admin panel itself; portalled layers add this class on admin routes only. */
+.admin-ui {
+  --background: #f0f5f9;
+  --foreground: #111c2c;
+  --border: #e6ebef;
+  --input: #84908f;
+  --muted: #5b6b86;
+  --muted-foreground: #5b6b86;
+  --card-foreground: #111c2c;
+  /* #0d9488 gives white text only 3.7:1; this shade of the same teal gives 5.5:1. */
+  --accent: #0f766e;
+  --accent-dark: #115e59;
+  --accent-glow: transparent;
+  --brand-dark: #0b4f4a;
+  --brand-hot: #0d8a7f;
+  --sidebar: #12172b;
+  --sidebar-foreground: #bbc0d3;
+  --sidebar-muted: #8990a9;
+  --sidebar-strong: #ffffff;
+  --sidebar-line: rgba(255, 255, 255, 0.15);
+  --sidebar-accent: #1d2440;
+  --card-radius: 18px;
+  --card-shadow: 0 2px 6px rgba(37, 83, 185, 0.08), 0 0 1px rgba(17, 28, 45, 0.08);
+  --card-shadow-hover: 0 12px 30px -2px rgba(58, 75, 122, 0.14);
+  --scroll-thumb: #b9c4c4;
+  --scroll-thumb-hover: #84908f;
+  --omani-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1'%3E%3Crect x='14' y='14' width='28' height='28'/%3E%3Cpath d='M28 8.2 47.8 28 28 47.8 8.2 28Z'/%3E%3Ccircle cx='28' cy='28' r='4.5'/%3E%3Cpath d='M28 0v8.2M28 47.8V56M0 28h8.2M47.8 28H56M0 0l14 14M56 0 42 14M0 56l14-14M56 56 42 42'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.admin-ui tbody > tr {
+  border-color: rgb(230 235 239 / 0.7);
+  transition: background-color 0.2s;
+}
+.admin-ui tbody > tr:not(:has(td[colspan])):hover {
+  background-color: rgb(15 118 110 / 0.04);
+}
+.admin-ui tbody > tr > td:first-child {
+  transition: box-shadow 0.2s;
+}
+.admin-ui tbody > tr:not(:has(td[colspan])):hover > td:first-child {
+  box-shadow: inset 3px 0 var(--accent);
+}
+[dir="rtl"] .admin-ui tbody > tr:not(:has(td[colspan])):hover > td:first-child,
+.admin-ui[dir="rtl"] tbody > tr:not(:has(td[colspan])):hover > td:first-child {
+  box-shadow: inset -3px 0 var(--accent);
+}
+/* translate, not transform: GSAP owns transform on these elements during reveal. */
+.admin-ui [data-slot="button"] {
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, opacity 0.2s, scale 0.15s;
+}
+.admin-ui [data-slot="button"]:hover:not(:disabled) {
+  box-shadow: 0 8px 16px -8px rgb(15 118 110 / 0.5);
+}
+.admin-ui li.admin-card,
+.admin-ui ul > li > .admin-card {
+  transition: translate 0.25s ease, box-shadow 0.25s;
+}
+.admin-ui li.admin-card:hover,
+.admin-ui ul > li > .admin-card:hover {
+  translate: 0 -3px;
+  box-shadow: var(--card-shadow-hover);
+}
+@keyframes admin-kenburns {
+  from {
+    scale: 1;
+  }
+  to {
+    scale: 1.12;
+  }
+}
+.admin-kenburns {
+  animation: admin-kenburns 16s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-kenburns {
+    animation: none;
+  }
+  .admin-ui li.admin-card:hover,
+  .admin-ui ul > li > .admin-card:hover {
+    translate: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-page-scroll {
+    scrollbar-width: none;
+  }
+}
+
+.admin-pattern {
+  position: relative;
+  isolation: isolate;
+}
+.admin-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--omani-tile);
+  background-size: 56px 56px;
+  opacity: 0.09;
+}
+.admin-gradient {
+  background-image: linear-gradient(to right, var(--brand-dark), var(--brand-hot));
+}
+[dir="rtl"] .admin-gradient {
+  background-image: linear-gradient(to left, var(--brand-dark), var(--brand-hot));
+}
+.admin-shine {
+  position: relative;
+  overflow: hidden;
+}
+.admin-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translate(-120%);
+  animation: admin-shine 4.5s ease-in-out infinite;
+}
+@keyframes admin-shine {
+  0%,
+  70% {
+    transform: translate(-120%);
+  }
+  100% {
+    transform: translate(120%);
+  }
+}
+@keyframes admin-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -8px;
+  }
+}
+.admin-float {
+  animation: admin-float 8s ease-in-out -3s infinite;
+}
+@keyframes admin-wave {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  25% {
+    rotate: 18deg;
+  }
+  50% {
+    rotate: -8deg;
+  }
+  75% {
+    rotate: 14deg;
+  }
+}
+.admin-wave {
+  display: inline-block;
+  transform-origin: 70% 80%;
+  animation: admin-wave 2.4s ease-in-out 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-shine::after,
+  .admin-float,
+  .admin-wave {
+    animation: none;
+  }
+}
+
+.admin-ui .admin-card,
+.admin-card.admin-ui {
   border-radius: var(--card-radius);
   background: var(--card);
   box-shadow: var(--card-shadow);
 }
 
-/* Unlayered on purpose: one control size and shape across every admin page. */
-.theme-admin [data-slot="button"],
-.theme-admin [role="combobox"],
-.theme-admin input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"]) {
+/* Sizes stay unlayered so every control matches; shape stays in base so utilities can override. */
+.admin-ui [data-slot="button"],
+.admin-ui [role="combobox"],
+.admin-ui input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [data-plain]) {
   min-height: 2.75rem;
 }
-.theme-admin [data-slot="button"] {
-  border-radius: 9999px;
+.admin-ui [data-slot="button"] {
+  border-radius: 0.75rem;
+  white-space: nowrap;
+  font-size: 0.875rem;
   box-shadow: none;
 }
-.theme-admin [role="combobox"],
-.theme-admin input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"]),
-.theme-admin textarea {
-  border-radius: 0.75rem;
-  border: 1px solid var(--input);
-  font-size: 1rem;
+.admin-ui [role="tablist"] button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-size: 0.75rem;
 }
 @media (min-width: 768px) {
-  .theme-admin [data-slot="button"],
-  .theme-admin [role="combobox"],
-  .theme-admin input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"]) {
+  .admin-ui [data-slot="button"],
+  .admin-ui [role="combobox"],
+  .admin-ui input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [data-plain]) {
     min-height: 2.5rem;
   }
-  .theme-admin [role="combobox"],
-  .theme-admin input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"]),
-  .theme-admin textarea {
-    font-size: 0.875rem;
+  .admin-ui [role="tablist"] button {
+    min-height: 2rem;
+    min-width: 2rem;
   }
 }
-.theme-admin input[type="checkbox"],
-.theme-admin input[type="radio"] {
+/* Inline text actions stay tappable on phones without touching each page. */
+@media (max-width: 767.98px) {
+  .admin-ui .admin-page-scroll button:not([role="switch"]),
+  .admin-ui .app-modal-scroll button:not([role="switch"]) {
+    min-height: 2.75rem;
+  }
+}
+.admin-ui label:has(input[type="file"]:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 9999px;
+}
+.admin-ui textarea {
+  scrollbar-width: thin;
+}
+.admin-ui input[type="checkbox"],
+.admin-ui input[type="radio"] {
   width: 1.25rem;
   height: 1.25rem;
   accent-color: var(--accent);
 }
-.theme-admin :is(a, button, input, textarea, [role="combobox"]):focus-visible {
+.admin-ui :is(a, button, input, textarea, [role="combobox"]):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+html .admin-ui input::placeholder,
+html .admin-ui textarea::placeholder {
+  color: var(--muted);
+}
+@layer base {
+  .admin-ui input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [data-plain]),
+  .admin-ui textarea,
+  .admin-ui [role="combobox"] {
+    border-radius: 0.75rem;
+    border: 1px solid var(--input);
+    font-size: 1rem;
+  }
+  @media (min-width: 768px) {
+    .admin-ui input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [data-plain]),
+    .admin-ui textarea,
+    .admin-ui [role="combobox"] {
+      font-size: 0.875rem;
+    }
+  }
 }
 
 .theme-admin input,
@@ -486,6 +690,45 @@ html.admin-lock-scroll body {
   overscroll-behavior: contain;
 }
 
+@keyframes admin-dialog-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+@keyframes admin-overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+.admin-ui.fixed[role="dialog"] {
+  animation: admin-dialog-in 0.22s ease-out;
+}
+.admin-overlay {
+  animation: admin-overlay-in 0.2s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-ui.fixed[role="dialog"],
+  .admin-overlay {
+    animation: none;
+  }
+}
+
+/* Movement only: a fade left content dim whenever the main thread was busy loading. */
+@keyframes admin-page-enter {
+  from {
+    transform: translateY(8px);
+  }
+}
+.admin-page-enter {
+  animation: admin-page-enter 0.3s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-page-enter {
+    animation: none;
+  }
+}
+
 /* Scrollbar hide for horizontal lists */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -500,7 +743,7 @@ html.admin-lock-scroll body {
 .app-modal-scroll,
 .admin-page-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #b9c4c4 transparent;
+  scrollbar-color: var(--scroll-thumb, #d4d4d8) transparent;
 }
 
 .admin-thin-scroll::-webkit-scrollbar,
@@ -527,14 +770,14 @@ html.admin-lock-scroll body {
 .admin-thin-scroll::-webkit-scrollbar-thumb,
 .app-modal-scroll::-webkit-scrollbar-thumb,
 .admin-page-scroll::-webkit-scrollbar-thumb {
-  background: #b9c4c4;
+  background: var(--scroll-thumb, #d4d4d8);
   border-radius: 8px;
 }
 
 .admin-thin-scroll::-webkit-scrollbar-thumb:hover,
 .app-modal-scroll::-webkit-scrollbar-thumb:hover,
 .admin-page-scroll::-webkit-scrollbar-thumb:hover {
-  background: #84908f;
+  background: var(--scroll-thumb-hover, #a1a1aa);
 }
 
 @keyframes app-spin {

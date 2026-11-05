@@ -24,10 +24,9 @@ body.admin-lock-scroll {
   overscroll-behavior: contain;
 }
 .admin-thin-scroll,
-.app-modal-scroll,
-.admin-page-scroll {
+.app-modal-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #0d9488 #f4f4f5;
+  scrollbar-color: var(--scroll-thumb, #d4d4d8) transparent;
 }
 .admin-thin-scroll::-webkit-scrollbar,
 .app-modal-scroll::-webkit-scrollbar,
@@ -50,13 +49,13 @@ body.admin-lock-scroll {
 .admin-thin-scroll::-webkit-scrollbar-thumb,
 .app-modal-scroll::-webkit-scrollbar-thumb,
 .admin-page-scroll::-webkit-scrollbar-thumb {
-  background: #0d9488;
+  background: var(--scroll-thumb, #d4d4d8);
   border-radius: 8px;
 }
 .admin-thin-scroll::-webkit-scrollbar-thumb:hover,
 .app-modal-scroll::-webkit-scrollbar-thumb:hover,
 .admin-page-scroll::-webkit-scrollbar-thumb:hover {
-  background: #0f766e;
+  background: var(--scroll-thumb-hover, #a1a1aa);
 }
 `;
 
@@ -107,7 +106,7 @@ export function AdminDirRoot({ children }: { children: React.ReactNode }) {
   return (
     <div
       dir={getDirection(locale)}
-      className="theme-admin fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground"
+      className="theme-admin admin-ui fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground"
     >
       {children}
     </div>

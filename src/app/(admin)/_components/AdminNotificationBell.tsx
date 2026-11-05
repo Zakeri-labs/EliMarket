@@ -1,5 +1,6 @@
 "use client";
 
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -189,7 +190,7 @@ export function AdminNotificationBell() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-foreground hover:bg-background"
+        className="relative flex size-11 items-center justify-center rounded-full bg-background text-foreground transition-colors hover:bg-accent/10 md:size-10"
         aria-label={t("admin.notifCenter.title")}
         title={t("admin.notifCenter.title")}
       >
@@ -208,7 +209,7 @@ export function AdminNotificationBell() {
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                className="rounded p-1.5 text-muted hover:bg-background hover:text-foreground"
+                className="rounded p-1.5 text-muted hover:bg-accent/10 hover:text-accent-dark"
                 title={t("admin.notifCenter.markAllRead")}
                 onClick={async () => {
                   await markAllNotificationsReadAction();
@@ -219,7 +220,7 @@ export function AdminNotificationBell() {
               </button>
               <button
                 type="button"
-                className="rounded p-1.5 text-muted hover:bg-background hover:text-foreground"
+                className="rounded p-1.5 text-muted hover:bg-accent/10 hover:text-accent-dark"
                 title={t("admin.notifCenter.clearRead")}
                 onClick={async () => {
                   await deleteReadNotificationsAction();
@@ -243,8 +244,8 @@ export function AdminNotificationBell() {
                 <li
                   key={n.id}
                   className={cn(
-                    "border-b border-[#f4f4f5] last:border-b-0",
-                    !n.read_at && "bg-zinc-100",
+                    "border-b border-border last:border-b-0",
+                    !n.read_at && "bg-background",
                   )}
                 >
                   <div className="flex gap-1">
@@ -262,7 +263,7 @@ export function AdminNotificationBell() {
                       <p className="truncate text-sm font-medium text-foreground">{n.title}</p>
                       <p className="mt-0.5 line-clamp-2 text-xs text-muted">{n.body}</p>
                       <p className="mt-1 text-xs text-muted">
-                        {new Date(n.created_at).toLocaleString(getNumberLocale(locale))}
+                        {new Date(n.created_at).toLocaleString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE })}
                       </p>
                     </Link>
                     <button

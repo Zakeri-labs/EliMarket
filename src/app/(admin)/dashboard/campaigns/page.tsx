@@ -1,5 +1,7 @@
 "use client";
 
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
+import { OMAN_TIME_ZONE, toOmanInput } from "@/config/oman-time";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Upload } from "lucide-react";
@@ -9,6 +11,8 @@ import {
   getAdminCampaignsAction,
   updateCampaignAction,
 } from "@/app/_actions/campaign-actions";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { useAdminProducts } from "@/app/(admin)/dashboard/_hooks/use-admin-products";
 import { Button } from "@/components/ui/Button";
@@ -40,14 +44,8 @@ type FormState = {
   product_ids: string[];
 };
 
-function pad(value: number) {
-  return String(value).padStart(2, "0");
-}
-
 function toLocalInput(iso?: string) {
-  const date = iso ? new Date(iso) : new Date();
-  if (Number.isNaN(date.getTime())) return "";
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return toOmanInput(iso ?? new Date());
 }
 
 function defaultWindow(): Pick<FormState, "starts_at" | "ends_at"> {
@@ -109,7 +107,7 @@ export default function AdminCampaignsPage() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [productQuery, setProductQuery] = useState("");
 
-  const { data: campaigns, isPending } = useQuery({
+  const { data: campaigns, isPending, error: loadError } = useQuery({
     queryKey: ["admin-campaigns"],
     queryFn: async () => {
       const result = await getAdminCampaignsAction();
@@ -142,8 +140,10 @@ export default function AdminCampaignsPage() {
       name: form.name,
       type: form.type,
       discount_value: form.discount_value,
-      starts_at: form.starts_at,
-      ends_at: form.ends_at,
+      starts_at:
+        editing && form.starts_at === toLocalInput(editing.starts_at) ? editing.starts_at : form.starts_at,
+      ends_at:
+        editing && form.ends_at === toLocalInput(editing.ends_at) ? editing.ends_at : form.ends_at,
       is_active: form.is_active,
       show_on_home: form.show_on_home,
       badge: form.badge,
@@ -181,16 +181,19 @@ export default function AdminCampaignsPage() {
 
   const dateLabel = (iso: string) =>
     new Date(iso).toLocaleString(locale === "en" ? "en-GB" : locale === "ar" ? "ar-OM" : "fa-IR", {
+ timeZone: OMAN_TIME_ZONE,
       dateStyle: "short",
       timeStyle: "short",
     });
 
-  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
+
+  const list = useListControls(campaigns ?? []);
 
   return (
-    <AdminShell title={t("admin.campaigns.title")} subtitle={t("admin.campaigns.subtitle")}>
-      <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
+    <AdminShell
+      actions={
+        <>
           <Button
             type="button"
             size="sm"
@@ -199,13 +202,27 @@ export default function AdminCampaignsPage() {
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
             {t("admin.campaigns.newCampaign")}
           </Button>
-        </div>
+        </>
+      } title={t("admin.campaigns.title")} subtitle={t("admin.campaigns.subtitle")}>
+      <KpiRow
+        items={[{ label: t("adminUi.total"), value: campaigns?.length, icon: "percent", tone: "teal" },
+{ label: t("adminUi.live"), value: campaigns?.filter((c) => campaignStatus(c) === "live").length, icon: "check", tone: "sky" },
+{ label: t("adminUi.scheduled"), value: campaigns?.filter((c) => campaignStatus(c) === "scheduled").length, icon: "calendar", tone: "amber" },
+{ label: t("adminUi.ended"), value: campaigns?.filter((c) => campaignStatus(c) === "ended").length, icon: "x", tone: "slate" },]}
+      />
+      <div className="space-y-4">
 
-        {isPending ? (
-          <p className="text-sm text-muted">{t("admin.campaigns.loading")}</p>
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ListControls list={list} entity={t("admin.campaigns.title")} />
+        {loadError && !campaigns ? null : isPending ? (
+          <div className="skeleton space-y-3" aria-busy="true" aria-label={t("admin.campaigns.loading")}>
+            {[0, 1, 2].map((key) => (
+              <div key={key} className="target h-24 rounded-[var(--card-radius)]" />
+            ))}
+          </div>
         ) : campaigns?.length ? (
           <ul className="space-y-3">
-            {campaigns.map((campaign) => {
+            {list.visible.map((campaign) => {
               const status = campaignStatus(campaign);
               return (
                 <li
@@ -347,7 +364,7 @@ export default function AdminCampaignsPage() {
                   <input
                     type="file"
                     accept="image/*"
-                    className="hidden"
+                    className="sr-only"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
@@ -417,26 +434,14 @@ export default function AdminCampaignsPage() {
               </label>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block text-xs text-muted">
+              <div className="block text-xs text-muted">
                 {t("admin.campaigns.startsAt")}
-                <input
-                  className={`${inputClass} mt-1`}
-                  type="datetime-local"
-                  value={form.starts_at}
-                  onChange={(e) => setForm((s) => ({ ...s, starts_at: e.target.value }))}
-                  required
-                />
-              </label>
-              <label className="block text-xs text-muted">
+                <div className="mt-1"><DatePicker withTime aria-label={t("admin.campaigns.startsAt")} value={form.starts_at} onChange={(next) => setForm((s) => ({ ...s, starts_at: next }))} /></div>
+              </div>
+              <div className="block text-xs text-muted">
                 {t("admin.campaigns.endsAt")}
-                <input
-                  className={`${inputClass} mt-1`}
-                  type="datetime-local"
-                  value={form.ends_at}
-                  onChange={(e) => setForm((s) => ({ ...s, ends_at: e.target.value }))}
-                  required
-                />
-              </label>
+                <div className="mt-1"><DatePicker withTime aria-label={t("admin.campaigns.endsAt")} value={form.ends_at} onChange={(next) => setForm((s) => ({ ...s, ends_at: next }))} /></div>
+              </div>
             </div>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -467,7 +472,7 @@ export default function AdminCampaignsPage() {
                 {filteredProducts.map((product) => {
                   const checked = form.product_ids.includes(product.id);
                   return (
-                    <label key={product.id} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-zinc-50">
+                    <label key={product.id} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-background">
                       <input
                         type="checkbox"
                         checked={checked}

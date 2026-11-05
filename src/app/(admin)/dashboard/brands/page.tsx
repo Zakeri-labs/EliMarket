@@ -1,5 +1,6 @@
 "use client";
 
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -12,6 +13,7 @@ import {
   getAdminBrandsAction,
   updateBrandAction,
 } from "@/app/_actions/brand-actions";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -65,7 +67,7 @@ export default function AdminBrandsPage() {
 
   const logoUrl = form.watch("logo_url");
 
-  const { data: brands, isPending } = useQuery({
+  const { data: brands, isPending, error: loadError } = useQuery({
     queryKey: ["admin-brands"],
     queryFn: async () => {
       const result = await getAdminBrandsAction();
@@ -127,37 +129,50 @@ export default function AdminBrandsPage() {
     }
   });
 
-  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
+
+  const list = useListControls(brands ?? []);
 
   return (
     <AdminShell
-      title={t("admin.brands.title")}
-      subtitle={t("admin.brands.subtitle")}
-    >
-      <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
+      actions={
+        <>
           <Button type="button" size="sm" onClick={openCreate}>
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
             {t("admin.brands.newBrand")}
           </Button>
-        </div>
+        </>
+      }
+      title={t("admin.brands.title")}
+      subtitle={t("admin.brands.subtitle")}
+    >
+      <KpiRow
+        items={[
+          { label: t("adminUi.total"), value: brands?.length, icon: "tag", tone: "teal" },
+          { label: t("adminUi.withLogo"), value: brands?.filter((b) => b.logo_url).length, icon: "check", tone: "sky" },
+          { label: t("adminUi.withoutLogo"), value: brands?.filter((b) => !b.logo_url).length, icon: "dashed", tone: "amber" },
+        ]}
+      />
+      <div className="space-y-4">
 
-        {isPending ? (
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ListControls list={list} entity={t("admin.nav.brands")} />
+        {loadError && !brands ? null : isPending ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {SKELETON_KEYS.map((key) => (
-              <li key={key} className="aspect-[4/5] animate-pulse motion-reduce:animate-none rounded-2xl bg-[#e4e4e7]" />
+              <li key={key} className="aspect-[4/5] animate-pulse motion-reduce:animate-none rounded-2xl bg-[var(--skeleton)]" />
             ))}
           </ul>
         ) : brands?.length ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-            {brands.map((brand) => (
+            {list.visible.map((brand) => (
               <li key={brand.id}>
                 <article
                   className={cn(
                     "group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all",
                     editing?.id === brand.id
                       ? "border-accent shadow-[0_8px_24px_rgba(107,143,113,0.18)]"
-                      : "border-border hover:-translate-y-0.5 hover:border-zinc-200 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
+                      : "border-border hover:-translate-y-0.5 hover:border-border hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
                   )}
                 >
                   <button
@@ -175,7 +190,7 @@ export default function AdminBrandsPage() {
                           className="max-h-full max-w-full object-contain"
                         />
                       ) : (
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 text-sm font-semibold text-foreground">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-background text-sm font-semibold text-foreground">
                           {brand.name.slice(0, 2)}
                         </span>
                       )}
@@ -189,7 +204,7 @@ export default function AdminBrandsPage() {
                       </span>
                     </span>
                   </button>
-                  <div className="mt-auto flex items-center justify-between border-t border-[#f4f4f5] px-2 py-1">
+                  <div className="mt-auto flex items-center justify-between border-t border-border px-2 py-1">
                     <span className="rounded-md bg-background px-1.5 py-0.5 text-xs text-muted">
                       {t("admin.brands.sortOrderLabel")} {brand.sort_order}
                     </span>
@@ -291,7 +306,7 @@ export default function AdminBrandsPage() {
                 <input
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  className="sr-only"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;

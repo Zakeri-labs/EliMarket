@@ -1,5 +1,6 @@
 "use client";
 
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import { useState } from "react";
 import { riderMarkPickedUpAction } from "@/app/_actions/rider-actions";
 import { useFormAction } from "@/app/hooks/use-form-action";
@@ -45,8 +46,8 @@ export function AssignedOrderActions({
   }
 
   const pickedTime = new Date(order.picked_up_at).toLocaleTimeString(
-    getNumberLocale(locale),
-    { hour: "2-digit", minute: "2-digit" },
+    getNumberLocale(locale), {
+ timeZone: OMAN_TIME_ZONE, hour: "2-digit", minute: "2-digit" },
   );
 
   return (

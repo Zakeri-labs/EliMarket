@@ -1,5 +1,6 @@
 "use client";
 
+import { omanYmd, toOmanInput } from "@/config/oman-time";
 import * as React from "react";
 import {
   type Column,
@@ -24,6 +25,7 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
+  Search,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -38,7 +40,7 @@ import { TableInput } from "@/components/table/TableInput";
 import "@/components/table/_types/table.types";
 import { Select } from "@/components/ui/Select";
 
-const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
 
 export type DataTableProps<T> = {
   data: T[];
@@ -59,6 +61,8 @@ export type DataTableProps<T> = {
   manualSorting?: boolean;
   manualPagination?: boolean;
   totalItems?: number;
+  /** Renders nothing, e.g. while the page shows a load error instead of an empty table. */
+  hidden?: boolean;
 };
 
 function DefaultTextColumnFilter({
@@ -79,6 +83,20 @@ function DefaultTextColumnFilter({
       onChange={(e) => onFilterChange(e.target.value)}
     />
   );
+}
+
+/** Page numbers around the current page; `null` marks a gap. */
+function pageWindow(current: number, total: number): (number | null)[] {
+  const pages: (number | null)[] = [];
+  for (let page = 0; page < total; page += 1) {
+    if (page === 0 || page === total - 1 || Math.abs(page - current) <= 1) pages.push(page);
+    else if (pages[pages.length - 1] !== null) pages.push(null);
+  }
+  return pages;
+}
+
+function columnWidth<T>(column: Column<T, unknown>): number {
+  return column.columnDef.meta?.minWidth ?? column.columnDef.size ?? 150;
 }
 
 const SKELETON_ROWS = 6;
@@ -113,6 +131,7 @@ export function DataTable<T>({
   manualSorting = false,
   manualPagination = false,
   totalItems: totalItemsProp,
+  hidden = false,
 }: DataTableProps<T>) {
   const { t } = useTranslations();
   const locale = useLocaleStore((s) => s.locale);
@@ -187,12 +206,13 @@ export function DataTable<T>({
   const isFilterActive = (value: unknown) => !isEmptyFilter(value);
 
   const handleColumnFilterChange = React.useCallback((columnId: string, value: unknown) => {
+    onPaginationChange((p) => ({ ...p, pageIndex: 0 }));
     setInternalColumnFilters((prev) => {
       const filtered = prev.filter((f) => f.id !== columnId);
       if (isEmptyFilter(value)) return filtered;
       return [...filtered, { id: columnId, value }];
     });
-  }, []);
+  }, [onPaginationChange]);
 
   const table = useReactTable({
     data,
@@ -207,7 +227,10 @@ export function DataTable<T>({
     onPaginationChange,
     onGlobalFilterChange: setInternalGlobalFilter,
     onColumnFiltersChange: setInternalColumnFilters,
-    onSortingChange: setInternalSorting,
+    onSortingChange: (updater) => {
+      onPaginationChange((p) => ({ ...p, pageIndex: 0 }));
+      setInternalSorting(updater);
+    },
     onColumnVisibilityChange: (updater) => {
       setInternalColumnVisibility((prev) => {
         const next = typeof updater === "function" ? updater(prev) : updater;
@@ -215,6 +238,8 @@ export function DataTable<T>({
       });
     },
     enableColumnFilters,
+    // Saving a row refetches data; that must not send the admin back to page 1.
+    autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -230,21 +255,51 @@ export function DataTable<T>({
   // Tables never scroll sideways: show one only while every visible column fits.
   const visibleColumns = table.getVisibleLeafColumns();
   const requiredWidth = visibleColumns.reduce(
-    (sum, column) => sum + (column.columnDef.meta?.minWidth ?? column.columnDef.size ?? 128),
+    (sum, column) => sum + columnWidth(column),
     0,
   );
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [showTable, setShowTable] = React.useState(false);
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const node = containerRef.current;
     if (!node) return;
+    // The 16px margin stops table and cards flipping around the threshold.
     const measure = () =>
-      setShowTable(window.innerWidth >= 768 && node.clientWidth >= requiredWidth);
+      setShowTable(
+        (shown) =>
+          window.innerWidth >= 768 && node.clientWidth >= requiredWidth + (shown ? 0 : 16),
+      );
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(node);
     return () => observer.disconnect();
-  }, [requiredWidth]);
+  }, [requiredWidth, hidden]);
+
+  const pageTotal = table.getPageCount();
+  React.useLayoutEffect(() => {
+    if (!manualPagination && pagination.pageIndex >= Math.max(pageTotal, 1)) {
+      onPaginationChange((p) => ({ ...p, pageIndex: Math.max(pageTotal - 1, 0) }));
+    }
+  }, [manualPagination, pageTotal, pagination.pageIndex, onPaginationChange]);
+
+  const sortableColumns = visibleColumns.filter((c) => c.getCanSort() && !isImageColumn(c.id));
+  const activeSort = resolvedSorting[0];
+  const hasActiveQuery = resolvedGlobalFilter !== "" || resolvedColumnFilters.length > 0;
+  const clearFilters = () => {
+    onPaginationChange((p) => ({ ...p, pageIndex: 0 }));
+    setInternalGlobalFilter("");
+    setInternalColumnFilters([]);
+  };
+  const emptyContent = hasActiveQuery ? (
+    <div className="space-y-3">
+      <p>{t("table.noResults", { query: resolvedGlobalFilter || "…" })}</p>
+      <Button type="button" variant="outline" size="sm" onClick={clearFilters}>
+        {t("table.clearFilters")}
+      </Button>
+    </div>
+  ) : (
+    t("table.noData")
+  );
 
   const hasImageColumn = table.getVisibleLeafColumns().some((column) => isImageColumn(column.id));
 
@@ -287,13 +342,24 @@ export function DataTable<T>({
     const exportData = onExport
       ? await onExport()
       : (data as Record<string, unknown>[]);
-    const ws = XLSX.utils.json_to_sheet(exportData);
+    // Timestamps leave the panel in Oman time, like everything shown on screen.
+    const omanRows = exportData.map((row) =>
+      Object.fromEntries(
+        Object.entries(row).map(([key, value]) => [
+          key,
+          typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)
+            ? toOmanInput(value).replace("T", " ")
+            : value,
+        ]),
+      ),
+    );
+    const ws = XLSX.utils.json_to_sheet(omanRows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, resolvedEntityName);
     const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     saveAs(
       new Blob([buffer]),
-      `${resolvedEntityName}-${new Date().toISOString().slice(0, 10)}.xlsx`,
+      `${resolvedEntityName}-${omanYmd()}.xlsx`,
     );
   };
 
@@ -307,19 +373,40 @@ export function DataTable<T>({
     ? Math.ceil(totalItems / pagination.pageSize)
     : table.getPageCount();
 
+  if (hidden) return null;
+
   return (
-    <div ref={containerRef} className="min-w-0 w-full max-w-full space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <TableInput
-          placeholder={t("table.searchIn", { entity: resolvedEntityName })}
+    <div
+      ref={containerRef}
+      className={cn("min-w-0 w-full max-w-full", showTable ? "admin-card" : "space-y-4")}
+    >
+      <div
+        className={cn(
+          "flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between",
+          showTable && "px-6 py-4",
+        )}
+      >
+        <label className="relative block min-w-0 sm:max-w-sm sm:flex-1 md:min-w-72">
+          <AppIcon
+            icon={Search}
+            size="sm"
+            className="pointer-events-none absolute start-3.5 top-1/2 z-10 -translate-y-1/2 text-muted"
+          />
+          <TableInput
+            aria-label={t("table.searchIn", { entity: resolvedEntityName })}
+            placeholder={t("table.searchIn", { entity: resolvedEntityName })}
           value={resolvedGlobalFilter}
           onChange={(e) => {
             const value = e.target.value;
             if (manualFiltering) debouncedGlobalFilter(value);
-            else setInternalGlobalFilter(value);
+            else {
+              onPaginationChange((p) => ({ ...p, pageIndex: 0 }));
+              setInternalGlobalFilter(value);
+            }
           }}
-          className="rounded-full sm:max-w-md sm:flex-1 md:min-w-72"
-        />
+          className="rounded-full border-border ps-10"
+          />
+        </label>
 
         <div className="flex flex-wrap items-stretch gap-2 sm:items-center sm:justify-end">
           {onRefresh && (
@@ -327,7 +414,7 @@ export function DataTable<T>({
               type="button"
               variant="ghost"
               size="sm"
-              className="text-muted hover:bg-accent/10 hover:!text-accent-dark"
+              className="border border-border bg-card text-foreground hover:border-accent/40 hover:bg-accent/10 hover:!text-accent-dark"
               onClick={onRefresh}
             >
               <AppIcon icon={RefreshCw} size="xs" className="me-1.5" />
@@ -340,7 +427,7 @@ export function DataTable<T>({
               type="button"
               variant="ghost"
               size="sm"
-              className="text-muted hover:bg-accent/10 hover:!text-accent-dark"
+              className="border border-border bg-card text-foreground hover:border-accent/40 hover:bg-accent/10 hover:!text-accent-dark"
               onClick={() => void handleExport()}
             >
               <AppIcon icon={Download} size="xs" className="me-1.5" />
@@ -348,27 +435,35 @@ export function DataTable<T>({
             </Button>
           )}
 
-          <div className="relative" ref={panelRef}>
+          <div
+            className="relative"
+            ref={panelRef}
+            hidden={!showTable}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setColumnPanelOpen(false);
+            }}
+          >
             <Button
               type="button"
               size="sm"
               variant="ghost"
-              className="text-muted hover:bg-accent/10 hover:!text-accent-dark"
+              className="border border-border bg-card text-foreground hover:border-accent/40 hover:bg-accent/10 hover:!text-accent-dark"
+              aria-expanded={columnPanelOpen}
               onClick={() => setColumnPanelOpen((p) => !p)}
             >
               {t("table.columns")}
             </Button>
 
             {columnPanelOpen && (
-              <div className="fixed inset-x-3 bottom-4 z-50 max-h-[min(24rem,70vh)] space-y-3 overflow-auto rounded-xl border border-border bg-white p-3 shadow-lg sm:absolute sm:inset-x-auto sm:bottom-auto sm:end-0 sm:top-full sm:mt-2 sm:max-h-64 sm:w-64">
+              <div className="fixed inset-x-3 bottom-4 z-50 max-h-[min(24rem,70vh)] space-y-3 overflow-auto rounded-xl border border-border bg-card p-3 shadow-lg sm:absolute sm:inset-x-auto sm:bottom-auto sm:end-0 sm:top-full sm:mt-2 sm:max-h-64 sm:w-64">
                 <div className="text-xs text-muted">{t("table.columnManagement")}</div>
                 <div className="max-h-64 space-y-2 overflow-auto">
                   {table.getAllLeafColumns().map((column) => {
-                    if (!column.getCanHide() || column.id === "id") return null;
+                    if (!column.getCanHide() || column.id === "id" || column.id === "actions") return null;
                     return (
                       <label
                         key={column.id}
-                        className="flex cursor-pointer justify-between text-sm"
+                        className="flex min-h-11 cursor-pointer items-center justify-between text-sm md:min-h-8"
                       >
                         <span>{String(column.columnDef.header ?? column.id)}</span>
                         <input
@@ -444,14 +539,14 @@ export function DataTable<T>({
       )}
 
       {showTable ? (
-        <div className="admin-card min-w-0 w-full">
+        <div className="min-w-0 w-full border-t border-border">
           <table dir={tableDir} className="w-full table-fixed border-collapse">
             <colgroup>
               {visibleColumns.map((column) => (
                 <col
                   key={column.id}
                   style={{
-                    width: `${((column.columnDef.meta?.minWidth ?? column.columnDef.size ?? 128) / requiredWidth) * 100}%`,
+                    width: `${(columnWidth(column) / requiredWidth) * 100}%`,
                   }}
                 />
               ))}
@@ -475,7 +570,7 @@ export function DataTable<T>({
                               ? "descending"
                               : undefined
                         }
-                        className="group/th border-b border-border bg-background/60 px-4 py-3 text-start text-xs font-semibold text-muted first:rounded-ss-[18px] first:ps-6 last:rounded-se-[18px] last:pe-6"
+                        className="group/th bg-[#f0f5f9]/80 px-4 py-3.5 text-start text-[11.5px] font-bold text-muted first:ps-6 last:pe-6 ltr:uppercase ltr:tracking-[.06em]"
                       >
                         <div className="flex min-w-0 items-center gap-1">
                           <button
@@ -532,14 +627,14 @@ export function DataTable<T>({
               ) : table.getRowModel().rows.length === 0 ? (
                 <tr>
                   <td colSpan={visibleColumns.length} className="h-48 text-center text-muted">
-                    {t("table.noData")}
+                    {emptyContent}
                   </td>
                 </tr>
               ) : (
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-border transition-colors last:border-b-0 hover:bg-accent/5"
+                    className="border-t"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
@@ -556,18 +651,39 @@ export function DataTable<T>({
           </table>
         </div>
       ) : isSkeleton ? (
-        <div className="skeleton grid grid-cols-1 gap-3 sm:grid-cols-2" aria-busy>
-          {Array.from({ length: 4 }, (_, i) => (
-            <div key={i} className="admin-card h-36 overflow-hidden">
-              <div className="target h-full w-full !rounded-none" />
-            </div>
-          ))}
+        <div className="skeleton space-y-4" aria-busy>
+          {sortableColumns.length > 0 ? <div className="target h-11 w-full rounded-xl" /> : null}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="admin-card h-36 overflow-hidden">
+                <div className="target h-full w-full !rounded-none" />
+              </div>
+            ))}
+          </div>
         </div>
       ) : table.getRowModel().rows.length === 0 ? (
-        <div className="admin-card flex min-h-48 items-center justify-center p-4 text-sm text-muted">
-          {t("table.noData")}
+        <div className="admin-card flex min-h-48 items-center justify-center p-4 text-center text-sm text-muted">
+          {emptyContent}
         </div>
       ) : (
+        <>
+        {sortableColumns.length > 0 ? (
+          <Select
+            value={activeSort ? `${activeSort.id}:${activeSort.desc ? "desc" : "asc"}` : ""}
+            aria-label={t("table.sortBy")}
+            onChange={(e) => {
+              const [id, dir] = e.target.value.split(":");
+              onPaginationChange((p) => ({ ...p, pageIndex: 0 }));
+              setInternalSorting(id ? [{ id, desc: dir === "desc" }] : []);
+            }}
+          >
+            <option value="">{t("table.sortBy")}</option>
+            {sortableColumns.flatMap((c) => [
+              <option key={`${c.id}-asc`} value={`${c.id}:asc`}>{getColumnHeaderLabel(c)} ↑</option>,
+              <option key={`${c.id}-desc`} value={`${c.id}:desc`}>{getColumnHeaderLabel(c)} ↓</option>,
+            ])}
+          </Select>
+        ) : null}
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {table.getRowModel().rows.map((row) => {
             const cells = row.getVisibleCells();
@@ -594,7 +710,7 @@ export function DataTable<T>({
                 {detailCells.length > 0 ? (
                   <dl className="space-y-2 border-t border-border pt-3">
                     {detailCells.map((cell) => (
-                      <div key={cell.id} className="flex min-w-0 items-start justify-between gap-4">
+                      <div key={cell.id} className="flex min-w-0 items-baseline justify-between gap-4">
                         <dt className="shrink-0 text-xs text-muted">
                           {getColumnHeaderLabel(cell.column)}
                         </dt>
@@ -614,61 +730,86 @@ export function DataTable<T>({
             );
           })}
         </ul>
+        </>
       )}
 
-      <div className="flex flex-col gap-3 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-4">
-          <div className="text-center sm:text-start">
-            {t("table.showing")}{" "}
-            {totalItems === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1}{" "}
-            {t("table.to")}{" "}
-            {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems)}{" "}
-            {t("table.of")} {totalItems}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="whitespace-nowrap">{t("table.pageSize")}</span>
-            <Select
-              value={String(pagination.pageSize)}
-              onChange={(e) => {
-                const nextSize = Number(e.target.value);
-                onPaginationChange((prev) => ({
-                  ...prev,
-                  pageSize: nextSize,
-                  pageIndex: 0,
-                }));
-              }}
-              className="!w-auto"
-              aria-label={t("table.pageSize")}
-            >
-              {(pageSizeOptions.includes(pagination.pageSize)
-                ? pageSizeOptions
-                : [...pageSizeOptions, pagination.pageSize].sort((a, b) => a - b)
-              ).map((size) => (
-                <option key={size} value={String(size)}>
-                  {size}
-                </option>
-              ))}
-            </Select>
-          </div>
-        </div>
-
-        <nav aria-label={t("table.pageSize")} className="flex items-center justify-center gap-1 self-center rounded-full bg-card p-1 shadow-[var(--card-shadow)] sm:self-auto">
+      <div
+        className={cn(
+          "flex flex-wrap items-center gap-3 text-sm text-muted",
+          showTable && "border-t border-border px-6 py-3",
+        )}
+      >
+        <span dir="auto">
+          {t("table.showing")}{" "}
+          {totalItems === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1}{" "}
+          {t("table.to")}{" "}
+          {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems)}{" "}
+          {t("table.of")} {totalItems}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="hidden sm:inline">{t("table.pageSize")}</span>
+          <span className="inline-flex rounded-full bg-background p-0.5">
+            {pageSizeOptions.map((size) => (
+              <button
+                key={size}
+                type="button"
+                aria-pressed={pagination.pageSize === size}
+                onClick={() =>
+                  onPaginationChange((prev) => ({ ...prev, pageSize: size, pageIndex: 0 }))
+                }
+                className={cn(
+                  "min-h-11 min-w-11 rounded-full px-2.5 text-xs font-semibold tabular-nums transition md:min-h-7 md:min-w-8",
+                  pagination.pageSize === size
+                    ? "bg-card text-accent-dark shadow-sm"
+                    : "hover:text-foreground",
+                )}
+              >
+                {size}
+              </button>
+            ))}
+          </span>
+        </span>
+        <nav aria-label={t("table.pagination")} className="ms-auto flex items-center gap-1">
           <button
             type="button"
             aria-label={t("table.prev")}
-            className="grid h-11 w-11 place-items-center rounded-full text-muted transition-colors hover:bg-background disabled:opacity-40 md:h-8 md:w-8"
+            className="grid size-11 place-items-center rounded-full transition hover:bg-accent/10 hover:text-accent-dark disabled:pointer-events-none disabled:opacity-40 md:size-8"
             onClick={() => onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))}
             disabled={pagination.pageIndex === 0}
           >
             <AppIcon icon={tableDir === "rtl" ? ChevronRight : ChevronLeft} size="sm" />
           </button>
-          <span className="min-w-14 text-center text-xs font-semibold text-foreground tabular-nums" aria-current="page">
-            {pagination.pageIndex + 1} / {Math.max(pageCount, 1)}
-          </span>
+          {pageWindow(pagination.pageIndex, Math.max(pageCount, 1)).map((page, index) =>
+            page === null ? (
+              <span key={`gap-${index}`} className="px-1 text-xs">
+                …
+              </span>
+            ) : (
+              <button
+                key={page}
+                type="button"
+                aria-current={page === pagination.pageIndex ? "page" : undefined}
+                onClick={() => onPaginationChange((p) => ({ ...p, pageIndex: page }))}
+                className={cn(
+                  "grid min-h-11 min-w-11 place-items-center rounded-full px-2 text-xs font-semibold tabular-nums transition md:min-h-8 md:min-w-8",
+                  // Keeps Next on screen at 375px: phones show first, current and last only.
+                  Math.abs(page - pagination.pageIndex) === 1 &&
+                    page !== 0 &&
+                    page !== Math.max(pageCount, 1) - 1 &&
+                    "max-md:hidden",
+                  page === pagination.pageIndex
+                    ? "bg-accent text-accent-foreground shadow-sm"
+                    : "hover:bg-accent/10 hover:text-accent-dark",
+                )}
+              >
+                {page + 1}
+              </button>
+            ),
+          )}
           <button
             type="button"
             aria-label={t("table.next")}
-            className="grid h-11 w-11 place-items-center rounded-full text-muted transition-colors hover:bg-background disabled:opacity-40 md:h-8 md:w-8"
+            className="grid size-11 place-items-center rounded-full transition hover:bg-accent/10 hover:text-accent-dark disabled:pointer-events-none disabled:opacity-40 md:size-8"
             onClick={() => onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex + 1 }))}
             disabled={pagination.pageIndex >= pageCount - 1}
           >

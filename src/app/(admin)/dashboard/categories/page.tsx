@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
+import { useMemo, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +13,7 @@ import {
   getAdminCategoriesAction,
   updateCategoryAction,
 } from "@/app/_actions/category-actions";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -81,7 +83,7 @@ export default function AdminCategoriesPage() {
 
   const imageUrl = form.watch("image_url");
 
-  const { data: categories, isPending } = useQuery({
+  const { data: categories, isPending, error: loadError } = useQuery({
     queryKey: ["admin-categories"],
     queryFn: async () => {
       const result = await getAdminCategoriesAction();
@@ -160,15 +162,15 @@ export default function AdminCategoriesPage() {
     }
   });
 
-  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
+
+  const flatCategories = useMemo(() => flattenCategoryTree(categories ?? []), [categories]);
+  const list = useListControls(flatCategories);
 
   return (
     <AdminShell
-      title={t("admin.categories.title")}
-      subtitle={t("admin.categories.subtitle")}
-    >
-      <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
+      actions={
+        <>
           <Button
             type="button"
             size="sm"
@@ -177,24 +179,36 @@ export default function AdminCategoriesPage() {
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
             {t("admin.categories.newCategory")}
           </Button>
-        </div>
+        </>
+      }
+      title={t("admin.categories.title")}
+      subtitle={t("admin.categories.subtitle")}
+    >
+      <KpiRow
+        items={[{ label: t("adminUi.total"), value: categories?.length, icon: "folder", tone: "teal" },
+{ label: t("adminUi.topLevel"), value: categories?.filter((c) => !c.parent_id).length, icon: "box", tone: "sky" },
+{ label: t("adminUi.subLevel"), value: categories?.filter((c) => c.parent_id).length, icon: "tag", tone: "slate" },]}
+      />
+      <div className="space-y-4">
 
-        {isPending ? (
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ListControls list={list} entity={t("admin.nav.categories")} />
+        {loadError && !categories ? null : isPending ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {SKELETON_KEYS.map((key) => (
-              <li key={key} className="aspect-[4/5] animate-pulse motion-reduce:animate-none rounded-2xl bg-[#e4e4e7]" />
+              <li key={key} className="aspect-[4/5] animate-pulse motion-reduce:animate-none rounded-2xl bg-[var(--skeleton)]" />
             ))}
           </ul>
         ) : categories?.length ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-            {flattenCategoryTree(categories).map((cat) => (
+            {list.visible.map((cat) => (
               <li key={cat.id} style={{ paddingInlineStart: `${Math.min(categoryDepth(categories, cat), 4) * 8}px` }}>
                 <article
                   className={cn(
                     "group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all",
                     editing?.id === cat.id
                       ? "border-accent shadow-[0_8px_24px_rgba(107,143,113,0.18)]"
-                      : "border-border hover:-translate-y-0.5 hover:border-zinc-200 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
+                      : "border-border hover:-translate-y-0.5 hover:border-border hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
                   )}
                 >
                   <button
@@ -212,7 +226,7 @@ export default function AdminCategoriesPage() {
                           className="max-h-full max-w-full object-contain"
                         />
                       ) : (
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 text-sm font-semibold text-foreground">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-background text-sm font-semibold text-foreground">
                           {cat.name.slice(0, 2)}
                         </span>
                       )}
@@ -234,7 +248,7 @@ export default function AdminCategoriesPage() {
                       </span>
                     </span>
                   </button>
-                  <div className="mt-auto flex items-center justify-between border-t border-[#f4f4f5] px-2 py-1">
+                  <div className="mt-auto flex items-center justify-between border-t border-border px-2 py-1">
                     <span className="rounded-md bg-background px-1.5 py-0.5 text-xs text-muted">
                       {t("admin.categories.sortOrderLabel")} {cat.sort_order}
                     </span>
@@ -300,13 +314,13 @@ export default function AdminCategoriesPage() {
             <input type="hidden" {...form.register("blur_hash")} />
 
             <div className="space-y-2">
-              <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
+              <div className="flex gap-1 rounded-xl bg-background p-1">
                 {LOCALES.map((loc) => (
                   <button
                     key={loc}
                     type="button"
                     className={cn(
-                      "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+                      "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
                       nameTab === loc
                         ? "bg-white text-foreground"
                         : "text-muted hover:text-foreground",
@@ -385,7 +399,7 @@ export default function AdminCategoriesPage() {
                 <input
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  className="sr-only"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;

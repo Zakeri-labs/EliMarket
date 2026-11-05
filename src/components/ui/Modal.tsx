@@ -2,7 +2,9 @@
 
 import type { ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
+import { cn } from "@/app/utils/cn";
 import { useTranslations } from "@/i18n/use-translations";
 import { Spinner } from "@/components/ui/Spinner";
 
@@ -41,6 +43,7 @@ export function Modal({
   busyLabel,
 }: ModalProps) {
   const { t } = useTranslations();
+  const isAdminRoute = usePathname().startsWith("/dashboard");
 
   return (
     <Dialog.Root
@@ -52,14 +55,19 @@ export function Modal({
     >
       <Dialog.Portal>
         <Dialog.Overlay
-          className="fixed inset-0"
+          className={cn("fixed inset-0", isAdminRoute && "admin-overlay")}
           style={{
             zIndex: 100000,
-            background: "rgba(17, 28, 31, 0.5)",
+            ...(isAdminRoute
+              ? { background: "rgba(17, 28, 31, 0.5)" }
+              : { background: "rgba(24, 24, 27, 0.4)", backdropFilter: "blur(6px)" }),
           }}
         />
         <Dialog.Content
-          className="theme-admin fixed overflow-hidden rounded-[18px] bg-white text-foreground"
+          className={cn(
+            "theme-admin fixed overflow-hidden bg-white text-foreground",
+            isAdminRoute ? "admin-ui rounded-[18px]" : "rounded-2xl",
+          )}
           style={{
             zIndex: 100001,
             left: "50%",
@@ -69,12 +77,14 @@ export function Modal({
             maxHeight: "min(88dvh, 52rem)",
             display: "grid",
             gridTemplateRows: footer ? "auto minmax(0, 1fr) auto" : "auto minmax(0, 1fr)",
-            boxShadow: "0 24px 48px -12px rgba(17, 28, 31, 0.28)",
+            ...(isAdminRoute
+              ? { boxShadow: "0 24px 48px -12px rgba(17, 28, 31, 0.28)" }
+              : { border: "1px solid #e4e4e7", boxShadow: "0 24px 64px rgba(24, 24, 27, 0.18)" }),
           }}
         >
-          <div className="flex shrink-0 items-start justify-between gap-2 border-b border-zinc-100 px-5 py-4 text-foreground">
+          <div className={cn("flex shrink-0 items-start justify-between gap-2 border-b px-5 py-4 text-foreground", isAdminRoute ? "border-border" : "border-zinc-100")}>
             <div className="min-w-0 flex-1 pe-1">
-              <Dialog.Title className="flex items-center gap-2 text-lg font-semibold">
+              <Dialog.Title className={cn("flex items-center gap-2 text-lg font-semibold", !isAdminRoute && "tracking-tight sm:text-xl")}>
                 {busy ? <Spinner size="sm" className="text-muted" label={busyLabel} /> : null}
                 {title}
               </Dialog.Title>
@@ -94,7 +104,7 @@ export function Modal({
               <button
                 type="button"
                 disabled={busy}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full md:h-10 md:w-10 transition-colors text-muted hover:bg-zinc-100 hover:text-foreground disabled:opacity-40"
+                className={cn("flex shrink-0 items-center justify-center transition-colors text-muted hover:bg-zinc-100 hover:text-foreground disabled:opacity-40", isAdminRoute ? "h-11 w-11 rounded-full md:h-10 md:w-10" : "h-10 w-10 rounded-xl")}
                 aria-label={t("table.close")}
               >
                 <X className="h-5 w-5" />
@@ -110,7 +120,7 @@ export function Modal({
           </div>
 
           {footer ? (
-            <div className="relative flex shrink-0 flex-col gap-2 border-t border-zinc-100 bg-zinc-50/60 px-5 py-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-3 [&_button]:w-full sm:[&_button]:w-auto sm:[&_button]:min-w-32">
+            <div className={cn("relative flex shrink-0 flex-col gap-2 border-t bg-background/60 px-5 py-3 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-3 [&_button]:w-full sm:[&_button]:w-auto sm:[&_button]:min-w-32", isAdminRoute ? "border-border" : "border-zinc-100")}>
               {footer}
             </div>
           ) : null}

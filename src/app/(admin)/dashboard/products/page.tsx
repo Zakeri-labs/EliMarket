@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/app/utils/cn";
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -37,6 +39,7 @@ import type {
   ProductFeatureInput,
   ProductImageInput,
 } from "@/app/_types/database.types";
+import { ListError } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -135,7 +138,7 @@ const DEFAULT_FORM_VALUES: FormValues = {
 };
 
 export default function AdminProductsPage() {
-  const { data: products, refetch, isPending: isProductsPending } = useAdminProducts();
+  const { data: products, refetch, isPending: isProductsPending, error: loadError } = useAdminProducts();
   const { runAction, isPending: isActionPending } = useFormAction();
   const { t } = useTranslations();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -143,6 +146,7 @@ export default function AdminProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [stockDrafts, setStockDrafts] = useState<Record<string, string>>({});
+  const [savingStockId, setSavingStockId] = useState<string | null>(null);
   const [descriptionTab, setDescriptionTab] = useState<DescriptionLocale>("fa");
   const [featuresTab, setFeaturesTab] = useState<DescriptionLocale>("fa");
   const [features, setFeatures] = useState<FeatureDraft[]>([{ ...EMPTY_FEATURE }]);
@@ -394,6 +398,7 @@ export default function AdminProductsPage() {
   };
 
   const saveStock = (productId: string) => {
+    setSavingStockId(productId);
     const value = Number(stockDrafts[productId]);
     if (Number.isNaN(value) || value < 0) return;
     runAction(() => updateProductStockAction(productId, value), {
@@ -409,6 +414,7 @@ export default function AdminProductsPage() {
     () => [
       {
         accessorKey: "image_url",
+        meta: { minWidth: 88 },
         header: t("admin.products.colImage"),
         enableSorting: false,
         cell: ({ row }) => {
@@ -431,6 +437,7 @@ export default function AdminProductsPage() {
       },
       {
         accessorKey: "name",
+        meta: { minWidth: 300 },
         header: t("admin.products.colName"),
         cell: ({ row }) => (
           <div>
@@ -465,6 +472,7 @@ export default function AdminProductsPage() {
       },
       {
         accessorKey: "price",
+        meta: { minWidth: 110 },
         header: t("admin.products.colPrice"),
         cell: ({ getValue }) => (
           <Price amount={Number(getValue())} />
@@ -472,13 +480,15 @@ export default function AdminProductsPage() {
       },
       {
         accessorKey: "stock",
+        meta: { minWidth: 190 },
         header: t("admin.products.colStock"),
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
             <input
               type="number"
               min={0}
-              className="w-16 rounded border border-border px-2 py-1 text-sm"
+              aria-label={t("admin.products.colStock")}
+              className="w-16 rounded-xl border border-input bg-card px-2"
               value={stockDrafts[row.original.id] ?? row.original.stock}
               onChange={(e) =>
                 setStockDrafts((s) => ({ ...s, [row.original.id]: e.target.value }))
@@ -488,11 +498,16 @@ export default function AdminProductsPage() {
               type="button"
               title={t("admin.products.saveStock")}
               aria-label={t("admin.products.saveStock")}
-              className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-accent text-white transition-colors hover:bg-accent disabled:opacity-50"
+              className={cn(
+                "inline-flex h-11 min-w-11 items-center justify-center rounded-full bg-accent text-white transition-colors hover:bg-accent-dark disabled:opacity-50 md:h-9 md:min-w-9",
+                // Only offered once the number changed; the space stays so columns do not shift.
+                (stockDrafts[row.original.id] ?? String(row.original.stock)) ===
+                  String(row.original.stock) && "invisible",
+              )}
               disabled={isActionPending}
               onClick={() => saveStock(row.original.id)}
             >
-              {isActionPending ? (
+              {isActionPending && savingStockId === row.original.id ? (
                 <Spinner size="sm" />
               ) : (
                 <AppIcon icon={Check} size="xs" />
@@ -510,7 +525,7 @@ export default function AdminProductsPage() {
               className={`rounded-full px-2 py-0.5 text-xs ${
                 row.original.is_active
                   ? "bg-emerald-100 text-emerald-800"
-                  : "bg-zinc-100 text-zinc-600"
+                  : "bg-background text-zinc-600"
               }`}
             >
               {row.original.is_active
@@ -523,7 +538,7 @@ export default function AdminProductsPage() {
               </span>
             )}
             {isLowStock(row.original) && (
-              <span className="mt-1 block text-xs text-amber-600">
+              <span className="mt-1 block text-xs text-amber-800">
                 {t("admin.products.lowStock")}
               </span>
             )}
@@ -534,11 +549,12 @@ export default function AdminProductsPage() {
           return value === "active" ? row.original.is_active : !row.original.is_active;
         },
         meta: {
+          minWidth: 130,
           filterComponent: ({ value, onFilterChange }) => (
             <Select
               
               value={typeof value === "string" ? value : "all"}
-              onChange={(e) => onFilterChange(e.target.value)}
+              onChange={(e) => onFilterChange(e.target.value === "all" ? null : e.target.value)}
             >
               <option value="all">{t("admin.products.filterAll")}</option>
               <option value="active">{t("admin.products.filterActive")}</option>
@@ -549,6 +565,7 @@ export default function AdminProductsPage() {
       },
       {
         id: "actions",
+        meta: { minWidth: 110 },
         header: t("admin.products.colActions"),
         enableSorting: false,
         enableColumnFilter: false,
@@ -575,10 +592,16 @@ export default function AdminProductsPage() {
       title={t("admin.products.title")}
       subtitle={t("admin.products.subtitle")}
     >
+      <KpiRow
+        items={[{ label: t("adminUi.total"), value: products?.length, icon: "box", tone: "teal" },
+{ label: t("adminUi.active"), value: products?.filter((p) => p.is_active).length, icon: "check", tone: "sky" },
+{ label: t("adminUi.lowStock"), value: products?.filter((p) => p.stock > 0 && p.stock <= (p.low_stock_threshold ?? 5)).length, icon: "alert", tone: "amber" },
+{ label: t("adminUi.outOfStock"), value: products?.filter((p) => p.stock <= 0).length, icon: "boxOff", tone: "rose" },]}
+      />
       <div className="space-y-4">
         <Link
           href="/dashboard/products/smart"
-          className="flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-zinc-100 px-4 py-3"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-background px-4 py-3"
         >
           <div>
             <p className="text-sm font-semibold text-foreground">{t("admin.products.smartRegister")}</p>
@@ -617,12 +640,12 @@ export default function AdminProductsPage() {
             onSubmit={onSubmit}
             className="space-y-3"
           >
-          <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
+          <div className="flex gap-1 rounded-xl bg-background p-1">
             {DESCRIPTION_TABS.map((tab) => (
               <button
                 key={tab.key}
                 type="button"
-                className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
+                className={`min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8 ${
                   descriptionTab === tab.key
                     ? "bg-white text-foreground"
                     : "text-muted hover:text-foreground"
@@ -862,12 +885,12 @@ export default function AdminProductsPage() {
                 {t("admin.products.addFeature")}
               </Button>
             </div>
-            <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
+            <div className="flex gap-1 rounded-xl bg-background p-1">
               {DESCRIPTION_TABS.map((tab) => (
                 <button
                   key={tab.key}
                   type="button"
-                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
+                  className={`min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8 ${
                     featuresTab === tab.key
                       ? "bg-white text-foreground"
                       : "text-muted hover:text-foreground"
@@ -1032,7 +1055,7 @@ export default function AdminProductsPage() {
                   type="file"
                   accept="image/*"
                   multiple
-                  className="hidden"
+                  className="sr-only"
                   disabled={galleryBusy || gallery.length >= MAX_GALLERY_IMAGES}
                   onChange={(event) => {
                     void uploadGalleryFiles(event.target.files);
@@ -1065,7 +1088,9 @@ export default function AdminProductsPage() {
           </form>
         </Modal>
 
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
         <DataTable
+            hidden={Boolean(loadError) && !products}
             data={tableData}
             columns={columns}
             entityName={t("admin.products.entityName")}

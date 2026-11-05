@@ -1,5 +1,6 @@
 "use client";
 
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
@@ -65,6 +66,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   const meta = useMemo(() => {
     const numberLocale = getNumberLocale(locale);
     const date = new Intl.DateTimeFormat(numberLocale, {
+      timeZone: OMAN_TIME_ZONE,
       year: "numeric",
       month: "numeric",
       day: "numeric",

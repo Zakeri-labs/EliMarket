@@ -93,7 +93,7 @@ export function ReceiptSettings({ className }: Props) {
   };
 
   const inputClass =
-    "w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-accent disabled:opacity-55";
+    "w-full rounded-lg border border-input px-3 py-2 outline-none focus:border-accent disabled:opacity-55";
   const fieldDir = langTab === "en" ? "ltr" : "rtl";
 
   return (
@@ -103,13 +103,13 @@ export function ReceiptSettings({ className }: Props) {
         <p className="text-xs text-muted">{t("admin.receiptSettings.desc")}</p>
       </div>
 
-      <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
+      <div className="flex gap-1 rounded-xl bg-background p-1">
         {LOCALES.map((loc) => (
           <button
             key={loc}
             type="button"
             className={cn(
-              "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+              "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
               langTab === loc
                 ? "bg-white text-foreground"
                 : "text-muted hover:text-foreground",
@@ -122,7 +122,7 @@ export function ReceiptSettings({ className }: Props) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-medium text-[#3f3f46]">
+        <label className="block text-xs font-medium text-foreground">
           {t("admin.receiptSettings.storeName")}
           <input
             key={`name-${langTab}`}
@@ -134,7 +134,7 @@ export function ReceiptSettings({ className }: Props) {
           />
         </label>
 
-        <label className="block text-xs font-medium text-[#3f3f46]">
+        <label className="block text-xs font-medium text-foreground">
           {t("admin.receiptSettings.storeAddress")}
           <textarea
             key={`address-${langTab}`}
@@ -147,7 +147,7 @@ export function ReceiptSettings({ className }: Props) {
           />
         </label>
 
-        <label className="block text-xs font-medium text-[#3f3f46]">
+        <label className="block text-xs font-medium text-foreground">
           {t("admin.receiptSettings.footer")}
           <input
             key={`footer-${langTab}`}
@@ -159,7 +159,7 @@ export function ReceiptSettings({ className }: Props) {
           />
         </label>
 
-        <label className="block text-xs font-medium text-[#3f3f46]">
+        <label className="block text-xs font-medium text-foreground">
           {t("admin.receiptSettings.storePhone")}
           <input
             className={cn(inputClass, "mt-1")}

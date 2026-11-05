@@ -1,5 +1,6 @@
 "use client";
 
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Upload } from "lucide-react";
@@ -9,6 +10,7 @@ import {
   getAdminHeroBannersAction,
   updateHeroBannerAction,
 } from "@/app/_actions/banner-actions";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -102,7 +104,7 @@ function BannerImageField({
 
   return (
     <div className="space-y-2 rounded-xl border border-border p-3">
-      <p className="text-xs font-medium text-[#3f3f46]">{label}</p>
+      <p className="text-xs font-medium text-foreground">{label}</p>
       {hint ? <p className="text-xs text-muted">{hint}</p> : null}
 
       {value ? (
@@ -133,7 +135,7 @@ function BannerImageField({
           <input
             type="file"
             accept="image/*"
-            className="hidden"
+            className="sr-only"
             disabled={uploading}
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -176,7 +178,7 @@ export default function AdminBannersPage() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [langTab, setLangTab] = useState<Locale>("fa");
 
-  const { data: banners, isPending } = useQuery({
+  const { data: banners, isPending, error: loadError } = useQuery({
     queryKey: ["admin-hero-banners"],
     queryFn: async () => {
       const result = await getAdminHeroBannersAction();
@@ -276,12 +278,14 @@ export default function AdminBannersPage() {
   };
 
   const inputClass =
-    "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
+    "w-full rounded-xl border border-input px-3 py-2.5";
+
+  const list = useListControls(banners ?? []);
 
   return (
-    <AdminShell title={t("admin.banners.title")} subtitle={t("admin.banners.subtitle")}>
-      <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
+    <AdminShell
+      actions={
+        <>
           <Button
             type="button"
             size="sm"
@@ -290,9 +294,18 @@ export default function AdminBannersPage() {
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
             {t("admin.banners.newBanner")}
           </Button>
-        </div>
+        </>
+      } title={t("admin.banners.title")} subtitle={t("admin.banners.subtitle")}>
+      <KpiRow
+        items={[{ label: t("adminUi.total"), value: banners?.length, icon: "banner", tone: "teal" },
+{ label: t("adminUi.active"), value: banners?.filter((b) => b.is_active).length, icon: "check", tone: "sky" },
+{ label: t("adminUi.inactive"), value: banners?.filter((b) => !b.is_active).length, icon: "hidden", tone: "slate" },]}
+      />
+      <div className="space-y-4">
 
-        {isPending ? (
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ListControls list={list} entity={t("admin.banners.title")} />
+        {loadError && !banners ? null : isPending ? (
           <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {SKELETON_KEYS.map((key) => (
               <li
@@ -303,7 +316,7 @@ export default function AdminBannersPage() {
           </ul>
         ) : banners?.length ? (
           <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {banners.map((banner) => (
+            {list.visible.map((banner) => (
               <li key={banner.id}>
                 <article
                   className={cn(
@@ -477,16 +490,16 @@ export default function AdminBannersPage() {
             />
 
             <div className="space-y-2 rounded-xl border border-border p-3">
-              <p className="text-xs font-medium text-[#3f3f46]">
+              <p className="text-xs font-medium text-foreground">
                 {t("admin.banners.textSection")}
               </p>
-              <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
+              <div className="flex gap-1 rounded-xl bg-background p-1">
                 {LOCALES.map((loc) => (
                   <button
                     key={loc}
                     type="button"
                     className={cn(
-                      "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
+                      "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
                       langTab === loc
                         ? "bg-white text-foreground"
                         : "text-muted hover:text-foreground",

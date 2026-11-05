@@ -1,8 +1,11 @@
 "use client";
 
+import { KpiCard } from "@/app/(admin)/_components/KpiCards";
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import Link from "next/link";
 import { type ReactNode, useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
+import { ListError } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
 import { DataTable } from "@/components/table";
@@ -22,13 +25,7 @@ const STATUS_KEYS: OrderStatus[] = [
 ];
 
 function StatCard({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
-  return (
-    <div className="admin-card p-5">
-      <p className="text-sm text-muted">{label}</p>
-      <p className="mt-2 text-2xl font-bold text-foreground">{value}</p>
-      {sub && <p className="mt-1 text-xs text-muted">{sub}</p>}
-    </div>
-  );
+  return <KpiCard item={{ label, value, sub, icon: "chart" }} />;
 }
 
 export default function AdminReportsPage() {
@@ -41,6 +38,7 @@ export default function AdminReportsPage() {
     () => [
       {
         accessorKey: "id",
+        meta: { minWidth: 120 },
         header: t("admin.reports.colId"),
         cell: ({ getValue }) => (
           <span className="font-mono text-xs" dir="ltr">
@@ -50,9 +48,10 @@ export default function AdminReportsPage() {
       },
       {
         accessorKey: "created_at",
+        meta: { minWidth: 150 },
         header: t("admin.reports.colDate"),
         cell: ({ getValue }) =>
-          new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale)),
+          new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE }),
       },
       {
         accessorKey: "status",
@@ -61,6 +60,7 @@ export default function AdminReportsPage() {
         filterFn: (row, _id, value) =>
           !value || String(row.original.status) === String(value),
         meta: {
+          minWidth: 130,
           filterComponent: ({ value, onFilterChange }) => (
             <Select
               
@@ -79,12 +79,14 @@ export default function AdminReportsPage() {
       },
       {
         accessorKey: "payment_method",
+        meta: { minWidth: 120 },
         header: t("admin.reports.colPayment"),
         cell: ({ getValue }) =>
           getValue() === "cash" ? t("admin.payment.cash") : t("admin.payment.online"),
       },
       {
         accessorKey: "total",
+        meta: { minWidth: 110 },
         header: t("admin.reports.colAmount"),
         cell: ({ getValue }) => (
           <Price amount={Number(getValue())} className="font-medium" />
@@ -97,7 +99,7 @@ export default function AdminReportsPage() {
   return (
     <AdminShell title={t("admin.reports.title")} subtitle={t("admin.reports.subtitle")}>
       {isSkeleton && <p className="text-muted">{t("admin.reports.loading")}</p>}
-      {error && <p className="text-red-600">{error.message}</p>}
+      {error && <ListError error={error} onRetry={() => void refetch()} />}
 
       {report && (
         <div className="space-y-8">
@@ -171,7 +173,7 @@ export default function AdminReportsPage() {
             <section className="admin-card p-5">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-semibold">{t("admin.reports.lowStock")}</h2>
-                <Link href="/dashboard/products" className="text-xs text-foreground">
+                <Link href="/dashboard/products" className="inline-flex min-h-11 items-center text-xs font-medium text-accent-dark md:min-h-8">
                   {t("admin.reports.manageProducts")}
                 </Link>
               </div>
@@ -192,7 +194,7 @@ export default function AdminReportsPage() {
             </section>
           </div>
 
-          <section className="admin-card p-5">
+          <section>
             <h2 className="mb-4 font-semibold">{t("admin.reports.recentOrders")}</h2>
             <DataTable
               data={report.recentOrders}
@@ -203,7 +205,7 @@ export default function AdminReportsPage() {
               onExport={async () =>
                 report.recentOrders.map((order) => ({
                   id: order.id.slice(0, 8),
-                  date: new Date(order.created_at).toLocaleDateString(getNumberLocale(locale)),
+                  date: new Date(order.created_at).toLocaleDateString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE }),
                   status: t(`admin.status.${order.status}`),
                   payment:
                     order.payment_method === "cash"

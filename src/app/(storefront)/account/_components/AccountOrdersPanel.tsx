@@ -1,5 +1,6 @@
 "use client";
 
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import Link from "next/link";
 import { useOrders } from "@/app/(admin)/dashboard/_hooks/use-orders";
 import { useLocaleStore } from "@/app/_store/locale-store";
@@ -39,7 +40,7 @@ export function AccountOrdersPanel() {
                 </span>
               </div>
               <p className="mt-1 text-xs text-muted md:text-sm">
-                {new Date(order.created_at).toLocaleDateString(getNumberLocale(locale))}
+                {new Date(order.created_at).toLocaleDateString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE })}
               </p>
               <Price
                 amount={Number(order.total)}

@@ -1,5 +1,6 @@
 "use server";
 
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
 import { actionErrorMessage } from "@/i18n/action-error";
 import { isMissingCampaignsRelation } from "@/lib/campaigns/load";
@@ -53,10 +54,10 @@ export type FinancialReport = {
   liveCampaigns: number;
 };
 
-const STORE_TZ = "Asia/Muscat";
+const STORE_TZ = OMAN_TIME_ZONE;
 
 function isoWeekKey(date: Date) {
-  const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const utc = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   const day = utc.getUTCDay() || 7;
   utc.setUTCDate(utc.getUTCDate() + 4 - day);
   const yearStart = new Date(Date.UTC(utc.getUTCFullYear(), 0, 1));
@@ -183,7 +184,11 @@ export async function getFinancialReportAction() {
       ["pending", "confirmed", "preparing", "out_for_delivery"].includes(o.status),
     );
     const cancelled = list.filter((o) => o.status === "cancelled");
-    const sales = list.filter((o) => o.status !== "cancelled");
+    // An unpaid online order is not a sale yet; it stays pending until payment settles.
+    const sales = list.filter(
+      (o) =>
+        o.status !== "cancelled" && (o.payment_method !== "online" || o.payment_status === "paid"),
+    );
 
     const sum = (items: Order[]) =>
       items.reduce((acc, o) => acc + Number(o.total), 0);
@@ -234,9 +239,9 @@ export async function getFinancialReportAction() {
       onlineRevenue,
       lowStockProducts,
       recentOrders: list.slice(0, 8),
-      revenueByDay: bucketize(delivered, (d) => d.toISOString().slice(0, 10)).slice(0, 14),
-      revenueByWeek: bucketize(delivered, isoWeekKey).slice(0, 12),
-      revenueByMonth: bucketize(delivered, (d) => d.toISOString().slice(0, 7)).slice(0, 12),
+      revenueByDay: bucketize(delivered, (d) => zonedYmd(d)).slice(0, 14),
+      revenueByWeek: bucketize(delivered, (d) => isoWeekKey(new Date(`${zonedYmd(d)}T00:00:00Z`))).slice(0, 12),
+      revenueByMonth: bucketize(delivered, (d) => zonedYmd(d).slice(0, 7)).slice(0, 12),
       today: summarizePeriod(sales, (ymd) => ymd === today),
       week: summarizePeriod(sales, (ymd) => ymd >= weekStart && ymd <= today),
       month: summarizePeriod(sales, (ymd) => ymd >= monthStart && ymd <= today),
@@ -246,7 +251,7 @@ export async function getFinancialReportAction() {
       inventory: {
         total: products.length,
         active: products.filter((product) => product.is_active !== false).length,
-        lowStock: products.filter((product) => product.stock <= (product.low_stock_threshold ?? 5)).length,
+        lowStock: products.filter((product) => product.stock > 0 && product.stock <= (product.low_stock_threshold ?? 5)).length,
         outOfStock: products.filter((product) => product.stock <= 0).length,
       },
       liveCampaigns,

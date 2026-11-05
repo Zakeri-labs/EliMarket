@@ -1,5 +1,7 @@
 "use client";
 
+import { KpiRow, PersonCell } from "@/app/(admin)/_components/KpiCards";
+import { OMAN_TIME_ZONE, omanYmd } from "@/config/oman-time";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -13,6 +15,7 @@ import {
   type AdminRider,
   type RiderDetailsInput,
 } from "@/app/_actions/rider-admin-actions";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -23,7 +26,7 @@ import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
-  "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-accent";
+  "w-full rounded-xl border border-input bg-background px-3 py-2.5 outline-none focus:border-accent";
 
 const EMPTY_FORM: RiderDetailsInput = {
   firstName: "",
@@ -98,15 +101,20 @@ export default function AdminRidersPage() {
     () => [
       {
         id: "name",
+        meta: { minWidth: 200 },
         header: t("admin.riders.colName"),
         cell: ({ row }) => {
           const d = row.original.details;
-          if (d) return `${d.first_name} ${d.last_name}`;
-          return row.original.full_name || t("account.defaultUser");
+          return (
+            <PersonCell
+              name={d ? `${d.first_name} ${d.last_name}` : row.original.full_name || t("account.defaultUser")}
+            />
+          );
         },
       },
       {
         id: "civilId",
+        meta: { minWidth: 120 },
         header: t("admin.riders.colCivilId"),
         cell: ({ row }) => (
           <span dir="ltr">{row.original.details?.civil_id ?? "—"}</span>
@@ -114,6 +122,7 @@ export default function AdminRidersPage() {
       },
       {
         accessorKey: "phone",
+        meta: { minWidth: 150 },
         header: t("admin.riders.colPhone"),
         cell: ({ row }) => (
           <span dir="ltr">{row.original.details?.phone || row.original.phone || "—"}</span>
@@ -121,6 +130,7 @@ export default function AdminRidersPage() {
       },
       {
         id: "address",
+        meta: { minWidth: 200 },
         header: t("admin.riders.colAddress"),
         cell: ({ row }) => (
           <span className="line-clamp-2 max-w-[16rem] text-xs">
@@ -130,12 +140,14 @@ export default function AdminRidersPage() {
       },
       {
         accessorKey: "created_at",
+        meta: { minWidth: 110 },
         header: t("admin.riders.colJoined"),
         cell: ({ getValue }) =>
-          new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale)),
+          new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE }),
       },
       {
         id: "actions",
+        meta: { minWidth: 150 },
         header: t("admin.riders.colActions"),
         cell: ({ row }) => (
           <Button
@@ -163,23 +175,33 @@ export default function AdminRidersPage() {
     ? t("admin.riders.approveTitle")
     : t("admin.riders.registerTitle");
 
+  const candidateList = useListControls(candidatesQuery.data ?? []);
+
   return (
-    <AdminShell title={t("admin.riders.title")} subtitle={t("admin.riders.subtitle")}>
-      <div className="mb-4 flex justify-end">
+    <AdminShell
+      actions={
+        <>
         <Button type="button" onClick={openRegister}>
           <AppIcon icon={Plus} size="sm" />
           {t("admin.riders.register")}
         </Button>
-      </div>
+        </>
+      } title={t("admin.riders.title")} subtitle={t("admin.riders.subtitle")}>
+      <KpiRow
+        items={[{ label: t("adminUi.activeRiders"), value: ridersQuery.data?.length, icon: "bike", tone: "teal" },
+{ label: t("adminUi.candidates"), value: candidatesQuery.data?.length, icon: "clock", tone: "amber" },
+{ label: t("adminUi.recentRegistered"), value: ridersQuery.data?.filter((r) => omanYmd(new Date(r.created_at)).slice(0, 7) === omanYmd().slice(0, 7)).length, icon: "userPlus", tone: "sky" },]}
+      />
 
       <section className="mb-8">
         <h2 className="mb-3 text-base font-semibold text-foreground">
           {t("admin.riders.listTitle")}
         </h2>
         {ridersQuery.error ? (
-          <p className="mb-4 text-red-600">{ridersQuery.error.message}</p>
+          <ListError error={ridersQuery.error} onRetry={() => void ridersQuery.refetch()} />
         ) : null}
         <DataTable
+          hidden={Boolean(ridersQuery.error) && !ridersQuery.data}
           data={ridersQuery.data ?? []}
           columns={riderColumns}
           entityName={t("admin.riders.entityName")}
@@ -193,7 +215,11 @@ export default function AdminRidersPage() {
           {t("admin.riders.approveTitle")}
         </h2>
         <p className="mb-3 text-sm text-muted">{t("admin.riders.approveHint")}</p>
-        {candidatesQuery.isPending ? (
+        {candidatesQuery.error ? (
+          <ListError error={candidatesQuery.error} onRetry={() => void candidatesQuery.refetch()} />
+        ) : null}
+        <ListControls list={candidateList} entity={t("admin.riders.title")} />
+        {candidatesQuery.error && !candidatesQuery.data ? null : candidatesQuery.isPending ? (
           <p className="text-sm text-muted">{t("common.loading")}</p>
         ) : !candidatesQuery.data?.length ? (
           <p className="rounded-xl border border-dashed border-border p-6 text-sm text-muted">
@@ -201,7 +227,7 @@ export default function AdminRidersPage() {
           </p>
         ) : (
           <ul className="space-y-2">
-            {candidatesQuery.data.map((candidate) => (
+            {candidateList.visible.map((candidate) => (
               <li
                 key={candidate.id}
                 className="flex flex-wrap items-center justify-between gap-3 admin-card px-4 py-3"

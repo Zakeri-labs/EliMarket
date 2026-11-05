@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { omanYmd } from "@/config/oman-time";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { CalendarDays, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useLocaleStore } from "@/app/_store/locale-store";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { getDirection, getNumberLocale } from "@/i18n/config";
+import { useTranslations } from "@/i18n/use-translations";
 
 type Props = {
-  /** `YYYY-MM-DD`, or an empty string when unset. */
+  /** `YYYY-MM-DD` (or `YYYY-MM-DDTHH:mm` with `withTime`), or an empty string when unset. */
   value: string;
   onChange: (value: string) => void;
+  withTime?: boolean;
   id?: string;
   "aria-label"?: string;
 };
@@ -24,26 +27,50 @@ function parseIso(value: string): Date | null {
 }
 
 /** Calendar field replacing the native date input. Arrow keys move, Enter picks, Esc closes. */
-export function DatePicker({ value, onChange, id, "aria-label": ariaLabel }: Props) {
+export function DatePicker({ value, onChange, withTime, id, "aria-label": ariaLabel }: Props) {
+  const { t } = useTranslations();
+  const autoId = useId();
+  const calendarId = `${id ?? autoId}-calendar`;
   const locale = useLocaleStore((s) => s.locale);
-  const numberLocale = getNumberLocale(locale);
+  // The grid is Gregorian, so labels must be too: fa-IR otherwise formats as Jalali.
+  const numberLocale = `${getNumberLocale(locale)}-u-ca-gregory`;
   const rtl = getDirection(locale) === "rtl";
   const selected = parseIso(value);
   const [open, setOpen] = useState(false);
-  const [cursor, setCursor] = useState<Date>(() => selected ?? new Date());
+  const [cursor, setCursor] = useState<Date>(() => selected ?? (parseIso(omanYmd()) as Date));
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  // Month changes unmount the focused day, so focus cannot be checked after render.
+  const refocusGrid = useRef(false);
 
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     };
+    // Capture on window runs before Radix's document listener, so Esc closes only this.
+    const onEscape = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      setOpen(false);
+      triggerRef.current?.focus();
+    };
     document.addEventListener("mousedown", onDown);
+    window.addEventListener("keydown", onEscape, true);
     gridRef.current?.querySelector<HTMLElement>("[data-cursor=true]")?.focus();
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open, cursor]);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      window.removeEventListener("keydown", onEscape, true);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (refocusGrid.current) {
+      refocusGrid.current = false;
+      gridRef.current?.querySelector<HTMLElement>("[data-cursor=true]")?.focus();
+    }
+  }, [cursor]);
 
   const days = useMemo(() => {
     const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
@@ -70,7 +97,11 @@ export function DatePicker({ value, onChange, id, "aria-label": ariaLabel }: Pro
   const moveMonth = (by: number) =>
     setCursor((c) => new Date(c.getFullYear(), c.getMonth() + by, 1));
   const pick = (d: Date) => {
-    onChange(toIso(d));
+    onChange(withTime ? `${toIso(d)}T${value.slice(11, 16) || "00:00"}` : toIso(d));
+    if (withTime) {
+      setCursor(d);
+      return;
+    }
     setOpen(false);
     triggerRef.current?.focus();
   };
@@ -84,16 +115,11 @@ export function DatePicker({ value, onChange, id, "aria-label": ariaLabel }: Pro
       ArrowUp: () => move(-7),
       PageDown: () => moveMonth(1),
       PageUp: () => moveMonth(-1),
-      Escape: () => {
-        setOpen(false);
-        triggerRef.current?.focus();
-      },
     };
     const action = actions[e.key];
     if (action) {
       e.preventDefault();
-      // Esc must not also close a surrounding modal.
-      e.stopPropagation();
+      refocusGrid.current = true;
       action();
     }
   };
@@ -107,17 +133,18 @@ export function DatePicker({ value, onChange, id, "aria-label": ariaLabel }: Pro
         role="combobox"
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-controls={open ? `${id ?? "date"}-calendar` : undefined}
+        aria-controls={open ? calendarId : undefined}
         aria-label={ariaLabel}
         onClick={() => {
-          setCursor(selected ?? new Date());
+          setCursor(selected ?? (parseIso(omanYmd()) as Date));
           setOpen((v) => !v);
         }}
         className="flex w-full items-center justify-between gap-2 bg-card px-3 text-start"
       >
         <span className={cn(!selected && "text-muted")} dir="ltr">
           {selected
-            ? selected.toLocaleDateString(numberLocale, { dateStyle: "medium" })
+            ? selected.toLocaleDateString(numberLocale, { dateStyle: "medium" }) +
+              (withTime && value.length > 10 ? ` ${value.slice(11, 16)}` : "")
             : "—"}
         </span>
         <AppIcon icon={CalendarDays} size="sm" className="shrink-0 text-muted" />
@@ -126,14 +153,14 @@ export function DatePicker({ value, onChange, id, "aria-label": ariaLabel }: Pro
       {open ? (
         <div
           role="dialog"
-          id={`${id ?? "date"}-calendar`}
-          className="admin-card absolute start-0 z-50 mt-2 w-[min(19rem,calc(100vw-3rem))] p-3 shadow-lg"
-          onKeyDown={onGridKey}
+          id={calendarId}
+          aria-label={ariaLabel}
+          className="admin-card mt-2 w-full max-w-[19rem] border border-border p-3"
         >
           <div className="mb-2 flex items-center justify-between">
             <button
               type="button"
-              aria-label="Previous month"
+              aria-label={t("table.prev")}
               onClick={() => moveMonth(-1)}
               className="grid h-11 w-11 place-items-center rounded-full text-muted hover:bg-background md:h-9 md:w-9"
             >
@@ -144,7 +171,7 @@ export function DatePicker({ value, onChange, id, "aria-label": ariaLabel }: Pro
             </span>
             <button
               type="button"
-              aria-label="Next month"
+              aria-label={t("table.next")}
               onClick={() => moveMonth(1)}
               className="grid h-11 w-11 place-items-center rounded-full text-muted hover:bg-background md:h-9 md:w-9"
             >
@@ -158,7 +185,7 @@ export function DatePicker({ value, onChange, id, "aria-label": ariaLabel }: Pro
               </span>
             ))}
           </div>
-          <div ref={gridRef} className="grid grid-cols-7 gap-0.5">
+          <div ref={gridRef} onKeyDown={onGridKey} className="grid grid-cols-7 gap-0.5">
             {Array.from({ length: days.offset }, (_, i) => (
               <span key={`blank-${i}`} />
             ))}
@@ -173,9 +200,10 @@ export function DatePicker({ value, onChange, id, "aria-label": ariaLabel }: Pro
                   data-cursor={isCursor}
                   tabIndex={isCursor ? 0 : -1}
                   aria-pressed={isSelected}
+                  aria-label={d.toLocaleDateString(numberLocale, { dateStyle: "full" })}
                   onClick={() => pick(d)}
                   className={cn(
-                    "aspect-square min-h-10 rounded-full text-sm transition-colors",
+                    "min-h-11 w-full rounded-full md:min-h-10 text-sm transition-colors",
                     isSelected ? "bg-accent text-accent-foreground" : "hover:bg-accent/10",
                   )}
                 >
@@ -184,6 +212,32 @@ export function DatePicker({ value, onChange, id, "aria-label": ariaLabel }: Pro
               );
             })}
           </div>
+          {withTime ? (
+            <input
+              type="time"
+              aria-label={ariaLabel}
+              className="mt-2 w-full bg-card px-3"
+              dir="ltr"
+              value={value.slice(11, 16)}
+              onChange={(e) =>
+                onChange(`${value.slice(0, 10) || toIso(cursor)}T${e.target.value || "00:00"}`)
+              }
+            />
+          ) : null}
+          {value ? (
+            <button
+              type="button"
+              onClick={() => {
+                onChange("");
+                setOpen(false);
+                triggerRef.current?.focus();
+              }}
+              className="mt-2 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full text-sm text-muted hover:bg-background md:min-h-9"
+            >
+              <AppIcon icon={X} size="xs" />
+              {t("table.clearDate")}
+            </button>
+          ) : null}
         </div>
       ) : null}
     </div>

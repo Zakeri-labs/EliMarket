@@ -17,6 +17,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -85,6 +86,7 @@ export function Select({
   "aria-label": ariaLabel,
 }: Props) {
   const listId = useId();
+  const isAdminRoute = usePathname().startsWith("/dashboard");
   const triggerRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
@@ -258,6 +260,7 @@ export function Select({
               className={cn(
                 "select-pop z-[100100] flex flex-col overflow-hidden rounded-xl border border-border bg-surface text-sm text-foreground shadow-[0_12px_40px_-8px_rgba(24,24,27,0.18),0_2px_6px_rgba(24,24,27,0.06)]",
                 scoped && "theme-admin",
+                isAdminRoute && "admin-ui",
               )}
             >
               {searchable ? (
@@ -283,6 +286,7 @@ export function Select({
                         triggerRef.current?.focus();
                       }
                     }}
+                    data-plain
                     className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-400"
                     placeholder="…"
                     aria-label="search"

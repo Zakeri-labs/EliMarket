@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { KpiRow } from "@/app/(admin)/_components/KpiCards";
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -23,6 +25,7 @@ import { getDeliveryProofUrlAction } from "@/app/_actions/rider-actions";
 import { useOrders } from "@/app/(admin)/dashboard/_hooks/use-orders";
 import { mockAdminOrders } from "@/app/(admin)/dashboard/_mocks/order-mock";
 import { useFormAction } from "@/app/hooks/use-form-action";
+import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { Button } from "@/components/ui/Button";
@@ -43,8 +46,8 @@ const STATUS_FLOW: OrderStatus[] = [
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
   pending: "bg-amber-50 text-amber-800 border-amber-200",
-  confirmed: "bg-zinc-100 text-foreground border-zinc-200",
-  preparing: "bg-zinc-100 text-zinc-700 border-zinc-200",
+  confirmed: "bg-background text-foreground border-border",
+  preparing: "bg-background text-zinc-700 border-border",
   out_for_delivery: "bg-sky-50 text-sky-800 border-sky-200",
   delivered: "bg-emerald-50 text-emerald-800 border-emerald-200",
   cancelled: "bg-red-50 text-red-700 border-red-200",
@@ -117,7 +120,7 @@ function ProofButton({
 }
 
 export default function OrdersPageContent() {
-  const { data: orders, isPending, refetch } = useOrders();
+  const { data: orders, isPending, error: loadError, refetch } = useOrders();
   const { runAction, isPending: isActionPending } = useFormAction();
   const { t, locale } = useTranslations();
   const searchParams = useSearchParams();
@@ -135,9 +138,25 @@ export default function OrdersPageContent() {
   });
 
   const isSkeleton = isPending;
-  const list = useMemo(
-    () => (isSkeleton ? mockAdminOrders(locale) : (orders ?? [])),
-    [isSkeleton, locale, orders],
+  const [statusFilter, setStatusFilter] = useState("");
+  const skeletonOrders = useMemo(() => mockAdminOrders(locale), [locale]);
+  const orderFilter = useCallback(
+    (order: Order) => !statusFilter || order.status === statusFilter,
+    [statusFilter],
+  );
+  const revealHighlighted = useCallback(
+    (order: Order) => order.id === highlightId,
+    [highlightId],
+  );
+  const controls = useListControls(orders ?? [], {
+    filter: orderFilter,
+    reveal: highlightId ? revealHighlighted : undefined,
+    searchId: true,
+  });
+  const list = isSkeleton ? skeletonOrders : controls.visible;
+  const presentStatuses = useMemo(
+    () => [...new Set((orders ?? []).map((order) => order.status))],
+    [orders],
   );
 
   const riderLabel = (order: Order) => {
@@ -151,11 +170,42 @@ export default function OrdersPageContent() {
     if (!highlightId) return;
     const el = document.getElementById(`order-${highlightId}`);
     el?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [highlightId, list]);
+  }, [highlightId, controls.page, isSkeleton]);
 
   return (
     <AdminShell title={t("admin.orders.title")} subtitle={t("admin.orders.subtitle")}>
+      <KpiRow
+        items={[{ label: t("adminUi.total"), value: orders?.length, icon: "bag", tone: "teal" },
+{ label: t("adminUi.needsAction"), value: orders?.filter((o) => ["pending", "confirmed", "preparing"].includes(o.status)).length, icon: "clock", tone: "amber" },
+{ label: t("adminUi.onTheWay"), value: orders?.filter((o) => o.status === "out_for_delivery").length, icon: "truck", tone: "sky" },
+{ label: t("adminUi.delivered"), value: orders?.filter((o) => o.status === "delivered").length, icon: "check", tone: "slate" },]}
+      />
       <div className="space-y-4">
+        {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ListControls
+          list={controls}
+          entity={t("admin.orders.title")}
+          onClearFilters={() => setStatusFilter("")}
+          filters={
+            <div className="sm:w-52">
+              <Select
+                value={statusFilter}
+                aria-label={t("admin.orders.statusLabel")}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  controls.setPage(0);
+                }}
+              >
+                <option value="">{t("table.all")}</option>
+                {presentStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {t(`admin.status.${status}`)}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          }
+        />
         {list.map((order) => {
           if (isSkeleton) {
             return (
@@ -181,7 +231,7 @@ export default function OrdersPageContent() {
                   "border-accent ring-2 ring-accent/25",
               )}
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f4f4f5] bg-zinc-50 px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-background px-4 py-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-foreground">
                     {t("admin.orders.orderPrefix")}{" "}
@@ -190,7 +240,7 @@ export default function OrdersPageContent() {
                     </span>
                   </p>
                   <p className="mt-0.5 text-xs text-muted">
-                    {new Date(order.created_at).toLocaleString(getNumberLocale(locale))}
+                    {new Date(order.created_at).toLocaleString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE })}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -213,7 +263,7 @@ export default function OrdersPageContent() {
               <div className="grid gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)]">
                 <div className="space-y-2 text-sm">
                   {(order.customer?.full_name || order.customer?.phone) && (
-                    <p className="flex items-start gap-2 text-[#3f3f46]">
+                    <p className="flex items-start gap-2 text-foreground">
                       <AppIcon icon={UserRound} size="sm" className="mt-0.5 text-foreground" />
                       <span>
                         <span className="text-muted">{t("admin.orders.customer")}: </span>
@@ -222,7 +272,7 @@ export default function OrdersPageContent() {
                     </p>
                   )}
                   {order.customer?.phone ? (
-                    <p className="flex items-start gap-2 text-[#3f3f46]">
+                    <p className="flex items-start gap-2 text-foreground">
                       <AppIcon icon={Phone} size="sm" className="mt-0.5 text-foreground" />
                       <span>
                         <span className="text-muted">{t("admin.orders.phone")}: </span>
@@ -237,12 +287,12 @@ export default function OrdersPageContent() {
                     </p>
                   ) : null}
                   {order.address?.address_line ? (
-                    <p className="flex items-start gap-2 text-[#3f3f46]">
+                    <p className="flex items-start gap-2 text-foreground">
                       <AppIcon icon={MapPin} size="sm" className="mt-0.5 text-foreground" />
                       <span>{order.address.address_line}</span>
                     </p>
                   ) : null}
-                  <p className="flex items-start gap-2 text-[#3f3f46]">
+                  <p className="flex items-start gap-2 text-foreground">
                     <AppIcon icon={CreditCard} size="sm" className="mt-0.5 text-foreground" />
                     <span>
                       {t("admin.orders.payment")}:{" "}
@@ -251,7 +301,7 @@ export default function OrdersPageContent() {
                     </span>
                   </p>
                   {assignedName ? (
-                    <p className="flex items-start gap-2 text-[#3f3f46]">
+                    <p className="flex items-start gap-2 text-foreground">
                       <AppIcon icon={Bike} size="sm" className="mt-0.5 text-foreground" />
                       <span>
                         {t("admin.orders.assignedRider")}: {assignedName}
@@ -259,7 +309,7 @@ export default function OrdersPageContent() {
                     </p>
                   ) : null}
                   {order.picked_up_at ? (
-                    <p className="flex items-start gap-2 text-[#3f3f46]">
+                    <p className="flex items-start gap-2 text-foreground">
                       <AppIcon
                         icon={PackageCheck}
                         size="sm"
@@ -268,7 +318,7 @@ export default function OrdersPageContent() {
                       <span>
                         {t("admin.orders.pickedUpAt")}:{" "}
                         {new Date(order.picked_up_at).toLocaleString(
-                          getNumberLocale(locale),
+                          getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE },
                         )}
                       </span>
                     </p>
@@ -297,7 +347,7 @@ export default function OrdersPageContent() {
                       {order.failed_delivery_at ? (
                         <p className="mt-1 text-xs text-red-600">
                           {new Date(order.failed_delivery_at).toLocaleString(
-                            getNumberLocale(locale),
+                            getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE },
                           )}
                         </p>
                       ) : null}
@@ -323,7 +373,7 @@ export default function OrdersPageContent() {
                   </ul>
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-2xl border border-border bg-zinc-50 p-3">
+                <div className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-3">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-muted">
                       {t("admin.orders.statusLabel")}
@@ -400,7 +450,7 @@ export default function OrdersPageContent() {
                       !selectedRider ||
                       isActionPending
                     }
-                    className="!bg-accent !text-white !shadow-none hover:!bg-accent-dark disabled:!bg-[#e4e4e7] disabled:!text-muted"
+                    className="!bg-accent !text-white !shadow-none hover:!bg-accent-dark disabled:!bg-[var(--skeleton)] disabled:!text-muted"
                     onClick={() => {
                       if (!selectedRider) return;
                       setPendingOrderId(order.id);
@@ -431,7 +481,7 @@ export default function OrdersPageContent() {
                         "noopener,noreferrer",
                       );
                     }}
-                    className="inline-flex items-center justify-center gap-2 admin-card px-3 py-2 text-sm font-medium text-[#3f3f46] hover:border-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-55"
+                    className="inline-flex items-center justify-center gap-2 admin-card px-3 py-2 text-sm font-medium text-foreground hover:border-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-55"
                   >
                     <AppIcon icon={Printer} size="sm" />
                     {t("admin.orders.printInvoice")}
@@ -441,8 +491,8 @@ export default function OrdersPageContent() {
             </article>
           );
         })}
-        {!isSkeleton && !orders?.length && (
-          <p className="rounded-2xl border border-dashed border-border bg-white p-8 text-center text-sm text-muted">
+        {!isSkeleton && !loadError && !orders?.length && (
+          <p className="admin-card p-8 text-center text-sm text-muted">
             {t("admin.orders.empty")}
           </p>
         )}

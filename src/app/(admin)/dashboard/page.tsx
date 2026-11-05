@@ -1,113 +1,184 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
-import { AlertTriangle, ShoppingBag } from "lucide-react";
+import { AlertTriangle, ChevronRight, PackagePlus, ShoppingBag, Wallet } from "lucide-react";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
-import { PriceVisibilityToggle } from "@/app/(admin)/_components/PriceVisibilityToggle";
-import { ProductDetailExtrasToggle } from "@/app/(admin)/_components/ProductDetailExtrasToggle";
-import { CashSurchargeSetting } from "@/app/(admin)/_components/CashSurchargeSetting";
-import { ReceiptSettings } from "@/app/(admin)/_components/ReceiptSettings";
+import { KpiRow, MiniStats } from "@/app/(admin)/_components/KpiCards";
+import { subscribeMinute } from "@/app/(admin)/_components/useAdminMotion";
+import { ListError } from "@/app/(admin)/_components/ListControls";
 import { DashboardCharts } from "@/app/(admin)/dashboard/_components/DashboardCharts";
 import { useFinancialReport } from "@/app/(admin)/dashboard/_hooks/use-financial-report";
+import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { Price } from "@/components/ui/Price";
+import { OMAN_TIME_ZONE, omanHour } from "@/config/oman-time";
 import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
-import { Price } from "@/components/ui/Price";
-import { cn } from "@/app/utils/cn";
-import type { PeriodSummary } from "@/app/_actions/report-actions";
 
-function StatCard({
-  label,
-  value,
-  sub,
-  tone = "default",
-}: {
-  label: string;
-  value: ReactNode;
-  sub?: ReactNode;
-  tone?: "default" | "warn" | "danger";
-}) {
-  return (
-    <div className="admin-card p-5">
-      <p className="text-sm text-muted">{label}</p>
-      <p
-        className={cn(
-          "mt-2 text-2xl font-bold",
-          tone === "danger" && "text-red-600",
-          tone === "warn" && "text-amber-700",
-          tone === "default" && "text-accent-dark",
-        )}
-      >
-        {value}
-      </p>
-      {sub ? <p className="mt-1 text-xs text-muted">{sub}</p> : null}
-    </div>
-  );
+const LIST_LIMIT = 5;
+
+function greetingKey() {
+  const hour = omanHour();
+  if (hour < 12) return "adminUi.greetingMorning";
+  if (hour < 17) return "adminUi.greetingAfternoon";
+  return "adminUi.greetingEvening";
 }
 
 export default function AdminDashboardPage() {
   const { t, locale } = useTranslations();
-  const { data: report, isPending, error } = useFinancialReport();
-
-  const periodCard = (label: string, summary?: PeriodSummary) => (
-    <StatCard
-      label={label}
-      value={<Price amount={summary?.revenue ?? 0} />}
-      sub={t("admin.reports.ordersCount", { count: summary?.orders ?? 0 })}
-    />
+  const { data: report, isPending, error, refetch } = useFinancialReport();
+  // Time-based text is client-only and refreshes while a tab stays open.
+  const greeting = useSyncExternalStore(subscribeMinute, greetingKey, () => null);
+  const today = useSyncExternalStore(
+    subscribeMinute,
+    () =>
+      new Date().toLocaleDateString(getNumberLocale(locale), {
+        timeZone: OMAN_TIME_ZONE,
+        dateStyle: "full",
+      }),
+    () => "",
   );
 
   return (
-    <AdminShell title={t("admin.dashboard.title")} subtitle={t("admin.dashboard.subtitle")}>
-      <div className="space-y-8">
-        {isPending ? (
-          <p className="text-sm text-muted">{t("admin.reports.loading")}</p>
-        ) : null}
-        {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
+    <AdminShell
+      eyebrow={<span className="min-h-5">{today}</span>}
+      title={
+        greeting ? (
+          <>
+            {t(greeting)} <span className="admin-wave">👋</span>
+          </>
+        ) : (
+          t("admin.dashboard.title")
+        )
+      }
+      subtitle={t("admin.dashboard.subtitle")}
+      actions={
+        <>
+          <Link
+            href="/dashboard/products"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-medium text-white transition-colors hover:bg-accent-dark md:min-h-10"
+          >
+            <AppIcon icon={PackagePlus} size="sm" />
+            {t("admin.dashboard.viewProducts")}
+          </Link>
+          <Link
+            href="/dashboard/orders"
+            className="inline-flex min-h-11 items-center rounded-xl border border-input bg-card px-5 text-sm font-medium transition-colors hover:bg-accent/10 md:min-h-10"
+          >
+            {t("admin.dashboard.viewOrders")}
+          </Link>
+        </>
+      }
+    >
+      <div className="space-y-5">
+        <section
+          data-reveal
+          className="admin-pattern relative overflow-hidden rounded-[var(--card-radius)] bg-[var(--sidebar)] text-white"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/baner/hero-desktop.webp"
+            alt=""
+            className="admin-kenburns absolute inset-y-0 end-0 hidden h-full w-[45%] object-cover md:block"
+          />
+          <div className="absolute inset-y-0 end-0 hidden w-[45%] bg-linear-to-r from-[var(--sidebar)] via-[var(--sidebar)]/60 to-transparent md:block rtl:bg-linear-to-l" />
+          <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-center md:p-6">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white/10">
+              <AppIcon icon={Wallet} size="md" className="text-teal-200" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-teal-200">{t("adminUi.todaySales")}</p>
+              <div className="mt-1 min-h-8 text-2xl font-bold">
+                {report ? (
+                  <Price amount={report.today.revenue} />
+                ) : isPending ? (
+                  <span className="block h-8 w-36 animate-pulse rounded-lg bg-white/10" aria-hidden />
+                ) : null}
+              </div>
+              {report ? (
+                <p className="mt-0.5 text-sm text-white/75">
+                  {t("admin.reports.ordersCount", { count: report.today.orders })}
+                </p>
+              ) : null}
+            </div>
+            <Link
+              href="/dashboard/reports"
+              className="flex min-h-11 shrink-0 items-center gap-1 self-start rounded-xl bg-white px-4 text-sm font-semibold text-[var(--sidebar)] sm:self-center md:min-h-10"
+            >
+              {t("admin.nav.reports")}
+              <AppIcon icon={ChevronRight} size="sm" className="rtl:rotate-180" />
+            </Link>
+          </div>
+        </section>
+
+        {error ? <ListError error={error} onRetry={() => void refetch()} /> : null}
+
+        {error && !report ? null : (
+          <>
+            <KpiRow
+              spacing=""
+              items={[
+                {
+                  label: t("admin.dashboard.salesWeek"),
+                  value: report ? <Price amount={report.week.revenue} /> : undefined,
+                  sub: report ? t("admin.reports.ordersCount", { count: report.week.orders }) : null,
+                  icon: "chart",
+                  tone: "teal",
+                },
+                {
+                  label: t("admin.dashboard.salesMonth"),
+                  value: report ? <Price amount={report.month.revenue} /> : undefined,
+                  sub: report ? t("admin.reports.ordersCount", { count: report.month.orders }) : null,
+                  icon: "wallet",
+                  tone: "sky",
+                },
+                {
+                  label: t("admin.dashboard.activeOrders"),
+                  value: report?.pendingCount,
+                  sub: report ? <Price amount={report.pendingRevenue} /> : null,
+                  icon: "bag",
+                  tone: "amber",
+                },
+                {
+                  label: t("admin.dashboard.lowStockTitle"),
+                  value: report?.inventory.lowStock,
+                  sub: report
+                    ? t("admin.dashboard.activeProducts", { count: report.inventory.active })
+                    : null,
+                  icon: "alert",
+                  tone: "rose",
+                },
+              ]}
+            />
+            {report ? (
+              <MiniStats
+                items={[
+                  { label: t("admin.dashboard.outOfStock"), value: report.inventory.outOfStock, icon: "boxOff" },
+                  { label: t("admin.dashboard.liveCampaigns"), value: report.liveCampaigns, icon: "percent" },
+                  { label: t("adminUi.deliveredOrders"), value: report.deliveredCount, icon: "check" },
+                  { label: t("adminUi.cancelledOrders"), value: report.cancelledCount, icon: "x" },
+                ]}
+              />
+            ) : null}
+          </>
+        )}
 
         {report ? (
           <>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {periodCard(t("admin.dashboard.salesToday"), report.today)}
-              {periodCard(t("admin.dashboard.salesWeek"), report.week)}
-              {periodCard(t("admin.dashboard.salesMonth"), report.month)}
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard
-                label={t("admin.dashboard.activeOrders")}
-                value={String(report.pendingCount)}
-                sub={<Price amount={report.pendingRevenue} />}
-              />
-              <StatCard
-                label={t("admin.dashboard.lowStockTitle")}
-                value={String(report.inventory.lowStock)}
-                sub={t("admin.dashboard.activeProducts", { count: report.inventory.active })}
-                tone={report.inventory.lowStock > 0 ? "warn" : "default"}
-              />
-              <StatCard
-                label={t("admin.dashboard.outOfStock")}
-                value={String(report.inventory.outOfStock)}
-                sub={t("admin.dashboard.inventory")}
-                tone={report.inventory.outOfStock > 0 ? "danger" : "default"}
-              />
-              <StatCard
-                label={t("admin.dashboard.liveCampaigns")}
-                value={String(report.liveCampaigns)}
-              />
-            </div>
-
             <DashboardCharts report={report} />
 
             <div className="grid gap-6 lg:grid-cols-2">
               <section className="admin-card p-5">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <h2 className="flex items-center gap-2 font-semibold text-foreground">
-                    <AppIcon icon={AlertTriangle} size="sm" className="text-amber-600" />
+                    <AppIcon icon={AlertTriangle} size="sm" className="text-amber-800" />
                     {t("admin.dashboard.lowStockTitle")}
                   </h2>
-                  <Link href="/dashboard/products" className="text-xs text-accent-dark">
+                  <Link
+                    href="/dashboard/products"
+                    className="inline-flex min-h-11 items-center text-xs font-medium text-accent-dark md:min-h-8"
+                  >
                     {t("admin.dashboard.viewProducts")}
                   </Link>
                 </div>
@@ -115,20 +186,21 @@ export default function AdminDashboardPage() {
                   <p className="text-sm text-muted">{t("admin.reports.allStockOk")}</p>
                 ) : (
                   <ul className="space-y-2">
-                    {report.lowStockProducts.map((product) => (
+                    {report.lowStockProducts.slice(0, LIST_LIMIT).map((product) => (
                       <li
                         key={product.id}
-                        className="flex items-center justify-between gap-3 rounded-xl bg-background px-3 py-2 text-sm"
+                        className="flex items-center justify-between gap-3 rounded-xl bg-background px-3 py-2.5 text-sm transition-colors hover:bg-accent/10"
                       >
                         <span className="min-w-0 truncate">{product.name}</span>
-                        <span
+                        <bdi
+                          dir="ltr"
                           className={cn(
                             "shrink-0 font-medium",
-                            product.stock <= 0 ? "text-red-600" : "text-amber-700",
+                            product.stock <= 0 ? "text-red-700" : "text-amber-800",
                           )}
                         >
                           {product.stock} / {product.low_stock_threshold ?? 5}
-                        </span>
+                        </bdi>
                       </li>
                     ))}
                   </ul>
@@ -138,10 +210,13 @@ export default function AdminDashboardPage() {
               <section className="admin-card p-5">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <h2 className="flex items-center gap-2 font-semibold text-foreground">
-                    <AppIcon icon={ShoppingBag} size="sm" className="text-foreground" />
+                    <AppIcon icon={ShoppingBag} size="sm" className="text-accent" />
                     {t("admin.reports.recentOrders")}
                   </h2>
-                  <Link href="/dashboard/orders" className="text-xs text-accent-dark">
+                  <Link
+                    href="/dashboard/orders"
+                    className="inline-flex min-h-11 items-center text-xs font-medium text-accent-dark md:min-h-8"
+                  >
                     {t("admin.dashboard.viewOrders")}
                   </Link>
                 </div>
@@ -149,10 +224,10 @@ export default function AdminDashboardPage() {
                   <p className="text-sm text-muted">{t("admin.reports.noData")}</p>
                 ) : (
                   <ul className="space-y-2">
-                    {report.recentOrders.map((order) => (
+                    {report.recentOrders.slice(0, LIST_LIMIT).map((order) => (
                       <li
                         key={order.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-background px-3 py-2 text-sm"
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-background px-3 py-2.5 text-sm transition-colors hover:bg-accent/10"
                       >
                         <span className="font-mono text-xs text-muted" dir="ltr">
                           {order.id.slice(0, 8)}
@@ -160,6 +235,7 @@ export default function AdminDashboardPage() {
                         <span>{t(`admin.status.${order.status}`)}</span>
                         <span className="text-muted">
                           {new Date(order.created_at).toLocaleString(getNumberLocale(locale), {
+                            timeZone: OMAN_TIME_ZONE,
                             dateStyle: "short",
                             timeStyle: "short",
                           })}
@@ -173,17 +249,6 @@ export default function AdminDashboardPage() {
             </div>
           </>
         ) : null}
-
-        <div className="space-y-4 admin-card p-5">
-          <PriceVisibilityToggle />
-          <ProductDetailExtrasToggle />
-          <div className="border-t border-border pt-4">
-            <CashSurchargeSetting />
-          </div>
-          <div className="border-t border-border pt-4">
-            <ReceiptSettings />
-          </div>
-        </div>
       </div>
     </AdminShell>
   );

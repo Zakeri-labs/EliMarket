@@ -1,5 +1,6 @@
 "use server";
 
+import { parseOmanInput } from "@/config/oman-time";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/core/supabase/server";
 import { requireAdmin } from "@/core/supabase/auth-helpers";
@@ -38,8 +39,8 @@ function revalidateCampaignPaths() {
 
 function toCampaignPayload(input: CampaignInput) {
   const name = input.name.trim();
-  const startsAt = new Date(input.starts_at);
-  const endsAt = new Date(input.ends_at);
+  const startsAt = parseOmanInput(input.starts_at);
+  const endsAt = parseOmanInput(input.ends_at);
   if (!name) throw new Error("NAME_REQUIRED");
   if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime())) {
     throw new Error("DATES_REQUIRED");

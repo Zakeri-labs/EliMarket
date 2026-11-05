@@ -1,5 +1,6 @@
 "use client";
 
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getOrderByIdAction } from "@/app/_actions/order-actions";
 import { getStoreSettingsAction } from "@/app/_actions/settings-actions";
@@ -201,8 +202,8 @@ export default function OrderInvoiceClient({ orderId }: { orderId: string }) {
             <Row
               label={t("receipt.date")}
               value={new Date(order.created_at).toLocaleString(
-                getNumberLocale(locale),
-                { dateStyle: "short", timeStyle: "short" },
+                getNumberLocale(locale), {
+ timeZone: OMAN_TIME_ZONE, dateStyle: "short", timeStyle: "short" },
               )}
             />
             {order.customer?.full_name || order.customer?.phone ? (
@@ -296,6 +297,7 @@ export default function OrderInvoiceClient({ orderId }: { orderId: string }) {
             <div style={{ textAlign: "center", opacity: 0.7, marginTop: 4 }}>
               {t("receipt.printedAt")}{" "}
               {new Date().toLocaleString(getNumberLocale(locale), {
+ timeZone: OMAN_TIME_ZONE,
                 dateStyle: "short",
                 timeStyle: "short",
               })}

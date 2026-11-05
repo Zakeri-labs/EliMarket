@@ -11,6 +11,7 @@
     "process-icon": "node scripts/process-icon.mjs"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.9.1",
     "@radix-ui/react-dialog": "^1.1.23",
     "@supabase/ssr": "^0.12.4",
@@ -19,6 +20,7 @@
     "@tanstack/react-table": "^8.21.3",
     "blurhash": "^2.0.5",
     "file-saver": "^2.0.5",
+    "gsap": "^3.15.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.32.0",
     "motion": "^12.43.0",

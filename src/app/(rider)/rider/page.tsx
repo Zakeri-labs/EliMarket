@@ -1,5 +1,6 @@
 "use client";
 
+import { OMAN_TIME_ZONE } from "@/config/oman-time";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -35,7 +36,7 @@ function OrderCard({
         <div>
           <p className="font-semibold">#{order.id.slice(0, 8).toUpperCase()}</p>
           <p className="mt-0.5 text-xs text-muted">
-            {new Date(order.created_at).toLocaleString(getNumberLocale(locale))}
+            {new Date(order.created_at).toLocaleString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE })}
           </p>
           <p className="mt-1 text-sm font-medium text-accent">
             {t(`orders.status.${order.status}`) || order.status}

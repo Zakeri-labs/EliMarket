@@ -1,8 +1,11 @@
 "use client";
 
+import { KpiRow, PersonCell } from "@/app/(admin)/_components/KpiCards";
+import { OMAN_TIME_ZONE, omanYmd } from "@/config/oman-time";
 import { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useQuery } from "@tanstack/react-query";
+import { ListError } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import {
   getAdminCustomersAction,
@@ -16,7 +19,7 @@ import { Price } from "@/components/ui/Price";
 export default function AdminCustomersPage() {
   const { t, locale } = useTranslations();
 
-  const { data, isPending, error, refetch } = useQuery({
+  const { data, isPending, error, refetch, refetch: refetchCustomers } = useQuery({
     queryKey: ["admin-customers"],
     queryFn: async () => {
       const result = await getAdminCustomersAction();
@@ -29,11 +32,13 @@ export default function AdminCustomersPage() {
     () => [
       {
         accessorKey: "full_name",
+        meta: { minWidth: 220 },
         header: t("admin.customers.colName"),
-        cell: ({ row }) => row.original.full_name || t("account.defaultUser"),
+        cell: ({ row }) => <PersonCell name={row.original.full_name || t("account.defaultUser")} />,
       },
       {
         accessorKey: "phone",
+        meta: { minWidth: 150 },
         header: t("admin.customers.colPhone"),
         cell: ({ getValue }) => (
           <span dir="ltr">{String(getValue() ?? "—")}</span>
@@ -41,18 +46,21 @@ export default function AdminCustomersPage() {
       },
       {
         accessorKey: "orderCount",
+        meta: { minWidth: 90 },
         header: t("admin.customers.colOrders"),
       },
       {
         accessorKey: "spent",
+        meta: { minWidth: 120 },
         header: t("admin.customers.colSpent"),
         cell: ({ getValue }) => <Price amount={Number(getValue())} />,
       },
       {
         accessorKey: "created_at",
+        meta: { minWidth: 120 },
         header: t("admin.customers.colJoined"),
         cell: ({ getValue }) =>
-          new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale)),
+          new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE }),
       },
     ],
     [t, locale],
@@ -60,8 +68,15 @@ export default function AdminCustomersPage() {
 
   return (
     <AdminShell title={t("admin.customers.title")} subtitle={t("admin.customers.subtitle")}>
-      {error && <p className="mb-4 text-red-600">{error.message}</p>}
+      <KpiRow
+        items={[{ label: t("adminUi.total"), value: data?.length, icon: "users", tone: "teal" },
+{ label: t("adminUi.withOrders"), value: data?.filter((c) => c.orderCount > 0).length, icon: "bag", tone: "sky" },
+{ label: t("adminUi.newThisMonth"), value: data?.filter((c) => omanYmd(new Date(c.created_at)).slice(0, 7) === omanYmd().slice(0, 7)).length, icon: "userPlus", tone: "amber" },
+{ label: t("adminUi.totalSpent"), value: data ? <Price amount={data.reduce((sum, c) => sum + c.spent, 0)} /> : undefined, icon: "wallet", tone: "slate" },]}
+      />
+      {error && <ListError error={error} onRetry={() => void refetchCustomers()} />}
       <DataTable
+        hidden={Boolean(error) && !data}
         data={data ?? []}
         columns={columns}
         entityName={t("admin.customers.entityName")}
@@ -77,9 +92,6 @@ export default function AdminCustomersPage() {
           }))
         }
       />
-      {!isPending && data?.length === 0 && (
-        <p className="mt-4 text-sm text-muted">{t("admin.customers.empty")}</p>
-      )}
     </AdminShell>
   );
 }
