@@ -204,7 +204,7 @@ export function HeroCarousel() {
           </div>
         </div>
 
-        {showControls && (
+        {showControls && !isSkeleton && (
           <>
             <button
               type="button"
@@ -238,7 +238,7 @@ export function HeroCarousel() {
 
       {showControls && (
         <div
-          className={styles.dots}
+          className={cn(styles.dots, isSkeleton && "invisible")}
           role="tablist"
           aria-label={t("home.heroCarouselLabel")}
         >

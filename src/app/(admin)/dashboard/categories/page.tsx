@@ -182,16 +182,7 @@ export default function AdminCategoriesPage() {
         {isPending ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {SKELETON_KEYS.map((key) => (
-              <li
-                key={key}
-                className="animate-pulse overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white"
-              >
-                <div className="aspect-square bg-[#f4f4f5]" />
-                <div className="space-y-2 p-3">
-                  <div className="h-3.5 w-3/4 rounded bg-[#f4f4f5]" />
-                  <div className="h-2.5 w-1/2 rounded bg-[#f4f4f5]" />
-                </div>
-              </li>
+              <li key={key} className="aspect-[4/5] animate-pulse rounded-2xl bg-[#e4e4e7]" />
             ))}
           </ul>
         ) : categories?.length ? (

@@ -51,13 +51,14 @@ export function CategoryGrid() {
               dir={dir}
               className={cn(
                 "flex h-[64px] items-center gap-1 overflow-hidden rounded-xl border border-[#f1e2c6] bg-bg-card ps-1 pe-2 transition-colors",
-                isSkeleton && "skeleton pointer-events-none",
+                isSkeleton && "skeleton pointer-events-none relative !border-transparent !bg-transparent",
               )}
               onClick={(e) => {
                 if (isSkeleton) e.preventDefault();
               }}
               aria-busy={isSkeleton}
             >
+              {isSkeleton ? <span className="target absolute inset-0 z-10 !rounded-xl" aria-hidden /> : null}
               <span className="relative flex h-[56px] w-[84px] shrink-0 items-center justify-center bg-transparent">
                 {isSkeleton ? (
                   <SkeletonImage />

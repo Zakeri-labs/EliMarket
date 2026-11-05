@@ -35,7 +35,7 @@ function CartQtyStepper({
   onIncrease: () => void;
 }) {
   return (
-    <div className="inline-flex overflow-hidden rounded-xl border border-border bg-surface-elevated">
+    <div data-skeleton-hide className="inline-flex overflow-hidden rounded-xl border border-border bg-surface-elevated">
       <button
         type="button"
         disabled={disabled}

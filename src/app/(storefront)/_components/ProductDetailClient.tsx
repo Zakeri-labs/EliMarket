@@ -413,8 +413,9 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
 
           </div>
 
-          <div className="relative z-10 -mt-6 rounded-t-3xl bg-background px-4 pb-4 pt-5">
+          <div className={cn("relative z-10 -mt-6 rounded-t-3xl bg-background px-4 pb-4 pt-5", isSkeleton && "skeleton")}>
             <div className="space-y-3.5">
+            {isSkeleton ? <div className="target absolute inset-0 z-10 rounded-2xl" /> : null}
             <div>
               {(badgeLabel || product.sku) && (
                 <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -626,7 +627,7 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           </div>
         </div>
 
-        <div className="shrink-0 border-t border-border bg-background px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className={cn("shrink-0 border-t border-border bg-background px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]", isSkeleton && "skeleton")}>
           <ProductCartControl product={product} isSkeleton={isSkeleton} cover={cover} />
         </div>
       </div>
@@ -700,7 +701,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           </div>
 
           {/* Column 2: title, meta, size, at-a-glance, description */}
-          <div className="flex flex-col gap-3.5">
+          <div className="relative flex flex-col gap-3.5">
+            {isSkeleton ? <div className="target absolute inset-0 z-10 rounded-2xl" /> : null}
             <div>
               {(badgeLabel || product.sku) && (
                 <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -745,7 +747,8 @@ export function ProductDetailClient({ product, isSkeleton = false }: Props) {
           </div>
 
           {/* Column 3: price + buy box + delivery & service */}
-          <div className="flex flex-col gap-3.5 lg:sticky lg:top-24 lg:self-start">
+          <div className="relative flex flex-col gap-3.5 lg:sticky lg:top-24 lg:self-start">
+            {isSkeleton ? <div className="target absolute inset-0 z-10 rounded-2xl" /> : null}
             <div className="space-y-3.5 rounded-2xl border border-gold-hairline bg-card p-3.5">
               {showPrices ? (
                 <div data-price>

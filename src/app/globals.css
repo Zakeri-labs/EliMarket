@@ -30,8 +30,8 @@ html.theme-dark {
   --danger: #f87171;
   --destructive: #f87171;
   --success: #34d399;
-  --skeleton: #2a3330;
-  --skeleton-strong: #3d4b45;
+  --skeleton: #2a2f36;
+  --skeleton-strong: #3a4048;
   --radius: 16px;
   --radius-sm: 12px;
   --max-mobile: 480px;
@@ -525,11 +525,32 @@ html.admin-lock-scroll body {
 }
 
 @layer base {
-  .skeleton *:not(:has(*)):not(.target):not(.app-spinner),
-  .skeleton .target {
+  /* Only explicit `.target` blocks (images, whole rows) are painted. Text, icons,
+     links and buttons keep their layout but stay invisible, so loading never shows
+     clusters of tiny blinking pieces. A `.target` inside a hidden link stays visible. */
+  .skeleton * {
     color: transparent !important;
+  }
+
+  .skeleton *:not(:has(*)):not(.target),
+  .skeleton a,
+  .skeleton button,
+  .skeleton [role="button"],
+  .skeleton [data-skeleton-hide] {
+    visibility: hidden !important;
+  }
+
+  .skeleton .target {
+    visibility: visible !important;
     animation: skeleton-blink 1.6s ease-in-out infinite !important;
     @apply rounded-md;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton .target {
+      animation: none !important;
+      background-color: var(--skeleton) !important;
+    }
   }
 
   .skeleton {

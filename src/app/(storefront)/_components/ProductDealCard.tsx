@@ -47,11 +47,12 @@ export function ProductDealCard({
         "relative flex shrink-0 flex-col overflow-hidden rounded-2xl bg-[#dcdbda] text-[#1a1a1a] transition-all duration-300 ease-out lg:rounded-lg",
         !isSkeleton && "hover:z-10 hover:-translate-y-1.5",
         layout === "rail" ? "w-36 sm:w-40" : "w-full",
-        isSkeleton && "skeleton",
+        isSkeleton && "skeleton !bg-transparent",
         className,
       )}
       aria-busy={isSkeleton}
     >
+      {isSkeleton ? <div className="target absolute inset-0 z-10 !rounded-none" aria-hidden /> : null}
       <Link
         href={isSkeleton ? "#" : `/products/${product.slug}`}
         className="flex flex-1 flex-col"

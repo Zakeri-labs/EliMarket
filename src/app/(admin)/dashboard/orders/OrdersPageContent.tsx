@@ -22,8 +22,6 @@ import {
 import { getDeliveryProofUrlAction } from "@/app/_actions/rider-actions";
 import { useOrders } from "@/app/(admin)/dashboard/_hooks/use-orders";
 import {
-  mockAdminOrderDateLabel,
-  mockAdminOrderIdPreview,
   mockAdminOrders,
 } from "@/app/(admin)/dashboard/_mocks/order-mock";
 import { useFormAction } from "@/app/hooks/use-form-action";
@@ -161,13 +159,19 @@ export default function OrdersPageContent() {
     <AdminShell title={t("admin.orders.title")} subtitle={t("admin.orders.subtitle")}>
       <div className="space-y-4">
         {list.map((order) => {
+          if (isSkeleton) {
+            return (
+              <div key={order.id} className="skeleton" aria-busy>
+                <div className="target h-80 w-full rounded-2xl md:h-56" />
+              </div>
+            );
+          }
+
           const status = order.status as OrderStatus;
           const assignReady = canAssignRider(status);
           const selectedRider = riderIds[order.id] ?? "";
           const assignedName = riderLabel(order);
-          const statusOptions = isSkeleton
-            ? STATUS_FLOW
-            : allowedStatusOptions(status);
+          const statusOptions = allowedStatusOptions(status);
 
           return (
             <article
@@ -175,26 +179,20 @@ export default function OrdersPageContent() {
               id={`order-${order.id}`}
               className={cn(
                 "overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white",
-                isSkeleton && "skeleton pointer-events-none",
                 highlightId === order.id &&
                   "border-accent ring-2 ring-accent/25",
               )}
-              aria-busy={isSkeleton}
             >
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f4f4f5] bg-zinc-50 px-4 py-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-[#18181b]">
                     {t("admin.orders.orderPrefix")}{" "}
                     <span className="font-mono text-foreground" dir="ltr">
-                      {isSkeleton
-                        ? mockAdminOrderIdPreview(locale)
-                        : `${order.id.slice(0, 8)}…`}
+                      {`${order.id.slice(0, 8)}…`}
                     </span>
                   </p>
                   <p className="mt-0.5 text-xs text-[#71717a]">
-                    {isSkeleton
-                      ? mockAdminOrderDateLabel(locale)
-                      : new Date(order.created_at).toLocaleString(getNumberLocale(locale))}
+                    {new Date(order.created_at).toLocaleString(getNumberLocale(locale))}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -262,7 +260,7 @@ export default function OrdersPageContent() {
                       </span>
                     </p>
                   ) : null}
-                  {!isSkeleton && order.picked_up_at ? (
+                  {order.picked_up_at ? (
                     <p className="flex items-start gap-2 text-[#3f3f46]">
                       <AppIcon
                         icon={PackageCheck}
@@ -277,14 +275,14 @@ export default function OrdersPageContent() {
                       </span>
                     </p>
                   ) : null}
-                  {!isSkeleton && order.delivered_photo_path ? (
+                  {order.delivered_photo_path ? (
                     <ProofButton
                       orderId={order.id}
                       kind="delivered"
                       label={t("admin.orders.viewDeliveryProof")}
                     />
                   ) : null}
-                  {!isSkeleton && order.failed_delivery_reason ? (
+                  {order.failed_delivery_reason ? (
                     <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800">
                       <p className="font-semibold">
                         {t("admin.orders.failedDeliveryTitle")}:{" "}
@@ -334,9 +332,8 @@ export default function OrdersPageContent() {
                     </label>
                     <Select
                       value={status}
-                      disabled={isSkeleton || isActionPending || status === "delivered"}
+                      disabled={isActionPending || status === "delivered"}
                       onChange={(e) => {
-                        if (isSkeleton) return;
                         const next = e.target.value as OrderStatus;
                         setPendingOrderId(order.id);
                         runAction(() => updateOrderStatusAction(order.id, next), {
@@ -372,7 +369,6 @@ export default function OrdersPageContent() {
                     </label>
                     <Select
                       disabled={
-                        isSkeleton ||
                         ridersQuery.isLoading ||
                         !assignReady ||
                         isActionPending
@@ -402,14 +398,13 @@ export default function OrdersPageContent() {
                     loading={isActionPending && pendingOrderId === order.id}
                     loadingLabel={t("common.saving")}
                     disabled={
-                      isSkeleton ||
                       !assignReady ||
                       !selectedRider ||
                       isActionPending
                     }
                     className="!rounded-xl !bg-accent !text-white !shadow-none hover:!bg-accent-dark disabled:!bg-[#e4e4e7] disabled:!text-[#a1a1aa]"
                     onClick={() => {
-                      if (isSkeleton || !selectedRider) return;
+                      if (!selectedRider) return;
                       setPendingOrderId(order.id);
                       runAction(() => assignRiderAction(order.id, selectedRider), {
                         successMessage: t("notifications.riderAssigned"),
@@ -431,9 +426,7 @@ export default function OrdersPageContent() {
 
                   <button
                     type="button"
-                    disabled={isSkeleton}
                     onClick={() => {
-                      if (isSkeleton) return;
                       window.open(
                         `/print/order/${order.id}`,
                         "_blank",

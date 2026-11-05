@@ -107,7 +107,6 @@ function resolveColumnSizingStorageKey(
 }
 
 const SKELETON_ROWS = 6;
-const SKELETON_WIDTHS = [70, 45, 85, 55, 65, 40];
 
 function isImageColumn(id: string) {
   return /image|photo|thumb/i.test(id);
@@ -623,18 +622,9 @@ export function DataTable<T>({
               {isSkeleton ? (
                 Array.from({ length: SKELETON_ROWS }, (_, rowIndex) => (
                   <tr key={rowIndex} className="border-b border-[#f0f0f2] last:border-b-0">
-                    {table.getVisibleLeafColumns().map((column, colIndex) => (
-                      <td key={column.id} className="px-4 py-3.5">
-                        {isImageColumn(column.id) ? (
-                          <div className="target h-10 w-10 rounded-lg" />
-                        ) : (
-                          <div
-                            className="target h-3 rounded-full"
-                            style={{ width: `${SKELETON_WIDTHS[(rowIndex + colIndex) % SKELETON_WIDTHS.length]}%` }}
-                          />
-                        )}
-                      </td>
-                    ))}
+                    <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-3">
+                      <div className={cn("target w-full rounded-lg", hasImageColumn ? "h-10" : "h-5")} />
+                    </td>
                   </tr>
                 ))
               ) : table.getRowModel().rows.length === 0 ? (
@@ -686,16 +676,8 @@ export function DataTable<T>({
           <div className="skeleton grid grid-cols-1 gap-3 sm:grid-cols-2" aria-busy>
             {Array.from({ length: 4 }, (_, i) => (
               <div key={i} className="overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white">
-                {hasImageColumn ? <div className="target aspect-[4/3] w-full !rounded-none" /> : null}
-                <div className="space-y-3 p-4">
-                  <div className="target h-4 w-3/4 rounded-full" />
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="target h-3 w-2/3 rounded-full" />
-                    <div className="target h-3 w-1/2 rounded-full" />
-                    <div className="target h-3 w-1/2 rounded-full" />
-                    <div className="target h-3 w-2/3 rounded-full" />
-                  </div>
-                </div>
+                {hasImageColumn ? <div className="target aspect-square w-full !rounded-none sm:aspect-[4/3]" /> : null}
+                <div className={cn("h-36", !hasImageColumn && "target w-full !rounded-none")} />
               </div>
             ))}
           </div>

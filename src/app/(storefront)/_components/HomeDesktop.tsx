@@ -9,6 +9,7 @@ import { HeroBanner } from "@/app/(storefront)/_components/HeroBanner";
 import { HomeFilterBar } from "@/app/(storefront)/_components/HomeFilterBar";
 import { ShopSidebar, type ShopRefine } from "@/app/(storefront)/_components/ShopSidebar";
 import { StableProductGrid } from "@/app/(storefront)/_components/StableProductGrid";
+import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import { mockProducts } from "@/app/(storefront)/_mocks/product-mock";
 import { useTranslations } from "@/i18n/use-translations";
 import {
@@ -96,7 +97,7 @@ export function HomeDesktop() {
       className="flex flex-row items-start gap-8 py-6"
     >
       <ShopSidebar
-        categories={categoryList}
+        categories={categoriesPending ? mockCategories(locale) : categoryList}
         products={catalog}
         refine={refine}
         onRefineChange={setRefine}

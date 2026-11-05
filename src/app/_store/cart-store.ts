@@ -68,6 +68,14 @@ export const useCartStore = create<CartState>()(
       totalPrice: () =>
         get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     }),
-    { name: "elimarket-cart" },
+    {
+      name: "elimarket-cart",
+      partialize: (state) => ({ items: state.items }),
+      // Older saves also hold isSyncing; never restore it or the cart stays stuck loading.
+      merge: (persisted, current) => ({
+        ...current,
+        items: (persisted as { items?: CartItem[] } | undefined)?.items ?? [],
+      }),
+    },
   ),
 );

@@ -47,6 +47,7 @@ export function CategoryListItem({
           (active
             ? "border-transparent bg-[#e4e4e7] text-[#1a1408]"
             : "border-border-subtle bg-bg-card hover:border-transparent hover:bg-[#f1e2c6] hover:text-[#1a1408]"),
+        isSkeleton && "target !border-transparent",
       )}
     >
       <button
