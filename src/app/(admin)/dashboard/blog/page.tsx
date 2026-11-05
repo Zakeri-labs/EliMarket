@@ -14,6 +14,7 @@ import {
   getAdminBlogPostsAction,
   updateBlogPostAction,
 } from "@/app/_actions/blog-actions";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -237,7 +238,7 @@ export default function AdminBlogPage() {
     }
   });
 
-  const inputClass = "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
   const postList = useMemo(() => posts ?? [], [posts]);
   const titleField = `title_${tab}` as const;
   const excerptField = `excerpt_${tab}` as const;
@@ -247,7 +248,7 @@ export default function AdminBlogPage() {
   return (
     <AdminShell title={t("admin.blog.title")} subtitle={t("admin.blog.subtitle")}>
       <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-[#f4f4f5] pb-3">
+        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
           <Button type="button" size="sm" onClick={openCreate}>
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
             {t("admin.blog.newPost")}
@@ -259,7 +260,7 @@ export default function AdminBlogPage() {
             {SKELETON_KEYS.map((key) => (
               <li
                 key={key}
-                className="h-16 animate-pulse rounded-xl border border-[#e4e4e7] bg-white"
+                className="h-16 animate-pulse admin-card"
               />
             ))}
           </ul>
@@ -270,10 +271,10 @@ export default function AdminBlogPage() {
                 key={post.id}
                 className={cn(
                   "flex items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3 transition-colors",
-                  editing?.id === post.id ? "border-accent" : "border-[#e4e4e7]",
+                  editing?.id === post.id ? "border-accent" : "border-border",
                 )}
               >
-                <span className="w-5 shrink-0 text-[11px] text-[#a1a1aa]">
+                <span className="w-5 shrink-0 text-xs text-muted">
                   {post.sort_order}
                 </span>
 
@@ -281,7 +282,7 @@ export default function AdminBlogPage() {
                   type="button"
                   onClick={() => openEdit(post)}
                   aria-label={t("admin.blog.edit")}
-                  className="relative h-9 w-14 shrink-0 overflow-hidden rounded-md border border-[#e4e4e7] bg-[#f4f4f5]"
+                  className="relative h-9 w-14 shrink-0 overflow-hidden rounded-md border border-border bg-background"
                 >
                   <BlogCover post={post} sizes="56px" />
                 </button>
@@ -291,14 +292,14 @@ export default function AdminBlogPage() {
                     href={`/blog/${post.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block truncate text-sm font-semibold text-[#18181b] hover:text-foreground hover:underline"
+                    className="block truncate text-sm font-semibold text-foreground hover:text-foreground hover:underline"
                   >
                     {resolveBlogTitle(post, locale)}
                   </Link>
                   <button
                     type="button"
                     onClick={() => openEdit(post)}
-                    className="block max-w-full truncate text-start text-[11px] text-[#71717a] hover:text-[#18181b]"
+                    className="block max-w-full truncate text-start text-xs text-muted hover:text-foreground"
                     dir="ltr"
                   >
                     {post.slug} · {toDateInput(post.published_at)}
@@ -307,10 +308,10 @@ export default function AdminBlogPage() {
 
                 <span
                   className={cn(
-                    "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
+                    "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
                     post.published
                       ? "bg-zinc-100 text-foreground"
-                      : "bg-[#f4f4f5] text-[#71717a]",
+                      : "bg-background text-muted",
                   )}
                 >
                   {post.published
@@ -335,7 +336,7 @@ export default function AdminBlogPage() {
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-dashed border-[#e4e4e7] bg-white px-4 py-10 text-center text-sm text-[#71717a]">
+          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
             {t("admin.blog.empty")}
           </p>
         )}
@@ -368,8 +369,8 @@ export default function AdminBlogPage() {
         >
           <form id="admin-blog-form" onSubmit={onSubmit} className="space-y-4">
             {/* AI draft */}
-            <div className="rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-3">
-              <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-[#71717a]">
+            <div className="rounded-xl border border-border bg-background p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted">
                 <AppIcon icon={Sparkles} size="xs" />
                 {t("admin.blog.aiDraftHeading")}
               </p>
@@ -390,14 +391,14 @@ export default function AdminBlogPage() {
                   {t("admin.blog.aiDraftButton")}
                 </Button>
               </div>
-              <p className="mt-1.5 text-[11px] text-[#a1a1aa]">
+              <p className="mt-1.5 text-xs text-muted">
                 {t("admin.blog.aiDraftHint")}
               </p>
             </div>
 
             {/* Per-language content */}
             <div className="space-y-2">
-              <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+              <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
                 {LOCALES.map((loc) => (
                   <button
                     key={loc}
@@ -405,8 +406,8 @@ export default function AdminBlogPage() {
                     className={cn(
                       "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                       tab === loc
-                        ? "bg-white text-[#18181b]"
-                        : "text-[#71717a] hover:text-[#18181b]",
+                        ? "bg-white text-foreground"
+                        : "text-muted hover:text-foreground",
                     )}
                     onClick={() => setTab(loc)}
                   >
@@ -442,7 +443,7 @@ export default function AdminBlogPage() {
                 {...form.register(bodyField)}
                 placeholder={t("admin.blog.bodyPlaceholder")}
                 rows={10}
-                className={cn(inputClass, "font-mono text-[13px] leading-6")}
+                className={cn(inputClass, "font-mono text-sm leading-6")}
                 dir={getDirection(tab)}
               />
               {form.formState.errors.body_fa ? (
@@ -450,8 +451,8 @@ export default function AdminBlogPage() {
                   {form.formState.errors.body_fa.message}
                 </p>
               ) : null}
-              <p className="text-[11px] text-[#71717a]">{t("admin.blog.bodyHint")}</p>
-              <p className="text-[11px] text-[#a1a1aa]">{t("admin.blog.langHint")}</p>
+              <p className="text-xs text-muted">{t("admin.blog.bodyHint")}</p>
+              <p className="text-xs text-muted">{t("admin.blog.langHint")}</p>
             </div>
 
             {/* Meta */}
@@ -466,7 +467,7 @@ export default function AdminBlogPage() {
             ) : null}
 
             {coverUrl ? (
-              <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#fafafa]">
+              <div className="overflow-hidden rounded-xl border border-border bg-background">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={coverUrl}
@@ -483,7 +484,7 @@ export default function AdminBlogPage() {
             />
             <div className="flex flex-wrap gap-2">
               <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
+                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
                   <AppIcon icon={Upload} size="sm" />
                   {t("admin.blog.uploadCover")}
                 </span>
@@ -524,18 +525,18 @@ export default function AdminBlogPage() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs text-[#71717a]">
+                <label className="mb-1 block text-xs text-muted">
                   {t("admin.blog.publishedAtLabel")}
                 </label>
-                <input
-                  {...form.register("published_at")}
-                  type="date"
-                  className={inputClass}
-                  dir="ltr"
+                <DatePicker
+                  value={form.watch("published_at") ?? ""}
+                  onChange={(next) =>
+                    form.setValue("published_at", next, { shouldDirty: true })
+                  }
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-[#71717a]">
+                <label className="mb-1 block text-xs text-muted">
                   {t("admin.blog.sortOrderLabel")}
                 </label>
                 <input

@@ -23,10 +23,10 @@ const STATUS_KEYS: OrderStatus[] = [
 
 function StatCard({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
-      <p className="text-sm text-[#71717a]">{label}</p>
+    <div className="admin-card p-5">
+      <p className="text-sm text-muted">{label}</p>
       <p className="mt-2 text-2xl font-bold text-foreground">{value}</p>
-      {sub && <p className="mt-1 text-xs text-[#71717a]">{sub}</p>}
+      {sub && <p className="mt-1 text-xs text-muted">{sub}</p>}
     </div>
   );
 }
@@ -96,7 +96,7 @@ export default function AdminReportsPage() {
 
   return (
     <AdminShell title={t("admin.reports.title")} subtitle={t("admin.reports.subtitle")}>
-      {isSkeleton && <p className="text-[#71717a]">{t("admin.reports.loading")}</p>}
+      {isSkeleton && <p className="text-muted">{t("admin.reports.loading")}</p>}
       {error && <p className="text-red-600">{error.message}</p>}
 
       {report && (
@@ -123,7 +123,7 @@ export default function AdminReportsPage() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
+            <section className="admin-card p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <h2 className="font-semibold">
                   {period === "weekly"
@@ -150,15 +150,15 @@ export default function AdminReportsPage() {
                       ? report.revenueByMonth
                       : report.revenueByDay;
                 if (rows.length === 0) {
-                  return <p className="text-sm text-[#71717a]">{t("admin.reports.noData")}</p>;
+                  return <p className="text-sm text-muted">{t("admin.reports.noData")}</p>;
                 }
                 return (
                   <ul className="space-y-2">
                     {rows.map((row) => (
                       <li key={row.period} className="flex justify-between text-sm">
-                        <span className="text-[#71717a]">{row.period}</span>
+                        <span className="text-muted">{row.period}</span>
                         <Price amount={row.total} className="font-medium" />
-                        <span className="text-[#71717a]">
+                        <span className="text-muted">
                           {t("admin.reports.ordersCount", { count: row.count })}
                         </span>
                       </li>
@@ -168,7 +168,7 @@ export default function AdminReportsPage() {
               })()}
             </section>
 
-            <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
+            <section className="admin-card p-5">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-semibold">{t("admin.reports.lowStock")}</h2>
                 <Link href="/dashboard/products" className="text-xs text-foreground">
@@ -176,11 +176,11 @@ export default function AdminReportsPage() {
                 </Link>
               </div>
               {report.lowStockProducts.length === 0 ? (
-                <p className="text-sm text-[#71717a]">{t("admin.reports.allStockOk")}</p>
+                <p className="text-sm text-muted">{t("admin.reports.allStockOk")}</p>
               ) : (
                 <ul className="space-y-2">
                   {report.lowStockProducts.map((p) => (
-                    <li key={p.id} className="flex justify-between rounded-xl bg-[#f4f4f5] px-3 py-2 text-sm">
+                    <li key={p.id} className="flex justify-between rounded-xl bg-background px-3 py-2 text-sm">
                       <span>{p.name}</span>
                       <span className={p.stock === 0 ? "text-red-600 font-medium" : "text-amber-700"}>
                         {p.stock} {t("admin.reports.units")}
@@ -192,7 +192,7 @@ export default function AdminReportsPage() {
             </section>
           </div>
 
-          <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
+          <section className="admin-card p-5">
             <h2 className="mb-4 font-semibold">{t("admin.reports.recentOrders")}</h2>
             <DataTable
               data={report.recentOrders}
@@ -200,8 +200,6 @@ export default function AdminReportsPage() {
               entityName={t("admin.reports.entityName")}
               isSkeleton={isSkeleton}
               onRefresh={() => void refetch()}
-              columnSizingStorageKey="admin-recent-orders"
-              enableColumnResizing={false}
               onExport={async () =>
                 report.recentOrders.map((order) => ({
                   id: order.id.slice(0, 8),

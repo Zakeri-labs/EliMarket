@@ -414,7 +414,7 @@ export default function AdminProductsPage() {
         cell: ({ row }) => {
           const cover = productCover(row.original);
           return (
-          <div className="h-12 w-12 overflow-hidden rounded-lg bg-[#f4f4f5]">
+          <div className="h-12 w-12 overflow-hidden rounded-lg bg-background">
             {cover ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -438,26 +438,26 @@ export default function AdminProductsPage() {
               <p className="font-medium">{row.original.name}</p>
               {(row.original.generation_status === "pending" ||
                 row.original.generation_status === "generating") && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
                   <Spinner size="sm" className="text-amber-700" />
                   {t("admin.products.generatingBadge")}
                 </span>
               )}
               {row.original.generation_status === "failed" && (
                 <span
-                  className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700"
+                  className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700"
                   title={row.original.generation_error ?? undefined}
                 >
                   {t("admin.products.generationFailedBadge")}
                 </span>
               )}
               {row.original.generation_status === "completed" && !row.original.is_active && (
-                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
                   {t("admin.products.needsImageReviewBadge")}
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#71717a]" dir="ltr">
+            <p className="text-xs text-muted" dir="ltr">
               {row.original.slug}
             </p>
           </div>
@@ -478,7 +478,7 @@ export default function AdminProductsPage() {
             <input
               type="number"
               min={0}
-              className="w-16 rounded border border-[#e4e4e7] px-2 py-1 text-sm"
+              className="w-16 rounded border border-border px-2 py-1 text-sm"
               value={stockDrafts[row.original.id] ?? row.original.stock}
               onChange={(e) =>
                 setStockDrafts((s) => ({ ...s, [row.original.id]: e.target.value }))
@@ -582,7 +582,7 @@ export default function AdminProductsPage() {
         >
           <div>
             <p className="text-sm font-semibold text-foreground">{t("admin.products.smartRegister")}</p>
-            <p className="text-xs text-[#71717a]">{t("admin.smartProduct.subtitle")}</p>
+            <p className="text-xs text-muted">{t("admin.smartProduct.subtitle")}</p>
           </div>
           <span className="shrink-0 text-sm font-medium text-foreground">→</span>
         </Link>
@@ -617,15 +617,15 @@ export default function AdminProductsPage() {
             onSubmit={onSubmit}
             className="space-y-3"
           >
-          <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+          <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
             {DESCRIPTION_TABS.map((tab) => (
               <button
                 key={tab.key}
                 type="button"
                 className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
                   descriptionTab === tab.key
-                    ? "bg-white text-[#18181b]"
-                    : "text-[#71717a] hover:text-[#18181b]"
+                    ? "bg-white text-foreground"
+                    : "text-muted hover:text-foreground"
                 }`}
                 onClick={() => setDescriptionTab(tab.key)}
               >
@@ -639,18 +639,18 @@ export default function AdminProductsPage() {
               descriptionTab === "fa" ? "name" : descriptionTab === "ar" ? "name_ar" : "name_en",
             )}
             placeholder={t("admin.products.namePlaceholder")}
-            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+            className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
             dir={descriptionTab === "en" ? "ltr" : "rtl"}
           />
           <input
             {...form.register("slug")}
             placeholder={t("admin.products.slugPlaceholder")}
-            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+            className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
             dir="ltr"
           />
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-medium text-[#71717a]">
+              <p className="text-xs font-medium text-muted">
                 {t("admin.products.descriptionSection")}
               </p>
               <Button
@@ -696,7 +696,7 @@ export default function AdminProductsPage() {
                     : "description_en",
               )}
               placeholder={t("admin.products.descriptionPlaceholder")}
-              className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
               rows={4}
               dir={DESCRIPTION_TABS.find((tab) => tab.key === descriptionTab)?.dir ?? "rtl"}
             />
@@ -708,7 +708,7 @@ export default function AdminProductsPage() {
               name="price"
               render={({ field, fieldState }) => (
                 <div>
-                  <label className="mb-1 block text-xs text-[#71717a]">
+                  <label className="mb-1 block text-xs text-muted">
                     {t("admin.products.priceLabel")}
                   </label>
                   <MoneyInput
@@ -717,7 +717,7 @@ export default function AdminProductsPage() {
                     onValueChange={field.onChange}
                     onBlur={field.onBlur}
                     placeholder={t("admin.products.pricePlaceholder")}
-                    className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+                    className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
                   />
                   {fieldState.error ? (
                     <p className="mt-1 text-xs text-red-600">{fieldState.error.message}</p>
@@ -730,7 +730,7 @@ export default function AdminProductsPage() {
               name="compare_at_price"
               render={({ field, fieldState }) => (
                 <div>
-                  <label className="mb-1 block text-xs text-[#71717a]">
+                  <label className="mb-1 block text-xs text-muted">
                     {t("admin.products.compareAtPriceLabel")}
                   </label>
                   <MoneyInput
@@ -739,7 +739,7 @@ export default function AdminProductsPage() {
                     onValueChange={field.onChange}
                     onBlur={field.onBlur}
                     placeholder={t("admin.products.pricePlaceholder")}
-                    className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+                    className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
                   />
                   {fieldState.error ? (
                     <p className="mt-1 text-xs text-red-600">{fieldState.error.message}</p>
@@ -751,18 +751,18 @@ export default function AdminProductsPage() {
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.products.stockLabel")}
               </label>
               <input
                 {...form.register("stock", { valueAsNumber: true })}
                 type="number"
                 min={0}
-                className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+                className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.products.inventoryUnit")}
               </label>
               <Select
@@ -780,14 +780,14 @@ export default function AdminProductsPage() {
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs text-[#71717a]">
+            <label className="mb-1 block text-xs text-muted">
               {t("admin.products.lowStockThreshold")}
             </label>
             <input
               {...form.register("low_stock_threshold", { valueAsNumber: true })}
               type="number"
               min={0}
-              className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
             />
           </div>
 
@@ -822,7 +822,7 @@ export default function AdminProductsPage() {
           <input
             {...form.register("sku")}
             placeholder={t("admin.products.skuPlaceholder")}
-            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+            className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
             dir="ltr"
           />
 
@@ -845,12 +845,12 @@ export default function AdminProductsPage() {
           <input
             {...form.register("variant_label")}
             placeholder={t("admin.products.variantLabelPlaceholder")}
-            className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+            className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
           />
 
-          <div className="space-y-2 rounded-xl border border-[#e4e4e7] p-3">
+          <div className="space-y-2 rounded-xl border border-border p-3">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-medium text-[#71717a]">
+              <p className="text-xs font-medium text-muted">
                 {t("admin.products.featuresSection")}
               </p>
               <Button
@@ -862,15 +862,15 @@ export default function AdminProductsPage() {
                 {t("admin.products.addFeature")}
               </Button>
             </div>
-            <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+            <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
               {DESCRIPTION_TABS.map((tab) => (
                 <button
                   key={tab.key}
                   type="button"
                   className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
                     featuresTab === tab.key
-                      ? "bg-white text-[#18181b]"
-                      : "text-[#71717a] hover:text-[#18181b]"
+                      ? "bg-white text-foreground"
+                      : "text-muted hover:text-foreground"
                   }`}
                   onClick={() => setFeaturesTab(tab.key)}
                 >
@@ -896,7 +896,7 @@ export default function AdminProductsPage() {
                         )
                       }
                       placeholder={t("admin.products.featureLabelPlaceholder")}
-                      className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2 text-sm"
+                      className="w-full rounded-xl border border-border px-3 py-2 text-sm"
                       dir={featuresTab === "en" ? "ltr" : "rtl"}
                     />
                     <input
@@ -911,12 +911,12 @@ export default function AdminProductsPage() {
                         )
                       }
                       placeholder={t("admin.products.featureValuePlaceholder")}
-                      className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2 text-sm"
+                      className="w-full rounded-xl border border-border px-3 py-2 text-sm"
                       dir={featuresTab === "en" ? "ltr" : "rtl"}
                     />
                     <button
                       type="button"
-                      className="rounded-xl border border-[#e4e4e7] px-3 py-2 text-xs text-red-600"
+                      className="rounded-xl border border-border px-3 py-2 text-xs text-red-600"
                       onClick={() =>
                         setFeatures((current) =>
                           current.length <= 1
@@ -935,27 +935,27 @@ export default function AdminProductsPage() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-medium text-[#71717a]">
+              <p className="text-xs font-medium text-muted">
                 {t("admin.products.imagesSection")}
               </p>
-              <span className="text-[11px] text-[#71717a]">
+              <span className="text-xs text-muted">
                 {t("admin.products.maxImages", { count: MAX_GALLERY_IMAGES })}
               </span>
             </div>
-            <p className="text-xs leading-5 text-[#71717a]">{t("admin.products.imagesHint")}</p>
+            <p className="text-xs leading-5 text-muted">{t("admin.products.imagesHint")}</p>
             {gallery.length > 0 && (
               <ul className="grid grid-cols-3 gap-2">
                 {gallery.map((image, index) => (
                   <li
                     key={`${image.image_url}-${index}`}
                     className={`relative overflow-hidden rounded-xl border ${
-                      index === 0 ? "border-accent ring-2 ring-accent/30" : "border-[#e4e4e7]"
+                      index === 0 ? "border-accent ring-2 ring-accent/30" : "border-border"
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={image.image_url} alt="" className="aspect-square w-full bg-[#f4f4f5] object-contain" />
+                    <img src={image.image_url} alt="" className="aspect-square w-full bg-background object-contain" />
                     {index === 0 && (
-                      <span className="absolute start-1 top-1 rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      <span className="absolute start-1 top-1 rounded-md bg-accent px-1.5 py-0.5 text-xs font-medium text-white">
                         {t("admin.products.primaryImage")}
                       </span>
                     )}
@@ -964,7 +964,7 @@ export default function AdminProductsPage() {
                         <button
                           type="button"
                           title={t("admin.products.setPrimaryImage")}
-                          className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-foreground"
+                          className="flex-1 rounded-md bg-white/95 px-1 py-1 text-xs text-foreground"
                           onClick={() =>
                             setGallery((current) => {
                               const next = [...current];
@@ -979,7 +979,7 @@ export default function AdminProductsPage() {
                       <button
                         type="button"
                         title={t("admin.products.aiImage")}
-                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-foreground"
+                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-xs text-foreground"
                         onClick={() =>
                           runAction(
                             () =>
@@ -1010,7 +1010,7 @@ export default function AdminProductsPage() {
                       </button>
                       <button
                         type="button"
-                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-[10px] text-red-600"
+                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-xs text-red-600"
                         onClick={() =>
                           setGallery((current) => current.filter((_, itemIndex) => itemIndex !== index))
                         }
@@ -1024,7 +1024,7 @@ export default function AdminProductsPage() {
             )}
             <div className="flex flex-wrap gap-2">
               <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
+                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
                   <AppIcon icon={Upload} size="sm" />
                   {t("admin.products.uploadImages")}
                 </span>
@@ -1046,7 +1046,7 @@ export default function AdminProductsPage() {
                 value={imageUrlDraft}
                 onChange={(event) => setImageUrlDraft(event.target.value)}
                 placeholder={t("admin.products.imageUrlPlaceholder")}
-                className="w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm"
+                className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
                 dir="ltr"
               />
               <Button type="button" variant="secondary" onClick={addImageFromUrl}>
@@ -1073,7 +1073,6 @@ export default function AdminProductsPage() {
             onRefresh={() => void refetch()}
             onCreateClick={openCreate}
             createLabel={t("admin.products.newProduct")}
-            columnSizingStorageKey="admin-products"
             onExport={async () =>
               (products ?? []).map((p) => ({
                 name: p.name,

@@ -46,7 +46,12 @@ export function CategoryProductList({ slug, filters }: Props) {
   const isSkeleton = isPending;
   const { minPrice, maxPrice, onSale, sort } = filters ?? {};
   const items = useMemo(() => {
-    if (isSkeleton) return mockProducts(locale).slice(0, MOCK_LIST_COUNT);
+    if (isSkeleton) {
+      // Single-price mocks: a wrapped compare-at price would make the blocks taller than real cards.
+      return mockProducts(locale)
+        .slice(0, MOCK_LIST_COUNT)
+        .map((product) => ({ ...product, compare_at_price: null }));
+    }
     const min = minPrice ? Number(minPrice) : null;
     const max = maxPrice ? Number(maxPrice) : null;
     const list = (products ?? []).filter((p) => {

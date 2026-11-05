@@ -80,6 +80,13 @@ const CATEGORY_DATA: {
     name_en: "Baby Care",
     image_url: "/categories/babycare.png",
   },
+  {
+    slug: "mock-extra",
+    name_fa: "سایر",
+    name_ar: "أخرى",
+    name_en: "More",
+    image_url: "",
+  },
 ];
 
 function localizedName(
@@ -91,7 +98,7 @@ function localizedName(
   return item.name_en;
 }
 
-/** Full category listing page (10 items). */
+/** Full category listing page (matches the live category count). */
 export const MOCK_CATEGORY_LIST_COUNT = CATEGORY_DATA.length;
 
 export function mockCategories(locale: Locale): Category[] {

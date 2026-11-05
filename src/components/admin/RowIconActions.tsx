@@ -22,7 +22,7 @@ export function RowIconActions({ editLabel, deleteLabel, onEdit, onDelete }: Pro
       {onEdit ? (
         <button
           type="button"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-accent-dark transition-colors hover:bg-accent/10"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full text-accent-dark md:h-9 md:w-9 transition-colors hover:bg-accent/10"
           aria-label={editLabel}
           title={editLabel}
           onClick={onEdit}
@@ -34,7 +34,7 @@ export function RowIconActions({ editLabel, deleteLabel, onEdit, onDelete }: Pro
         <>
           <button
             type="button"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-red-600 md:h-9 md:w-9 transition-colors hover:bg-red-50"
             aria-label={deleteLabel}
             title={deleteLabel}
             onClick={() => setConfirmOpen(true)}

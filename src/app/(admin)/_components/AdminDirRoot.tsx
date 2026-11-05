@@ -107,7 +107,7 @@ export function AdminDirRoot({ children }: { children: React.ReactNode }) {
   return (
     <div
       dir={getDirection(locale)}
-      className="theme-admin fixed inset-0 z-0 flex flex-col overflow-hidden bg-[#fafafa] text-[#18181b]"
+      className="theme-admin fixed inset-0 z-0 flex flex-col overflow-hidden bg-background text-foreground"
     >
       {children}
     </div>

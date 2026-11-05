@@ -46,14 +46,3 @@ export function mockAdminOrders(locale: Locale): Order[] {
     ],
   }));
 }
-
-export function mockAdminOrderIdPreview(locale: Locale): string {
-  return `${mockAdminOrders(locale)[0]?.id.slice(0, 8) ?? "a1b2c3d4"}…`;
-}
-
-export function mockAdminOrderDateLabel(locale: Locale): string {
-  const sample = new Date(MOCK_TIMESTAMP).toLocaleString(
-    locale === "fa" ? "fa-IR" : locale === "ar" ? "ar-OM" : "en-OM",
-  );
-  return sample;
-}

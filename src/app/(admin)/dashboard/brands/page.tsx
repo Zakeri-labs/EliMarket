@@ -127,7 +127,7 @@ export default function AdminBrandsPage() {
     }
   });
 
-  const inputClass = "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
 
   return (
     <AdminShell
@@ -135,7 +135,7 @@ export default function AdminBrandsPage() {
       subtitle={t("admin.brands.subtitle")}
     >
       <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-[#f4f4f5] pb-3">
+        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
           <Button type="button" size="sm" onClick={openCreate}>
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
             {t("admin.brands.newBrand")}
@@ -145,7 +145,7 @@ export default function AdminBrandsPage() {
         {isPending ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {SKELETON_KEYS.map((key) => (
-              <li key={key} className="aspect-[4/5] animate-pulse rounded-2xl bg-[#e4e4e7]" />
+              <li key={key} className="aspect-[4/5] animate-pulse motion-reduce:animate-none rounded-2xl bg-[#e4e4e7]" />
             ))}
           </ul>
         ) : brands?.length ? (
@@ -157,7 +157,7 @@ export default function AdminBrandsPage() {
                     "group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all",
                     editing?.id === brand.id
                       ? "border-accent shadow-[0_8px_24px_rgba(107,143,113,0.18)]"
-                      : "border-[#e4e4e7] hover:-translate-y-0.5 hover:border-zinc-200 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
+                      : "border-border hover:-translate-y-0.5 hover:border-zinc-200 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
                   )}
                 >
                   <button
@@ -166,7 +166,7 @@ export default function AdminBrandsPage() {
                     onClick={() => openEdit(brand)}
                     aria-label={t("admin.brands.edit")}
                   >
-                    <span className="relative flex aspect-square items-center justify-center bg-[#fafafa] p-3">
+                    <span className="relative flex aspect-square items-center justify-center bg-background p-3">
                       {brand.logo_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -181,16 +181,16 @@ export default function AdminBrandsPage() {
                       )}
                     </span>
                     <span className="flex flex-1 flex-col gap-0.5 px-3 pt-2.5 pb-1">
-                      <span className="line-clamp-2 text-sm font-semibold leading-snug text-[#18181b]">
+                      <span className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">
                         {brand.name}
                       </span>
-                      <span className="truncate text-[11px] text-[#71717a]" dir="ltr">
+                      <span className="truncate text-xs text-muted" dir="ltr">
                         {brand.slug}
                       </span>
                     </span>
                   </button>
                   <div className="mt-auto flex items-center justify-between border-t border-[#f4f4f5] px-2 py-1">
-                    <span className="rounded-md bg-[#f4f4f5] px-1.5 py-0.5 text-[10px] text-[#71717a]">
+                    <span className="rounded-md bg-background px-1.5 py-0.5 text-xs text-muted">
                       {t("admin.brands.sortOrderLabel")} {brand.sort_order}
                     </span>
                     <RowIconActions
@@ -213,7 +213,7 @@ export default function AdminBrandsPage() {
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-dashed border-[#e4e4e7] bg-white px-4 py-10 text-center text-sm text-[#71717a]">
+          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
             {t("admin.brands.empty")}
           </p>
         )}
@@ -246,7 +246,7 @@ export default function AdminBrandsPage() {
         >
           <form id="admin-brand-form" onSubmit={onSubmit} className="space-y-3">
             {logoUrl ? (
-              <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#fafafa]">
+              <div className="overflow-hidden rounded-xl border border-border bg-background">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={logoUrl} alt="" className="mx-auto aspect-square max-h-48 object-contain p-4" />
               </div>
@@ -264,7 +264,7 @@ export default function AdminBrandsPage() {
               dir="ltr"
             />
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.brands.sortOrderLabel")}
               </label>
               <input
@@ -284,7 +284,7 @@ export default function AdminBrandsPage() {
 
             <div className="flex flex-wrap gap-2">
               <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
+                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
                   <AppIcon icon={Upload} size="sm" />
                   {t("admin.brands.uploadLogo")}
                 </span>

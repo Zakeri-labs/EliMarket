@@ -40,7 +40,7 @@ const DeliveryAreasMap = dynamic(
 function MapLoading() {
   const { t } = useTranslations();
   return (
-    <div className="flex h-[380px] items-center justify-center rounded-xl border border-[#e4e4e7] bg-[#fafafa] text-sm text-[#71717a]">
+    <div className="flex h-[380px] items-center justify-center rounded-xl border border-border bg-background text-sm text-muted">
       {t("admin.coverage.loadingMap")}
     </div>
   );
@@ -310,7 +310,7 @@ export default function AdminDeliveryAreasPage() {
     }
   });
 
-  const inputClass = "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
   const nameField = nameTab === "fa" ? "name_fa" : nameTab === "ar" ? "name_ar" : "name_en";
   const hasShape = ring.length >= 3 || Boolean(osmBoundary);
 
@@ -321,7 +321,7 @@ export default function AdminDeliveryAreasPage() {
     >
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-[#71717a]">{t("admin.deliveryAreas.mapHint")}</p>
+          <p className="text-xs text-muted">{t("admin.deliveryAreas.mapHint")}</p>
           <Button type="button" size="sm" onClick={() => openCreate()}>
             <AppIcon icon={Plus} size="xs" className="me-1.5" />
             {t("admin.deliveryAreas.newArea")}
@@ -344,7 +344,7 @@ export default function AdminDeliveryAreasPage() {
         {isPending ? (
           <ul className="space-y-2">
             {SKELETON_KEYS.map((key) => (
-              <li key={key} className="h-14 animate-pulse rounded-xl border border-[#e4e4e7] bg-white" />
+              <li key={key} className="h-14 animate-pulse admin-card" />
             ))}
           </ul>
         ) : areas?.length ? (
@@ -354,7 +354,7 @@ export default function AdminDeliveryAreasPage() {
                 key={area.id}
                 className={cn(
                   "flex items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3 transition-colors",
-                  editing?.id === area.id ? "border-accent" : "border-[#e4e4e7]",
+                  editing?.id === area.id ? "border-accent" : "border-border",
                 )}
               >
                 <button
@@ -363,22 +363,22 @@ export default function AdminDeliveryAreasPage() {
                   onClick={() => openEdit(area)}
                   aria-label={t("admin.deliveryAreas.edit")}
                 >
-                  <span className="w-6 shrink-0 text-[11px] text-[#a1a1aa]">{area.sort_order}</span>
+                  <span className="w-6 shrink-0 text-xs text-muted">{area.sort_order}</span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-[#18181b]">
+                    <span className="block truncate text-sm font-semibold text-foreground">
                       {resolveDeliveryAreaName(area, locale)}
                     </span>
-                    <span className="truncate text-[11px] text-[#71717a]" dir="ltr">
+                    <span className="truncate text-xs text-muted" dir="ltr">
                       {area.slug}
                       {area.boundary ? " · ▰" : area.center_lat != null ? " · ◯" : ""}
                     </span>
                   </span>
                   <span
                     className={cn(
-                      "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
+                      "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
                       area.serviceable
                         ? "bg-zinc-100 text-foreground"
-                        : "bg-[#f4f4f5] text-[#71717a]",
+                        : "bg-background text-muted",
                     )}
                   >
                     {area.serviceable
@@ -386,7 +386,7 @@ export default function AdminDeliveryAreasPage() {
                       : t("admin.deliveryAreas.comingSoonTag")}
                   </span>
                   {!area.active ? (
-                    <span className="shrink-0 rounded-full bg-[#fef2f2] px-2 py-0.5 text-[10px] font-medium text-[#b91c1c]">
+                    <span className="shrink-0 rounded-full bg-[#fef2f2] px-2 py-0.5 text-xs font-medium text-[#b91c1c]">
                       {t("admin.deliveryAreas.hiddenTag")}
                     </span>
                   ) : null}
@@ -409,7 +409,7 @@ export default function AdminDeliveryAreasPage() {
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-dashed border-[#e4e4e7] bg-white px-4 py-10 text-center text-sm text-[#71717a]">
+          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
             {t("admin.deliveryAreas.empty")}
           </p>
         )}
@@ -442,7 +442,7 @@ export default function AdminDeliveryAreasPage() {
         >
           <form id="admin-delivery-area-form" onSubmit={onSubmit} className="space-y-3">
             <div className="space-y-2">
-              <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+              <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
                 {LOCALES.map((loc) => (
                   <button
                     key={loc}
@@ -450,8 +450,8 @@ export default function AdminDeliveryAreasPage() {
                     className={cn(
                       "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                       nameTab === loc
-                        ? "bg-white text-[#18181b]"
-                        : "text-[#71717a] hover:text-[#18181b]",
+                        ? "bg-white text-foreground"
+                        : "text-muted hover:text-foreground",
                     )}
                     onClick={() => setNameTab(loc)}
                   >
@@ -475,7 +475,7 @@ export default function AdminDeliveryAreasPage() {
               {form.formState.errors.name_fa ? (
                 <p className="text-xs text-red-600">{form.formState.errors.name_fa.message}</p>
               ) : null}
-              <p className="text-[11px] text-[#71717a]">{t("admin.deliveryAreas.nameLangHint")}</p>
+              <p className="text-xs text-muted">{t("admin.deliveryAreas.nameLangHint")}</p>
             </div>
 
             <input
@@ -500,8 +500,8 @@ export default function AdminDeliveryAreasPage() {
             </div>
 
             {/* ---- Area shape (map) ---- */}
-            <div className="space-y-2 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-3">
-              <p className="text-xs font-semibold text-[#18181b]">
+            <div className="space-y-2 rounded-xl border border-border bg-background p-3">
+              <p className="text-xs font-semibold text-foreground">
                 {t("admin.deliveryAreas.shapeLabel")}
               </p>
               <div className="flex flex-wrap gap-2">
@@ -509,7 +509,7 @@ export default function AdminDeliveryAreasPage() {
                   value={osmQuery}
                   onChange={(e) => setOsmQuery(e.target.value)}
                   placeholder={t("admin.deliveryAreas.osmLookupPlaceholder")}
-                  className="min-w-0 flex-1 rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm"
+                  className="min-w-0 flex-1 rounded-lg border border-border px-3 py-2 text-sm"
                   dir="ltr"
                 />
                 <Button
@@ -517,7 +517,7 @@ export default function AdminDeliveryAreasPage() {
                   size="sm"
                   variant="secondary"
                   disabled={isActionPending || !osmQuery.trim()}
-                  className="disabled:border-[#e4e4e7] disabled:bg-[#f4f4f5] disabled:text-[#a1a1aa] disabled:opacity-100 disabled:shadow-none"
+                  className="disabled:border-border disabled:bg-background disabled:text-muted disabled:opacity-100 disabled:shadow-none"
                   onClick={fetchBoundary}
                 >
                   {t("admin.deliveryAreas.fetchBoundary")}
@@ -554,7 +554,7 @@ export default function AdminDeliveryAreasPage() {
                   {t("admin.deliveryAreas.clearShape")}
                 </Button>
               </div>
-              <p className="text-[11px] text-[#71717a]">
+              <p className="text-xs text-muted">
                 {drawing
                   ? t("admin.deliveryAreas.drawHint")
                   : hasShape
@@ -574,7 +574,7 @@ export default function AdminDeliveryAreasPage() {
               />
 
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                <label className="text-[11px] text-[#71717a]">
+                <label className="text-xs text-muted">
                   {t("admin.deliveryAreas.latLabel")}
                   <input
                     {...form.register("center_lat", { setValueAs: toNum })}
@@ -584,7 +584,7 @@ export default function AdminDeliveryAreasPage() {
                     dir="ltr"
                   />
                 </label>
-                <label className="text-[11px] text-[#71717a]">
+                <label className="text-xs text-muted">
                   {t("admin.deliveryAreas.lngLabel")}
                   <input
                     {...form.register("center_lng", { setValueAs: toNum })}
@@ -594,7 +594,7 @@ export default function AdminDeliveryAreasPage() {
                     dir="ltr"
                   />
                 </label>
-                <label className="text-[11px] text-[#71717a]">
+                <label className="text-xs text-muted">
                   {t("admin.deliveryAreas.radiusLabel")}
                   <input
                     {...form.register("radius_km", { valueAsNumber: true })}
@@ -609,7 +609,7 @@ export default function AdminDeliveryAreasPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.deliveryAreas.sortOrderLabel")}
               </label>
               <input
@@ -622,7 +622,7 @@ export default function AdminDeliveryAreasPage() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
-                <label className="mb-1 block text-xs text-[#71717a]">
+                <label className="mb-1 block text-xs text-muted">
                   {t("admin.deliveryAreas.deliveryFeeLabel")}
                 </label>
                 <input
@@ -635,7 +635,7 @@ export default function AdminDeliveryAreasPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-[#71717a]">
+                <label className="mb-1 block text-xs text-muted">
                   {t("admin.deliveryAreas.minOrderLabel")}
                 </label>
                 <input
@@ -648,7 +648,7 @@ export default function AdminDeliveryAreasPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-[#71717a]">
+                <label className="mb-1 block text-xs text-muted">
                   {t("admin.deliveryAreas.etaMinutesLabel")}
                 </label>
                 <input

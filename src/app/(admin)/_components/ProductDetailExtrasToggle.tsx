@@ -34,8 +34,8 @@ export function ProductDetailExtrasToggle({ className, compact }: Props) {
     <div className={cn("flex items-center gap-3", className)}>
       {!compact && (
         <div className="text-sm">
-          <p className="font-medium text-[#18181b]">{t("admin.productExtrasToggle.title")}</p>
-          <p className="text-xs text-[#71717a]">
+          <p className="font-medium text-foreground">{t("admin.productExtrasToggle.title")}</p>
+          <p className="text-xs text-muted">
             {showProductDetailExtras
               ? t("admin.productExtrasToggle.onDesc")
               : t("admin.productExtrasToggle.offDesc")}
@@ -52,7 +52,7 @@ export function ProductDetailExtrasToggle({ className, compact }: Props) {
         onClick={toggle}
         className={cn(
           !showProductDetailExtras && "bg-accent text-white hover:opacity-90",
-          showProductDetailExtras && "border-[#e4e4e7]",
+          showProductDetailExtras && "border-border",
         )}
         title={t("admin.productExtrasToggle.title")}
       >

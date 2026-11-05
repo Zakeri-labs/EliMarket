@@ -21,9 +21,7 @@ import {
 } from "@/app/_actions/order-actions";
 import { getDeliveryProofUrlAction } from "@/app/_actions/rider-actions";
 import { useOrders } from "@/app/(admin)/dashboard/_hooks/use-orders";
-import {
-  mockAdminOrders,
-} from "@/app/(admin)/dashboard/_mocks/order-mock";
+import { mockAdminOrders } from "@/app/(admin)/dashboard/_mocks/order-mock";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -53,7 +51,7 @@ const STATUS_BADGE: Record<OrderStatus, string> = {
 };
 
 const selectClass =
-  "rounded-xl border border-[#e4e4e7] bg-[#fafafa] px-3 py-2 text-sm text-[#18181b] outline-none focus:border-accent disabled:cursor-not-allowed disabled:opacity-55";
+  "rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent disabled:cursor-not-allowed disabled:opacity-55";
 
 function allowedStatusOptions(current: OrderStatus): OrderStatus[] {
   if (current === "cancelled" || current === "delivered") {
@@ -178,20 +176,20 @@ export default function OrdersPageContent() {
               key={order.id}
               id={`order-${order.id}`}
               className={cn(
-                "overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white",
+                "overflow-hidden admin-card",
                 highlightId === order.id &&
                   "border-accent ring-2 ring-accent/25",
               )}
             >
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f4f4f5] bg-zinc-50 px-4 py-3">
                 <div className="min-w-0">
-                  <p className="font-semibold text-[#18181b]">
+                  <p className="font-semibold text-foreground">
                     {t("admin.orders.orderPrefix")}{" "}
                     <span className="font-mono text-foreground" dir="ltr">
                       {`${order.id.slice(0, 8)}…`}
                     </span>
                   </p>
-                  <p className="mt-0.5 text-xs text-[#71717a]">
+                  <p className="mt-0.5 text-xs text-muted">
                     {new Date(order.created_at).toLocaleString(getNumberLocale(locale))}
                   </p>
                 </div>
@@ -218,7 +216,7 @@ export default function OrdersPageContent() {
                     <p className="flex items-start gap-2 text-[#3f3f46]">
                       <AppIcon icon={UserRound} size="sm" className="mt-0.5 text-foreground" />
                       <span>
-                        <span className="text-[#71717a]">{t("admin.orders.customer")}: </span>
+                        <span className="text-muted">{t("admin.orders.customer")}: </span>
                         {order.customer.full_name || order.customer.phone}
                       </span>
                     </p>
@@ -227,7 +225,7 @@ export default function OrdersPageContent() {
                     <p className="flex items-start gap-2 text-[#3f3f46]">
                       <AppIcon icon={Phone} size="sm" className="mt-0.5 text-foreground" />
                       <span>
-                        <span className="text-[#71717a]">{t("admin.orders.phone")}: </span>
+                        <span className="text-muted">{t("admin.orders.phone")}: </span>
                         <a
                           href={`tel:${order.customer.phone}`}
                           dir="ltr"
@@ -313,7 +311,7 @@ export default function OrdersPageContent() {
                       ) : null}
                     </div>
                   ) : null}
-                  <ul className="mt-3 space-y-1.5 rounded-xl border border-[#e4e4e7] bg-[#fafafa] px-3 py-2.5 text-[#52525b]">
+                  <ul className="mt-3 space-y-1.5 rounded-xl border border-border bg-background px-3 py-2.5 text-[#52525b]">
                     {order.order_items?.map((item) => (
                       <li key={item.id} className="flex items-center gap-2">
                         <AppIcon icon={Package} size="xs" className="text-foreground" />
@@ -325,9 +323,9 @@ export default function OrdersPageContent() {
                   </ul>
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-2xl border border-[#e4e4e7] bg-zinc-50 p-3">
+                <div className="flex flex-col gap-3 rounded-2xl border border-border bg-zinc-50 p-3">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-[#71717a]">
+                    <label className="mb-1 block text-xs font-medium text-muted">
                       {t("admin.orders.statusLabel")}
                     </label>
                     <Select
@@ -358,13 +356,13 @@ export default function OrdersPageContent() {
                         </option>
                       ) : null}
                     </Select>
-                    <p className="mt-1 text-[11px] leading-relaxed text-[#a1a1aa]">
+                    <p className="mt-1 text-xs leading-relaxed text-muted">
                       {t("admin.orders.statusHint")}
                     </p>
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-[#71717a]">
+                    <label className="mb-1 block text-xs font-medium text-muted">
                       {t("admin.orders.riderLabel")}
                     </label>
                     <Select
@@ -386,7 +384,7 @@ export default function OrdersPageContent() {
                       ))}
                     </Select>
                     {!assignReady && status !== "out_for_delivery" && status !== "delivered" ? (
-                      <p className="mt-1 text-[11px] leading-relaxed text-amber-700">
+                      <p className="mt-1 text-xs leading-relaxed text-amber-700">
                         {t("admin.orders.assignAfterPreparing")}
                       </p>
                     ) : null}
@@ -402,7 +400,7 @@ export default function OrdersPageContent() {
                       !selectedRider ||
                       isActionPending
                     }
-                    className="!rounded-xl !bg-accent !text-white !shadow-none hover:!bg-accent-dark disabled:!bg-[#e4e4e7] disabled:!text-[#a1a1aa]"
+                    className="!bg-accent !text-white !shadow-none hover:!bg-accent-dark disabled:!bg-[#e4e4e7] disabled:!text-muted"
                     onClick={() => {
                       if (!selectedRider) return;
                       setPendingOrderId(order.id);
@@ -433,7 +431,7 @@ export default function OrdersPageContent() {
                         "noopener,noreferrer",
                       );
                     }}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#e4e4e7] bg-white px-3 py-2 text-sm font-medium text-[#3f3f46] hover:border-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-55"
+                    className="inline-flex items-center justify-center gap-2 admin-card px-3 py-2 text-sm font-medium text-[#3f3f46] hover:border-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-55"
                   >
                     <AppIcon icon={Printer} size="sm" />
                     {t("admin.orders.printInvoice")}
@@ -444,7 +442,7 @@ export default function OrdersPageContent() {
           );
         })}
         {!isSkeleton && !orders?.length && (
-          <p className="rounded-2xl border border-dashed border-[#e4e4e7] bg-white p-8 text-center text-sm text-[#71717a]">
+          <p className="rounded-2xl border border-dashed border-border bg-white p-8 text-center text-sm text-muted">
             {t("admin.orders.empty")}
           </p>
         )}

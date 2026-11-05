@@ -98,11 +98,11 @@ export function OffersView() {
       </section>
 
       <section className="mt-10">
-        <div className="mb-5 flex items-baseline justify-between gap-3">
-          <div className="flex min-w-0 items-baseline gap-3">
+        <div className="mb-5 flex min-h-[70px] items-baseline justify-between gap-3 sm:min-h-[56px] sm:items-center lg:min-h-[44px]">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1 sm:items-center">
             <h2
               className={cn(
-                "text-lg font-semibold text-text-primary",
+                "w-full text-lg font-semibold text-text-primary sm:w-auto",
                 locale === "en" && "font-logo",
               )}
             >

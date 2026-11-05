@@ -93,17 +93,17 @@ export function ReceiptSettings({ className }: Props) {
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm outline-none focus:border-accent disabled:opacity-55";
+    "w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-accent disabled:opacity-55";
   const fieldDir = langTab === "en" ? "ltr" : "rtl";
 
   return (
     <div className={cn("space-y-3", className)}>
       <div className="text-sm">
-        <p className="font-medium text-[#18181b]">{t("admin.receiptSettings.title")}</p>
-        <p className="text-xs text-[#71717a]">{t("admin.receiptSettings.desc")}</p>
+        <p className="font-medium text-foreground">{t("admin.receiptSettings.title")}</p>
+        <p className="text-xs text-muted">{t("admin.receiptSettings.desc")}</p>
       </div>
 
-      <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+      <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
         {LOCALES.map((loc) => (
           <button
             key={loc}
@@ -111,8 +111,8 @@ export function ReceiptSettings({ className }: Props) {
             className={cn(
               "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
               langTab === loc
-                ? "bg-white text-[#18181b]"
-                : "text-[#71717a] hover:text-[#18181b]",
+                ? "bg-white text-foreground"
+                : "text-muted hover:text-foreground",
             )}
             onClick={() => setLangTab(loc)}
           >
@@ -181,7 +181,7 @@ export function ReceiptSettings({ className }: Props) {
           />
         </label>
 
-        <p className="text-[11px] text-[#71717a]">
+        <p className="text-xs text-muted">
           {t("admin.receiptSettings.langHint")}
         </p>
       </div>

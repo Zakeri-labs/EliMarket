@@ -189,26 +189,26 @@ export function AdminNotificationBell() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[#e4e4e7] bg-[#fafafa] text-[#18181b] hover:bg-[#f4f4f5]"
+        className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-foreground hover:bg-background"
         aria-label={t("admin.notifCenter.title")}
         title={t("admin.notifCenter.title")}
       >
         <AppIcon icon={Bell} size="sm" />
         {unreadCount > 0 ? (
-          <span className="absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
+          <span className="absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-xs font-bold text-white">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : null}
       </button>
 
       {open ? (
-        <div className="absolute end-0 z-50 mt-2 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-xl border border-[#e4e4e7] bg-white shadow-lg">
-          <div className="flex items-center justify-between gap-2 border-b border-[#e4e4e7] px-3 py-2.5">
-            <p className="text-sm font-semibold text-[#18181b]">{t("admin.notifCenter.title")}</p>
+        <div className="absolute end-0 z-50 mt-2 w-[min(100vw-2rem,22rem)] overflow-hidden admin-card shadow-lg">
+          <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2.5">
+            <p className="text-sm font-semibold text-foreground">{t("admin.notifCenter.title")}</p>
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                className="rounded p-1.5 text-[#71717a] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+                className="rounded p-1.5 text-muted hover:bg-background hover:text-foreground"
                 title={t("admin.notifCenter.markAllRead")}
                 onClick={async () => {
                   await markAllNotificationsReadAction();
@@ -219,7 +219,7 @@ export function AdminNotificationBell() {
               </button>
               <button
                 type="button"
-                className="rounded p-1.5 text-[#71717a] hover:bg-[#f4f4f5] hover:text-[#18181b]"
+                className="rounded p-1.5 text-muted hover:bg-background hover:text-foreground"
                 title={t("admin.notifCenter.clearRead")}
                 onClick={async () => {
                   await deleteReadNotificationsAction();
@@ -233,9 +233,9 @@ export function AdminNotificationBell() {
 
           <ul className="max-h-80 overflow-y-auto">
             {query.isLoading ? (
-              <li className="px-3 py-6 text-center text-sm text-[#71717a]">{t("common.loading")}</li>
+              <li className="px-3 py-6 text-center text-sm text-muted">{t("common.loading")}</li>
             ) : !items.length ? (
-              <li className="px-3 py-6 text-center text-sm text-[#71717a]">
+              <li className="px-3 py-6 text-center text-sm text-muted">
                 {t("admin.notifCenter.empty")}
               </li>
             ) : (
@@ -256,18 +256,18 @@ export function AdminNotificationBell() {
                             ? "/dashboard/products"
                             : "/dashboard/orders"
                       }
-                      className="min-w-0 flex-1 px-3 py-2.5 text-start hover:bg-[#fafafa]"
+                      className="min-w-0 flex-1 px-3 py-2.5 text-start hover:bg-background"
                       onClick={() => void onOpenItem(n)}
                     >
-                      <p className="truncate text-sm font-medium text-[#18181b]">{n.title}</p>
-                      <p className="mt-0.5 line-clamp-2 text-xs text-[#71717a]">{n.body}</p>
-                      <p className="mt-1 text-[10px] text-[#a1a1aa]">
+                      <p className="truncate text-sm font-medium text-foreground">{n.title}</p>
+                      <p className="mt-0.5 line-clamp-2 text-xs text-muted">{n.body}</p>
+                      <p className="mt-1 text-xs text-muted">
                         {new Date(n.created_at).toLocaleString(getNumberLocale(locale))}
                       </p>
                     </Link>
                     <button
                       type="button"
-                      className="shrink-0 self-start p-2 text-[#a1a1aa] hover:text-red-500"
+                      className="shrink-0 self-start p-2 text-muted hover:text-red-500"
                       aria-label={t("common.delete")}
                       onClick={async () => {
                         await deleteNotificationAction(n.id);

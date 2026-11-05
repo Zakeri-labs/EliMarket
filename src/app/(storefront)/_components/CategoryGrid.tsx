@@ -27,7 +27,7 @@ export function CategoryGrid() {
       ? mockCategories(locale)
       : categories?.length
         ? categories
-        : mockCategories(locale);
+        : mockCategories(locale).filter((cat) => cat.slug !== "mock-extra");
     return source.filter((cat) => !cat.parent_id).slice(0, HOME_CATEGORY_SLOTS);
   }, [categories, isSkeleton, locale]);
 

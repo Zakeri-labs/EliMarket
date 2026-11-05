@@ -110,7 +110,7 @@ export function CategorySideNav({
     nested?: boolean;
   }) {
     const active = selectedSlug === category.slug;
-    const className = cn(itemClass(active), nested && "text-[13px]");
+    const className = cn(itemClass(active), nested && "text-[13px]", isSkeleton && "target !border-transparent");
     const content = (
       <>
         {withThumbnails ? (
@@ -140,7 +140,7 @@ export function CategorySideNav({
   }
 
   return (
-    <nav aria-label={t("search.categoryLabel")}>
+    <nav aria-label={t("search.categoryLabel")} className={cn(isSkeleton && "skeleton")} aria-busy={isSkeleton} inert={isSkeleton}>
       <p className={cn("mb-2 text-xs font-medium text-muted", withThumbnails && "sr-only")}>{t("search.categoryLabel")}</p>
       <ul className={withThumbnails ? "space-y-2" : "space-y-0.5"}>
         <li className={withThumbnails ? "hidden" : undefined}>

@@ -12,7 +12,7 @@ import { BRAND_NAME } from "@/config/brand";
 import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
-  "admin-login-input w-full rounded-xl border border-[#e4e4e7] !bg-white px-4 py-3 text-sm !text-[#18181b] outline-none caret-[#18181b] placeholder:text-[#a1a1aa] focus:border-accent";
+  "admin-login-input w-full rounded-xl border border-border !bg-white px-4 py-3 text-sm !text-foreground outline-none caret-[#18181b] placeholder:text-muted focus:border-accent";
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -33,7 +33,7 @@ function AdminLoginForm() {
         </p>
       )}
 
-      <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 [color-scheme:light]">
+      <div className="admin-card p-6 [color-scheme:light]">
         <form
           className="space-y-4"
           autoComplete="off"
@@ -72,7 +72,7 @@ function AdminLoginForm() {
           }}
         >
           <div>
-            <label className="mb-1.5 flex items-center gap-2 text-xs text-[#71717a]">
+            <label className="mb-1.5 flex items-center gap-2 text-xs text-muted">
               <AppIcon icon={User} size="xs" />
               {t("admin.login.username")}
             </label>
@@ -91,7 +91,7 @@ function AdminLoginForm() {
           </div>
 
           <div>
-            <label className="mb-1.5 flex items-center gap-2 text-xs text-[#71717a]">
+            <label className="mb-1.5 flex items-center gap-2 text-xs text-muted">
               <AppIcon icon={Lock} size="xs" />
               {t("admin.login.password")}
             </label>
@@ -127,14 +127,14 @@ export default function AdminLoginPage() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
       <div className="flex justify-center">
-        <LanguageTabs className="border-[#e4e4e7] bg-white [&_button[aria-selected=true]]:bg-accent [&_button[aria-selected=true]]:text-white" />
+        <LanguageTabs className="border-border bg-white [&_button[aria-selected=true]]:bg-accent [&_button[aria-selected=true]]:text-white" />
       </div>
 
       <div className="text-center">
         <h1 className="font-logo text-2xl font-semibold tracking-wide text-foreground">
           {BRAND_NAME}
         </h1>
-        <p className="mt-2 text-sm text-[#71717a]">{t("admin.login.title")}</p>
+        <p className="mt-2 text-sm text-muted">{t("admin.login.title")}</p>
       </div>
 
       <Suspense fallback={<div className="h-48 rounded-2xl bg-white/50" />}>

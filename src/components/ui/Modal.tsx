@@ -55,12 +55,11 @@ export function Modal({
           className="fixed inset-0"
           style={{
             zIndex: 100000,
-            background: "rgba(24, 24, 27, 0.4)",
-            backdropFilter: "blur(6px)",
+            background: "rgba(17, 28, 31, 0.5)",
           }}
         />
         <Dialog.Content
-          className="theme-admin fixed overflow-hidden rounded-2xl bg-white text-[#18181b]"
+          className="theme-admin fixed overflow-hidden rounded-[18px] bg-white text-foreground"
           style={{
             zIndex: 100001,
             left: "50%",
@@ -70,13 +69,12 @@ export function Modal({
             maxHeight: "min(88dvh, 52rem)",
             display: "grid",
             gridTemplateRows: footer ? "auto minmax(0, 1fr) auto" : "auto minmax(0, 1fr)",
-            border: "1px solid #e4e4e7",
-            boxShadow: "0 24px 64px rgba(24, 24, 27, 0.18)",
+            boxShadow: "0 24px 48px -12px rgba(17, 28, 31, 0.28)",
           }}
         >
           <div className="flex shrink-0 items-start justify-between gap-2 border-b border-zinc-100 px-5 py-4 text-foreground">
             <div className="min-w-0 flex-1 pe-1">
-              <Dialog.Title className="flex items-center gap-2 text-lg font-semibold tracking-tight sm:text-xl">
+              <Dialog.Title className="flex items-center gap-2 text-lg font-semibold">
                 {busy ? <Spinner size="sm" className="text-muted" label={busyLabel} /> : null}
                 {title}
               </Dialog.Title>
@@ -96,7 +94,7 @@ export function Modal({
               <button
                 type="button"
                 disabled={busy}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors text-muted hover:bg-zinc-100 hover:text-foreground disabled:opacity-40"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full md:h-10 md:w-10 transition-colors text-muted hover:bg-zinc-100 hover:text-foreground disabled:opacity-40"
                 aria-label={t("table.close")}
               >
                 <X className="h-5 w-5" />

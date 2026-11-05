@@ -29,8 +29,8 @@ function StatCard({
   tone?: "default" | "warn" | "danger";
 }) {
   return (
-    <div className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
-      <p className="text-sm text-[#71717a]">{label}</p>
+    <div className="admin-card p-5">
+      <p className="text-sm text-muted">{label}</p>
       <p
         className={cn(
           "mt-2 text-2xl font-bold",
@@ -41,7 +41,7 @@ function StatCard({
       >
         {value}
       </p>
-      {sub ? <p className="mt-1 text-xs text-[#71717a]">{sub}</p> : null}
+      {sub ? <p className="mt-1 text-xs text-muted">{sub}</p> : null}
     </div>
   );
 }
@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
     <AdminShell title={t("admin.dashboard.title")} subtitle={t("admin.dashboard.subtitle")}>
       <div className="space-y-8">
         {isPending ? (
-          <p className="text-sm text-[#71717a]">{t("admin.reports.loading")}</p>
+          <p className="text-sm text-muted">{t("admin.reports.loading")}</p>
         ) : null}
         {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
 
@@ -101,9 +101,9 @@ export default function AdminDashboardPage() {
             <DashboardCharts report={report} />
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
+              <section className="admin-card p-5">
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <h2 className="flex items-center gap-2 font-semibold text-[#18181b]">
+                  <h2 className="flex items-center gap-2 font-semibold text-foreground">
                     <AppIcon icon={AlertTriangle} size="sm" className="text-amber-600" />
                     {t("admin.dashboard.lowStockTitle")}
                   </h2>
@@ -112,13 +112,13 @@ export default function AdminDashboardPage() {
                   </Link>
                 </div>
                 {report.lowStockProducts.length === 0 ? (
-                  <p className="text-sm text-[#71717a]">{t("admin.reports.allStockOk")}</p>
+                  <p className="text-sm text-muted">{t("admin.reports.allStockOk")}</p>
                 ) : (
                   <ul className="space-y-2">
                     {report.lowStockProducts.map((product) => (
                       <li
                         key={product.id}
-                        className="flex items-center justify-between gap-3 rounded-xl bg-[#f4f4f5] px-3 py-2 text-sm"
+                        className="flex items-center justify-between gap-3 rounded-xl bg-background px-3 py-2 text-sm"
                       >
                         <span className="min-w-0 truncate">{product.name}</span>
                         <span
@@ -135,9 +135,9 @@ export default function AdminDashboardPage() {
                 )}
               </section>
 
-              <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
+              <section className="admin-card p-5">
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <h2 className="flex items-center gap-2 font-semibold text-[#18181b]">
+                  <h2 className="flex items-center gap-2 font-semibold text-foreground">
                     <AppIcon icon={ShoppingBag} size="sm" className="text-foreground" />
                     {t("admin.reports.recentOrders")}
                   </h2>
@@ -146,19 +146,19 @@ export default function AdminDashboardPage() {
                   </Link>
                 </div>
                 {report.recentOrders.length === 0 ? (
-                  <p className="text-sm text-[#71717a]">{t("admin.reports.noData")}</p>
+                  <p className="text-sm text-muted">{t("admin.reports.noData")}</p>
                 ) : (
                   <ul className="space-y-2">
                     {report.recentOrders.map((order) => (
                       <li
                         key={order.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#f4f4f5] px-3 py-2 text-sm"
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-background px-3 py-2 text-sm"
                       >
-                        <span className="font-mono text-xs text-[#71717a]" dir="ltr">
+                        <span className="font-mono text-xs text-muted" dir="ltr">
                           {order.id.slice(0, 8)}
                         </span>
                         <span>{t(`admin.status.${order.status}`)}</span>
-                        <span className="text-[#71717a]">
+                        <span className="text-muted">
                           {new Date(order.created_at).toLocaleString(getNumberLocale(locale), {
                             dateStyle: "short",
                             timeStyle: "short",
@@ -174,13 +174,13 @@ export default function AdminDashboardPage() {
           </>
         ) : null}
 
-        <div className="space-y-4 rounded-2xl border border-[#e4e4e7] bg-white p-5">
+        <div className="space-y-4 admin-card p-5">
           <PriceVisibilityToggle />
           <ProductDetailExtrasToggle />
-          <div className="border-t border-[#e4e4e7] pt-4">
+          <div className="border-t border-border pt-4">
             <CashSurchargeSetting />
           </div>
-          <div className="border-t border-[#e4e4e7] pt-4">
+          <div className="border-t border-border pt-4">
             <ReceiptSettings />
           </div>
         </div>

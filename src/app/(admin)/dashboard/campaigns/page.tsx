@@ -185,12 +185,12 @@ export default function AdminCampaignsPage() {
       timeStyle: "short",
     });
 
-  const inputClass = "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
 
   return (
     <AdminShell title={t("admin.campaigns.title")} subtitle={t("admin.campaigns.subtitle")}>
       <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-[#f4f4f5] pb-3">
+        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
           <Button
             type="button"
             size="sm"
@@ -202,7 +202,7 @@ export default function AdminCampaignsPage() {
         </div>
 
         {isPending ? (
-          <p className="text-sm text-[#71717a]">{t("admin.campaigns.loading")}</p>
+          <p className="text-sm text-muted">{t("admin.campaigns.loading")}</p>
         ) : campaigns?.length ? (
           <ul className="space-y-3">
             {campaigns.map((campaign) => {
@@ -210,11 +210,11 @@ export default function AdminCampaignsPage() {
               return (
                 <li
                   key={campaign.id}
-                  className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-[#e4e4e7] bg-white p-4"
+                  className="flex flex-wrap items-start justify-between gap-3 admin-card p-4"
                 >
                   <div className="flex min-w-0 flex-1 items-start gap-3">
                     {campaign.banner_image_url ? (
-                      <div className="h-14 w-24 shrink-0 overflow-hidden rounded-lg border border-[#e4e4e7] bg-[#f4f4f5]">
+                      <div className="h-14 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-background">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={campaign.banner_image_url}
@@ -225,20 +225,20 @@ export default function AdminCampaignsPage() {
                     ) : null}
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-semibold text-[#18181b]">{campaign.name}</h2>
+                        <h2 className="font-semibold text-foreground">{campaign.name}</h2>
                         <span
                           className={cn(
-                            "rounded-full px-2 py-0.5 text-[11px] font-medium",
+                            "rounded-full px-2 py-0.5 text-xs font-medium",
                             status === "live" && "bg-emerald-100 text-emerald-800",
                             status === "scheduled" && "bg-amber-100 text-amber-800",
-                            status === "ended" && "bg-[#f4f4f5] text-[#71717a]",
+                            status === "ended" && "bg-background text-muted",
                             status === "inactive" && "bg-red-50 text-red-700",
                           )}
                         >
                           {t(`admin.campaigns.status.${status}`)}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-[#71717a]">
+                      <p className="mt-1 text-sm text-muted">
                         {campaign.type === "percent"
                           ? t("admin.campaigns.percentOff", { value: campaign.discount_value })
                           : t("admin.campaigns.fixedOff", { value: campaign.discount_value })}
@@ -247,7 +247,7 @@ export default function AdminCampaignsPage() {
                           count: campaign.products?.length ?? 0,
                         })}
                       </p>
-                      <p className="mt-1 text-xs text-[#71717a]">
+                      <p className="mt-1 text-xs text-muted">
                         {dateLabel(campaign.starts_at)} — {dateLabel(campaign.ends_at)}
                       </p>
                     </div>
@@ -272,7 +272,7 @@ export default function AdminCampaignsPage() {
             })}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-dashed border-[#e4e4e7] bg-white px-4 py-10 text-center text-sm text-[#71717a]">
+          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
             {t("admin.campaigns.empty")}
           </p>
         )}
@@ -326,10 +326,10 @@ export default function AdminCampaignsPage() {
             />
 
             <div className="space-y-2">
-              <p className="text-xs font-medium text-[#71717a]">{t("admin.campaigns.bannerLabel")}</p>
-              <p className="text-xs text-[#71717a]">{t("admin.campaigns.bannerHint")}</p>
+              <p className="text-xs font-medium text-muted">{t("admin.campaigns.bannerLabel")}</p>
+              <p className="text-xs text-muted">{t("admin.campaigns.bannerHint")}</p>
               {form.banner_image_url ? (
-                <div className="overflow-hidden rounded-xl border border-[#e4e4e7]">
+                <div className="overflow-hidden rounded-xl border border-border">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={form.banner_image_url}
@@ -340,7 +340,7 @@ export default function AdminCampaignsPage() {
               ) : null}
               <div className="flex flex-wrap gap-2">
                 <label className="cursor-pointer">
-                  <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
+                  <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
                     <AppIcon icon={Upload} size="sm" />
                     {t("admin.campaigns.uploadImage")}
                   </span>
@@ -386,7 +386,7 @@ export default function AdminCampaignsPage() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block text-xs text-[#71717a]">
+              <label className="block text-xs text-muted">
                 {t("admin.campaigns.typeLabel")}
                 <Select className="mt-1"
                   value={form.type}
@@ -396,7 +396,7 @@ export default function AdminCampaignsPage() {
                   <option value="fixed">{t("admin.campaigns.typeFixed")}</option>
                 </Select>
               </label>
-              <label className="block text-xs text-[#71717a]">
+              <label className="block text-xs text-muted">
                 {t("admin.campaigns.valueLabel")}
                 <input
                   className="mt-1"
@@ -417,7 +417,7 @@ export default function AdminCampaignsPage() {
               </label>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block text-xs text-[#71717a]">
+              <label className="block text-xs text-muted">
                 {t("admin.campaigns.startsAt")}
                 <input
                   className={`${inputClass} mt-1`}
@@ -427,7 +427,7 @@ export default function AdminCampaignsPage() {
                   required
                 />
               </label>
-              <label className="block text-xs text-[#71717a]">
+              <label className="block text-xs text-muted">
                 {t("admin.campaigns.endsAt")}
                 <input
                   className={`${inputClass} mt-1`}
@@ -456,14 +456,14 @@ export default function AdminCampaignsPage() {
             </label>
 
             <div>
-              <p className="mb-1 text-xs font-medium text-[#71717a]">{t("admin.campaigns.productsLabel")}</p>
+              <p className="mb-1 text-xs font-medium text-muted">{t("admin.campaigns.productsLabel")}</p>
               <input
                 className={`${inputClass} mb-2`}
                 placeholder={t("admin.campaigns.productSearch")}
                 value={productQuery}
                 onChange={(e) => setProductQuery(e.target.value)}
               />
-              <div className="max-h-56 space-y-1 overflow-y-auto rounded-xl border border-[#e4e4e7] p-2">
+              <div className="max-h-56 space-y-1 overflow-y-auto rounded-xl border border-border p-2">
                 {filteredProducts.map((product) => {
                   const checked = form.product_ids.includes(product.id);
                   return (
@@ -485,10 +485,10 @@ export default function AdminCampaignsPage() {
                   );
                 })}
                 {!filteredProducts.length && (
-                  <p className="px-2 py-3 text-xs text-[#71717a]">{t("admin.campaigns.noProducts")}</p>
+                  <p className="px-2 py-3 text-xs text-muted">{t("admin.campaigns.noProducts")}</p>
                 )}
               </div>
-              <p className="mt-1 text-[11px] text-[#71717a]">
+              <p className="mt-1 text-xs text-muted">
                 {t("admin.campaigns.selectedCount", { count: form.product_ids.length })}
               </p>
             </div>

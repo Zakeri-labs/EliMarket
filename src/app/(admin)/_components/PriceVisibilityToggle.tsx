@@ -48,8 +48,8 @@ export function PriceVisibilityToggle({ className, compact }: Props) {
     <div className={cn("flex items-center gap-3", className)}>
       {!compact && (
         <div className="text-sm">
-          <p className="font-medium text-[#18181b]">{t("admin.priceToggle.title")}</p>
-          <p className="text-xs text-[#71717a]">
+          <p className="font-medium text-foreground">{t("admin.priceToggle.title")}</p>
+          <p className="text-xs text-muted">
             {showPrices ? t("admin.priceToggle.onDesc") : t("admin.priceToggle.offDesc")}
           </p>
         </div>
@@ -64,7 +64,7 @@ export function PriceVisibilityToggle({ className, compact }: Props) {
         onClick={toggle}
         className={cn(
           !showPrices && "bg-accent text-white hover:opacity-90",
-          showPrices && "border-[#e4e4e7]",
+          showPrices && "border-border",
         )}
       >
         {isLoading

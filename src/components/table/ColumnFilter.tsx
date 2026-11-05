@@ -43,7 +43,7 @@ export function ColumnFilter({
         variant="ghost"
         size="sm"
         className={cn(
-          "!h-7 !w-7 !rounded-lg !p-0 transition-opacity",
+          "!min-h-8 !h-8 !w-8 !p-0 transition-opacity",
           isActive
             ? "!text-foreground"
             : "opacity-0 group-hover/th:opacity-100 focus-visible:opacity-100 max-lg:opacity-100",
@@ -55,9 +55,9 @@ export function ColumnFilter({
       </Button>
 
       {open && (
-        <div className="absolute start-0 top-full z-50 mt-2 w-72 rounded-xl border border-[#e4e4e7] bg-white p-4 shadow-lg">
+        <div className="absolute start-0 top-full z-50 mt-2 w-72 admin-card p-4 shadow-lg">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h4 className="text-sm font-semibold text-[#18181b]">{resolvedTitle}</h4>
+            <h4 className="text-sm font-semibold text-foreground">{resolvedTitle}</h4>
             {isActive && (
               <Button
                 type="button"
@@ -75,12 +75,12 @@ export function ColumnFilter({
             )}
           </div>
           <div className="space-y-3">{children}</div>
-          <div className="mt-4 flex justify-end border-t border-[#e4e4e7] pt-3">
+          <div className="mt-4 flex justify-end border-t border-border pt-3">
             <Button
               type="button"
               size="sm"
               variant="outline"
-              className="border-[#e4e4e7]"
+              className="border-border"
               onClick={() => setOpen(false)}
             >
               {t("table.close")}

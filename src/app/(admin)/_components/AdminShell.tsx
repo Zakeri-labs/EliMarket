@@ -130,14 +130,14 @@ export function AdminShell({
       >
         <div className="mb-6 flex shrink-0 items-start justify-between gap-2 px-3">
           <div>
-            <p className="text-[11px] uppercase tracking-wider text-muted">{t("admin.panelLabel")}</p>
+            <p className="text-xs text-muted">{t("admin.panelLabel")}</p>
             <p className="font-logo text-lg font-semibold tracking-wide text-accent-dark">
               {t("admin.brandAdmin")}
             </p>
           </div>
           <button
             type="button"
-            className="rounded-lg p-1.5 text-[#71717a] hover:bg-[#f4f4f5] md:hidden"
+            className="rounded-lg p-1.5 text-muted hover:bg-background md:hidden"
             onClick={closeMobile}
             aria-label={t("admin.closeMenu")}
           >
@@ -147,7 +147,7 @@ export function AdminShell({
         <nav className="admin-thin-scroll min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain">
           {NAV_GROUPS.map((group) => (
             <div key={group.groupKey} className="space-y-1">
-              <p className="px-3 text-[10px] font-medium uppercase tracking-widest text-zinc-400">
+              <p className="px-3 text-xs font-medium text-zinc-400">
                 {t(group.groupKey)}
               </p>
               {group.items.map((item) => {
@@ -180,7 +180,7 @@ export function AdminShell({
           type="button"
           variant="outline"
           fullWidth
-          className="mx-3 mt-6 shrink-0 !rounded-lg border-border text-muted hover:!border-zinc-300 hover:text-foreground"
+          className="mx-3 mt-6 shrink-0 border-border text-muted hover:!border-zinc-300 hover:text-foreground"
           loading={isPending}
           loadingLabel={t("common.processing")}
           onClick={() =>
@@ -206,7 +206,7 @@ export function AdminShell({
               </button>
               <div>
                 <h1 className="text-base font-semibold tracking-tight text-foreground">{title}</h1>
-                {subtitle && <p className="text-sm text-[#71717a]">{subtitle}</p>}
+                {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-3">

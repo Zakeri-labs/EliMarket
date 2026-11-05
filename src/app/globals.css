@@ -361,19 +361,20 @@ html.theme-light .storefront-hills {
 
 /* Admin light theme override */
 .theme-admin {
-  --background: #fafafa;
-  --foreground: #18181b;
+  --background: #f1f4f4;
+  --foreground: #111c1f;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
-  --border: #e8e8ea;
-  --muted: #71717a;
-  --muted-foreground: #71717a;
+  --border: #e4e9e9;
+  --input: #84908f;
+  --muted: #5c6b6b;
+  --muted-foreground: #5c6b6b;
   --card: #ffffff;
-  --card-foreground: #18181b;
+  --card-foreground: #111c1f;
   --accent: #0d9488;
   --accent-dark: #0f766e;
   --accent-foreground: #ffffff;
-  --accent-glow: rgba(13, 148, 136, 0.12);
+  --accent-glow: transparent;
   --on-accent: #ffffff;
   --gold: #8a6d3b;
   --skeleton: #e4e4e7;
@@ -381,7 +382,59 @@ html.theme-light .storefront-hills {
   --danger: #dc2626;
   --destructive: #dc2626;
   --success: #16a34a;
+  --sidebar: #0f1820;
+  --sidebar-foreground: #c3cdcd;
+  --sidebar-muted: #8a9490;
+  --sidebar-accent: #17302f;
+  --card-radius: 18px;
+  --card-shadow: 0 2px 6px rgba(15, 24, 32, 0.06), 0 0 1px rgba(15, 24, 32, 0.1);
   color-scheme: light;
+}
+
+.theme-admin .admin-card {
+  border-radius: var(--card-radius);
+  background: var(--card);
+  box-shadow: var(--card-shadow);
+}
+
+/* Unlayered on purpose: one control size and shape across every admin page. */
+.theme-admin [data-slot="button"],
+.theme-admin [role="combobox"],
+.theme-admin input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"]) {
+  min-height: 2.75rem;
+}
+.theme-admin [data-slot="button"] {
+  border-radius: 9999px;
+  box-shadow: none;
+}
+.theme-admin [role="combobox"],
+.theme-admin input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"]),
+.theme-admin textarea {
+  border-radius: 0.75rem;
+  border: 1px solid var(--input);
+  font-size: 1rem;
+}
+@media (min-width: 768px) {
+  .theme-admin [data-slot="button"],
+  .theme-admin [role="combobox"],
+  .theme-admin input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"]) {
+    min-height: 2.5rem;
+  }
+  .theme-admin [role="combobox"],
+  .theme-admin input:not([type="checkbox"], [type="radio"], [type="file"], [type="range"]),
+  .theme-admin textarea {
+    font-size: 0.875rem;
+  }
+}
+.theme-admin input[type="checkbox"],
+.theme-admin input[type="radio"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--accent);
+}
+.theme-admin :is(a, button, input, textarea, [role="combobox"]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .theme-admin input,
@@ -447,7 +500,7 @@ html.admin-lock-scroll body {
 .app-modal-scroll,
 .admin-page-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #0d9488 #f4f4f5;
+  scrollbar-color: #b9c4c4 transparent;
 }
 
 .admin-thin-scroll::-webkit-scrollbar,
@@ -474,14 +527,14 @@ html.admin-lock-scroll body {
 .admin-thin-scroll::-webkit-scrollbar-thumb,
 .app-modal-scroll::-webkit-scrollbar-thumb,
 .admin-page-scroll::-webkit-scrollbar-thumb {
-  background: #0d9488;
+  background: #b9c4c4;
   border-radius: 8px;
 }
 
 .admin-thin-scroll::-webkit-scrollbar-thumb:hover,
 .app-modal-scroll::-webkit-scrollbar-thumb:hover,
 .admin-page-scroll::-webkit-scrollbar-thumb:hover {
-  background: #0f766e;
+  background: #84908f;
 }
 
 @keyframes app-spin {

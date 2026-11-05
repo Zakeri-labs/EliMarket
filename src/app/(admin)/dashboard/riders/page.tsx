@@ -23,7 +23,7 @@ import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
-  "w-full rounded-xl border border-[#e4e4e7] bg-[#fafafa] px-3 py-2.5 text-sm outline-none focus:border-accent";
+  "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-accent";
 
 const EMPTY_FORM: RiderDetailsInput = {
   firstName: "",
@@ -173,7 +173,7 @@ export default function AdminRidersPage() {
       </div>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-base font-semibold text-[#18181b]">
+        <h2 className="mb-3 text-base font-semibold text-foreground">
           {t("admin.riders.listTitle")}
         </h2>
         {ridersQuery.error ? (
@@ -185,19 +185,18 @@ export default function AdminRidersPage() {
           entityName={t("admin.riders.entityName")}
           isSkeleton={ridersQuery.isPending}
           onRefresh={() => void ridersQuery.refetch()}
-          columnSizingStorageKey="admin-riders"
         />
       </section>
 
       <section>
-        <h2 className="mb-1 text-base font-semibold text-[#18181b]">
+        <h2 className="mb-1 text-base font-semibold text-foreground">
           {t("admin.riders.approveTitle")}
         </h2>
-        <p className="mb-3 text-sm text-[#71717a]">{t("admin.riders.approveHint")}</p>
+        <p className="mb-3 text-sm text-muted">{t("admin.riders.approveHint")}</p>
         {candidatesQuery.isPending ? (
-          <p className="text-sm text-[#71717a]">{t("common.loading")}</p>
+          <p className="text-sm text-muted">{t("common.loading")}</p>
         ) : !candidatesQuery.data?.length ? (
-          <p className="rounded-xl border border-dashed border-[#e4e4e7] p-6 text-sm text-[#71717a]">
+          <p className="rounded-xl border border-dashed border-border p-6 text-sm text-muted">
             {t("admin.riders.approveEmpty")}
           </p>
         ) : (
@@ -205,13 +204,13 @@ export default function AdminRidersPage() {
             {candidatesQuery.data.map((candidate) => (
               <li
                 key={candidate.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e4e4e7] bg-white px-4 py-3"
+                className="flex flex-wrap items-center justify-between gap-3 admin-card px-4 py-3"
               >
                 <div>
-                  <p className="text-sm font-medium text-[#18181b]">
+                  <p className="text-sm font-medium text-foreground">
                     {candidate.full_name || t("account.defaultUser")}
                   </p>
-                  <p className="text-xs text-[#71717a]" dir="ltr">
+                  <p className="text-xs text-muted" dir="ltr">
                     {candidate.phone}
                   </p>
                 </div>
@@ -279,7 +278,7 @@ export default function AdminRidersPage() {
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.riders.firstName")}
               </label>
               <input
@@ -290,7 +289,7 @@ export default function AdminRidersPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.riders.lastName")}
               </label>
               <input
@@ -302,7 +301,7 @@ export default function AdminRidersPage() {
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs text-[#71717a]">
+            <label className="mb-1 block text-xs text-muted">
               {t("admin.riders.civilId")}
             </label>
             <input
@@ -313,11 +312,11 @@ export default function AdminRidersPage() {
               dir="ltr"
               required
             />
-            <p className="mt-1 text-[11px] text-[#a1a1aa]">{t("admin.riders.civilIdHint")}</p>
+            <p className="mt-1 text-xs text-muted">{t("admin.riders.civilIdHint")}</p>
           </div>
           <div>
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.riders.phone")}
               </label>
               <input
@@ -331,7 +330,7 @@ export default function AdminRidersPage() {
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs text-[#71717a]">
+            <label className="mb-1 block text-xs text-muted">
               {t("admin.riders.address")}
             </label>
             <textarea

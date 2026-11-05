@@ -58,7 +58,7 @@ export default function AdminReviewsPage() {
             {["s1", "s2", "s3"].map((key) => (
               <li
                 key={key}
-                className="h-24 animate-pulse rounded-2xl border border-[#e4e4e7] bg-white"
+                className="h-24 animate-pulse admin-card"
               />
             ))}
           </ul>
@@ -67,23 +67,23 @@ export default function AdminReviewsPage() {
             {reviews.map((review) => (
               <li
                 key={review.id}
-                className="rounded-2xl border border-[#e4e4e7] bg-white p-4"
+                className="admin-card p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-[#18181b]">
+                    <p className="truncate text-sm font-semibold text-foreground">
                       {review.product?.name ?? review.product_id}
                     </p>
                     <div className="mt-1 flex items-center gap-2">
                       <Stars rating={review.rating} />
-                      <span className="text-xs text-[#71717a]">
+                      <span className="text-xs text-muted">
                         {t("admin.reviews.byLabel", { name: review.reviewer_name })}
                       </span>
                     </div>
                     {review.comment && (
                       <p className="mt-2 text-sm text-[#3f3f46]">{review.comment}</p>
                     )}
-                    <p className="mt-2 text-[11px] text-[#a1a1aa]">
+                    <p className="mt-2 text-xs text-muted">
                       {new Date(review.created_at).toLocaleDateString(locale)}
                     </p>
                   </div>
@@ -102,7 +102,7 @@ export default function AdminReviewsPage() {
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-dashed border-[#e4e4e7] bg-white px-4 py-10 text-center text-sm text-[#71717a]">
+          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
             {t("admin.reviews.empty")}
           </p>
         )}

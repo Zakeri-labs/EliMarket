@@ -8,6 +8,8 @@ declare module "@tanstack/react-table" {
       onFilterChange: (value: unknown) => void;
     }) => React.ReactNode;
     mobileLabel?: string;
+    /** Smallest width this column can stay readable at; decides table vs cards. */
+    minWidth?: number;
   }
 }
 

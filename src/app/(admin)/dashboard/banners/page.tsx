@@ -101,12 +101,12 @@ function BannerImageField({
   const { t } = useTranslations();
 
   return (
-    <div className="space-y-2 rounded-xl border border-[#e4e4e7] p-3">
+    <div className="space-y-2 rounded-xl border border-border p-3">
       <p className="text-xs font-medium text-[#3f3f46]">{label}</p>
-      {hint ? <p className="text-[11px] text-[#71717a]">{hint}</p> : null}
+      {hint ? <p className="text-xs text-muted">{hint}</p> : null}
 
       {value ? (
-        <div className="overflow-hidden rounded-lg border border-[#e4e4e7]">
+        <div className="overflow-hidden rounded-lg border border-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={value} alt="" className="aspect-[16/7] w-full object-cover" />
         </div>
@@ -122,7 +122,7 @@ function BannerImageField({
 
       <div className="flex flex-wrap items-center gap-2">
         <label className={cn("cursor-pointer", uploading && "pointer-events-none opacity-60")}>
-          <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
+          <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
             {uploading ? (
               <Spinner size="sm" className="text-foreground" />
             ) : (
@@ -276,12 +276,12 @@ export default function AdminBannersPage() {
   };
 
   const inputClass =
-    "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm";
+    "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
 
   return (
     <AdminShell title={t("admin.banners.title")} subtitle={t("admin.banners.subtitle")}>
       <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-[#f4f4f5] pb-3">
+        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
           <Button
             type="button"
             size="sm"
@@ -297,7 +297,7 @@ export default function AdminBannersPage() {
             {SKELETON_KEYS.map((key) => (
               <li
                 key={key}
-                className="h-48 animate-pulse rounded-2xl border border-[#e4e4e7] bg-white"
+                className="h-48 animate-pulse admin-card"
               />
             ))}
           </ul>
@@ -309,13 +309,13 @@ export default function AdminBannersPage() {
                   className={cn(
                     "flex h-full flex-col overflow-hidden rounded-2xl border bg-white",
                     banner.is_active
-                      ? "border-[#e4e4e7]"
+                      ? "border-border"
                       : "border-dashed border-[#d4d4d8] opacity-80",
                   )}
                 >
                   <button
                     type="button"
-                    className="relative aspect-[16/7] overflow-hidden bg-[#f4f4f5] text-start"
+                    className="relative aspect-[16/7] overflow-hidden bg-background text-start"
                     onClick={() => openEdit(banner)}
                     aria-label={t("admin.banners.edit")}
                   >
@@ -332,7 +332,7 @@ export default function AdminBannersPage() {
                       </span>
                     )}
                     {!banner.is_active && (
-                      <span className="absolute end-2 top-2 rounded-md bg-black/60 px-2 py-0.5 text-[10px] text-white">
+                      <span className="absolute end-2 top-2 rounded-md bg-black/60 px-2 py-0.5 text-xs text-white">
                         {t("admin.banners.inactiveLabel")}
                       </span>
                     )}
@@ -342,7 +342,7 @@ export default function AdminBannersPage() {
                       <p className="truncate text-sm font-semibold">
                         {banner.title || t("admin.banners.titlePlaceholder")}
                       </p>
-                      <p className="mt-0.5 truncate text-[11px] text-[#71717a]">
+                      <p className="mt-0.5 truncate text-xs text-muted">
                         {t("admin.banners.sortOrderLabel")} {banner.sort_order}
                         {banner.cta_href ? ` · ${banner.cta_href}` : ""}
                       </p>
@@ -367,7 +367,7 @@ export default function AdminBannersPage() {
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-dashed border-[#e4e4e7] bg-white px-4 py-10 text-center text-sm text-[#71717a]">
+          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
             {t("admin.banners.empty")}
           </p>
         )}
@@ -411,7 +411,7 @@ export default function AdminBannersPage() {
               save();
             }}
           >
-            <p className="text-xs text-[#71717a]">{t("admin.banners.formHint")}</p>
+            <p className="text-xs text-muted">{t("admin.banners.formHint")}</p>
 
             <BannerImageField
               label={t("admin.banners.imageRtlLabel")}
@@ -476,11 +476,11 @@ export default function AdminBannersPage() {
               }
             />
 
-            <div className="space-y-2 rounded-xl border border-[#e4e4e7] p-3">
+            <div className="space-y-2 rounded-xl border border-border p-3">
               <p className="text-xs font-medium text-[#3f3f46]">
                 {t("admin.banners.textSection")}
               </p>
-              <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+              <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
                 {LOCALES.map((loc) => (
                   <button
                     key={loc}
@@ -488,8 +488,8 @@ export default function AdminBannersPage() {
                     className={cn(
                       "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                       langTab === loc
-                        ? "bg-white text-[#18181b]"
-                        : "text-[#71717a] hover:text-[#18181b]",
+                        ? "bg-white text-foreground"
+                        : "text-muted hover:text-foreground",
                     )}
                     onClick={() => setLangTab(loc)}
                   >
@@ -551,7 +551,7 @@ export default function AdminBannersPage() {
                   }))
                 }
               />
-              <p className="text-[11px] text-[#71717a]">
+              <p className="text-xs text-muted">
                 {t("admin.banners.textLangHint")}
               </p>
             </div>
@@ -564,7 +564,7 @@ export default function AdminBannersPage() {
               dir="ltr"
             />
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.banners.sortOrderLabel")}
               </label>
               <input

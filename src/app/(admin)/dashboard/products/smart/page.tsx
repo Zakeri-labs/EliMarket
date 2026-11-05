@@ -108,7 +108,7 @@ export default function SmartProductPage() {
     );
   };
 
-  const inputClass = "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
 
   return (
     <AdminShell
@@ -116,17 +116,17 @@ export default function SmartProductPage() {
       subtitle={t("admin.smartProduct.subtitle")}
     >
       <div className="space-y-4">
-        <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
-          <h2 className="text-sm font-semibold text-[#18181b]">
+        <section className="admin-card p-5">
+          <h2 className="text-sm font-semibold text-foreground">
             {t("admin.smartProduct.uploadTitle")}
           </h2>
-          <p className="mt-1 text-sm text-[#71717a]">{t("admin.smartProduct.uploadHint")}</p>
+          <p className="mt-1 text-sm text-muted">{t("admin.smartProduct.uploadHint")}</p>
           <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-accent bg-zinc-50 px-4 py-10">
             <AppIcon icon={Upload} size="lg" className="text-foreground" />
             <span className="mt-2 text-sm font-medium text-foreground">
               {t("admin.smartProduct.uploadButton")}
             </span>
-            <span className="mt-1 text-xs text-[#71717a]">
+            <span className="mt-1 text-xs text-muted">
               {t("admin.smartProduct.maxPhotos", { count: MAX_PHOTOS })}
             </span>
             <input
@@ -153,7 +153,7 @@ export default function SmartProductPage() {
                   />
                   <button
                     type="button"
-                    className="absolute end-2 top-2 rounded-lg bg-white/90 px-2 py-1 text-[11px] text-red-600"
+                    className="absolute end-2 top-2 rounded-lg bg-white/90 px-2 py-1 text-xs text-red-600"
                     onClick={() =>
                       setRawFiles((current) => current.filter((_, i) => i !== index))
                     }
@@ -166,9 +166,9 @@ export default function SmartProductPage() {
           )}
         </section>
 
-        <section className="grid gap-3 rounded-2xl border border-[#e4e4e7] bg-white p-5 sm:grid-cols-2">
+        <section className="grid gap-3 admin-card p-5 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs text-[#71717a]">
+            <label className="mb-1 block text-xs text-muted">
               {t("admin.smartProduct.hintName")}
               <span className="text-red-600"> *</span>
             </label>
@@ -181,7 +181,7 @@ export default function SmartProductPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-[#71717a]">
+            <label className="mb-1 block text-xs text-muted">
               {t("admin.smartProduct.categoryOptional")}
             </label>
             <Select
@@ -198,7 +198,7 @@ export default function SmartProductPage() {
           </div>
         </section>
 
-        <p className="text-xs text-[#71717a]">{t("admin.smartProduct.queueHint")}</p>
+        <p className="text-xs text-muted">{t("admin.smartProduct.queueHint")}</p>
 
         <Button
           loading={isPending}

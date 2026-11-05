@@ -36,11 +36,11 @@ export function CashSurchargeSetting({ className }: Props) {
   return (
     <div className={cn("space-y-2", className)}>
       <div className="text-sm">
-        <p className="font-medium text-[#18181b]">{t("admin.cashSurcharge.title")}</p>
-        <p className="text-xs text-[#71717a]">{t("admin.cashSurcharge.desc")}</p>
+        <p className="font-medium text-foreground">{t("admin.cashSurcharge.title")}</p>
+        <p className="text-xs text-muted">{t("admin.cashSurcharge.desc")}</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <label className="flex items-center gap-2 text-sm text-[#18181b]">
+        <label className="flex items-center gap-2 text-sm text-foreground">
           <span>{t("admin.cashSurcharge.label")}</span>
           <span className="relative">
             <input
@@ -52,10 +52,10 @@ export function CashSurchargeSetting({ className }: Props) {
               value={value}
               onChange={(e) => setDraft(e.target.value)}
               disabled={isLoading}
-              className="w-32 rounded-lg border border-[#e4e4e7] px-3 py-2 text-sm outline-none focus:border-accent"
+              className="w-32 rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </span>
-          <span className="text-xs text-[#71717a]">OMR</span>
+          <span className="text-xs text-muted">OMR</span>
         </label>
         <Button
           type="button"

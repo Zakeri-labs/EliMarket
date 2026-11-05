@@ -1,5 +1,6 @@
 "use client";
 
+import { mockCategories } from "@/app/(storefront)/_mocks/category-mock";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
@@ -74,7 +75,7 @@ export function CategoryBrowse({ slug }: Props) {
             }
           >
             <CategorySideNav
-              categories={list}
+              categories={isPending ? mockCategories(locale) : list}
               selectedSlug={slug}
               hrefFor={(next) => (next ? `/categories/${next}` : "/categories")}
               withThumbnails

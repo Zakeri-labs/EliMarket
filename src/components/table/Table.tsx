@@ -5,7 +5,6 @@ import {
   type Column,
   type ColumnDef,
   type ColumnFiltersState,
-  type ColumnSizingState,
   type OnChangeFn,
   type PaginationState,
   type SortingState,
@@ -52,10 +51,7 @@ export type DataTableProps<T> = {
   createLabel?: string;
   enableExport?: boolean;
   enableColumnFilters?: boolean;
-  enableColumnResizing?: boolean;
-  columnSizingStorageKey?: string;
   pageSizeOptions?: number[];
-  maxBodyHeight?: string;
   globalFilterForm?: React.ReactNode;
   pagination?: PaginationState;
   onPaginationChange?: OnChangeFn<PaginationState>;
@@ -85,27 +81,6 @@ function DefaultTextColumnFilter({
   );
 }
 
-function readStoredColumnSizing(key: string): ColumnSizingState {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw) as ColumnSizingState;
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch {
-    return {};
-  }
-}
-
-function resolveColumnSizingStorageKey(
-  entityName?: string,
-  explicit?: string,
-): string | undefined {
-  if (explicit) return explicit;
-  if (!entityName) return undefined;
-  return `elimarket-column-sizing:${entityName}`;
-}
-
 const SKELETON_ROWS = 6;
 
 function isImageColumn(id: string) {
@@ -130,10 +105,7 @@ export function DataTable<T>({
   createLabel,
   enableExport = true,
   enableColumnFilters = true,
-  enableColumnResizing = true,
-  columnSizingStorageKey,
   pageSizeOptions = [...DEFAULT_PAGE_SIZE_OPTIONS],
-  maxBodyHeight = "min(65vh, 36rem)",
   globalFilterForm,
   pagination: paginationProp,
   onPaginationChange: onPaginationChangeProp,
@@ -181,20 +153,7 @@ export function DataTable<T>({
     [columns],
   );
 
-  const resolvedColumnSizingStorageKey = React.useMemo(
-    () =>
-      enableColumnResizing
-        ? resolveColumnSizingStorageKey(entityName, columnSizingStorageKey)
-        : undefined,
-    [enableColumnResizing, entityName, columnSizingStorageKey],
-  );
-
   const [columnPanelOpen, setColumnPanelOpen] = React.useState(false);
-  const [columnSizing, setColumnSizing] = React.useState<ColumnSizingState>(() =>
-    resolvedColumnSizingStorageKey
-      ? readStoredColumnSizing(resolvedColumnSizingStorageKey)
-      : {},
-  );
   const panelRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -235,36 +194,15 @@ export function DataTable<T>({
     });
   }, []);
 
-  const handleColumnSizingChange: OnChangeFn<ColumnSizingState> = React.useCallback(
-    (updater) => {
-      setColumnSizing((prev) => {
-        const next = typeof updater === "function" ? updater(prev) : updater;
-        if (resolvedColumnSizingStorageKey && typeof window !== "undefined") {
-          try {
-            localStorage.setItem(resolvedColumnSizingStorageKey, JSON.stringify(next));
-          } catch {
-            /* ignore */
-          }
-        }
-        return next;
-      });
-    },
-    [resolvedColumnSizingStorageKey],
-  );
-
   const table = useReactTable({
     data,
     columns: displayColumns,
-    defaultColumn: enableColumnResizing
-      ? { minSize: 56, size: 128, maxSize: 720 }
-      : undefined,
     state: {
       pagination,
       globalFilter: resolvedGlobalFilter,
       columnFilters: resolvedColumnFilters,
       sorting: resolvedSorting,
       columnVisibility: resolvedColumnVisibility,
-      ...(enableColumnResizing ? { columnSizing } : {}),
     },
     onPaginationChange,
     onGlobalFilterChange: setInternalGlobalFilter,
@@ -276,11 +214,7 @@ export function DataTable<T>({
         return { ...next, id: false };
       });
     },
-    ...(enableColumnResizing ? { onColumnSizingChange: handleColumnSizingChange } : {}),
     enableColumnFilters,
-    enableColumnResizing,
-    columnResizeMode: "onChange",
-    columnResizeDirection: tableDir === "rtl" ? "rtl" : "ltr",
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -292,6 +226,25 @@ export function DataTable<T>({
       ? Math.ceil((totalItemsProp ?? data.length) / pagination.pageSize)
       : undefined,
   });
+
+  // Tables never scroll sideways: show one only while every visible column fits.
+  const visibleColumns = table.getVisibleLeafColumns();
+  const requiredWidth = visibleColumns.reduce(
+    (sum, column) => sum + (column.columnDef.meta?.minWidth ?? column.columnDef.size ?? 128),
+    0,
+  );
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [showTable, setShowTable] = React.useState(false);
+  React.useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+    const measure = () =>
+      setShowTable(window.innerWidth >= 768 && node.clientWidth >= requiredWidth);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [requiredWidth]);
 
   const hasImageColumn = table.getVisibleLeafColumns().some((column) => isImageColumn(column.id));
 
@@ -309,17 +262,6 @@ export function DataTable<T>({
   const canShowColumnFilter = (column: Column<T, unknown>) => {
     if (!enableColumnFilters || !column.getCanFilter()) return false;
     return hasAccessor(column);
-  };
-
-  // Cells are whitespace-nowrap + clipped when resizable, so long values
-  // (product names, etc.) can get cut off with no way to read the rest.
-  // Give those a title tooltip — only when the column has a plain
-  // string/number accessor, since e.g. the actions column has no accessor
-  // at all and calling getValue() on it throws.
-  const getCellTitle = (cell: { column: Column<T, unknown>; getValue: () => unknown }) => {
-    if (!hasAccessor(cell.column)) return undefined;
-    const value = cell.getValue();
-    return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
   };
 
   const renderColumnFilter = (columnId: string, header: { column: Column<T, unknown> }) => {
@@ -366,7 +308,7 @@ export function DataTable<T>({
     : table.getPageCount();
 
   return (
-    <div className="min-w-0 w-full max-w-full space-y-4">
+    <div ref={containerRef} className="min-w-0 w-full max-w-full space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <TableInput
           placeholder={t("table.searchIn", { entity: resolvedEntityName })}
@@ -376,7 +318,7 @@ export function DataTable<T>({
             if (manualFiltering) debouncedGlobalFilter(value);
             else setInternalGlobalFilter(value);
           }}
-          className="min-h-9 sm:max-w-md sm:flex-1 md:min-w-72"
+          className="rounded-full sm:max-w-md sm:flex-1 md:min-w-72"
         />
 
         <div className="flex flex-wrap items-stretch gap-2 sm:items-center sm:justify-end">
@@ -385,7 +327,7 @@ export function DataTable<T>({
               type="button"
               variant="ghost"
               size="sm"
-              className="text-[#71717a] hover:bg-[#f4f4f5] hover:!text-[#18181b]"
+              className="text-muted hover:bg-accent/10 hover:!text-accent-dark"
               onClick={onRefresh}
             >
               <AppIcon icon={RefreshCw} size="xs" className="me-1.5" />
@@ -398,7 +340,7 @@ export function DataTable<T>({
               type="button"
               variant="ghost"
               size="sm"
-              className="text-[#71717a] hover:bg-[#f4f4f5] hover:!text-[#18181b]"
+              className="text-muted hover:bg-accent/10 hover:!text-accent-dark"
               onClick={() => void handleExport()}
             >
               <AppIcon icon={Download} size="xs" className="me-1.5" />
@@ -411,15 +353,15 @@ export function DataTable<T>({
               type="button"
               size="sm"
               variant="ghost"
-              className="text-[#71717a] hover:bg-[#f4f4f5] hover:!text-[#18181b]"
+              className="text-muted hover:bg-accent/10 hover:!text-accent-dark"
               onClick={() => setColumnPanelOpen((p) => !p)}
             >
               {t("table.columns")}
             </Button>
 
             {columnPanelOpen && (
-              <div className="fixed inset-x-3 bottom-4 z-50 max-h-[min(24rem,70vh)] space-y-3 overflow-auto rounded-xl border border-[#e4e4e7] bg-white p-3 shadow-lg sm:absolute sm:inset-x-auto sm:bottom-auto sm:end-0 sm:top-full sm:mt-2 sm:max-h-64 sm:w-64">
-                <div className="text-xs text-[#71717a]">{t("table.columnManagement")}</div>
+              <div className="fixed inset-x-3 bottom-4 z-50 max-h-[min(24rem,70vh)] space-y-3 overflow-auto rounded-xl border border-border bg-white p-3 shadow-lg sm:absolute sm:inset-x-auto sm:bottom-auto sm:end-0 sm:top-full sm:mt-2 sm:max-h-64 sm:w-64">
+                <div className="text-xs text-muted">{t("table.columnManagement")}</div>
                 <div className="max-h-64 space-y-2 overflow-auto">
                   {table.getAllLeafColumns().map((column) => {
                     if (!column.getCanHide() || column.id === "id") return null;
@@ -457,18 +399,18 @@ export function DataTable<T>({
       </div>
 
       {globalFilterForm && (
-        <div className="rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-4">
+        <div className="rounded-xl border border-border bg-background p-4">
           {globalFilterForm}
         </div>
       )}
 
       {mobileFilterableHeaders.length > 0 && (
-        <details className="group rounded-xl border border-[#e4e4e7] bg-white lg:hidden">
-          <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-[#18181b] [&::-webkit-details-marker]:hidden">
+        <details className="group admin-card" hidden={showTable}>
+          <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-foreground [&::-webkit-details-marker]:hidden">
             {t("table.columnFilters")}
-            <AppIcon icon={ChevronDown} size="xs" className="text-[#71717a] transition-transform group-open:rotate-180" />
+            <AppIcon icon={ChevronDown} size="xs" className="text-muted transition-transform group-open:rotate-180" />
           </summary>
-          <div className="grid grid-cols-1 gap-3 border-t border-[#f0f0f2] p-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 border-t border-border p-4 sm:grid-cols-2">
           {mobileFilterableHeaders.map((header) => {
             const columnId = header.column.id;
             const filterValue = getColumnFilterValue(columnId);
@@ -478,7 +420,7 @@ export function DataTable<T>({
                 className="space-y-2"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-medium text-[#71717a]">
+                  <span className="text-xs font-medium text-muted">
                     {String(header.column.columnDef.header ?? columnId)}
                   </span>
                   {isFilterActive(filterValue) && (
@@ -501,62 +443,47 @@ export function DataTable<T>({
         </details>
       )}
 
-      <div className="hidden min-w-0 w-full max-w-full lg:block">
-        <div
-          className="admin-thin-scroll max-w-full overflow-auto overscroll-auto rounded-xl border border-[#e4e4e7] bg-white"
-          style={{
-            maxHeight: maxBodyHeight,
-            scrollbarWidth: "thin",
-            scrollbarColor: "#d4d4d8 transparent",
-          }}
-        >
-          <table
-            dir={tableDir}
-            className={cn(
-              enableColumnResizing
-                ? "table-fixed border-collapse min-w-full"
-                : "w-max min-w-full",
-            )}
-            style={
-              enableColumnResizing
-                ? {
-                    width: table.getCenterTotalSize(),
-                    minWidth: `max(100%, ${table.getCenterTotalSize()}px)`,
-                  }
-                : undefined
-            }
-          >
-            <thead className="sticky top-0 z-20 bg-white">
+      {showTable ? (
+        <div className="admin-card min-w-0 w-full">
+          <table dir={tableDir} className="w-full table-fixed border-collapse">
+            <colgroup>
+              {visibleColumns.map((column) => (
+                <col
+                  key={column.id}
+                  style={{
+                    width: `${((column.columnDef.meta?.minWidth ?? column.columnDef.size ?? 128) / requiredWidth) * 100}%`,
+                  }}
+                />
+              ))}
+            </colgroup>
+            <thead>
               {table.getHeaderGroups().map((hg) => (
                 <tr key={hg.id}>
-                  {hg.headers.map((header, headerIndex) => {
+                  {hg.headers.map((header) => {
                     const canSort = header.column.getCanSort();
                     const isSorted = header.column.getIsSorted();
                     const columnId = header.column.id;
                     const filterValue = getColumnFilterValue(columnId);
-                    const canResize = enableColumnResizing && header.column.getCanResize();
-                    const isLastHeader = headerIndex === hg.headers.length - 1;
 
                     return (
                       <th
                         key={header.id}
-                        className={cn(
-                          "group/th relative border-b border-[#e4e4e7] bg-white px-4 py-3 text-start text-xs font-medium whitespace-nowrap text-[#71717a]",
-                        )}
-                        style={
-                          enableColumnResizing
-                            ? { width: header.getSize(), minWidth: header.getSize() }
-                            : undefined
+                        aria-sort={
+                          isSorted === "asc"
+                            ? "ascending"
+                            : isSorted === "desc"
+                              ? "descending"
+                              : undefined
                         }
+                        className="group/th border-b border-border bg-background/60 px-4 py-3 text-start text-xs font-semibold text-muted first:rounded-ss-[18px] first:ps-6 last:rounded-se-[18px] last:pe-6"
                       >
-                        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
+                        <div className="flex min-w-0 items-center gap-1">
                           <button
                             type="button"
+                            disabled={!canSort}
                             className={cn(
-                              "flex items-center gap-1 select-none",
-                              canSort
-                                ? "cursor-pointer hover:text-[#18181b]"
-                                : "cursor-default",
+                              "flex min-w-0 items-center gap-1 text-start select-none",
+                              canSort && "cursor-pointer hover:text-foreground",
                             )}
                             onClick={
                               canSort ? header.column.getToggleSortingHandler() : undefined
@@ -565,11 +492,7 @@ export function DataTable<T>({
                             {flexRender(header.column.columnDef.header, header.getContext())}
                             {canSort && (
                               <AppIcon
-                                icon={
-                                  isSorted === "asc"
-                                    ? ChevronUp
-                                    : ChevronDown
-                                }
+                                icon={isSorted === "asc" ? ChevronUp : ChevronDown}
                                 size="xs"
                                 className={isSorted ? "" : "opacity-40"}
                               />
@@ -590,27 +513,6 @@ export function DataTable<T>({
                             </ColumnFilter>
                           )}
                         </div>
-
-                        {canResize && (
-                          <button
-                            type="button"
-                            aria-label={t("table.resizeColumn", {
-                              column: String(header.column.columnDef.header ?? columnId),
-                            })}
-                            onMouseDown={header.getResizeHandler()}
-                            onTouchStart={header.getResizeHandler()}
-                            onDoubleClick={() => header.column.resetSize()}
-                            className={cn(
-                              "absolute top-0 bottom-0 end-0 z-10 w-2 cursor-col-resize touch-none select-none bg-transparent hover:bg-zinc-300 active:bg-zinc-300",
-                              // Straddling the border (translate-x-1/2) makes the handle
-                              // easier to grab, but on the last column it pushes 4px past
-                              // the table's own edge — enough for the scroll container to
-                              // treat it as real overflow and show a phantom scrollbar.
-                              !isLastHeader && "translate-x-1/2",
-                              header.column.getIsResizing() && "bg-zinc-300",
-                            )}
-                          />
-                        )}
                       </th>
                     );
                   })}
@@ -621,15 +523,15 @@ export function DataTable<T>({
             <tbody className={cn(isSkeleton && "skeleton")}>
               {isSkeleton ? (
                 Array.from({ length: SKELETON_ROWS }, (_, rowIndex) => (
-                  <tr key={rowIndex} className="border-b border-[#f0f0f2] last:border-b-0">
-                    <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-3">
+                  <tr key={rowIndex} className="border-b border-border last:border-b-0">
+                    <td colSpan={visibleColumns.length} className="px-6 py-3.5">
                       <div className={cn("target w-full rounded-lg", hasImageColumn ? "h-10" : "h-5")} />
                     </td>
                   </tr>
                 ))
               ) : table.getRowModel().rows.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="h-48 text-center text-[#71717a]">
+                  <td colSpan={visibleColumns.length} className="h-48 text-center text-muted">
                     {t("table.noData")}
                   </td>
                 </tr>
@@ -637,21 +539,12 @@ export function DataTable<T>({
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-[#f0f0f2] transition-colors last:border-b-0 hover:bg-[#fafafa]"
+                    className="border-b border-border transition-colors last:border-b-0 hover:bg-accent/5"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        title={getCellTitle(cell)}
-                        className={cn(
-                          "px-4 py-3 text-sm whitespace-nowrap text-ellipsis",
-                          enableColumnResizing && "overflow-hidden",
-                        )}
-                        style={
-                          enableColumnResizing
-                            ? { width: cell.column.getSize(), minWidth: cell.column.getSize() }
-                            : undefined
-                        }
+                        className="px-4 py-3.5 align-middle text-sm [overflow-wrap:anywhere] first:ps-6 last:pe-6"
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
@@ -662,83 +555,68 @@ export function DataTable<T>({
             </tbody>
           </table>
         </div>
-      </div>
+      ) : isSkeleton ? (
+        <div className="skeleton grid grid-cols-1 gap-3 sm:grid-cols-2" aria-busy>
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="admin-card h-36 overflow-hidden">
+              <div className="target h-full w-full !rounded-none" />
+            </div>
+          ))}
+        </div>
+      ) : table.getRowModel().rows.length === 0 ? (
+        <div className="admin-card flex min-h-48 items-center justify-center p-4 text-sm text-muted">
+          {t("table.noData")}
+        </div>
+      ) : (
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {table.getRowModel().rows.map((row) => {
+            const cells = row.getVisibleCells();
+            const actionCell = cells.find((cell) => cell.column.id === "actions");
+            const imageCell = cells.find((cell) => isImageColumn(cell.column.id));
+            const rest = cells.filter((cell) => cell !== actionCell && cell !== imageCell);
+            const titleCell = rest[0];
+            const detailCells = rest.slice(1);
 
-      <div
-        className="admin-thin-scroll overflow-y-auto overscroll-auto lg:hidden"
-        style={{
-          maxHeight: maxBodyHeight,
-          scrollbarWidth: "thin",
-          scrollbarColor: "#d4d4d8 transparent",
-        }}
-      >
-        {isSkeleton ? (
-          <div className="skeleton grid grid-cols-1 gap-3 sm:grid-cols-2" aria-busy>
-            {Array.from({ length: 4 }, (_, i) => (
-              <div key={i} className="overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white">
-                {hasImageColumn ? <div className="target aspect-square w-full !rounded-none sm:aspect-[4/3]" /> : null}
-                <div className={cn("h-36", !hasImageColumn && "target w-full !rounded-none")} />
-              </div>
-            ))}
-          </div>
-        ) : table.getRowModel().rows.length === 0 ? (
-          <div className="flex min-h-48 items-center justify-center rounded-2xl border border-[#e4e4e7] bg-white p-4 text-sm text-[#71717a]">
-            {t("table.noData")}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {table.getRowModel().rows.map((row) => {
-              const cells = row.getVisibleCells();
-              const actionCell = cells.find((cell) => cell.column.id === "actions");
-              const imageCell = cells.find((cell) => isImageColumn(cell.column.id));
-              const rest = cells.filter((cell) => cell !== actionCell && cell !== imageCell);
-              const titleCell = rest[0];
-              const detailCells = rest.slice(1);
-
-              return (
-                <article
-                  key={row.id}
-                  className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[#e4e4e7] bg-white"
-                >
+            return (
+              <li key={row.id} className="admin-card flex min-w-0 flex-col gap-3 p-4">
+                <div className="flex min-w-0 items-center gap-3">
                   {imageCell ? (
-                    <div className="flex aspect-square w-full items-center justify-center overflow-hidden bg-[#f4f4f5] sm:aspect-[4/3] [&>div]:!h-full [&>div]:!w-full [&_img]:!object-cover">
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-background [&>div]:!h-full [&>div]:!w-full [&_img]:!object-cover">
                       {flexRender(imageCell.column.columnDef.cell, imageCell.getContext())}
                     </div>
                   ) : null}
-                  <div className="flex min-w-0 flex-1 flex-col gap-3 p-4">
-                    {titleCell ? (
-                      <div className="min-w-0 text-base leading-snug font-semibold text-[#18181b] [overflow-wrap:anywhere]">
-                        {flexRender(titleCell.column.columnDef.cell, titleCell.getContext())}
+                  {titleCell ? (
+                    <div className="min-w-0 text-sm font-semibold [overflow-wrap:anywhere]">
+                      {flexRender(titleCell.column.columnDef.cell, titleCell.getContext())}
+                    </div>
+                  ) : null}
+                </div>
+                {detailCells.length > 0 ? (
+                  <dl className="space-y-2 border-t border-border pt-3">
+                    {detailCells.map((cell) => (
+                      <div key={cell.id} className="flex min-w-0 items-start justify-between gap-4">
+                        <dt className="shrink-0 text-xs text-muted">
+                          {getColumnHeaderLabel(cell.column)}
+                        </dt>
+                        <dd className="min-w-0 text-end text-sm [overflow-wrap:anywhere]">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </dd>
                       </div>
-                    ) : null}
-                    {detailCells.length > 0 ? (
-                      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-[#f0f0f2] pt-3">
-                        {detailCells.map((cell) => (
-                          <div key={cell.id} className="min-w-0">
-                            <dt className="text-[11px] text-[#a1a1aa]">
-                              {getColumnHeaderLabel(cell.column)}
-                            </dt>
-                            <dd className="mt-0.5 min-w-0 text-sm leading-relaxed text-[#18181b] [overflow-wrap:anywhere]">
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </dd>
-                          </div>
-                        ))}
-                      </dl>
-                    ) : null}
-                    {actionCell ? (
-                      <div className="mt-auto flex justify-end border-t border-[#f0f0f2] pt-3">
-                        {flexRender(actionCell.column.columnDef.cell, actionCell.getContext())}
-                      </div>
-                    ) : null}
+                    ))}
+                  </dl>
+                ) : null}
+                {actionCell ? (
+                  <div className="mt-auto flex justify-end border-t border-border pt-2">
+                    {flexRender(actionCell.column.columnDef.cell, actionCell.getContext())}
                   </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
-      <div className="flex flex-col gap-3 text-sm text-[#71717a] sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-4">
           <div className="text-center sm:text-start">
             {t("table.showing")}{" "}
@@ -759,7 +637,7 @@ export function DataTable<T>({
                   pageIndex: 0,
                 }));
               }}
-              className="!w-auto min-h-8 py-1"
+              className="!w-auto"
               aria-label={t("table.pageSize")}
             >
               {(pageSizeOptions.includes(pagination.pageSize)
@@ -774,34 +652,29 @@ export function DataTable<T>({
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
-          <Button
+        <nav aria-label={t("table.pageSize")} className="flex items-center justify-center gap-1 self-center rounded-full bg-card p-1 shadow-[var(--card-shadow)] sm:self-auto">
+          <button
             type="button"
-            size="sm"
             aria-label={t("table.prev")}
-            title={t("table.prev")}
-            className="!px-2.5"
-            onClick={() =>
-              onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
-            }
+            className="grid h-11 w-11 place-items-center rounded-full text-muted transition-colors hover:bg-background disabled:opacity-40 md:h-8 md:w-8"
+            onClick={() => onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))}
             disabled={pagination.pageIndex === 0}
           >
             <AppIcon icon={tableDir === "rtl" ? ChevronRight : ChevronLeft} size="sm" />
-          </Button>
-          <Button
+          </button>
+          <span className="min-w-14 text-center text-xs font-semibold text-foreground tabular-nums" aria-current="page">
+            {pagination.pageIndex + 1} / {Math.max(pageCount, 1)}
+          </span>
+          <button
             type="button"
-            size="sm"
             aria-label={t("table.next")}
-            title={t("table.next")}
-            className="!px-2.5"
-            onClick={() =>
-              onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex + 1 }))
-            }
+            className="grid h-11 w-11 place-items-center rounded-full text-muted transition-colors hover:bg-background disabled:opacity-40 md:h-8 md:w-8"
+            onClick={() => onPaginationChange((p) => ({ ...p, pageIndex: p.pageIndex + 1 }))}
             disabled={pagination.pageIndex >= pageCount - 1}
           >
             <AppIcon icon={tableDir === "rtl" ? ChevronLeft : ChevronRight} size="sm" />
-          </Button>
-        </div>
+          </button>
+        </nav>
       </div>
     </div>
   );

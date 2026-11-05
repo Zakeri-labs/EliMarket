@@ -29,6 +29,7 @@ export function Button({
       type={type}
       disabled={disabled || loading}
       aria-busy={loading}
+      data-slot="button"
       className={cn(
         "inline-flex items-center justify-center gap-2 font-medium transition-all active:scale-[0.98] disabled:pointer-events-none",
         !loading && "disabled:opacity-70",

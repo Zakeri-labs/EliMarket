@@ -87,7 +87,7 @@ export default function DeliveryAreasMap({
     [DEFAULT_MAP_CENTER.lat, DEFAULT_MAP_CENTER.lng];
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[#e4e4e7]" style={{ height }}>
+    <div className="overflow-hidden rounded-xl border border-border" style={{ height }}>
       <MapContainer center={initialCenter} zoom={12} className="h-full w-full" scrollWheelZoom>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

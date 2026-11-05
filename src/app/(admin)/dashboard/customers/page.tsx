@@ -67,7 +67,6 @@ export default function AdminCustomersPage() {
         entityName={t("admin.customers.entityName")}
         isSkeleton={isPending}
         onRefresh={() => void refetch()}
-        columnSizingStorageKey="admin-customers"
         onExport={async () =>
           (data ?? []).map((row) => ({
             name: row.full_name,
@@ -79,7 +78,7 @@ export default function AdminCustomersPage() {
         }
       />
       {!isPending && data?.length === 0 && (
-        <p className="mt-4 text-sm text-[#71717a]">{t("admin.customers.empty")}</p>
+        <p className="mt-4 text-sm text-muted">{t("admin.customers.empty")}</p>
       )}
     </AdminShell>
   );

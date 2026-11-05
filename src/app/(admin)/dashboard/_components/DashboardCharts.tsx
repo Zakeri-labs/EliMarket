@@ -112,9 +112,9 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
+      <section className="admin-card p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-semibold text-[#18181b]">{t("admin.dashboard.salesTrend")}</h2>
+          <h2 className="font-semibold text-foreground">{t("admin.dashboard.salesTrend")}</h2>
           <Select
             className="!w-auto"
             value={period}
@@ -126,7 +126,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
           </Select>
         </div>
         {salesData.every((row) => row.total === 0 && row.count === 0) ? (
-          <p className="py-10 text-center text-sm text-[#71717a]">{t("admin.reports.noData")}</p>
+          <p className="py-10 text-center text-sm text-muted">{t("admin.reports.noData")}</p>
         ) : (
           <div className="h-72 w-full" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
@@ -163,10 +163,10 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
-          <h2 className="mb-4 font-semibold text-[#18181b]">{t("admin.dashboard.topSellers")}</h2>
+        <section className="admin-card p-5">
+          <h2 className="mb-4 font-semibold text-foreground">{t("admin.dashboard.topSellers")}</h2>
           {topSellerData.length === 0 ? (
-            <p className="py-10 text-center text-sm text-[#71717a]">
+            <p className="py-10 text-center text-sm text-muted">
               {t("admin.dashboard.topSellersEmpty")}
             </p>
           ) : (
@@ -207,10 +207,10 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
           )}
         </section>
 
-        <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
-          <h2 className="mb-4 font-semibold text-[#18181b]">{t("admin.dashboard.inventorySplit")}</h2>
+        <section className="admin-card p-5">
+          <h2 className="mb-4 font-semibold text-foreground">{t("admin.dashboard.inventorySplit")}</h2>
           {inventoryData.length === 0 ? (
-            <p className="py-10 text-center text-sm text-[#71717a]">{t("admin.reports.noData")}</p>
+            <p className="py-10 text-center text-sm text-muted">{t("admin.reports.noData")}</p>
           ) : (
             <div className="h-72 w-full" dir="ltr">
               <ResponsiveContainer width="100%" height="100%">
@@ -236,10 +236,10 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
         </section>
       </div>
 
-      <section className="rounded-2xl border border-[#e4e4e7] bg-white p-5">
-        <h2 className="mb-4 font-semibold text-[#18181b]">{t("admin.dashboard.orderStatusChart")}</h2>
+      <section className="admin-card p-5">
+        <h2 className="mb-4 font-semibold text-foreground">{t("admin.dashboard.orderStatusChart")}</h2>
         {orderStatusData.length === 0 ? (
-          <p className="py-10 text-center text-sm text-[#71717a]">{t("admin.reports.noData")}</p>
+          <p className="py-10 text-center text-sm text-muted">{t("admin.reports.noData")}</p>
         ) : (
           <div className="mx-auto h-72 w-full max-w-xl" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">

@@ -160,7 +160,7 @@ export default function AdminCategoriesPage() {
     }
   });
 
-  const inputClass = "w-full rounded-xl border border-[#e4e4e7] px-3 py-2.5 text-sm";
+  const inputClass = "w-full rounded-xl border border-border px-3 py-2.5 text-sm";
 
   return (
     <AdminShell
@@ -168,7 +168,7 @@ export default function AdminCategoriesPage() {
       subtitle={t("admin.categories.subtitle")}
     >
       <div className="space-y-4">
-        <div className="sticky top-0 z-10 flex items-center justify-end bg-[#f4f4f5] pb-3">
+        <div className="sticky top-0 z-10 flex items-center justify-end bg-background pb-3">
           <Button
             type="button"
             size="sm"
@@ -182,7 +182,7 @@ export default function AdminCategoriesPage() {
         {isPending ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {SKELETON_KEYS.map((key) => (
-              <li key={key} className="aspect-[4/5] animate-pulse rounded-2xl bg-[#e4e4e7]" />
+              <li key={key} className="aspect-[4/5] animate-pulse motion-reduce:animate-none rounded-2xl bg-[#e4e4e7]" />
             ))}
           </ul>
         ) : categories?.length ? (
@@ -194,7 +194,7 @@ export default function AdminCategoriesPage() {
                     "group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-all",
                     editing?.id === cat.id
                       ? "border-accent shadow-[0_8px_24px_rgba(107,143,113,0.18)]"
-                      : "border-[#e4e4e7] hover:-translate-y-0.5 hover:border-zinc-200 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
+                      : "border-border hover:-translate-y-0.5 hover:border-zinc-200 hover:shadow-[0_8px_20px_rgba(24,24,27,0.08)]",
                   )}
                 >
                   <button
@@ -203,7 +203,7 @@ export default function AdminCategoriesPage() {
                     onClick={() => openEdit(cat)}
                     aria-label={t("admin.categories.edit")}
                   >
-                    <span className="relative flex aspect-square items-center justify-center bg-[#fafafa] p-3">
+                    <span className="relative flex aspect-square items-center justify-center bg-background p-3">
                       {cat.image_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -218,24 +218,24 @@ export default function AdminCategoriesPage() {
                       )}
                     </span>
                     <span className="flex flex-1 flex-col gap-0.5 px-3 pt-2.5 pb-1">
-                      <span className="line-clamp-2 text-sm font-semibold leading-snug text-[#18181b]">
+                      <span className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">
                         {cat.name}
                       </span>
                       {cat.parent_id ? (
-                        <span className="text-[10px] text-foreground">
+                        <span className="text-xs text-foreground">
                           {t("admin.categories.childBadge")}
                           {categories.find((item) => item.id === cat.parent_id)
                             ? ` · ${categories.find((item) => item.id === cat.parent_id)?.name}`
                             : ""}
                         </span>
                       ) : null}
-                      <span className="truncate text-[11px] text-[#71717a]" dir="ltr">
+                      <span className="truncate text-xs text-muted" dir="ltr">
                         {cat.slug}
                       </span>
                     </span>
                   </button>
                   <div className="mt-auto flex items-center justify-between border-t border-[#f4f4f5] px-2 py-1">
-                    <span className="rounded-md bg-[#f4f4f5] px-1.5 py-0.5 text-[10px] text-[#71717a]">
+                    <span className="rounded-md bg-background px-1.5 py-0.5 text-xs text-muted">
                       {t("admin.categories.sortOrderLabel")} {cat.sort_order}
                     </span>
                     <RowIconActions
@@ -258,7 +258,7 @@ export default function AdminCategoriesPage() {
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-dashed border-[#e4e4e7] bg-white px-4 py-10 text-center text-sm text-[#71717a]">
+          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
             {t("admin.categories.empty")}
           </p>
         )}
@@ -291,7 +291,7 @@ export default function AdminCategoriesPage() {
         >
           <form id="admin-category-form" onSubmit={onSubmit} className="space-y-3">
             {imageUrl ? (
-              <div className="overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#fafafa]">
+              <div className="overflow-hidden rounded-xl border border-border bg-background">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imageUrl} alt="" className="mx-auto aspect-square max-h-48 object-contain p-4" />
               </div>
@@ -300,7 +300,7 @@ export default function AdminCategoriesPage() {
             <input type="hidden" {...form.register("blur_hash")} />
 
             <div className="space-y-2">
-              <div className="flex gap-1 rounded-xl border border-[#e4e4e7] bg-[#fafafa] p-1">
+              <div className="flex gap-1 rounded-xl border border-border bg-background p-1">
                 {LOCALES.map((loc) => (
                   <button
                     key={loc}
@@ -308,8 +308,8 @@ export default function AdminCategoriesPage() {
                     className={cn(
                       "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors",
                       nameTab === loc
-                        ? "bg-white text-[#18181b]"
-                        : "text-[#71717a] hover:text-[#18181b]",
+                        ? "bg-white text-foreground"
+                        : "text-muted hover:text-foreground",
                     )}
                     onClick={() => setNameTab(loc)}
                   >
@@ -335,7 +335,7 @@ export default function AdminCategoriesPage() {
               {form.formState.errors.name ? (
                 <p className="text-xs text-red-600">{form.formState.errors.name.message}</p>
               ) : null}
-              <p className="text-[11px] text-[#71717a]">{t("admin.categories.nameLangHint")}</p>
+              <p className="text-xs text-muted">{t("admin.categories.nameLangHint")}</p>
             </div>
             <input
               {...form.register("slug")}
@@ -344,10 +344,10 @@ export default function AdminCategoriesPage() {
               dir="ltr"
             />
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.categories.parentLabel")}
               </label>
-              <p className="mb-1 text-[11px] text-[#71717a]">{t("admin.categories.nestedHint")}</p>
+              <p className="mb-1 text-xs text-muted">{t("admin.categories.nestedHint")}</p>
               <Select value={String(form.watch("parent_id") ?? "")} onChange={(e) => form.setValue("parent_id", e.target.value as never, { shouldDirty: true }) }>
                 <option value="">{t("admin.categories.noParent")}</option>
                 {validCategoryParents(categories ?? [], editing?.id).map((cat) => (
@@ -358,7 +358,7 @@ export default function AdminCategoriesPage() {
               </Select>
             </div>
             <div>
-              <label className="mb-1 block text-xs text-[#71717a]">
+              <label className="mb-1 block text-xs text-muted">
                 {t("admin.categories.sortOrderLabel")}
               </label>
               <input
@@ -378,7 +378,7 @@ export default function AdminCategoriesPage() {
 
             <div className="flex flex-wrap gap-2">
               <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[#e4e4e7] bg-white px-4 py-2 text-sm">
+                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
                   <AppIcon icon={Upload} size="sm" />
                   {t("admin.categories.uploadImage")}
                 </span>
