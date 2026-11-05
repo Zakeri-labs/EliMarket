@@ -34,6 +34,7 @@ export function useStoreSettings() {
     queryKey: ["store-settings"],
     queryFn: async () => {
       const result = await getStoreSettingsAction();
+      if (!result.success) throw new Error(result.error);
       return result.data ?? FALLBACK_SETTINGS;
     },
     staleTime: 15_000,
@@ -42,6 +43,9 @@ export function useStoreSettings() {
 
   return {
     ...query,
+    // Admin forms wait for this: the fallback values must not be shown as saved ones, or saved over them.
+    isReady: query.data !== undefined && !query.isPlaceholderData,
+    loadFailed: query.isError && query.data === undefined,
     showPrices: query.data?.show_prices ?? true,
     showProductDetailExtras: query.data?.show_product_detail_extras ?? true,
     cashSurcharge: Number(query.data?.cash_surcharge ?? 0),

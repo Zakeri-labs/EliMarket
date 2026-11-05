@@ -399,7 +399,7 @@ html.theme-light .storefront-hills {
   --accent-dark: #115e59;
   --accent-glow: transparent;
   --brand-dark: #0b4f4a;
-  --brand-hot: #0d8a7f;
+  --brand-hot: #0f766e;
   --sidebar: #12172b;
   --sidebar-foreground: #bbc0d3;
   --sidebar-muted: #8990a9;
@@ -435,17 +435,26 @@ html.theme-light .storefront-hills {
 .admin-ui [data-slot="button"] {
   transition: background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, opacity 0.2s, scale 0.15s;
 }
-.admin-ui [data-slot="button"]:hover:not(:disabled) {
-  box-shadow: 0 8px 16px -8px rgb(15 118 110 / 0.5);
-}
 .admin-ui li.admin-card,
 .admin-ui ul > li > .admin-card {
   transition: translate 0.25s ease, box-shadow 0.25s;
 }
+/* The same accent stripe as table rows; the lift only where a pointer can hover. */
 .admin-ui li.admin-card:hover,
 .admin-ui ul > li > .admin-card:hover {
-  translate: 0 -3px;
-  box-shadow: var(--card-shadow-hover);
+  box-shadow: inset 3px 0 var(--accent), var(--card-shadow-hover);
+}
+[dir="rtl"] .admin-ui li.admin-card:hover,
+[dir="rtl"] .admin-ui ul > li > .admin-card:hover,
+.admin-ui[dir="rtl"] li.admin-card:hover,
+.admin-ui[dir="rtl"] ul > li > .admin-card:hover {
+  box-shadow: inset -3px 0 var(--accent), var(--card-shadow-hover);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .admin-ui li.admin-card:hover,
+  .admin-ui ul > li > .admin-card:hover {
+    translate: 0 -3px;
+  }
 }
 @keyframes admin-kenburns {
   from {
@@ -472,6 +481,27 @@ html.theme-light .storefront-hills {
   .admin-page-scroll {
     scrollbar-width: none;
   }
+}
+
+/* Grid items may not grow past their column because of an image or long text. */
+.admin-ui ul.grid > li {
+  min-width: 0;
+}
+@media (max-width: 767.98px) {
+  .admin-ui .leaflet-container .leaflet-bar a {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+  }
+}
+
+/* A loading card shows as a grey block, not a white one that merely fades. */
+.admin-ui .admin-card.animate-pulse {
+  background: var(--skeleton);
+}
+/* Codes and phone numbers read left to right but line up with the right-to-left text around them. */
+.admin-ui[dir="rtl"] p[dir="ltr"] {
+  text-align: right;
 }
 
 .admin-pattern {
@@ -581,7 +611,7 @@ html.theme-light .storefront-hills {
   min-width: 2.75rem;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: 0.5rem;
   font-size: 0.75rem;
 }
 @media (min-width: 768px) {
@@ -595,17 +625,26 @@ html.theme-light .storefront-hills {
     min-width: 2rem;
   }
 }
+.admin-ui .app-modal-scroll button:not([role="switch"], [role="combobox"], [data-slot="button"]) {
+  min-height: 2rem;
+  min-width: 2rem;
+}
 /* Inline text actions stay tappable on phones without touching each page. */
 @media (max-width: 767.98px) {
   .admin-ui .admin-page-scroll button:not([role="switch"]),
   .admin-ui .app-modal-scroll button:not([role="switch"]) {
     min-height: 2.75rem;
   }
+  .admin-ui .app-modal-scroll button:not([role="switch"]):has(> svg:only-child) {
+    min-width: 2.75rem;
+  }
+  .admin-ui label:has(> input[type="checkbox"]) {
+    min-height: 2.75rem;
+  }
 }
 .admin-ui label:has(input[type="file"]:focus-visible) {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 9999px;
 }
 .admin-ui textarea {
   scrollbar-width: thin;

@@ -16,6 +16,10 @@ export type PeriodSummary = {
 export type TopSeller = {
   product_id: string;
   name: string;
+  name_fa?: string | null;
+  name_ar?: string | null;
+  name_en?: string | null;
+  slug?: string | null;
   quantity: number;
   revenue: number;
 };
@@ -38,10 +42,11 @@ export type FinancialReport = {
   cancelledCount: number;
   cashRevenue: number;
   onlineRevenue: number;
-  lowStockProducts: Pick<
+  lowStockProducts: (Pick<
     Product,
     "id" | "name" | "stock" | "price" | "low_stock_threshold" | "inventory_unit"
-  >[];
+  > &
+    Partial<Pick<Product, "name_fa" | "name_ar" | "name_en" | "slug">>)[];
   recentOrders: Order[];
   revenueByDay: PeriodBucket[];
   revenueByWeek: PeriodBucket[];
@@ -115,7 +120,7 @@ async function loadReportProducts(supabase: Awaited<ReturnType<typeof requireAdm
 
   const full = await supabase
     .from("products")
-    .select("id, name, stock, price, low_stock_threshold, inventory_unit, is_active")
+    .select("id, name, name_fa, name_ar, name_en, slug, stock, price, low_stock_threshold, inventory_unit, is_active")
     .order("stock");
 
   if (!full.error) {
@@ -158,6 +163,12 @@ function topSellersFromOrders(orders: Order[], limit = 8): TopSeller[] {
       current.quantity += Number(item.quantity) || 0;
       current.revenue += Number(item.unit_price) * Number(item.quantity);
       if (item.product?.name?.trim()) current.name = item.product.name.trim();
+      if (item.product) {
+        current.name_fa = item.product.name_fa;
+        current.name_ar = item.product.name_ar;
+        current.name_en = item.product.name_en;
+        current.slug = item.product.slug;
+      }
       map.set(id, current);
     }
   }
@@ -172,7 +183,7 @@ export async function getFinancialReportAction() {
 
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
-      .select("*, order_items(*, product:products(name))")
+      .select("*, order_items(*, product:products(name, name_fa, name_ar, name_en, slug))")
       .order("created_at", { ascending: false });
 
     if (ordersError) throw ordersError;

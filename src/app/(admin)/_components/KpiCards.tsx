@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useMemo, useRef, type ReactNode } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import {
@@ -30,7 +30,7 @@ import {
   XCircle,
   type LucideIcon,
 } from "lucide-react";
-import { MotionConfig, motion } from "motion/react";
+import { MotionConfig, motion, useReducedMotion } from "motion/react";
 import { useLocaleStore } from "@/app/_store/locale-store";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
@@ -68,8 +68,8 @@ const ICONS = {
 export type KpiTone = "teal" | "amber" | "rose" | "sky" | "slate";
 
 const TONES: Record<KpiTone, string> = {
-  teal: "13 138 127",
-  amber: "220 132 9",
+  teal: "15 118 110",
+  amber: "180 83 9",
   rose: "214 31 37",
   sky: "35 112 199",
   slate: "91 107 134",
@@ -88,11 +88,17 @@ export type KpiItem = {
 function CountUp({ value, decimals = 0 }: { value: number; decimals?: number }) {
   const locale = useLocaleStore((s) => s.locale);
   const ref = useRef<HTMLSpanElement>(null);
-  const format = (n: number) =>
-    n.toLocaleString(getNumberLocale(locale), {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    });
+  // A saved row refetches the numbers; they move from where they were rather than from zero.
+  const shown = useRef(0);
+  const formatter = useMemo(
+    () =>
+      new Intl.NumberFormat(getNumberLocale(locale), {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      }),
+    [locale, decimals],
+  );
+  const format = (n: number) => formatter.format(n);
 
   useGSAP(
     () => {
@@ -100,7 +106,7 @@ function CountUp({ value, decimals = 0 }: { value: number; decimals?: number }) 
       if (!node) return;
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const state = { n: 0 };
+        const state = { n: shown.current };
         gsap.to(state, {
           n: value,
           duration: 1.4,
@@ -108,6 +114,7 @@ function CountUp({ value, decimals = 0 }: { value: number; decimals?: number }) 
           onUpdate: () => {
             // The text node, not textContent: replacing it would wake the reveal observer every frame.
             if (node.firstChild) node.firstChild.nodeValue = format(state.n);
+            shown.current = state.n;
           },
         });
       });
@@ -125,11 +132,12 @@ function CountUp({ value, decimals = 0 }: { value: number; decimals?: number }) 
 
 export function KpiCard({ item }: { item: KpiItem }) {
   const rgb = TONES[item.tone ?? "teal"];
+  const reduceMotion = useReducedMotion();
   return (
     <div data-reveal className="min-w-0">
       <motion.div
         data-no-reveal
-        whileHover={{ y: -6 }}
+        whileHover={reduceMotion ? undefined : { y: -6 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
         style={{
           backgroundImage: `linear-gradient(135deg, rgb(${rgb} / .1), rgb(${rgb} / .03) 70%)`,
@@ -164,10 +172,10 @@ export function KpiCard({ item }: { item: KpiItem }) {
           <AppIcon
             icon={ICONS[item.icon]}
             size="sm"
-            className="transition-transform duration-300 group-hover:scale-125 group-hover:-rotate-12"
+            className="transition-transform duration-300 group-hover:scale-125 group-hover:-rotate-12 motion-reduce:transition-none motion-reduce:group-hover:scale-100 motion-reduce:group-hover:rotate-0"
           />
         </span>
-        <p className="relative mt-2.5 truncate text-xs font-medium text-muted" title={item.label}>
+        <p className="relative mt-2.5 line-clamp-2 text-xs font-medium text-muted" title={item.label}>
           {item.label}
         </p>
         <div className="relative mt-0.5 min-h-7 text-lg leading-tight md:text-[22px] font-bold text-foreground [overflow-wrap:break-word]">
@@ -179,7 +187,7 @@ export function KpiCard({ item }: { item: KpiItem }) {
             item.value
           )}
         </div>
-        {item.sub ? <p className="relative mt-1 truncate text-xs text-muted">{item.sub}</p> : null}
+        {item.sub ? <p className="relative mt-1 line-clamp-2 text-xs text-muted">{item.sub}</p> : null}
       </motion.div>
     </div>
   );
@@ -194,11 +202,15 @@ export function KpiRow({
   items,
   columns,
   spacing = "mb-4",
+  hidden = false,
 }: {
   items: KpiItem[];
   columns?: string;
   spacing?: string;
+  /** Without data the cards would pulse forever next to the load error. */
+  hidden?: boolean;
 }) {
+  if (hidden) return null;
   return (
     <MotionConfig reducedMotion="user">
       <div className={cn(
@@ -221,7 +233,7 @@ export function MiniStats({ items }: { items: KpiItem[] }) {
       {items.map((item) => (
         <div
           key={item.label}
-          className="admin-card flex min-w-0 items-center gap-3 px-4 py-3.5 transition-shadow duration-300 hover:shadow-[var(--card-shadow-hover)]"
+          className="admin-card flex min-w-0 items-center gap-3 px-4 py-3.5 max-sm:flex-col max-sm:items-start transition-shadow duration-300 hover:shadow-[var(--card-shadow-hover)]"
         >
           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent/10 text-accent-dark">
             <AppIcon icon={ICONS[item.icon]} size="sm" />
@@ -230,7 +242,7 @@ export function MiniStats({ items }: { items: KpiItem[] }) {
             <span className="block text-lg leading-tight font-bold">
               {typeof item.value === "number" ? <CountUp value={item.value} /> : item.value}
             </span>
-            <span className="block truncate text-xs text-muted" title={item.label}>
+            <span className="line-clamp-2 block text-xs text-muted" title={item.label}>
               {item.label}
             </span>
           </span>

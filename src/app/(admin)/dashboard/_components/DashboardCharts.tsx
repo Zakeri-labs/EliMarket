@@ -1,5 +1,6 @@
 "use client";
 
+import { resolveLocalizedName } from "@/lib/i18n/product-name";
 import { omanYmd } from "@/config/oman-time";
 import { useMemo, useRef, useState, type ReactElement } from "react";
 import { useInView, useReducedMotion } from "motion/react";
@@ -50,7 +51,7 @@ function fillDaily(buckets: PeriodBucket[], locale: Locale) {
     const key = day.toISOString().slice(0, 10);
     const hit = map.get(key);
     rows.push({
-      label: day.toLocaleDateString(numberLocale, { timeZone: "UTC", month: "numeric", day: "numeric" }),
+      label: day.toLocaleDateString(`${numberLocale}-u-ca-gregory`, { timeZone: "UTC", month: "numeric", day: "numeric" }),
       total: hit?.total ?? 0,
       count: hit?.count ?? 0,
     });
@@ -100,12 +101,12 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
   const topSellerData = useMemo(
     () =>
       [...report.topSellers].reverse().map((item) => ({
-        name: truncateName(item.name),
-        fullName: item.name,
+        name: truncateName(resolveLocalizedName(item, locale)),
+        fullName: resolveLocalizedName(item, locale),
         quantity: item.quantity,
         revenue: item.revenue,
       })),
-    [report.topSellers],
+    [report.topSellers, locale],
   );
 
   const healthyStock = Math.max(
@@ -142,6 +143,7 @@ export function DashboardCharts({ report }: { report: FinancialReport }) {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-semibold text-foreground">{t("admin.dashboard.salesTrend")}</h2>
           <Select
+            aria-label={t("adminUi.period")}
             className="!w-auto"
             value={period}
             onChange={(event) => setPeriod(event.target.value as PeriodKey)}

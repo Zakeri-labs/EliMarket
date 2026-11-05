@@ -1,7 +1,7 @@
 "use client";
 
 import { KpiRow, PersonCell } from "@/app/(admin)/_components/KpiCards";
-import { OMAN_TIME_ZONE, omanYmd } from "@/config/oman-time";
+import { omanYmd, formatOmanDate } from "@/config/oman-time";
 import { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +12,6 @@ import {
   type AdminCustomer,
 } from "@/app/_actions/customer-actions";
 import { DataTable } from "@/components/table";
-import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
 
@@ -60,7 +59,7 @@ export default function AdminCustomersPage() {
         meta: { minWidth: 120 },
         header: t("admin.customers.colJoined"),
         cell: ({ getValue }) =>
-          new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE }),
+          formatOmanDate(String(getValue()), locale),
       },
     ],
     [t, locale],
@@ -69,6 +68,7 @@ export default function AdminCustomersPage() {
   return (
     <AdminShell title={t("admin.customers.title")} subtitle={t("admin.customers.subtitle")}>
       <KpiRow
+        hidden={Boolean(error) && !data}
         items={[{ label: t("adminUi.total"), value: data?.length, icon: "users", tone: "teal" },
 { label: t("adminUi.withOrders"), value: data?.filter((c) => c.orderCount > 0).length, icon: "bag", tone: "sky" },
 { label: t("adminUi.newThisMonth"), value: data?.filter((c) => omanYmd(new Date(c.created_at)).slice(0, 7) === omanYmd().slice(0, 7)).length, icon: "userPlus", tone: "amber" },
@@ -82,13 +82,13 @@ export default function AdminCustomersPage() {
         entityName={t("admin.customers.entityName")}
         isSkeleton={isPending}
         onRefresh={() => void refetch()}
-        onExport={async () =>
-          (data ?? []).map((row) => ({
-            name: row.full_name,
-            phone: row.phone,
-            orders: row.orderCount,
-            spent: row.spent,
-            joined: row.created_at,
+        onExport={async (rows) =>
+          rows.map((row) => ({
+            [t("admin.customers.colName")]: row.full_name,
+            [t("admin.customers.colPhone")]: row.phone,
+            [t("admin.customers.colOrders")]: row.orderCount,
+            [t("admin.customers.colSpent")]: row.spent,
+            [t("admin.customers.colJoined")]: row.created_at,
           }))
         }
       />

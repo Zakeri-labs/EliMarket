@@ -14,17 +14,21 @@ type Props = {
 };
 
 export function CashSurchargeSetting({ className }: Props) {
-  const { cashSurcharge, isLoading } = useStoreSettings();
+  const { cashSurcharge, isReady } = useStoreSettings();
+  const isLoading = !isReady;
   const { runAction, isPending } = useFormAction();
   const queryClient = useQueryClient();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   // `null` means "show the persisted value"; a string means the admin is editing.
   const [draft, setDraft] = useState<string | null>(null);
   const value = draft ?? String(cashSurcharge ?? 0);
 
+  const amount = Number(value.replace(/,/g, "").trim());
+  // An emptied field must not quietly save a zero fee.
+  const canSave = value.trim() !== "" && Number.isFinite(amount) && amount >= 0 && amount !== cashSurcharge;
+
   const save = () => {
-    const amount = Number(value.replace(/,/g, "").trim());
-    runAction(() => setCashSurchargeAction(Number.isFinite(amount) ? amount : 0), {
+    runAction(() => setCashSurchargeAction(amount), {
       successMessage: t("notifications.cashSurchargeSaved"),
       onSuccess: () => {
         setDraft(null);
@@ -52,17 +56,17 @@ export function CashSurchargeSetting({ className }: Props) {
               value={value}
               onChange={(e) => setDraft(e.target.value)}
               disabled={isLoading}
-              className="w-32 rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-accent"
+              className="w-32 bg-card px-3 text-sm outline-none"
             />
           </span>
-          <span className="text-xs text-muted">OMR</span>
+          <span className="text-xs text-muted">{locale === "ar" ? "ر.ع." : "OMR"}</span>
         </label>
         <Button
           type="button"
           size="sm"
           loading={isPending}
           loadingLabel={t("common.saving")}
-          disabled={isLoading}
+          disabled={isLoading || !canSave}
           onClick={save}
         >
           {t("admin.cashSurcharge.save")}

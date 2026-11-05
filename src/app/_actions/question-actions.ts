@@ -114,7 +114,7 @@ export async function getAdminQuestionsAction() {
     const { supabase } = await requireAdmin();
     const { data, error } = await supabase
       .from("product_questions")
-      .select("*, product:products(id, name, slug)")
+      .select("*, product:products(id, name, name_fa, name_ar, name_en, slug)")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return { success: true as const, data: data ?? [] };

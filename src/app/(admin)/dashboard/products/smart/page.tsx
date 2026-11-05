@@ -1,5 +1,7 @@
 "use client";
 
+import { formatCount } from "@/i18n/config";
+import { resolveCategoryName } from "@/lib/i18n/category-name";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,7 +23,7 @@ import { Select } from "@/components/ui/Select";
 const MAX_PHOTOS = 6;
 
 export default function SmartProductPage() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { runAction, isPending } = useFormAction();
@@ -32,10 +34,14 @@ export default function SmartProductPage() {
   const [categoryId, setCategoryId] = useState("");
 
   useEffect(() => {
-    getCategoriesAction().then((result) => {
-      if (result.success) setCategories(result.data);
-    });
-  }, []);
+    const notifyFailed = () => notifyFormError(t("table.loadFailed"));
+    getCategoriesAction()
+      .then((result) => {
+        if (result.success) setCategories(result.data);
+        else notifyFailed();
+      })
+      .catch(notifyFailed);
+  }, [t]);
 
   useEffect(() => {
     // Genuine external-system sync (object URLs need cleanup), not derived
@@ -127,12 +133,11 @@ export default function SmartProductPage() {
               {t("admin.smartProduct.uploadButton")}
             </span>
             <span className="mt-1 text-xs text-muted">
-              {t("admin.smartProduct.maxPhotos", { count: MAX_PHOTOS })}
+              {t("admin.smartProduct.maxPhotos", { count: formatCount(MAX_PHOTOS, locale) })}
             </span>
             <input
               type="file"
               accept="image/*"
-              capture="environment"
               multiple
               className="sr-only"
               onChange={(event) => {
@@ -191,7 +196,7 @@ export default function SmartProductPage() {
               <option value="">{t("admin.products.noCategory")}</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name}
+                  {resolveCategoryName(category, locale)}
                 </option>
               ))}
             </Select>

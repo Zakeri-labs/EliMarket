@@ -1,7 +1,7 @@
 "use client";
 
 import { KpiRow } from "@/app/(admin)/_components/KpiCards";
-import { omanYmd } from "@/config/oman-time";
+import { omanYmd, formatOmanDate } from "@/config/oman-time";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ import {
   updateBlogPostAction,
 } from "@/app/_actions/blog-actions";
 import { DatePicker } from "@/components/ui/DatePicker";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -87,7 +87,7 @@ export default function AdminBlogPage() {
   const { uploadImage, isPending: isUploadPending } = useAdminImageUpload();
   const [editing, setEditing] = useState<BlogPost | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-  const [tab, setTab] = useState<Locale>("fa");
+  const [tab, setTab] = useState<Locale>(locale);
   const [topic, setTopic] = useState("");
   const [isDrafting, setIsDrafting] = useState(false);
 
@@ -151,14 +151,14 @@ export default function AdminBlogPage() {
   const closeForm = () => {
     setFormOpen(false);
     setEditing(null);
-    setTab("fa");
+    setTab(locale);
     setTopic("");
     form.reset(DEFAULT_FORM_VALUES);
   };
 
   const openCreate = () => {
     setEditing(null);
-    setTab("fa");
+    setTab(locale);
     setTopic("");
     form.reset(DEFAULT_FORM_VALUES);
     setFormOpen(true);
@@ -166,7 +166,7 @@ export default function AdminBlogPage() {
 
   const openEdit = (post: BlogPost) => {
     setEditing(post);
-    setTab("fa");
+    setTab(locale);
     setTopic("");
     setFormOpen(true);
   };
@@ -200,6 +200,7 @@ export default function AdminBlogPage() {
           form.setValue("slug", slugifyBlogTitle(d.title_en || d.title_fa));
         }
       })
+      .catch(() => notifyFormError(t("table.loadFailed"), { title: t("notifications.errorTitle") }))
       .finally(() => setIsDrafting(false));
   };
 
@@ -242,6 +243,10 @@ export default function AdminBlogPage() {
         },
       });
     }
+  }, (errors) => {
+    const persian = Object.keys(errors).some((key) => key.endsWith("_fa"));
+    if (persian) setTab("fa");
+    notifyFormError(t(persian ? "adminUi.formInvalidFa" : "adminUi.formInvalid"));
   });
 
   const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
@@ -264,6 +269,7 @@ export default function AdminBlogPage() {
         </>
       } title={t("admin.blog.title")} subtitle={t("admin.blog.subtitle")}>
       <KpiRow
+        hidden={Boolean(loadError) && !posts}
         items={[{ label: t("adminUi.total"), value: posts?.length, icon: "file", tone: "teal" },
 { label: t("adminUi.published"), value: posts?.filter((p) => p.published).length, icon: "check", tone: "sky" },
 { label: t("adminUi.drafts"), value: posts?.filter((p) => !p.published).length, icon: "dashed", tone: "amber" },]}
@@ -282,13 +288,14 @@ export default function AdminBlogPage() {
             ))}
           </ul>
         ) : postList.length ? (
-          <ul className="space-y-2">
+          <>
+<ul className="space-y-2">
             {list.visible.map((post) => (
               <li
                 key={post.id}
                 className={cn(
-                  "flex items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3 transition-colors",
-                  editing?.id === post.id ? "border-accent" : "border-border",
+                  "admin-card flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 py-3 md:flex-nowrap",
+                  editing?.id === post.id && "outline-2 -outline-offset-2 outline-accent",
                 )}
               >
                 <span className="w-5 shrink-0 text-xs text-muted">
@@ -298,36 +305,31 @@ export default function AdminBlogPage() {
                 <button
                   type="button"
                   onClick={() => openEdit(post)}
-                  aria-label={t("admin.blog.edit")}
+                  aria-label={`${t("admin.blog.edit")}: ${resolveBlogTitle(post, locale)}`}
                   className="relative h-9 w-14 shrink-0 overflow-hidden rounded-md border border-border bg-background"
                 >
                   <BlogCover post={post} sizes="56px" />
                 </button>
 
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 basis-[calc(100%-6.5rem)] md:basis-0">
                   <Link
                     href={`/blog/${post.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block truncate text-sm font-semibold text-foreground hover:text-foreground hover:underline"
+                    className="block truncate py-3 text-sm font-semibold text-foreground hover:text-foreground hover:underline md:py-0"
                   >
                     {resolveBlogTitle(post, locale)}
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => openEdit(post)}
-                    className="block max-w-full truncate text-start text-xs text-muted hover:text-foreground"
-                    dir="ltr"
-                  >
-                    {post.slug} · {toDateInput(post.published_at)}
-                  </button>
+                  <p className="truncate text-xs text-muted">
+                    <bdi dir="ltr">{post.slug}</bdi> · {formatOmanDate(post.published_at, locale)}
+                  </p>
                 </div>
 
                 <span
                   className={cn(
                     "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
                     post.published
-                      ? "bg-background text-foreground"
+                      ? "bg-accent/10 text-accent-dark"
                       : "bg-background text-muted",
                   )}
                 >
@@ -352,8 +354,10 @@ export default function AdminBlogPage() {
               </li>
             ))}
           </ul>
+<ListPager list={list} />
+</>
         ) : (
-          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
+          <p className="admin-card px-4 py-10 text-center text-sm text-muted">
             {t("admin.blog.empty")}
           </p>
         )}
@@ -395,6 +399,11 @@ export default function AdminBlogPage() {
                 <input
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter") return;
+                    e.preventDefault();
+                    runDraft();
+                  }}
                   placeholder={t("admin.blog.aiTopicPlaceholder")}
                   className={cn(inputClass, "flex-1")}
                 />
@@ -423,7 +432,7 @@ export default function AdminBlogPage() {
                     className={cn(
                       "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
                       tab === loc
-                        ? "bg-white text-foreground"
+                        ? "bg-card font-semibold text-accent-dark shadow-sm"
                         : "text-muted hover:text-foreground",
                     )}
                     onClick={() => setTab(loc)}

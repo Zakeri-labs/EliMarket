@@ -1,6 +1,8 @@
 "use client";
 
-import { OMAN_TIME_ZONE } from "@/config/oman-time";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { notifyFormError, notifyFormSuccess } from "@/app/utils/form-notify";
+import { formatOmanDateTime } from "@/config/oman-time";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,10 +18,8 @@ import { useAuthStore } from "@/app/_store/auth-store";
 import { createClient } from "@/core/supabase/client";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
-import { notifyFormError, notifyFormSuccess } from "@/app/utils/form-notify";
 import { useTranslations } from "@/i18n/use-translations";
 import type { AdminNotification } from "@/app/_types/database.types";
-import { getNumberLocale } from "@/i18n/config";
 
 function playNewOrderSound() {
   try {
@@ -40,11 +40,35 @@ function playNewOrderSound() {
   }
 }
 
+// Stored rows hold one language; known types are shown in the admin's own.
+function notificationText(n: AdminNotification, t: (key: string, params?: Record<string, string | number>) => string) {
+  if (n.type === "new_order" && n.order_id) {
+    const total = n.body?.match(/Total:\s*(.+)$/)?.[1];
+    return {
+      title: t("adminUi.notifNewOrder", { id: n.order_id.replace(/-/g, "").slice(0, 8).toUpperCase() }),
+      body: total ? t("adminUi.notifNewOrderBody", { total }) : n.body,
+    };
+  }
+  if (n.type === "product_generated") {
+    const name = n.title.split(": ").slice(1).join(": ");
+    return {
+      title: t("adminUi.notifProductReady", { name }),
+      body: t(n.body?.includes("AI") ? "adminUi.notifProductReview" : "adminUi.notifProductReadyBody"),
+    };
+  }
+  if (n.type === "product_generation_failed") {
+    const name = n.title.match(/«(.+)»/)?.[1];
+    if (name) return { title: t("adminUi.notifProductFailed", { name }), body: n.body };
+  }
+  return { title: n.title, body: n.body };
+}
+
 export function AdminNotificationBell() {
   const { t, locale } = useTranslations();
   const session = useAuthStore((s) => s.session);
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const alertedOrdersRef = useRef<Set<string>>(new Set());
 
@@ -59,7 +83,7 @@ export function AdminNotificationBell() {
     refetchInterval: 12_000,
   });
 
-  const items = query.data ?? [];
+  const items = useMemo(() => query.data ?? [], [query.data]);
   const unreadCount = useMemo(
     () => items.filter((n) => !n.read_at).length,
     [items],
@@ -117,18 +141,19 @@ export function AdminNotificationBell() {
         },
         (payload: { new: AdminNotification }) => {
           const row = payload.new;
+          const text = notificationText(row, t);
           if (row.type === "new_order") {
             alertNewOrder({
               orderId: row.order_id,
-              title: row.title,
-              body: row.body,
+              title: text.title,
+              body: text.body,
             });
           } else if (row.type === "product_generated") {
             invalidate();
-            notifyFormSuccess(row.body || row.title, { title: row.title });
+            notifyFormSuccess(text.body || text.title, { title: text.title });
           } else if (row.type === "product_generation_failed") {
             invalidate();
-            notifyFormError(row.body || row.title, { title: row.title });
+            notifyFormError(text.body || text.title, { title: text.title });
           } else {
             invalidate();
           }
@@ -177,12 +202,19 @@ export function AdminNotificationBell() {
     return () => document.removeEventListener("mousedown", onPointer);
   }, [open]);
 
-  const onOpenItem = async (n: AdminNotification) => {
-    if (!n.read_at) {
-      await markNotificationReadAction(n.id);
+  const attempt = async (action: () => Promise<{ success: boolean }>) => {
+    try {
+      const result = await action();
+      if (!result.success) throw new Error();
       invalidate();
+    } catch {
+      notifyFormError(t("adminUi.actionFailed"));
     }
+  };
+
+  const onOpenItem = async (n: AdminNotification) => {
     setOpen(false);
+    if (!n.read_at) await attempt(() => markNotificationReadAction(n.id));
   };
 
   return (
@@ -192,6 +224,7 @@ export function AdminNotificationBell() {
         onClick={() => setOpen((v) => !v)}
         className="relative flex size-11 items-center justify-center rounded-full bg-background text-foreground transition-colors hover:bg-accent/10 md:size-10"
         aria-label={t("admin.notifCenter.title")}
+        aria-expanded={open}
         title={t("admin.notifCenter.title")}
       >
         <AppIcon icon={Bell} size="sm" />
@@ -209,23 +242,19 @@ export function AdminNotificationBell() {
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                className="rounded p-1.5 text-muted hover:bg-accent/10 hover:text-accent-dark"
+                className="grid size-11 place-items-center rounded-xl text-muted hover:bg-accent/10 hover:text-accent-dark md:size-8"
                 title={t("admin.notifCenter.markAllRead")}
-                onClick={async () => {
-                  await markAllNotificationsReadAction();
-                  invalidate();
-                }}
+                aria-label={t("admin.notifCenter.markAllRead")}
+                onClick={() => void attempt(markAllNotificationsReadAction)}
               >
                 <AppIcon icon={CheckCheck} size="xs" />
               </button>
               <button
                 type="button"
-                className="rounded p-1.5 text-muted hover:bg-accent/10 hover:text-accent-dark"
+                className="grid size-11 place-items-center rounded-xl text-muted hover:bg-accent/10 hover:text-accent-dark md:size-8"
                 title={t("admin.notifCenter.clearRead")}
-                onClick={async () => {
-                  await deleteReadNotificationsAction();
-                  invalidate();
-                }}
+                aria-label={t("admin.notifCenter.clearRead")}
+                onClick={() => setConfirmClear(true)}
               >
                 <AppIcon icon={Trash2} size="xs" />
               </button>
@@ -260,20 +289,21 @@ export function AdminNotificationBell() {
                       className="min-w-0 flex-1 px-3 py-2.5 text-start hover:bg-background"
                       onClick={() => void onOpenItem(n)}
                     >
-                      <p className="truncate text-sm font-medium text-foreground">{n.title}</p>
-                      <p className="mt-0.5 line-clamp-2 text-xs text-muted">{n.body}</p>
+                      <p className="truncate text-sm font-medium text-foreground" dir="auto">
+                        {notificationText(n, t).title}
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 text-xs text-muted" dir="auto">
+                        {notificationText(n, t).body}
+                      </p>
                       <p className="mt-1 text-xs text-muted">
-                        {new Date(n.created_at).toLocaleString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE })}
+                        {formatOmanDateTime(n.created_at, locale)}
                       </p>
                     </Link>
                     <button
                       type="button"
-                      className="shrink-0 self-start p-2 text-muted hover:text-red-500"
+                      className="grid size-11 shrink-0 place-items-center self-start rounded-xl text-muted hover:text-red-700 md:size-8"
                       aria-label={t("common.delete")}
-                      onClick={async () => {
-                        await deleteNotificationAction(n.id);
-                        invalidate();
-                      }}
+                      onClick={() => void attempt(() => deleteNotificationAction(n.id))}
                     >
                       <AppIcon icon={Trash2} size="xs" />
                     </button>
@@ -284,6 +314,18 @@ export function AdminNotificationBell() {
           </ul>
         </div>
       ) : null}
+      <ConfirmDialog
+        open={confirmClear}
+        title={t("admin.notifCenter.clearRead")}
+        description={t("adminUi.clearReadBody")}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        onOpenChange={setConfirmClear}
+        onConfirm={() => {
+          setConfirmClear(false);
+          void attempt(deleteReadNotificationsAction);
+        }}
+      />
     </div>
   );
 }

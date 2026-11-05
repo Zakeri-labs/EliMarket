@@ -2,7 +2,8 @@
 
 import { useLayoutEffect, useRef, useSyncExternalStore, type RefObject } from "react";
 import gsap from "gsap";
-import { OMAN_TIME_ZONE } from "@/config/oman-time";
+import { formatOmanDate } from "@/config/oman-time";
+import type { Locale } from "@/i18n/config";
 
 const REVEAL_SELECTOR = ".admin-card, tbody tr, [data-reveal]";
 
@@ -133,11 +134,11 @@ export function useCardReveal(rootRef: RefObject<HTMLElement | null>) {
 }
 
 /** Multi-step entrance for the title card: card, tile pop, then the text. */
-export function useTitleCardIntro() {
+export function useTitleCardIntro(enabled = true) {
   const cardRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const card = cardRef.current;
-    if (!card) return;
+    if (!card || !enabled) return;
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const direction = getComputedStyle(card).direction === "rtl" ? 1 : -1;
@@ -164,9 +165,12 @@ export function useTitleCardIntro() {
         { opacity: 0, y: 14, duration: 0.45, stagger: 0.08, clearProps: "opacity,transform" },
         "-=0.35",
       );
+      // The title must never stay hidden if animation frames are paused or slow.
+      const safety = window.setTimeout(() => timeline.progress(1), 2500);
+      return () => window.clearTimeout(safety);
     });
     return () => mm.revert();
-  }, []);
+  }, [enabled]);
   return cardRef;
 }
 
@@ -178,19 +182,19 @@ export function useSidebarIntro() {
   useLayoutEffect(() => {
     const nav = navRef.current;
     if (!nav || sidebarIntroPlayed) return;
+    sidebarIntroPlayed = true;
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
-      gsap.from(nav.querySelectorAll("a, p"), {
+      const intro = gsap.from(nav.querySelectorAll("a, p"), {
         opacity: 0,
         y: 10,
         duration: 0.35,
         ease: "power2.out",
         stagger: 0.025,
         clearProps: "opacity,transform",
-        onComplete: () => {
-          sidebarIntroPlayed = true;
-        },
       });
+      const safety = window.setTimeout(() => intro.progress(1), 2500);
+      return () => window.clearTimeout(safety);
     });
     return () => mm.revert();
   }, []);
@@ -203,12 +207,11 @@ export const subscribeMinute = (notify: () => void) => {
 };
 
 /** Current Muscat date and time for the header; empty during server rendering. */
-export function useOmanClock(locale: string) {
+export function useOmanClock(locale: Locale) {
   return useSyncExternalStore(
     subscribeMinute,
     () =>
-      new Date().toLocaleString(locale, {
-        timeZone: OMAN_TIME_ZONE,
+      formatOmanDate(new Date(), locale, {
         weekday: "short",
         month: "short",
         day: "numeric",

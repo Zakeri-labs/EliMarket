@@ -47,7 +47,7 @@ export function CompactItemCard({
           )}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-foreground">{title}</span>
+          <span className="block truncate text-sm font-semibold text-foreground" title={title}>{title}</span>
           {subtitle ? <span className="block truncate text-xs text-muted">{subtitle}</span> : null}
         </span>
       </button>

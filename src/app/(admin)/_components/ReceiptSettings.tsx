@@ -17,12 +17,13 @@ type Props = {
 };
 
 export function ReceiptSettings({ className }: Props) {
-  const { hero: settings, isLoading } = useStoreSettings();
+  const { hero: settings, isReady } = useStoreSettings();
+  const isLoading = !isReady;
   const { runAction, isPending } = useFormAction();
   const queryClient = useQueryClient();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
 
-  const [langTab, setLangTab] = useState<Locale>("fa");
+  const [langTab, setLangTab] = useState<Locale>(locale);
   // `null` = show the persisted value; an object = the admin is editing.
   const [draft, setDraft] = useState<{
     name: LangText;
@@ -111,7 +112,7 @@ export function ReceiptSettings({ className }: Props) {
             className={cn(
               "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
               langTab === loc
-                ? "bg-white text-foreground"
+                ? "bg-card font-semibold text-accent-dark shadow-sm"
                 : "text-muted hover:text-foreground",
             )}
             onClick={() => setLangTab(loc)}

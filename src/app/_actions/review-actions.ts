@@ -97,7 +97,7 @@ export async function getAdminReviewsAction() {
     const { supabase } = await requireAdmin();
     const { data, error } = await supabase
       .from("product_reviews")
-      .select("*, product:products(id, name, slug)")
+      .select("*, product:products(id, name, name_fa, name_ar, name_en, slug)")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return { success: true as const, data: data ?? [] };

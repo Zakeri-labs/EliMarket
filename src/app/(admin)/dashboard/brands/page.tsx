@@ -14,7 +14,7 @@ import {
   getAdminBrandsAction,
   updateBrandAction,
 } from "@/app/_actions/brand-actions";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -127,7 +127,7 @@ export default function AdminBrandsPage() {
         },
       });
     }
-  });
+  }, () => notifyFormError(t("adminUi.formInvalid")));
 
   const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
 
@@ -147,6 +147,7 @@ export default function AdminBrandsPage() {
       subtitle={t("admin.brands.subtitle")}
     >
       <KpiRow
+        hidden={Boolean(loadError) && !brands}
         items={[
           { label: t("adminUi.total"), value: brands?.length, icon: "tag", tone: "teal" },
           { label: t("adminUi.withLogo"), value: brands?.filter((b) => b.logo_url).length, icon: "check", tone: "sky" },
@@ -164,7 +165,8 @@ export default function AdminBrandsPage() {
             ))}
           </ul>
         ) : brands?.length ? (
-          <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
+          <>
+<ul className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
             {list.visible.map((brand) => (
               <li key={brand.id}>
                 <CompactItemCard
@@ -196,6 +198,8 @@ export default function AdminBrandsPage() {
               </li>
             ))}
           </ul>
+<ListPager list={list} />
+</>
         ) : (
           <p className="admin-card px-4 py-10 text-center text-sm text-muted">
             {t("admin.brands.empty")}
@@ -268,7 +272,7 @@ export default function AdminBrandsPage() {
 
             <div className="flex flex-wrap gap-2">
               <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
+                <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-input bg-card px-4 py-2 text-sm md:min-h-10">
                   <AppIcon icon={Upload} size="sm" />
                   {t("admin.brands.uploadLogo")}
                 </span>

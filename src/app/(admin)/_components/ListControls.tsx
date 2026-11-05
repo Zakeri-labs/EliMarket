@@ -5,7 +5,7 @@ import { AlertTriangle, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useLocaleStore } from "@/app/_store/locale-store";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { Button } from "@/components/ui/Button";
-import { getDirection } from "@/i18n/config";
+import { formatCount, getDirection } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 
 const PAGE_SIZE = 10;
@@ -88,8 +88,6 @@ export function ListControls({
   onClearFilters?: () => void;
 }) {
   const { t } = useTranslations();
-  const locale = useLocaleStore((s) => s.locale);
-  const rtl = getDirection(locale) === "rtl";
 
   if (list.total === 0) return null;
 
@@ -108,42 +106,14 @@ export function ListControls({
             value={list.query}
             onChange={(e) => list.setQuery(e.target.value)}
             placeholder={t("table.searchIn", { entity })}
-            className="w-full rounded-full border border-input bg-card ps-10 pe-4 outline-none"
+            className="w-full rounded-xl border border-input bg-card ps-10 pe-4 outline-none"
           />
         </label>
         {filters}
-        {list.pageCount > 1 ? (
-          <nav
-            aria-label={t("table.pagination")}
-            className="flex items-center justify-center gap-1 self-center rounded-full bg-card p-1 shadow-[var(--card-shadow)] sm:ms-auto"
-          >
-            <button
-              type="button"
-              aria-label={t("table.prev")}
-              disabled={list.page === 0}
-              onClick={() => list.setPage(list.page - 1)}
-              className="grid h-11 w-11 place-items-center rounded-full text-muted transition-colors hover:bg-background disabled:opacity-40 md:h-8 md:w-8"
-            >
-              <AppIcon icon={rtl ? ChevronRight : ChevronLeft} size="sm" />
-            </button>
-            <span className="min-w-14 text-center text-xs font-semibold tabular-nums" dir="ltr">
-              {list.page + 1} / {list.pageCount}
-            </span>
-            <button
-              type="button"
-              aria-label={t("table.next")}
-              disabled={list.page >= list.pageCount - 1}
-              onClick={() => list.setPage(list.page + 1)}
-              className="grid h-11 w-11 place-items-center rounded-full text-muted transition-colors hover:bg-background disabled:opacity-40 md:h-8 md:w-8"
-            >
-              <AppIcon icon={rtl ? ChevronLeft : ChevronRight} size="sm" />
-            </button>
-          </nav>
-        ) : null}
       </div>
       {list.matchCount === 0 ? (
         <div className="admin-card space-y-3 p-8 text-center text-sm text-muted">
-          <p>{t("table.noResults", { query: list.query || "…" })}</p>
+          <p>{list.query ? t("table.noResults", { query: list.query }) : t("adminUi.noMatches")}</p>
           <Button
             type="button"
             variant="outline"
@@ -172,5 +142,44 @@ export function ListError({ error, onRetry }: { error: Error; onRetry: () => voi
         {t("table.retry")}
       </Button>
     </div>
+  );
+}
+
+/** Sits under a list so the next page is reachable from where reading ends. */
+export function ListPager({
+  list,
+}: {
+  list: { page: number; pageCount: number; setPage: (page: number) => void };
+}) {
+  const { t } = useTranslations();
+  const locale = useLocaleStore((s) => s.locale);
+  const rtl = getDirection(locale) === "rtl";
+
+  if (list.pageCount <= 1) return null;
+
+  return (
+    <nav aria-label={t("table.pagination")} className="mt-3 flex items-center justify-center gap-1">
+      <button
+        type="button"
+        aria-label={t("table.prev")}
+        disabled={list.page === 0}
+        onClick={() => list.setPage(list.page - 1)}
+        className="grid size-11 place-items-center rounded-xl text-muted transition-colors hover:bg-accent/10 hover:text-accent-dark disabled:pointer-events-none disabled:opacity-40"
+      >
+        <AppIcon icon={rtl ? ChevronRight : ChevronLeft} size="sm" />
+      </button>
+      <span className="min-w-14 text-center text-xs font-semibold tabular-nums" dir="ltr">
+        {formatCount(list.page + 1, locale)} / {formatCount(list.pageCount, locale)}
+      </span>
+      <button
+        type="button"
+        aria-label={t("table.next")}
+        disabled={list.page >= list.pageCount - 1}
+        onClick={() => list.setPage(list.page + 1)}
+        className="grid size-11 place-items-center rounded-xl text-muted transition-colors hover:bg-accent/10 hover:text-accent-dark disabled:pointer-events-none disabled:opacity-40"
+      >
+        <AppIcon icon={rtl ? ChevronLeft : ChevronRight} size="sm" />
+      </button>
+    </nav>
   );
 }

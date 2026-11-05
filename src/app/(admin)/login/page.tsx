@@ -72,12 +72,13 @@ function AdminLoginForm() {
           }}
         >
           <div>
-            <label className="mb-1.5 flex items-center gap-2 text-xs text-muted">
+            <label htmlFor="admin-username" className="mb-1.5 flex items-center gap-2 text-xs text-muted">
               <AppIcon icon={User} size="xs" />
               {t("admin.login.username")}
             </label>
             <input
               className={inputClass}
+              id="admin-username"
               name="admin-username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -91,13 +92,14 @@ function AdminLoginForm() {
           </div>
 
           <div>
-            <label className="mb-1.5 flex items-center gap-2 text-xs text-muted">
+            <label htmlFor="admin-password" className="mb-1.5 flex items-center gap-2 text-xs text-muted">
               <AppIcon icon={Lock} size="xs" />
               {t("admin.login.password")}
             </label>
             <input
               type="password"
               className={inputClass}
+              id="admin-password"
               name="admin-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

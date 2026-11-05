@@ -21,7 +21,7 @@ import "leaflet/dist/leaflet.css";
 
 const vertexIcon = L.divIcon({
   className: "",
-  html: '<div style="width:12px;height:12px;background:#0d9488;border:2px solid #fff;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.45)"></div>',
+  html: '<div style="width:12px;height:12px;background:#0f766e;border:2px solid #fff;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.45)"></div>',
   iconSize: [12, 12],
   iconAnchor: [6, 6],
 });
@@ -33,11 +33,20 @@ const centerIcon = L.divIcon({
   iconAnchor: [8, 8],
 });
 
-const TEAL = "#0d9488";
+const TEAL = "#0f766e";
 const GREY = "#9ca3af";
 
+const boundaryKeys = new WeakMap<AreaBoundary, string>();
+
+// GeoJSON layers never redraw on their own, so the key must change with the shape.
 function boundaryKey(b: AreaBoundary | null): string {
-  return b ? `${b.type}:${JSON.stringify(b.coordinates).length}` : "none";
+  if (!b) return "none";
+  let key = boundaryKeys.get(b);
+  if (!key) {
+    key = `${b.type}:${JSON.stringify(b.coordinates)}`;
+    boundaryKeys.set(b, key);
+  }
+  return key;
 }
 
 function areaCenter(area: DeliveryArea): [number, number] | null {

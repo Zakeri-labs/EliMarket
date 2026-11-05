@@ -1,8 +1,9 @@
 "use client";
 
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { KpiRow, PersonCell } from "@/app/(admin)/_components/KpiCards";
-import { OMAN_TIME_ZONE, omanYmd } from "@/config/oman-time";
-import { useMemo, useState } from "react";
+import { omanYmd, formatOmanDate } from "@/config/oman-time";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
@@ -15,14 +16,13 @@ import {
   type AdminRider,
   type RiderDetailsInput,
 } from "@/app/_actions/rider-admin-actions";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { DataTable } from "@/components/table";
-import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 
 const inputClass =
@@ -35,6 +35,31 @@ const EMPTY_FORM: RiderDetailsInput = {
   phone: "",
   addressLine: "",
 };
+
+// Cells read live state from here: rebuilding the columns would remount every row and lose focus.
+const RevokeContext = createContext<{
+  isPending: boolean;
+  revokingId: string | null;
+  onRevoke: (rider: AdminRider) => void;
+} | null>(null);
+
+function RevokeCell({ rider }: { rider: AdminRider }) {
+  const { t } = useTranslations();
+  const state = useContext(RevokeContext);
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      loading={state?.isPending && state.revokingId === rider.id}
+      disabled={state?.isPending}
+      loadingLabel={t("common.saving")}
+      onClick={() => state?.onRevoke(rider)}
+    >
+      {t("admin.riders.revoke")}
+    </Button>
+  );
+}
 
 export default function AdminRidersPage() {
   const { t, locale } = useTranslations();
@@ -62,11 +87,11 @@ export default function AdminRidersPage() {
     },
   });
 
-  const invalidate = () => {
+  const invalidate = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ["admin-riders"] });
     void queryClient.invalidateQueries({ queryKey: ["admin-rider-candidates"] });
     void queryClient.invalidateQueries({ queryKey: ["riders"] });
-  };
+  }, [queryClient]);
 
   const closeForm = () => {
     setFormOpen(false);
@@ -97,10 +122,15 @@ export default function AdminRidersPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
+  const [revokeTarget, setRevokeTarget] = useState<AdminRider | null>(null);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
+
   const riderColumns = useMemo<ColumnDef<AdminRider>[]>(
     () => [
       {
         id: "name",
+        accessorFn: (rider) =>
+          rider.details ? `${rider.details.first_name} ${rider.details.last_name}` : rider.full_name ?? "",
         meta: { minWidth: 200 },
         header: t("admin.riders.colName"),
         cell: ({ row }) => {
@@ -114,6 +144,7 @@ export default function AdminRidersPage() {
       },
       {
         id: "civilId",
+        accessorFn: (rider) => rider.details?.civil_id ?? "",
         meta: { minWidth: 120 },
         header: t("admin.riders.colCivilId"),
         cell: ({ row }) => (
@@ -121,7 +152,8 @@ export default function AdminRidersPage() {
         ),
       },
       {
-        accessorKey: "phone",
+        id: "phone",
+        accessorFn: (rider) => rider.details?.phone || rider.phone || "",
         meta: { minWidth: 150 },
         header: t("admin.riders.colPhone"),
         cell: ({ row }) => (
@@ -130,6 +162,7 @@ export default function AdminRidersPage() {
       },
       {
         id: "address",
+        accessorFn: (rider) => rider.details?.address_line ?? "",
         meta: { minWidth: 200 },
         header: t("admin.riders.colAddress"),
         cell: ({ row }) => (
@@ -143,32 +176,16 @@ export default function AdminRidersPage() {
         meta: { minWidth: 110 },
         header: t("admin.riders.colJoined"),
         cell: ({ getValue }) =>
-          new Date(String(getValue())).toLocaleDateString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE }),
+          formatOmanDate(String(getValue()), locale),
       },
       {
         id: "actions",
         meta: { minWidth: 150 },
         header: t("admin.riders.colActions"),
-        cell: ({ row }) => (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            loading={isPending}
-            loadingLabel={t("common.saving")}
-            onClick={() =>
-              runAction(() => revokeRiderAction(row.original.id), {
-                successMessage: t("notifications.riderRevoked"),
-                onSuccess: invalidate,
-              })
-            }
-          >
-            {t("admin.riders.revoke")}
-          </Button>
-        ),
+        cell: ({ row }) => <RevokeCell rider={row.original} />,
       },
     ],
-    [t, locale, isPending, runAction],
+    [t, locale],
   );
 
   const modalTitle = approveTarget
@@ -188,8 +205,9 @@ export default function AdminRidersPage() {
         </>
       } title={t("admin.riders.title")} subtitle={t("admin.riders.subtitle")}>
       <KpiRow
+        hidden={Boolean(ridersQuery.error) && !ridersQuery.data}
         items={[{ label: t("adminUi.activeRiders"), value: ridersQuery.data?.length, icon: "bike", tone: "teal" },
-{ label: t("adminUi.candidates"), value: candidatesQuery.data?.length, icon: "clock", tone: "amber" },
+{ label: t("adminUi.candidates"), value: candidatesQuery.error && !candidatesQuery.data ? "—" : candidatesQuery.data?.length, icon: "clock", tone: "amber" },
 { label: t("adminUi.recentRegistered"), value: ridersQuery.data?.filter((r) => omanYmd(new Date(r.created_at)).slice(0, 7) === omanYmd().slice(0, 7)).length, icon: "userPlus", tone: "sky" },]}
       />
 
@@ -200,14 +218,27 @@ export default function AdminRidersPage() {
         {ridersQuery.error ? (
           <ListError error={ridersQuery.error} onRetry={() => void ridersQuery.refetch()} />
         ) : null}
+        <RevokeContext.Provider value={{ isPending, revokingId, onRevoke: setRevokeTarget }}>
         <DataTable
           hidden={Boolean(ridersQuery.error) && !ridersQuery.data}
           data={ridersQuery.data ?? []}
           columns={riderColumns}
+          onExport={async (rows) =>
+            rows.map((rider) => ({
+              [t("admin.riders.colName")]: rider.details
+                ? `${rider.details.first_name} ${rider.details.last_name}`
+                : rider.full_name ?? "",
+              [t("admin.riders.colCivilId")]: rider.details?.civil_id ?? "",
+              [t("admin.riders.colPhone")]: rider.details?.phone || rider.phone || "",
+              [t("admin.riders.colAddress")]: rider.details?.address_line ?? "",
+              [t("admin.riders.colJoined")]: rider.created_at,
+            }))
+          }
           entityName={t("admin.riders.entityName")}
           isSkeleton={ridersQuery.isPending}
           onRefresh={() => void ridersQuery.refetch()}
         />
+        </RevokeContext.Provider>
       </section>
 
       <section>
@@ -226,7 +257,8 @@ export default function AdminRidersPage() {
             {t("admin.riders.approveEmpty")}
           </p>
         ) : (
-          <ul className="space-y-2">
+          <>
+<ul className="space-y-2">
             {candidateList.visible.map((candidate) => (
               <li
                 key={candidate.id}
@@ -246,6 +278,8 @@ export default function AdminRidersPage() {
               </li>
             ))}
           </ul>
+<ListPager list={candidateList} />
+</>
         )}
       </section>
 
@@ -369,6 +403,30 @@ export default function AdminRidersPage() {
           </div>
         </form>
       </Modal>
+      <ConfirmDialog
+        open={Boolean(revokeTarget)}
+        title={t("adminUi.revokeRiderTitle")}
+        description={t("adminUi.revokeRiderBody")}
+        confirmLabel={t("admin.riders.revoke")}
+        cancelLabel={t("common.cancel")}
+        onOpenChange={(next) => {
+          if (!next) setRevokeTarget(null);
+        }}
+        onConfirm={() => {
+          if (!revokeTarget) return;
+          const riderId = revokeTarget.id;
+          setRevokeTarget(null);
+          setRevokingId(riderId);
+          runAction(() => revokeRiderAction(riderId), {
+            successMessage: t("notifications.riderRevoked"),
+            onSuccess: () => {
+              setRevokingId(null);
+              invalidate();
+            },
+            onError: () => setRevokingId(null),
+          });
+        }}
+      />
     </AdminShell>
   );
 }

@@ -6,7 +6,7 @@ import { setShowPricesAction } from "@/app/_actions/settings-actions";
 import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { cn } from "@/app/utils/cn";
-import { Button } from "@/components/ui/Button";
+import { Switch } from "@/components/ui/Switch";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useTranslations } from "@/i18n/use-translations";
 
@@ -16,7 +16,8 @@ type Props = {
 };
 
 export function PriceVisibilityToggle({ className, compact }: Props) {
-  const { showPrices, isLoading } = useStoreSettings();
+  const { showPrices, isReady } = useStoreSettings();
+  const isLoading = !isReady;
   const { runAction, isPending } = useFormAction();
   const queryClient = useQueryClient();
   const { t } = useTranslations();
@@ -45,7 +46,7 @@ export function PriceVisibilityToggle({ className, compact }: Props) {
   };
 
   return (
-    <div className={cn("flex items-center gap-3", className)}>
+    <div className={cn("flex items-center justify-between gap-4", className)}>
       {!compact && (
         <div className="text-sm">
           <p className="font-medium text-foreground">{t("admin.priceToggle.title")}</p>
@@ -54,25 +55,12 @@ export function PriceVisibilityToggle({ className, compact }: Props) {
           </p>
         </div>
       )}
-      <Button
-        type="button"
-        variant={showPrices ? "secondary" : "primary"}
-        size={compact ? "sm" : "md"}
-        disabled={isLoading}
-        loading={isPending}
-        loadingLabel={t("common.saving")}
-        onClick={toggle}
-        className={cn(
-          !showPrices && "bg-accent text-white hover:opacity-90",
-          showPrices && "border-border",
-        )}
-      >
-        {isLoading
-          ? "…"
-          : showPrices
-            ? t("admin.priceToggle.on")
-            : t("admin.priceToggle.off")}
-      </Button>
+      <Switch
+        checked={showPrices}
+        onChange={() => toggle()}
+        label={t("admin.priceToggle.title")}
+        disabled={isLoading || isPending}
+      />
       <ConfirmDialog
         open={confirmOpen}
         title={t("admin.priceToggle.confirmOffTitle")}

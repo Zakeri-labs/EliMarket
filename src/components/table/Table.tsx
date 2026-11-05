@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyFormError } from "@/app/utils/form-notify";
+import { formatCount } from "@/i18n/config";
 import { omanYmd, toOmanInput } from "@/config/oman-time";
 import * as React from "react";
 import {
@@ -27,8 +29,6 @@ import {
   ChevronRight,
   Search,
 } from "lucide-react";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import { useLocaleStore } from "@/app/_store/locale-store";
 import { cn } from "@/app/utils/cn";
 import { getDirection } from "@/i18n/config";
@@ -48,7 +48,8 @@ export type DataTableProps<T> = {
   entityName?: string;
   isSkeleton?: boolean;
   onRefresh?: () => void;
-  onExport?: () => Promise<Record<string, unknown>[]>;
+  /** Receives the rows left after search and filters. */
+  onExport?: (rows: T[]) => Promise<Record<string, unknown>[]>;
   onCreateClick?: () => void;
   createLabel?: string;
   enableExport?: boolean;
@@ -238,6 +239,13 @@ export function DataTable<T>({
       });
     },
     enableColumnFilters,
+    // Rows keep their identity across refetches, so an open delete dialog cannot point at another row.
+    getRowId: (row, index) => String((row as { id?: unknown }).id ?? index),
+    // Sampling the first row picks odd filters: a number column reads "25" as the range 2 to 5,
+    // and one empty cell removes a whole column from search.
+    defaultColumn: { filterFn: "includesString" },
+    // Image addresses and raw timestamps are not what the admin reads, so they must not match a search.
+    getColumnCanGlobalFilter: (column) => !isImageColumn(column.id) && column.id !== "created_at",
     // Saving a row refetches data; that must not send the admin back to page 1.
     autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel(),
@@ -292,7 +300,7 @@ export function DataTable<T>({
   };
   const emptyContent = hasActiveQuery ? (
     <div className="space-y-3">
-      <p>{t("table.noResults", { query: resolvedGlobalFilter || "…" })}</p>
+      <p>{resolvedGlobalFilter ? t("table.noResults", { query: resolvedGlobalFilter }) : t("adminUi.noMatches")}</p>
       <Button type="button" variant="outline" size="sm" onClick={clearFilters}>
         {t("table.clearFilters")}
       </Button>
@@ -339,9 +347,11 @@ export function DataTable<T>({
   };
 
   const handleExport = async () => {
-    const exportData = onExport
-      ? await onExport()
-      : (data as Record<string, unknown>[]);
+    if (isSkeleton) return;
+    try {
+    const [XLSX, { saveAs }] = await Promise.all([import("xlsx"), import("file-saver")]);
+    const rows = table.getSortedRowModel().rows.map((row) => row.original);
+    const exportData = onExport ? await onExport(rows) : (rows as Record<string, unknown>[]);
     // Timestamps leave the panel in Oman time, like everything shown on screen.
     const omanRows = exportData.map((row) =>
       Object.fromEntries(
@@ -361,6 +371,9 @@ export function DataTable<T>({
       new Blob([buffer]),
       `${resolvedEntityName}-${omanYmd()}.xlsx`,
     );
+    } catch {
+      notifyFormError(t("adminUi.actionFailed"));
+    }
   };
 
   const mobileFilterableHeaders = enableColumnFilters
@@ -404,7 +417,7 @@ export function DataTable<T>({
               setInternalGlobalFilter(value);
             }
           }}
-          className="rounded-full border-border ps-10"
+          className="rounded-xl border-input ps-10"
           />
         </label>
 
@@ -428,6 +441,7 @@ export function DataTable<T>({
               variant="ghost"
               size="sm"
               className="border border-border bg-card text-foreground hover:border-accent/40 hover:bg-accent/10 hover:!text-accent-dark"
+              disabled={isSkeleton || table.getFilteredRowModel().rows.length === 0}
               onClick={() => void handleExport()}
             >
               <AppIcon icon={Download} size="xs" className="me-1.5" />
@@ -570,7 +584,7 @@ export function DataTable<T>({
                               ? "descending"
                               : undefined
                         }
-                        className="group/th bg-[#f0f5f9]/80 px-4 py-3.5 text-start text-[11.5px] font-bold text-muted first:ps-6 last:pe-6 ltr:uppercase ltr:tracking-[.06em]"
+                        className="group/th bg-background/80 px-4 py-3.5 text-start text-xs font-semibold text-muted first:ps-6 last:pe-6 ltr:uppercase ltr:tracking-[.06em]"
                       >
                         <div className="flex min-w-0 items-center gap-1">
                           <button
@@ -741,14 +755,14 @@ export function DataTable<T>({
       >
         <span dir="auto">
           {t("table.showing")}{" "}
-          {totalItems === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1}{" "}
+          {formatCount(totalItems === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1, locale)}{" "}
           {t("table.to")}{" "}
-          {Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems)}{" "}
-          {t("table.of")} {totalItems}
+          {formatCount(Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems), locale)}{" "}
+          {t("table.of")} {formatCount(totalItems, locale)}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="hidden sm:inline">{t("table.pageSize")}</span>
-          <span className="inline-flex rounded-full bg-background p-0.5">
+          <span className="max-sm:sr-only">{t("table.pageSize")}</span>
+          <span className="inline-flex rounded-xl bg-background p-0.5">
             {pageSizeOptions.map((size) => (
               <button
                 key={size}
@@ -758,7 +772,7 @@ export function DataTable<T>({
                   onPaginationChange((prev) => ({ ...prev, pageSize: size, pageIndex: 0 }))
                 }
                 className={cn(
-                  "min-h-11 min-w-11 rounded-full px-2.5 text-xs font-semibold tabular-nums transition md:min-h-7 md:min-w-8",
+                  "min-h-11 min-w-11 rounded-lg px-2.5 text-xs font-semibold tabular-nums transition md:min-h-7 md:min-w-8",
                   pagination.pageSize === size
                     ? "bg-card text-accent-dark shadow-sm"
                     : "hover:text-foreground",

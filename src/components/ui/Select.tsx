@@ -18,9 +18,11 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
+import { FocusScope } from "@radix-ui/react-focus-scope";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/app/utils/cn";
 import { AppIcon } from "@/components/icons/AppIcon";
+import { useTranslations } from "@/i18n/use-translations";
 
 const SEARCH_THRESHOLD = 7;
 
@@ -103,6 +105,9 @@ export function Select({
     maxHeight: number;
   } | null>(null);
 
+  const { t } = useTranslations();
+  // The list mounts only once it has a position, a render after `open` turns true.
+  const listShown = open && pos !== null;
   const allOptions = useMemo(() => collectOptions(children), [children]);
   const current = String(value ?? "");
   const searchable = allOptions.length > SEARCH_THRESHOLD;
@@ -157,22 +162,37 @@ export function Select({
     };
   }, [open, place]);
 
+  // A surrounding dialog listens for Esc on document, so catch it first: only the list closes.
   useEffect(() => {
-    if (open && searchable) searchRef.current?.focus();
-  }, [open, searchable]);
+    if (!open) return;
+    const onEscape = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(false);
+      triggerRef.current?.focus();
+    };
+    window.addEventListener("keydown", onEscape, true);
+    return () => window.removeEventListener("keydown", onEscape, true);
+  }, [open]);
+
+  useEffect(() => {
+    if (listShown && searchable) searchRef.current?.focus();
+  }, [listShown, searchable]);
 
   useEffect(() => {
     if (!open) return;
     listRef.current
       ?.querySelector<HTMLElement>(`[data-index="${active}"]`)
       ?.scrollIntoView({ block: "nearest" });
-  }, [open, active]);
+  }, [open, listShown, active]);
 
   const openList = () => {
     if (disabled) return;
     setQuery("");
     setScoped(Boolean(triggerRef.current?.closest(".theme-admin")));
-    setActive(selectedIndex >= 0 ? selectedIndex : Math.max(0, options.findIndex((o) => !o.disabled)));
+    const currentIndex = allOptions.findIndex((o) => o.value === current);
+    setActive(currentIndex >= 0 ? currentIndex : Math.max(0, allOptions.findIndex((o) => !o.disabled)));
     setOpen(true);
   };
 
@@ -205,9 +225,6 @@ export function Select({
       e.preventDefault();
       if (open) choose(active);
       else openList();
-    } else if (e.key === "Escape" && open) {
-      e.preventDefault();
-      setOpen(false);
     } else if (e.key === "Tab") {
       setOpen(false);
     }
@@ -225,13 +242,14 @@ export function Select({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
+        aria-activedescendant={open && !searchable ? `${listId}-${active}` : undefined}
         aria-label={ariaLabel}
         disabled={disabled}
         onClick={() => (open ? setOpen(false) : openList())}
         onKeyDown={onKeyDown}
         className={cn(
-          "inline-flex min-h-10 w-full items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3.5 py-2 text-start text-sm text-foreground outline-none transition-[border-color,box-shadow]",
-          "hover:border-zinc-300 focus-visible:border-accent focus-visible:ring-4 focus-visible:ring-accent/10",
+          "inline-flex min-h-10 w-full items-center justify-between gap-2 rounded-xl border border-[color:var(--input,var(--border))] bg-surface px-3.5 py-2 text-start text-sm text-foreground outline-none transition-[border-color,box-shadow]",
+          "hover:border-zinc-300 [.admin-ui_&]:hover:border-accent/60 focus-visible:border-accent focus-visible:ring-4 focus-visible:ring-accent/10",
           open && "border-accent ring-4 ring-accent/10",
           "disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:opacity-60",
           className,
@@ -247,9 +265,17 @@ export function Select({
       {name ? <input type="hidden" name={name} value={current} /> : null}
       {open && pos
         ? createPortal(
+            // Dialogs turn off pointer events on body and trap focus; the list opts out of both.
+            <FocusScope
+              asChild
+              trapped={false}
+              onMountAutoFocus={(e) => e.preventDefault()}
+              onUnmountAutoFocus={(e) => e.preventDefault()}
+            >
             <div
               ref={popRef}
               style={{
+                pointerEvents: "auto",
                 position: "fixed",
                 left: pos.left,
                 width: pos.width,
@@ -280,7 +306,7 @@ export function Select({
                       } else if (e.key === "Enter") {
                         e.preventDefault();
                         choose(active);
-                      } else if (e.key === "Escape") {
+                      } else if (e.key === "Tab") {
                         e.preventDefault();
                         setOpen(false);
                         triggerRef.current?.focus();
@@ -289,7 +315,9 @@ export function Select({
                     data-plain
                     className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-400"
                     placeholder="…"
-                    aria-label="search"
+                    aria-label={t("nav.search")}
+                    aria-controls={listId}
+                    aria-activedescendant={options.length ? `${listId}-${active}` : undefined}
                   />
                 </div>
               ) : null}
@@ -307,6 +335,7 @@ export function Select({
                   return (
                     <li
                       key={`${option.value}-${index}`}
+                      id={`${listId}-${index}`}
                       role="option"
                       aria-selected={isSelected}
                       aria-disabled={option.disabled}
@@ -314,7 +343,7 @@ export function Select({
                       onMouseEnter={() => setActive(index)}
                       onClick={() => choose(index)}
                       className={cn(
-                        "flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 transition-colors",
+                        "flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 transition-colors md:min-h-9",
                         index === active && "bg-accent/10",
                         isSelected && "font-medium text-accent-dark",
                         option.disabled && "cursor-not-allowed opacity-40",
@@ -326,7 +355,8 @@ export function Select({
                   );
                 })}
               </ul>
-            </div>,
+            </div>
+            </FocusScope>,
             document.body,
           )
         : null}

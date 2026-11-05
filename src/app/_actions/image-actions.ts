@@ -9,6 +9,11 @@ export async function completeImageUploadAction(publicUrl: string) {
   try {
     await requireAdmin();
 
+    // Only our own storage: the server must not fetch an address the request chose.
+    if (new URL(publicUrl).origin !== new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").origin) {
+      throw new Error("Unexpected image address");
+    }
+
     const res = await fetch(publicUrl, { cache: "no-store" });
     if (!res.ok) {
       throw new Error(`Failed to read uploaded image (${res.status})`);

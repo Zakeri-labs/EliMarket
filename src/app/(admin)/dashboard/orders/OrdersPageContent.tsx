@@ -1,7 +1,11 @@
 "use client";
 
+import { resolveLocalizedName } from "@/lib/i18n/product-name";
+import Link from "next/link";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { notifyFormError } from "@/app/utils/form-notify";
 import { KpiRow } from "@/app/(admin)/_components/KpiCards";
-import { OMAN_TIME_ZONE } from "@/config/oman-time";
+import { formatOmanDateTime } from "@/config/oman-time";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -25,12 +29,11 @@ import { getDeliveryProofUrlAction } from "@/app/_actions/rider-actions";
 import { useOrders } from "@/app/(admin)/dashboard/_hooks/use-orders";
 import { mockAdminOrders } from "@/app/(admin)/dashboard/_mocks/order-mock";
 import { useFormAction } from "@/app/hooks/use-form-action";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/app/utils/cn";
-import { getNumberLocale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/use-translations";
 import { Price } from "@/components/ui/Price";
 import type { Order, OrderStatus } from "@/app/_types/database.types";
@@ -47,16 +50,13 @@ const STATUS_FLOW: OrderStatus[] = [
 const STATUS_BADGE: Record<OrderStatus, string> = {
   pending: "bg-amber-50 text-amber-800 border-amber-200",
   confirmed: "bg-background text-foreground border-border",
-  preparing: "bg-background text-zinc-700 border-border",
+  preparing: "bg-background text-foreground border-border",
   out_for_delivery: "bg-sky-50 text-sky-800 border-sky-200",
-  delivered: "bg-emerald-50 text-emerald-800 border-emerald-200",
+  delivered: "bg-teal-50 text-teal-800 border-teal-200",
   cancelled: "bg-red-50 text-red-700 border-red-200",
 };
 
-const selectClass =
-  "rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent disabled:cursor-not-allowed disabled:opacity-55";
-
-function allowedStatusOptions(current: OrderStatus): OrderStatus[] {
+function allowedStatusOptions(current: OrderStatus, hasRider: boolean): OrderStatus[] {
   if (current === "cancelled" || current === "delivered") {
     return [current];
   }
@@ -65,9 +65,9 @@ function allowedStatusOptions(current: OrderStatus): OrderStatus[] {
   if (idx >= 0 && idx < STATUS_FLOW.length - 1) {
     options.push(STATUS_FLOW[idx + 1]);
   }
-  // Preparing → shipping is normally via assign; still allow manual override
-  if (current === "preparing" && !options.includes("out_for_delivery")) {
-    options.push("out_for_delivery");
+  // Nobody could deliver it: without a rider, the way out of preparing is the assign button.
+  if (current === "preparing" && !hasRider) {
+    return [current, "cancelled"];
   }
   // Return to kitchen if delivery failed
   if (current === "out_for_delivery") {
@@ -92,6 +92,7 @@ function ProofButton({
   label: string;
   className?: string;
 }) {
+  const { t } = useTranslations();
   const [loading, setLoading] = useState(false);
   return (
     <button
@@ -104,12 +105,16 @@ function ProofButton({
       onClick={async () => {
         setLoading(true);
         const w = window.open("", "_blank");
-        const res = await getDeliveryProofUrlAction(orderId, kind);
-        setLoading(false);
-        if (res.success && res.data?.url && w) {
-          w.location.href = res.data.url;
-        } else {
+        if (w) w.opener = null;
+        try {
+          const res = await getDeliveryProofUrlAction(orderId, kind);
+          if (!res.success || !res.data?.url) throw new Error(res.success ? t("adminUi.proofMissing") : res.error);
+          if (w) w.location.href = res.data.url;
+        } catch (error) {
           w?.close();
+          notifyFormError(error instanceof Error ? error.message : t("adminUi.proofMissing"));
+        } finally {
+          setLoading(false);
         }
       }}
     >
@@ -123,10 +128,17 @@ export default function OrdersPageContent() {
   const { data: orders, isPending, error: loadError, refetch } = useOrders();
   const { runAction, isPending: isActionPending } = useFormAction();
   const { t, locale } = useTranslations();
+  const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const highlightId = searchParams.get("highlight");
   const [riderIds, setRiderIds] = useState<Record<string, string>>({});
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+  const applyStatus = (orderId: string, next: OrderStatus) => {
+    runAction(() => updateOrderStatusAction(orderId, next), {
+      successMessage: t("notifications.orderStatusUpdated"),
+      onSuccess: () => void refetch(),
+    });
+  };
 
   const ridersQuery = useQuery({
     queryKey: ["riders"],
@@ -155,8 +167,8 @@ export default function OrdersPageContent() {
   });
   const list = isSkeleton ? skeletonOrders : controls.visible;
   const presentStatuses = useMemo(
-    () => [...new Set((orders ?? []).map((order) => order.status))],
-    [orders],
+    () => [...new Set([...(orders ?? []).map((order) => order.status), ...(statusFilter ? [statusFilter as OrderStatus] : [])])],
+    [orders, statusFilter],
   );
 
   const riderLabel = (order: Order) => {
@@ -169,16 +181,20 @@ export default function OrdersPageContent() {
   useEffect(() => {
     if (!highlightId) return;
     const el = document.getElementById(`order-${highlightId}`);
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    el?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "center",
+    });
   }, [highlightId, controls.page, isSkeleton]);
 
   return (
     <AdminShell title={t("admin.orders.title")} subtitle={t("admin.orders.subtitle")}>
       <KpiRow
+        hidden={Boolean(loadError) && !orders}
         items={[{ label: t("adminUi.total"), value: orders?.length, icon: "bag", tone: "teal" },
 { label: t("adminUi.needsAction"), value: orders?.filter((o) => ["pending", "confirmed", "preparing"].includes(o.status)).length, icon: "clock", tone: "amber" },
 { label: t("adminUi.onTheWay"), value: orders?.filter((o) => o.status === "out_for_delivery").length, icon: "truck", tone: "sky" },
-{ label: t("adminUi.delivered"), value: orders?.filter((o) => o.status === "delivered").length, icon: "check", tone: "slate" },]}
+{ label: t("adminUi.delivered"), value: orders?.filter((o) => o.status === "delivered").length, icon: "check", tone: "teal" },]}
       />
       <div className="space-y-4">
         {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
@@ -219,7 +235,7 @@ export default function OrdersPageContent() {
           const assignReady = canAssignRider(status);
           const selectedRider = riderIds[order.id] ?? "";
           const assignedName = riderLabel(order);
-          const statusOptions = allowedStatusOptions(status);
+          const statusOptions = allowedStatusOptions(status, Boolean(order.rider_id));
 
           return (
             <article
@@ -240,7 +256,7 @@ export default function OrdersPageContent() {
                     </span>
                   </p>
                   <p className="mt-0.5 text-xs text-muted">
-                    {new Date(order.created_at).toLocaleString(getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE })}
+                    {formatOmanDateTime(order.created_at, locale)}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -255,7 +271,7 @@ export default function OrdersPageContent() {
                   <Price
                     amount={Number(order.total)}
                     currency={order.currency}
-                    className="rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-white"
+                    className="text-sm font-semibold text-foreground"
                   />
                 </div>
               </div>
@@ -289,7 +305,7 @@ export default function OrdersPageContent() {
                   {order.address?.address_line ? (
                     <p className="flex items-start gap-2 text-foreground">
                       <AppIcon icon={MapPin} size="sm" className="mt-0.5 text-foreground" />
-                      <span>{order.address.address_line}</span>
+                      <span dir="auto">{order.address.address_line}</span>
                     </p>
                   ) : null}
                   <p className="flex items-start gap-2 text-foreground">
@@ -297,7 +313,7 @@ export default function OrdersPageContent() {
                     <span>
                       {t("admin.orders.payment")}:{" "}
                       {t(`admin.payment.${order.payment_method}`)}
-                      {order.payment_status ? ` · ${order.payment_status}` : ""}
+                      {order.payment_status ? ` · ${t(`adminUi.payment_${order.payment_status}`)}` : ""}
                     </span>
                   </p>
                   {assignedName ? (
@@ -317,9 +333,7 @@ export default function OrdersPageContent() {
                       />
                       <span>
                         {t("admin.orders.pickedUpAt")}:{" "}
-                        {new Date(order.picked_up_at).toLocaleString(
-                          getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE },
-                        )}
+                        {formatOmanDateTime(order.picked_up_at, locale)}
                       </span>
                     </p>
                   ) : null}
@@ -341,14 +355,12 @@ export default function OrdersPageContent() {
                       {order.failed_delivery_note ? (
                         <p className="mt-1 text-red-700">
                           {t("admin.orders.failedDeliveryNote")}:{" "}
-                          {order.failed_delivery_note}
+                          <bdi>{order.failed_delivery_note}</bdi>
                         </p>
                       ) : null}
                       {order.failed_delivery_at ? (
                         <p className="mt-1 text-xs text-red-600">
-                          {new Date(order.failed_delivery_at).toLocaleString(
-                            getNumberLocale(locale), { timeZone: OMAN_TIME_ZONE },
-                          )}
+                          {formatOmanDateTime(order.failed_delivery_at, locale)}
                         </p>
                       ) : null}
                       {order.failed_delivery_photo_path ? (
@@ -366,7 +378,7 @@ export default function OrdersPageContent() {
                       <li key={item.id} className="flex items-center gap-2">
                         <AppIcon icon={Package} size="xs" className="text-foreground" />
                         <span>
-                          {item.product?.name ?? item.product_id} × {item.quantity}
+                          {item.product ? resolveLocalizedName(item.product, locale) : item.product_id} × {item.quantity}
                         </span>
                       </li>
                     ))}
@@ -380,18 +392,13 @@ export default function OrdersPageContent() {
                     </label>
                     <Select
                       value={status}
-                      disabled={isActionPending || status === "delivered"}
+                      aria-label={t("admin.orders.statusLabel")}
+                      disabled={isActionPending || statusOptions.length <= 1}
                       onChange={(e) => {
                         const next = e.target.value as OrderStatus;
-                        setPendingOrderId(order.id);
-                        runAction(() => updateOrderStatusAction(order.id, next), {
-                          successMessage: t("notifications.orderStatusUpdated"),
-                          onSuccess: () => {
-                            setPendingOrderId(null);
-                            void refetch();
-                          },
-                          onError: () => setPendingOrderId(null),
-                        });
+                        // A cancelled order cannot come back, so this one asks first.
+                        if (next === "cancelled") setCancelOrderId(order.id);
+                        else applyStatus(order.id, next);
                       }}
                     >
                       {statusOptions.map((k) => (
@@ -406,9 +413,6 @@ export default function OrdersPageContent() {
                         </option>
                       ) : null}
                     </Select>
-                    <p className="mt-1 text-xs leading-relaxed text-muted">
-                      {t("admin.orders.statusHint")}
-                    </p>
                   </div>
 
                   <div>
@@ -416,6 +420,7 @@ export default function OrdersPageContent() {
                       {t("admin.orders.riderLabel")}
                     </label>
                     <Select
+                      aria-label={t("admin.orders.riderLabel")}
                       disabled={
                         ridersQuery.isLoading ||
                         !assignReady ||
@@ -427,15 +432,33 @@ export default function OrdersPageContent() {
                       }
                     >
                       <option value="">{t("admin.orders.riderPlaceholder")}</option>
+                      {order.rider_id && !(ridersQuery.data ?? []).some((rider) => rider.id === order.rider_id) ? (
+                        <option value={order.rider_id}>{riderLabel(order)}</option>
+                      ) : null}
                       {(ridersQuery.data ?? []).map((rider) => (
                         <option key={rider.id} value={rider.id}>
                           {rider.full_name || rider.phone || rider.id.slice(0, 8)}
                         </option>
                       ))}
                     </Select>
-                    {!assignReady && status !== "out_for_delivery" && status !== "delivered" ? (
-                      <p className="mt-1 text-xs leading-relaxed text-amber-700">
-                        {t("admin.orders.assignAfterPreparing")}
+                    {ridersQuery.error ? (
+                      <p className="mt-1 text-xs leading-relaxed text-red-700">{t("table.loadFailed")}</p>
+                    ) : assignReady && ridersQuery.data?.length === 0 ? (
+                      <p className="mt-1 text-xs leading-relaxed text-muted">
+                        {t("adminUi.noRiders")}{" "}
+                        <Link href="/dashboard/riders" className="font-medium text-accent-dark underline">
+                          {t("adminUi.goToRiders")}
+                        </Link>
+                      </p>
+                    ) : !assignReady ? (
+                      <p className="mt-1 text-xs leading-relaxed text-muted">
+                        {status === "out_for_delivery"
+                          ? t("adminUi.riderLockedOnWay")
+                          : status === "delivered"
+                            ? t("adminUi.riderLockedDelivered")
+                            : status === "cancelled"
+                              ? t("adminUi.riderLockedCancelled")
+                              : t("admin.orders.assignAfterPreparing")}
                       </p>
                     ) : null}
                   </div>
@@ -481,7 +504,7 @@ export default function OrdersPageContent() {
                         "noopener,noreferrer",
                       );
                     }}
-                    className="inline-flex items-center justify-center gap-2 admin-card px-3 py-2 text-sm font-medium text-foreground hover:border-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-55"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-input bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-accent/60 md:min-h-10"
                   >
                     <AppIcon icon={Printer} size="sm" />
                     {t("admin.orders.printInvoice")}
@@ -496,7 +519,25 @@ export default function OrdersPageContent() {
             {t("admin.orders.empty")}
           </p>
         )}
+        <ListPager list={controls} />
+        {!isSkeleton && orders?.length ? (
+          <p className="text-center text-xs leading-relaxed text-muted">{t("admin.orders.statusHint")}</p>
+        ) : null}
       </div>
+      <ConfirmDialog
+        open={Boolean(cancelOrderId)}
+        title={t("adminUi.cancelOrderTitle")}
+        description={t("adminUi.cancelOrderBody")}
+        confirmLabel={t("adminUi.cancelOrderYes")}
+        cancelLabel={t("adminUi.keepOrder")}
+        onOpenChange={(next) => {
+          if (!next) setCancelOrderId(null);
+        }}
+        onConfirm={() => {
+          if (cancelOrderId) applyStatus(cancelOrderId, "cancelled");
+          setCancelOrderId(null);
+        }}
+      />
     </AdminShell>
   );
 }

@@ -5,7 +5,7 @@ import { setShowProductDetailExtrasAction } from "@/app/_actions/settings-action
 import { useStoreSettings } from "@/app/_hooks/use-store-settings";
 import { useFormAction } from "@/app/hooks/use-form-action";
 import { cn } from "@/app/utils/cn";
-import { Button } from "@/components/ui/Button";
+import { Switch } from "@/components/ui/Switch";
 import { useTranslations } from "@/i18n/use-translations";
 
 type Props = {
@@ -14,7 +14,8 @@ type Props = {
 };
 
 export function ProductDetailExtrasToggle({ className, compact }: Props) {
-  const { showProductDetailExtras, isLoading } = useStoreSettings();
+  const { showProductDetailExtras, isReady } = useStoreSettings();
+  const isLoading = !isReady;
   const { runAction, isPending } = useFormAction();
   const queryClient = useQueryClient();
   const { t } = useTranslations();
@@ -31,7 +32,7 @@ export function ProductDetailExtrasToggle({ className, compact }: Props) {
   };
 
   return (
-    <div className={cn("flex items-center gap-3", className)}>
+    <div className={cn("flex items-center justify-between gap-4", className)}>
       {!compact && (
         <div className="text-sm">
           <p className="font-medium text-foreground">{t("admin.productExtrasToggle.title")}</p>
@@ -42,26 +43,12 @@ export function ProductDetailExtrasToggle({ className, compact }: Props) {
           </p>
         </div>
       )}
-      <Button
-        type="button"
-        variant={showProductDetailExtras ? "secondary" : "primary"}
-        size={compact ? "sm" : "md"}
-        disabled={isLoading}
-        loading={isPending}
-        loadingLabel={t("common.saving")}
-        onClick={toggle}
-        className={cn(
-          !showProductDetailExtras && "bg-accent text-white hover:opacity-90",
-          showProductDetailExtras && "border-border",
-        )}
-        title={t("admin.productExtrasToggle.title")}
-      >
-        {isLoading
-          ? "…"
-          : showProductDetailExtras
-            ? t("admin.productExtrasToggle.on")
-            : t("admin.productExtrasToggle.off")}
-      </Button>
+      <Switch
+        checked={showProductDetailExtras}
+        onChange={() => toggle()}
+        label={t("admin.productExtrasToggle.title")}
+        disabled={isLoading || isPending}
+      />
     </div>
   );
 }

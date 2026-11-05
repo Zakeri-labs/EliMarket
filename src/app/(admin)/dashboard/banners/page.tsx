@@ -10,7 +10,7 @@ import {
   getAdminHeroBannersAction,
   updateHeroBannerAction,
 } from "@/app/_actions/banner-actions";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -124,7 +124,7 @@ function BannerImageField({
 
       <div className="flex flex-wrap items-center gap-2">
         <label className={cn("cursor-pointer", uploading && "pointer-events-none opacity-60")}>
-          <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
+          <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-input bg-card px-4 py-2 text-sm md:min-h-10">
             {uploading ? (
               <Spinner size="sm" className="text-foreground" />
             ) : (
@@ -168,15 +168,19 @@ function BannerImageField({
   );
 }
 
+function bannerTitle(banner: HeroBanner, locale: Locale) {
+  return banner[`title_${locale}`] || banner.title;
+}
+
 export default function AdminBannersPage() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const queryClient = useQueryClient();
   const { runAction, isPending: isActionPending } = useFormAction();
   const { uploadImage, isPending: isUploadPending } = useAdminImageUpload();
   const [editing, setEditing] = useState<HeroBanner | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [langTab, setLangTab] = useState<Locale>("fa");
+  const [langTab, setLangTab] = useState<Locale>(locale);
 
   const { data: banners, isPending, error: loadError } = useQuery({
     queryKey: ["admin-hero-banners"],
@@ -200,7 +204,7 @@ export default function AdminBannersPage() {
 
   const openCreate = () => {
     setEditing(null);
-    setLangTab("fa");
+    setLangTab(locale);
     setForm({
       ...EMPTY_FORM,
       sort_order: banners?.length ?? 0,
@@ -210,7 +214,7 @@ export default function AdminBannersPage() {
 
   const openEdit = (banner: HeroBanner) => {
     setEditing(banner);
-    setLangTab("fa");
+    setLangTab(locale);
     setForm({
       badge: langText(banner.badge_fa, banner.badge_ar, banner.badge_en, banner.badge),
       title: langText(banner.title_fa, banner.title_ar, banner.title_en, banner.title),
@@ -297,6 +301,7 @@ export default function AdminBannersPage() {
         </>
       } title={t("admin.banners.title")} subtitle={t("admin.banners.subtitle")}>
       <KpiRow
+        hidden={Boolean(loadError) && !banners}
         items={[{ label: t("adminUi.total"), value: banners?.length, icon: "banner", tone: "teal" },
 { label: t("adminUi.active"), value: banners?.filter((b) => b.is_active).length, icon: "check", tone: "sky" },
 { label: t("adminUi.inactive"), value: banners?.filter((b) => !b.is_active).length, icon: "hidden", tone: "slate" },]}
@@ -306,7 +311,7 @@ export default function AdminBannersPage() {
         {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
         <ListControls list={list} entity={t("admin.banners.title")} />
         {loadError && !banners ? null : isPending ? (
-          <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {SKELETON_KEYS.map((key) => (
               <li
                 key={key}
@@ -315,33 +320,34 @@ export default function AdminBannersPage() {
             ))}
           </ul>
         ) : banners?.length ? (
-          <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <>
+<ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {list.visible.map((banner) => (
               <li key={banner.id}>
                 <article
                   className={cn(
-                    "flex h-full flex-col overflow-hidden rounded-2xl border bg-white",
+                    "admin-card flex h-full flex-col overflow-hidden",
                     banner.is_active
-                      ? "border-border"
-                      : "border-dashed border-[#d4d4d8] opacity-80",
+                      ? ""
+                      : "border border-dashed border-input",
                   )}
                 >
                   <button
                     type="button"
                     className="relative aspect-[16/7] overflow-hidden bg-background text-start"
                     onClick={() => openEdit(banner)}
-                    aria-label={t("admin.banners.edit")}
+                    aria-label={`${t("admin.banners.edit")}: ${bannerTitle(banner, locale) || banner.id.slice(0, 8)}`}
                   >
                     {banner.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={banner.image_url}
                         alt=""
-                        className="h-full w-full object-cover"
+                        className={cn("h-full w-full object-cover", !banner.is_active && "opacity-80")}
                       />
                     ) : (
                       <span className="flex h-full items-center justify-center bg-accent text-sm font-medium text-white">
-                        {banner.title || t("admin.banners.formTitle")}
+                        {bannerTitle(banner, locale) || t("admin.banners.formTitle")}
                       </span>
                     )}
                     {!banner.is_active && (
@@ -353,7 +359,7 @@ export default function AdminBannersPage() {
                   <div className="flex items-start justify-between gap-2 p-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold">
-                        {banner.title || t("admin.banners.titlePlaceholder")}
+                        {bannerTitle(banner, locale) || t("admin.banners.titlePlaceholder")}
                       </p>
                       <p className="mt-0.5 truncate text-xs text-muted">
                         {t("admin.banners.sortOrderLabel")} {banner.sort_order}
@@ -379,8 +385,10 @@ export default function AdminBannersPage() {
               </li>
             ))}
           </ul>
+<ListPager list={list} />
+</>
         ) : (
-          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
+          <p className="admin-card px-4 py-10 text-center text-sm text-muted">
             {t("admin.banners.empty")}
           </p>
         )}
@@ -501,7 +509,7 @@ export default function AdminBannersPage() {
                     className={cn(
                       "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
                       langTab === loc
-                        ? "bg-white text-foreground"
+                        ? "bg-card font-semibold text-accent-dark shadow-sm"
                         : "text-muted hover:text-foreground",
                     )}
                     onClick={() => setLangTab(loc)}

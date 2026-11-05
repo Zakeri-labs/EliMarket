@@ -1,13 +1,15 @@
 "use client";
 
+import { formatCount } from "@/i18n/config";
+import { resolveCategoryName } from "@/lib/i18n/category-name";
+import { resolveLocalizedName } from "@/lib/i18n/product-name";
 import { cn } from "@/app/utils/cn";
 import { KpiRow } from "@/app/(admin)/_components/KpiCards";
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check, Sparkles, Star, Upload } from "lucide-react";
+import { Check, Plus, Sparkles, Star, Trash2, Upload } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   createProductAction,
@@ -137,18 +139,82 @@ const DEFAULT_FORM_VALUES: FormValues = {
   variant_label: "",
 };
 
+type ProductRowState = {
+  drafts: Record<string, string>;
+  setDraft: (id: string, value: string) => void;
+  saveStock: (id: string) => void;
+  savingId: string | null;
+  isPending: boolean;
+  onEdit: (product: Product) => void;
+  onDelete: (id: string) => void;
+};
+
+// Cells read live state from here so the columns stay stable: rebuilding them remounts
+// every cell, which dropped focus from the stock field after each keystroke.
+const ProductRowContext = createContext<ProductRowState | null>(null);
+
+function useProductRow() {
+  const value = useContext(ProductRowContext);
+  if (!value) throw new Error("ProductRowContext is missing");
+  return value;
+}
+
+function StockCell({ product }: { product: Product }) {
+  const { t } = useTranslations();
+  const { drafts, setDraft, saveStock, savingId, isPending } = useProductRow();
+  const draft = drafts[product.id] ?? String(product.stock);
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        type="number"
+        min={0}
+        aria-label={t("admin.products.colStock")}
+        className="w-16 rounded-xl border border-input bg-card px-2"
+        value={draft}
+        onChange={(e) => setDraft(product.id, e.target.value)}
+      />
+      <button
+        type="button"
+        title={t("admin.products.saveStock")}
+        aria-label={t("admin.products.saveStock")}
+        className={cn(
+          "inline-flex h-11 min-w-11 items-center justify-center rounded-full bg-accent text-white transition-colors hover:bg-accent-dark disabled:opacity-50 md:h-9 md:min-w-9",
+          // Only offered once the number changed; the space stays so columns do not shift.
+          draft === String(product.stock) && "invisible",
+        )}
+        disabled={isPending}
+        onClick={() => saveStock(product.id)}
+      >
+        {isPending && savingId === product.id ? <Spinner size="sm" /> : <AppIcon icon={Check} size="xs" />}
+      </button>
+    </div>
+  );
+}
+
+function ProductActionsCell({ product }: { product: Product }) {
+  const { t } = useTranslations();
+  const { onEdit, onDelete } = useProductRow();
+  return (
+    <RowIconActions
+      editLabel={t("admin.products.edit")}
+      deleteLabel={t("admin.products.delete")}
+      onEdit={() => onEdit(product)}
+      onDelete={() => onDelete(product.id)}
+    />
+  );
+}
 export default function AdminProductsPage() {
   const { data: products, refetch, isPending: isProductsPending, error: loadError } = useAdminProducts();
   const { runAction, isPending: isActionPending } = useFormAction();
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [editing, setEditing] = useState<Product | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [stockDrafts, setStockDrafts] = useState<Record<string, string>>({});
   const [savingStockId, setSavingStockId] = useState<string | null>(null);
-  const [descriptionTab, setDescriptionTab] = useState<DescriptionLocale>("fa");
-  const [featuresTab, setFeaturesTab] = useState<DescriptionLocale>("fa");
+  const [descriptionTab, setDescriptionTab] = useState<DescriptionLocale>(locale);
+  const [featuresTab, setFeaturesTab] = useState<DescriptionLocale>(locale);
   const [features, setFeatures] = useState<FeatureDraft[]>([{ ...EMPTY_FEATURE }]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [galleryBusy, setGalleryBusy] = useState(false);
@@ -212,13 +278,20 @@ export default function AdminProductsPage() {
   });
 
   useEffect(() => {
-    getCategoriesAction().then((r) => {
-      if (r.success && r.data) setCategories(r.data);
-    });
-    getAdminBrandsAction().then((r) => {
-      if (r.success && r.data) setBrands(r.data);
-    });
-  }, []);
+    const notifyFailed = () => notifyFormError(t("table.loadFailed"));
+    getCategoriesAction()
+      .then((r) => {
+        if (r.success && r.data) setCategories(r.data);
+        else notifyFailed();
+      })
+      .catch(notifyFailed);
+    getAdminBrandsAction()
+      .then((r) => {
+        if (r.success && r.data) setBrands(r.data);
+        else notifyFailed();
+      })
+      .catch(notifyFailed);
+  }, [t]);
 
   const closeForm = () => {
     setFormOpen(false);
@@ -235,8 +308,8 @@ export default function AdminProductsPage() {
     setFeatures([{ ...EMPTY_FEATURE }]);
     setGallery([]);
     setImageUrlDraft("");
-    setDescriptionTab("fa");
-    setFeaturesTab("fa");
+    setDescriptionTab(locale);
+    setFeaturesTab(locale);
     setFormOpen(true);
   };
 
@@ -278,19 +351,11 @@ export default function AdminProductsPage() {
     );
     setGallery(galleryFromProduct(product));
     setImageUrlDraft("");
-    setDescriptionTab("fa");
-    setFeaturesTab("fa");
+    setDescriptionTab(locale);
+    setFeaturesTab(locale);
     setFormOpen(true);
   };
 
-  // Sync draft stock inputs when the query returns fresh data (initial load,
-  // refetch after a save). Adjusted during render rather than in an effect
-  // per https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
-  const [syncedProducts, setSyncedProducts] = useState<Product[] | undefined>(undefined);
-  if (products && products !== syncedProducts) {
-    setSyncedProducts(products);
-    setStockDrafts(Object.fromEntries(products.map((p) => [p.id, String(p.stock)])));
-  }
 
   const onSubmit = form.handleSubmit((values) => {
     const payload = {
@@ -337,6 +402,10 @@ export default function AdminProductsPage() {
         },
       });
     }
+  }, (errors) => {
+    const persian = "name" in errors;
+    if (persian) setDescriptionTab("fa");
+    notifyFormError(t(persian ? "adminUi.formInvalidFa" : "adminUi.formInvalid"));
   });
 
   const addGalleryItem = (item: GalleryItem) => {
@@ -398,17 +467,47 @@ export default function AdminProductsPage() {
   };
 
   const saveStock = (productId: string) => {
+    const raw = stockDrafts[productId]?.trim();
+    const value = Number(raw);
+    if (!raw || !Number.isInteger(value) || value < 0) {
+      notifyFormError(t("adminUi.stockInvalid"));
+      return;
+    }
     setSavingStockId(productId);
-    const value = Number(stockDrafts[productId]);
-    if (Number.isNaN(value) || value < 0) return;
     runAction(() => updateProductStockAction(productId, value), {
       successMessage: t("notifications.stockUpdated"),
-      onSuccess: () => refetch(),
+      onSuccess: () => {
+        setSavingStockId(null);
+        void refetch().then(() =>
+          setStockDrafts((drafts) => {
+            const next = { ...drafts };
+            delete next[productId];
+            return next;
+          }),
+        );
+      },
+      onError: () => setSavingStockId(null),
     });
   };
 
   const isSkeleton = isProductsPending;
   const tableData = isSkeleton ? mockAdminTableProducts() : (products ?? []);
+
+  const deleteProduct = (id: string) =>
+    runAction(() => deleteProductAction(id), {
+      successMessage: t("notifications.productDeleted"),
+      onSuccess: () => refetch(),
+    });
+
+  const rowState: ProductRowState = {
+    drafts: stockDrafts,
+    setDraft: (id, value) => setStockDrafts((s) => ({ ...s, [id]: value })),
+    saveStock,
+    savingId: savingStockId,
+    isPending: isActionPending,
+    onEdit: openEdit,
+    onDelete: deleteProduct,
+  };
 
   const columns = useMemo<ColumnDef<Product>[]>(
     () => [
@@ -436,13 +535,14 @@ export default function AdminProductsPage() {
         },
       },
       {
-        accessorKey: "name",
+        id: "name",
+        accessorFn: (product) => resolveLocalizedName(product, locale),
         meta: { minWidth: 300 },
         header: t("admin.products.colName"),
         cell: ({ row }) => (
           <div>
-            <div className="flex items-center gap-1.5">
-              <p className="font-medium">{row.original.name}</p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <p className="font-medium">{resolveLocalizedName(row.original, locale)}</p>
               {(row.original.generation_status === "pending" ||
                 row.original.generation_status === "generating") && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
@@ -482,50 +582,19 @@ export default function AdminProductsPage() {
         accessorKey: "stock",
         meta: { minWidth: 190 },
         header: t("admin.products.colStock"),
-        cell: ({ row }) => (
-          <div className="flex items-center gap-1">
-            <input
-              type="number"
-              min={0}
-              aria-label={t("admin.products.colStock")}
-              className="w-16 rounded-xl border border-input bg-card px-2"
-              value={stockDrafts[row.original.id] ?? row.original.stock}
-              onChange={(e) =>
-                setStockDrafts((s) => ({ ...s, [row.original.id]: e.target.value }))
-              }
-            />
-            <button
-              type="button"
-              title={t("admin.products.saveStock")}
-              aria-label={t("admin.products.saveStock")}
-              className={cn(
-                "inline-flex h-11 min-w-11 items-center justify-center rounded-full bg-accent text-white transition-colors hover:bg-accent-dark disabled:opacity-50 md:h-9 md:min-w-9",
-                // Only offered once the number changed; the space stays so columns do not shift.
-                (stockDrafts[row.original.id] ?? String(row.original.stock)) ===
-                  String(row.original.stock) && "invisible",
-              )}
-              disabled={isActionPending}
-              onClick={() => saveStock(row.original.id)}
-            >
-              {isActionPending && savingStockId === row.original.id ? (
-                <Spinner size="sm" />
-              ) : (
-                <AppIcon icon={Check} size="xs" />
-              )}
-            </button>
-          </div>
-        ),
+        cell: ({ row }) => <StockCell product={row.original} />,
       },
       {
         accessorKey: "is_active",
+        enableGlobalFilter: false,
         header: t("admin.products.colStatus"),
         cell: ({ row }) => (
           <div>
             <span
               className={`rounded-full px-2 py-0.5 text-xs ${
                 row.original.is_active
-                  ? "bg-emerald-100 text-emerald-800"
-                  : "bg-background text-zinc-600"
+                  ? "bg-teal-100 text-teal-800"
+                  : "bg-background text-muted"
               }`}
             >
               {row.original.is_active
@@ -569,46 +638,31 @@ export default function AdminProductsPage() {
         header: t("admin.products.colActions"),
         enableSorting: false,
         enableColumnFilter: false,
-        cell: ({ row }) => (
-          <RowIconActions
-            editLabel={t("admin.products.edit")}
-            deleteLabel={t("admin.products.delete")}
-            onEdit={() => openEdit(row.original)}
-            onDelete={() =>
-              runAction(() => deleteProductAction(row.original.id), {
-                successMessage: t("notifications.productDeleted"),
-                onSuccess: () => refetch(),
-              })
-            }
-          />
-        ),
+        cell: ({ row }) => <ProductActionsCell product={row.original} />,
       },
     ],
-    [t, runAction, stockDrafts, openEdit],
+    [t, locale],
   );
 
   return (
     <AdminShell
       title={t("admin.products.title")}
       subtitle={t("admin.products.subtitle")}
+      actions={
+        <Button type="button" size="sm" onClick={openCreate}>
+          <AppIcon icon={Plus} size="xs" />
+          {t("admin.products.newProduct")}
+        </Button>
+      }
     >
       <KpiRow
+        hidden={Boolean(loadError) && !products}
         items={[{ label: t("adminUi.total"), value: products?.length, icon: "box", tone: "teal" },
-{ label: t("adminUi.active"), value: products?.filter((p) => p.is_active).length, icon: "check", tone: "sky" },
+{ label: t("adminUi.active"), value: products?.filter((p) => p.is_active).length, icon: "check", tone: "teal" },
 { label: t("adminUi.lowStock"), value: products?.filter((p) => p.stock > 0 && p.stock <= (p.low_stock_threshold ?? 5)).length, icon: "alert", tone: "amber" },
 { label: t("adminUi.outOfStock"), value: products?.filter((p) => p.stock <= 0).length, icon: "boxOff", tone: "rose" },]}
       />
       <div className="space-y-4">
-        <Link
-          href="/dashboard/products/smart"
-          className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-background px-4 py-3"
-        >
-          <div>
-            <p className="text-sm font-semibold text-foreground">{t("admin.products.smartRegister")}</p>
-            <p className="text-xs text-muted">{t("admin.smartProduct.subtitle")}</p>
-          </div>
-          <span className="shrink-0 text-sm font-medium text-foreground">→</span>
-        </Link>
         <Modal
           open={formOpen}
           onOpenChange={(open) => {
@@ -647,7 +701,7 @@ export default function AdminProductsPage() {
                 type="button"
                 className={`min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8 ${
                   descriptionTab === tab.key
-                    ? "bg-white text-foreground"
+                    ? "bg-card font-semibold text-accent-dark shadow-sm"
                     : "text-muted hover:text-foreground"
                 }`}
                 onClick={() => setDescriptionTab(tab.key)}
@@ -656,21 +710,33 @@ export default function AdminProductsPage() {
               </button>
             ))}
           </div>
+          <label className="block text-xs text-muted">
+          <span className="mb-1 block">{t("admin.products.colName")}</span>
           <input
             key={`name-${descriptionTab}`}
             {...form.register(
               descriptionTab === "fa" ? "name" : descriptionTab === "ar" ? "name_ar" : "name_en",
             )}
             placeholder={t("admin.products.namePlaceholder")}
-            className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+            className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
             dir={descriptionTab === "en" ? "ltr" : "rtl"}
           />
+          {descriptionTab === "fa" && form.formState.errors.name ? (
+            <span className="mt-1 block text-xs text-red-700">{form.formState.errors.name.message}</span>
+          ) : null}
+          </label>
+          <label className="block text-xs text-muted">
+          <span className="mb-1 block">{t("adminUi.addressLabel")}</span>
           <input
             {...form.register("slug")}
             placeholder={t("admin.products.slugPlaceholder")}
-            className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+            className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
             dir="ltr"
           />
+          {form.formState.errors.slug ? (
+            <span className="mt-1 block text-xs text-red-700">{form.formState.errors.slug.message}</span>
+          ) : null}
+          </label>
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <p className="text-xs font-medium text-muted">
@@ -685,7 +751,8 @@ export default function AdminProductsPage() {
                 onClick={() => {
                   const name = form.getValues("name").trim();
                   if (!name) {
-                    notifyFormError(t("admin.products.validationName"), {
+                    setDescriptionTab("fa");
+                    notifyFormError(t("adminUi.formInvalidFa"), {
                       title: t("notifications.errorTitle"),
                     });
                     return;
@@ -719,7 +786,7 @@ export default function AdminProductsPage() {
                     : "description_en",
               )}
               placeholder={t("admin.products.descriptionPlaceholder")}
-              className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
               rows={4}
               dir={DESCRIPTION_TABS.find((tab) => tab.key === descriptionTab)?.dir ?? "rtl"}
             />
@@ -740,7 +807,7 @@ export default function AdminProductsPage() {
                     onValueChange={field.onChange}
                     onBlur={field.onBlur}
                     placeholder={t("admin.products.pricePlaceholder")}
-                    className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+                    className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
                   />
                   {fieldState.error ? (
                     <p className="mt-1 text-xs text-red-600">{fieldState.error.message}</p>
@@ -762,7 +829,7 @@ export default function AdminProductsPage() {
                     onValueChange={field.onChange}
                     onBlur={field.onBlur}
                     placeholder={t("admin.products.pricePlaceholder")}
-                    className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+                    className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
                   />
                   {fieldState.error ? (
                     <p className="mt-1 text-xs text-red-600">{fieldState.error.message}</p>
@@ -773,22 +840,24 @@ export default function AdminProductsPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="mb-1 block text-xs text-muted">
-                {t("admin.products.stockLabel")}
-              </label>
+            <label className="block text-xs text-muted">
+              <span className="mb-1 block">{t("admin.products.stockLabel")}</span>
               <input
                 {...form.register("stock", { valueAsNumber: true })}
                 type="number"
                 min={0}
-                className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+                className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
               />
-            </div>
+              {form.formState.errors.stock ? (
+                <span className="mt-1 block text-red-700">{t("adminUi.stockInvalid")}</span>
+              ) : null}
+            </label>
             <div>
               <label className="mb-1 block text-xs text-muted">
                 {t("admin.products.inventoryUnit")}
               </label>
               <Select
+                aria-label={t("admin.products.inventoryUnit")}
                 value={String(form.watch("inventory_unit") ?? "")}
                 onChange={(e) =>
                 form.setValue("inventory_unit", e.target.value as never, { shouldDirty: true })
@@ -802,19 +871,21 @@ export default function AdminProductsPage() {
               </Select>
             </div>
           </div>
-          <div>
-            <label className="mb-1 block text-xs text-muted">
-              {t("admin.products.lowStockThreshold")}
-            </label>
+          <label className="block text-xs text-muted">
+            <span className="mb-1 block">{t("admin.products.lowStockThreshold")}</span>
             <input
               {...form.register("low_stock_threshold", { valueAsNumber: true })}
               type="number"
               min={0}
-              className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+              className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
             />
-          </div>
+            {form.formState.errors.low_stock_threshold ? (
+              <span className="mt-1 block text-red-700">{t("adminUi.thresholdInvalid")}</span>
+            ) : null}
+          </label>
 
           <Select
+            aria-label={t("admin.nav.categories")}
             value={String(form.watch("category_id") ?? "")}
             onChange={(e) =>
             form.setValue("category_id", e.target.value as never, { shouldDirty: true })
@@ -823,12 +894,13 @@ export default function AdminProductsPage() {
             <option value="">{t("admin.products.noCategory")}</option>
             {flattenCategoryTree(categories).map((c) => (
               <option key={c.id} value={c.id}>
-                {`${"— ".repeat(categoryDepth(categories, c))}${c.name}`}
+                {`${"— ".repeat(categoryDepth(categories, c))}${resolveCategoryName(c, locale)}`}
               </option>
             ))}
           </Select>
 
           <Select
+            aria-label={t("admin.nav.brands")}
             value={String(form.watch("brand_id") ?? "")}
             onChange={(e) =>
             form.setValue("brand_id", e.target.value as never, { shouldDirty: true })
@@ -845,11 +917,12 @@ export default function AdminProductsPage() {
           <input
             {...form.register("sku")}
             placeholder={t("admin.products.skuPlaceholder")}
-            className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+            className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
             dir="ltr"
           />
 
           <Select
+            aria-label={t("adminUi.variantParent")}
             value={String(form.watch("parent_product_id") ?? "")}
             onChange={(e) =>
             form.setValue("parent_product_id", e.target.value as never, { shouldDirty: true })
@@ -860,7 +933,7 @@ export default function AdminProductsPage() {
               .filter((p) => p.id !== editing?.id)
               .map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name}
+                  {resolveLocalizedName(p, locale)}
                 </option>
               ))}
           </Select>
@@ -868,7 +941,7 @@ export default function AdminProductsPage() {
           <input
             {...form.register("variant_label")}
             placeholder={t("admin.products.variantLabelPlaceholder")}
-            className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+            className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
           />
 
           <div className="space-y-2 rounded-xl border border-border p-3">
@@ -892,7 +965,7 @@ export default function AdminProductsPage() {
                   type="button"
                   className={`min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8 ${
                     featuresTab === tab.key
-                      ? "bg-white text-foreground"
+                      ? "bg-card font-semibold text-accent-dark shadow-sm"
                       : "text-muted hover:text-foreground"
                   }`}
                   onClick={() => setFeaturesTab(tab.key)}
@@ -906,7 +979,7 @@ export default function AdminProductsPage() {
                 const labelKey = `label_${featuresTab}` as const;
                 const valueKey = `value_${featuresTab}` as const;
                 return (
-                  <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                  <div key={index} className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_auto]">
                     <input
                       value={feature[labelKey]}
                       onChange={(event) =>
@@ -962,12 +1035,12 @@ export default function AdminProductsPage() {
                 {t("admin.products.imagesSection")}
               </p>
               <span className="text-xs text-muted">
-                {t("admin.products.maxImages", { count: MAX_GALLERY_IMAGES })}
+                {t("admin.products.maxImages", { count: formatCount(MAX_GALLERY_IMAGES, locale) })}
               </span>
             </div>
             <p className="text-xs leading-5 text-muted">{t("admin.products.imagesHint")}</p>
             {gallery.length > 0 && (
-              <ul className="grid grid-cols-3 gap-2">
+              <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {gallery.map((image, index) => (
                   <li
                     key={`${image.image_url}-${index}`}
@@ -987,6 +1060,7 @@ export default function AdminProductsPage() {
                         <button
                           type="button"
                           title={t("admin.products.setPrimaryImage")}
+                          aria-label={t("admin.products.setPrimaryImage")}
                           className="flex-1 rounded-md bg-white/95 px-1 py-1 text-xs text-foreground"
                           onClick={() =>
                             setGallery((current) => {
@@ -1002,6 +1076,7 @@ export default function AdminProductsPage() {
                       <button
                         type="button"
                         title={t("admin.products.aiImage")}
+                          aria-label={t("admin.products.aiImage")}
                         className="flex-1 rounded-md bg-white/95 px-1 py-1 text-xs text-foreground"
                         onClick={() =>
                           runAction(
@@ -1033,12 +1108,14 @@ export default function AdminProductsPage() {
                       </button>
                       <button
                         type="button"
-                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-xs text-red-600"
+                        className="flex-1 rounded-md bg-white/95 px-1 py-1 text-red-700"
+                        aria-label={t("admin.products.removeImage")}
+                        title={t("admin.products.removeImage")}
                         onClick={() =>
                           setGallery((current) => current.filter((_, itemIndex) => itemIndex !== index))
                         }
                       >
-                        {t("admin.products.removeImage")}
+                        <AppIcon icon={Trash2} size="xs" className="mx-auto" />
                       </button>
                     </div>
                   </li>
@@ -1047,7 +1124,7 @@ export default function AdminProductsPage() {
             )}
             <div className="flex flex-wrap gap-2">
               <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
+                <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-input bg-card px-4 py-2 text-sm md:min-h-10">
                   <AppIcon icon={Upload} size="sm" />
                   {t("admin.products.uploadImages")}
                 </span>
@@ -1068,8 +1145,13 @@ export default function AdminProductsPage() {
               <input
                 value={imageUrlDraft}
                 onChange={(event) => setImageUrlDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter") return;
+                  event.preventDefault();
+                  addImageFromUrl();
+                }}
                 placeholder={t("admin.products.imageUrlPlaceholder")}
-                className="w-full rounded-xl border border-border px-3 py-2.5 text-sm"
+                className="w-full rounded-xl border border-input px-3 py-2.5 text-sm"
                 dir="ltr"
               />
               <Button type="button" variant="secondary" onClick={addImageFromUrl}>
@@ -1089,6 +1171,7 @@ export default function AdminProductsPage() {
         </Modal>
 
         {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
+        <ProductRowContext.Provider value={rowState}>
         <DataTable
             hidden={Boolean(loadError) && !products}
             data={tableData}
@@ -1096,20 +1179,18 @@ export default function AdminProductsPage() {
             entityName={t("admin.products.entityName")}
             isSkeleton={isSkeleton}
             onRefresh={() => void refetch()}
-            onCreateClick={openCreate}
-            createLabel={t("admin.products.newProduct")}
-            onExport={async () =>
-              (products ?? []).map((p) => ({
-                name: p.name,
-                slug: p.slug,
-                price: p.price,
-                stock: p.stock,
-                status: p.is_active
+            onExport={async (rows) =>
+              rows.map((p) => ({
+                [t("admin.products.colName")]: resolveLocalizedName(p, locale),
+                [t("admin.products.colPrice")]: p.price,
+                [t("admin.products.colStock")]: p.stock,
+                [t("admin.products.colStatus")]: p.is_active
                   ? t("admin.products.active")
                   : t("admin.products.inactive"),
               }))
             }
           />
+        </ProductRowContext.Provider>
       </div>
     </AdminShell>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { Select } from "@/components/ui/Select";
 import { omanYmd } from "@/config/oman-time";
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -19,6 +20,8 @@ type Props = {
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
+const HOURS = Array.from({ length: 24 }, (_, hour) => pad(hour));
+const MINUTES = Array.from({ length: 12 }, (_, step) => pad(step * 5));
 const toIso = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
 function parseIso(value: string): Date | null {
@@ -37,6 +40,9 @@ export function DatePicker({ value, onChange, withTime, id, "aria-label": ariaLa
   const rtl = getDirection(locale) === "rtl";
   const selected = parseIso(value);
   const [open, setOpen] = useState(false);
+  const today = omanYmd();
+  const setTime = (hour: string, minute: string) =>
+    onChange(`${value.slice(0, 10) || toIso(cursor)}T${hour}:${minute}`);
   const [cursor, setCursor] = useState<Date>(() => selected ?? (parseIso(omanYmd()) as Date));
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -47,11 +53,13 @@ export function DatePicker({ value, onChange, withTime, id, "aria-label": ariaLa
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
+      // The hour and minute lists render in a portal, outside this panel.
+      if ((e.target as Element).closest?.(".select-pop")) return;
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     };
     // Capture on window runs before Radix's document listener, so Esc closes only this.
     const onEscape = (e: globalThis.KeyboardEvent) => {
-      if (e.key !== "Escape") return;
+      if (e.key !== "Escape" || document.querySelector(".select-pop")) return;
       e.stopPropagation();
       setOpen(false);
       triggerRef.current?.focus();
@@ -141,7 +149,7 @@ export function DatePicker({ value, onChange, withTime, id, "aria-label": ariaLa
         }}
         className="flex w-full items-center justify-between gap-2 bg-card px-3 text-start"
       >
-        <span className={cn(!selected && "text-muted")} dir="ltr">
+        <span className={cn(!selected && "text-muted")} dir="auto">
           {selected
             ? selected.toLocaleDateString(numberLocale, { dateStyle: "medium" }) +
               (withTime && value.length > 10 ? ` ${value.slice(11, 16)}` : "")
@@ -200,11 +208,13 @@ export function DatePicker({ value, onChange, withTime, id, "aria-label": ariaLa
                   data-cursor={isCursor}
                   tabIndex={isCursor ? 0 : -1}
                   aria-pressed={isSelected}
+                  aria-current={toIso(d) === today ? "date" : undefined}
                   aria-label={d.toLocaleDateString(numberLocale, { dateStyle: "full" })}
                   onClick={() => pick(d)}
                   className={cn(
                     "min-h-11 w-full rounded-full md:min-h-10 text-sm transition-colors",
                     isSelected ? "bg-accent text-accent-foreground" : "hover:bg-accent/10",
+                    !isSelected && toIso(d) === today && "ring-1 ring-accent",
                   )}
                 >
                   {d.toLocaleDateString(numberLocale, { day: "numeric" })}
@@ -213,16 +223,30 @@ export function DatePicker({ value, onChange, withTime, id, "aria-label": ariaLa
             })}
           </div>
           {withTime ? (
-            <input
-              type="time"
-              aria-label={ariaLabel}
-              className="mt-2 w-full bg-card px-3"
-              dir="ltr"
-              value={value.slice(11, 16)}
-              onChange={(e) =>
-                onChange(`${value.slice(0, 10) || toIso(cursor)}T${e.target.value || "00:00"}`)
-              }
-            />
+            <div className="mt-2 grid grid-cols-2 gap-2" dir="ltr">
+              <Select
+                aria-label={t("adminUi.hour")}
+                value={value.slice(11, 13) || "00"}
+                onChange={(e) => setTime(e.target.value, value.slice(14, 16) || "00")}
+              >
+                {HOURS.map((hour) => (
+                  <option key={hour} value={hour}>
+                    {hour}
+                  </option>
+                ))}
+              </Select>
+              <Select
+                aria-label={t("adminUi.minute")}
+                value={value.slice(14, 16) || "00"}
+                onChange={(e) => setTime(value.slice(11, 13) || "00", e.target.value)}
+              >
+                {[...new Set([...MINUTES, value.slice(14, 16) || "00"])].sort().map((minute) => (
+                  <option key={minute} value={minute}>
+                    {minute}
+                  </option>
+                ))}
+              </Select>
+            </div>
           ) : null}
           {value ? (
             <button
@@ -232,7 +256,7 @@ export function DatePicker({ value, onChange, withTime, id, "aria-label": ariaLa
                 setOpen(false);
                 triggerRef.current?.focus();
               }}
-              className="mt-2 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full text-sm text-muted hover:bg-background md:min-h-9"
+              className="mt-2 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl text-sm text-muted hover:bg-background md:min-h-9"
             >
               <AppIcon icon={X} size="xs" />
               {t("table.clearDate")}

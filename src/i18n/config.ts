@@ -20,6 +20,11 @@ export function getDirection(locale: Locale): "rtl" | "ltr" {
   return locale === "en" ? "ltr" : "rtl";
 }
 
+/** A count in the language's own digits, so it matches the prices beside it. */
+export function formatCount(value: number, locale: Locale): string {
+  return value.toLocaleString(getNumberLocale(locale), { useGrouping: false });
+}
+
 export function getNumberLocale(locale: Locale): string {
   switch (locale) {
     case "en":

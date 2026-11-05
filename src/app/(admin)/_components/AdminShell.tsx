@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { BRAND_NAME } from "@/config/brand";
 import { Modal } from "@/components/ui/Modal";
 import { useCardReveal, useOmanClock, useSidebarIntro, useTitleCardIntro } from "@/app/(admin)/_components/useAdminMotion";
-import { getNumberLocale } from "@/i18n/config";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -105,7 +104,7 @@ function QuickFind() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden h-11 min-w-0 max-w-sm flex-1 items-center gap-2 rounded-full border border-border px-4 text-sm text-muted transition hover:border-accent/40 hover:text-foreground sm:flex"
+        className="hidden h-11 min-w-0 max-w-sm flex-1 items-center gap-2 rounded-xl border border-border px-4 text-sm text-muted transition hover:border-accent/40 hover:text-foreground sm:flex"
       >
         <AppIcon icon={Search} size="sm" className="shrink-0" />
         <span className="truncate">{t("adminUi.searchPages")}</span>
@@ -156,6 +155,7 @@ export function AdminShell({
   subtitle,
   eyebrow,
   actions,
+  intro = true,
   children,
 }: {
   title: ReactNode;
@@ -164,6 +164,8 @@ export function AdminShell({
   eyebrow?: ReactNode;
   /** Page-level buttons, shown at the end of the title card. */
   actions?: ReactNode;
+  /** Off for the loading fallback, so the real page plays the entrance once. */
+  intro?: boolean;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -176,10 +178,20 @@ export function AdminShell({
   const { runAction, isPending } = useFormAction();
   const { t, locale } = useTranslations();
   const pageRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const wasOpen = useRef(false);
+
+  // Focus follows the phone menu in and back out.
+  useEffect(() => {
+    if (mobileOpen) requestAnimationFrame(() => closeButtonRef.current?.focus());
+    else if (wasOpen.current) menuButtonRef.current?.focus();
+    wasOpen.current = mobileOpen;
+  }, [mobileOpen]);
   const navRef = useSidebarIntro();
-  const titleCardRef = useTitleCardIntro();
+  const titleCardRef = useTitleCardIntro(intro);
   useCardReveal(pageRef);
-  const omanClock = useOmanClock(getNumberLocale(locale));
+  const omanClock = useOmanClock(locale);
   const activeGroup = NAV_GROUPS.find((group) => group.items.some((item) => item.href === pathname));
   const activeItem = activeGroup?.items.find((item) => item.href === pathname);
   const userName = session?.fullName || t("admin.panelLabel");
@@ -197,6 +209,24 @@ export function AdminShell({
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [mobileOpen, setMobileOpen]);
+
+  // The backdrop and close button only exist below this width, so leaving it must close the menu.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const wide = window.matchMedia("(min-width: 1024px)");
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setMobileOpen(false);
+    };
+    wide.addEventListener("change", onChange);
+    return () => wide.removeEventListener("change", onChange);
+  }, [mobileOpen, setMobileOpen]);
+
+  // The shell remounts per page; keep the current item in view in a long menu.
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    const item = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (nav && item) nav.scrollTop = item.offsetTop - nav.clientHeight / 2;
+  }, [pathname, navRef]);
 
   const closeMobile = () => setMobileOpen(false);
   const signOut = () =>
@@ -220,7 +250,7 @@ export function AdminShell({
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 start-0 z-40 flex w-[264px] shrink-0 flex-col overflow-hidden bg-[var(--sidebar)] text-[var(--sidebar-foreground)] shadow-[var(--card-shadow)] transition-[transform,visibility] lg:static lg:h-full lg:translate-x-0 lg:rounded-[var(--card-radius)]",
+          "fixed inset-y-0 start-0 z-40 flex w-[264px] shrink-0 flex-col overflow-hidden bg-[var(--sidebar)] text-[var(--sidebar-foreground)] shadow-[var(--card-shadow)] transition-[translate,visibility] motion-reduce:transition-none lg:static lg:h-full lg:translate-x-0 lg:rounded-[var(--card-radius)]",
           mobileOpen
             ? "visible translate-x-0"
             : "max-lg:invisible max-lg:-translate-x-full max-lg:rtl:translate-x-full",
@@ -246,6 +276,7 @@ export function AdminShell({
           <button
             type="button"
             className="grid size-11 shrink-0 place-items-center rounded-full hover:bg-[var(--sidebar-accent)] lg:hidden"
+            ref={closeButtonRef}
             onClick={closeMobile}
             aria-label={t("admin.closeMenu")}
           >
@@ -254,7 +285,7 @@ export function AdminShell({
         </div>
         <nav
           ref={navRef}
-          className="no-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-3 py-2"
+          className="admin-thin-scroll relative min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-3 py-2"
         >
           {NAV_GROUPS.map((group) => (
             <div key={group.groupKey} className="space-y-0.5">
@@ -270,16 +301,16 @@ export function AdminShell({
                     onClick={closeMobile}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "group flex min-h-11 items-center gap-2.5 rounded-full px-3.5 text-sm font-medium transition-all duration-200 lg:min-h-9",
+                      "group flex min-h-11 items-center gap-2.5 rounded-xl px-3.5 text-sm font-medium transition-[background-color,color] duration-200 lg:min-h-9",
                       active
-                        ? "admin-gradient text-white"
-                        : "hover:bg-[var(--sidebar-accent)] hover:ps-5 hover:text-[var(--sidebar-strong)]",
+                        ? "bg-accent text-white"
+                        : "hover:bg-[var(--sidebar-accent)] hover:text-[var(--sidebar-strong)]",
                     )}
                   >
                     <AppIcon
                       icon={item.icon}
                       size="sm"
-                      className="transition-transform duration-200 group-hover:scale-125"
+                      className="transition-transform duration-200 group-hover:scale-125 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                     />
                     {t(item.key)}
                   </Link>
@@ -290,7 +321,7 @@ export function AdminShell({
         </nav>
         <div className="shrink-0 p-4">
           <div className="flex items-center gap-2.5 rounded-2xl bg-[var(--sidebar-accent)] px-3 py-2.5">
-            <span className="admin-gradient grid size-9 shrink-0 place-items-center rounded-full text-xs font-bold text-white">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-accent text-xs font-bold text-white">
               {initial}
             </span>
             <div className="min-w-0 flex-1">
@@ -315,13 +346,16 @@ export function AdminShell({
         </div>
       </aside>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 p-3 lg:p-0">
+      {/* While the phone menu is open, Tab must stay inside it. */}
+      <div inert={mobileOpen} className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 p-3 lg:p-0">
         <header className="admin-card flex h-[70px] shrink-0 items-center gap-1.5 px-3 md:px-4">
           <button
             type="button"
             className="grid size-11 shrink-0 place-items-center rounded-full text-muted transition hover:bg-accent/10 hover:text-accent-dark lg:hidden"
+            ref={menuButtonRef}
             onClick={toggleMobile}
             aria-label={t("admin.menu")}
+            aria-expanded={mobileOpen}
           >
             <AppIcon icon={Menu} size="md" />
           </button>
@@ -329,7 +363,7 @@ export function AdminShell({
           <div className="ms-auto flex shrink-0 items-center gap-2">
             <Link
               href="/dashboard/products/smart"
-              className="admin-gradient admin-shine hidden h-10 items-center gap-1.5 whitespace-nowrap rounded-xl px-4 text-sm font-semibold text-white shadow-[0_6px_16px_-6px_rgba(13,138,127,0.8)] lg:flex"
+              className="hidden h-10 items-center bg-accent hover:bg-accent-dark transition-colors gap-1.5 whitespace-nowrap rounded-xl px-4 text-sm font-semibold text-white shadow-[0_6px_16px_-6px_rgba(13,138,127,0.8)] lg:flex"
             >
               <AppIcon icon={Sparkles} size="sm" />
               {t("admin.nav.smartProduct")}
@@ -372,13 +406,12 @@ export function AdminShell({
               data-no-reveal
               className="admin-card relative mb-4 overflow-hidden px-4 py-3.5 md:px-5"
             >
-              <div className="admin-gradient pointer-events-none absolute -end-16 -top-20 h-56 w-56 rounded-full opacity-[.12] blur-2xl" />
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-4">
                   {activeItem ? (
                     <span
                       data-title-tile
-                      className="admin-gradient grid size-11 shrink-0 place-items-center rounded-xl text-white"
+                      className="grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-white"
                     >
                       <AppIcon icon={activeItem.icon} size="sm" />
                     </span>

@@ -363,10 +363,14 @@ export async function updateOrderStatusAction(
       .maybeSingle();
     if (currentError) throw currentError;
     if (!current) throw new Error(await serverT("errors.orderNotFound"));
+    if (status === "out_for_delivery" && !current.rider_id) {
+      throw new Error(await serverT("adminUi.assignRiderFirst"));
+    }
 
     const { data, error } = await supabase
       .from("orders")
-      .update({ status })
+      // Back in the kitchen, it must be picked up again when it next goes out.
+      .update({ status, ...(status === "preparing" ? { picked_up_at: null } : {}) })
       .eq("id", orderId)
       .select("*")
       .single();

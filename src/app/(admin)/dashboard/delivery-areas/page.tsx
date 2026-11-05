@@ -1,5 +1,6 @@
 "use client";
 
+import { notifyFormError } from "@/app/utils/form-notify";
 import { KpiRow } from "@/app/(admin)/_components/KpiCards";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
@@ -15,7 +16,7 @@ import {
   getAdminDeliveryAreasAction,
   updateDeliveryAreaAction,
 } from "@/app/_actions/delivery-area-actions";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -103,7 +104,7 @@ export default function AdminDeliveryAreasPage() {
   const { runAction, isPending: isActionPending, notifyError } = useFormAction();
   const [editing, setEditing] = useState<DeliveryArea | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-  const [nameTab, setNameTab] = useState<Locale>("fa");
+  const [nameTab, setNameTab] = useState<Locale>(locale);
   /** Manually drawn/edited polygon vertices. */
   const [ring, setRing] = useState<[number, number][]>([]);
   /** Boundary fetched from OSM (kept as-is; Polygons get moved into `ring` for editing). */
@@ -201,7 +202,7 @@ export default function AdminDeliveryAreasPage() {
   const closeForm = () => {
     setFormOpen(false);
     setEditing(null);
-    setNameTab("fa");
+    setNameTab(locale);
     resetShape();
     setOsmQuery("");
     form.reset(DEFAULT_FORM_VALUES);
@@ -209,7 +210,7 @@ export default function AdminDeliveryAreasPage() {
 
   const openCreate = (at?: LatLng) => {
     setEditing(null);
-    setNameTab("fa");
+    setNameTab(locale);
     resetShape();
     setOsmQuery("");
     form.reset({
@@ -222,7 +223,7 @@ export default function AdminDeliveryAreasPage() {
 
   const openEdit = (area: DeliveryArea) => {
     setEditing(area);
-    setNameTab("fa");
+    setNameTab(locale);
     setFormOpen(true);
   };
 
@@ -310,6 +311,10 @@ export default function AdminDeliveryAreasPage() {
         },
       });
     }
+  }, (errors) => {
+    const persian = Object.keys(errors).some((key) => key.endsWith("_fa"));
+    if (persian) setNameTab("fa");
+    notifyFormError(t(persian ? "adminUi.formInvalidFa" : "adminUi.formInvalid"));
   });
 
   const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
@@ -322,20 +327,21 @@ export default function AdminDeliveryAreasPage() {
     <AdminShell
       title={t("admin.deliveryAreas.title")}
       subtitle={t("admin.deliveryAreas.subtitle")}
+      actions={
+        <Button type="button" size="sm" onClick={() => openCreate()}>
+          <AppIcon icon={Plus} size="xs" />
+          {t("admin.deliveryAreas.newArea")}
+        </Button>
+      }
     >
       <KpiRow
+        hidden={Boolean(loadError) && !areas}
         items={[{ label: t("adminUi.total"), value: areas?.length, icon: "map", tone: "teal" },
 { label: t("adminUi.serviceable"), value: areas?.filter((a) => a.serviceable).length, icon: "truck", tone: "sky" },
 { label: t("adminUi.active"), value: areas?.filter((a) => a.active).length, icon: "check", tone: "slate" },]}
       />
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-muted">{t("admin.deliveryAreas.mapHint")}</p>
-          <Button type="button" size="sm" onClick={() => openCreate()}>
-            <AppIcon icon={Plus} size="xs" className="me-1.5" />
-            {t("admin.deliveryAreas.newArea")}
-          </Button>
-        </div>
+        <p className="text-xs text-muted">{t("admin.deliveryAreas.mapHint")}</p>
 
         {!isPending && areas ? (
           <DeliveryAreasMap
@@ -346,7 +352,7 @@ export default function AdminDeliveryAreasPage() {
             }}
             onMapClick={handleMapClick}
           />
-        ) : (
+        ) : loadError ? null : (
           <MapLoading />
         )}
 
@@ -359,36 +365,36 @@ export default function AdminDeliveryAreasPage() {
             ))}
           </ul>
         ) : areas?.length ? (
-          <ul className="space-y-2">
+          <>
+<ul className="space-y-2">
             {list.visible.map((area) => (
               <li
                 key={area.id}
                 className={cn(
-                  "flex items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3 transition-colors",
-                  editing?.id === area.id ? "border-accent" : "border-border",
+                  "admin-card flex items-center justify-between gap-3 px-4 py-3",
+                  editing?.id === area.id && "outline-2 -outline-offset-2 outline-accent",
                 )}
               >
                 <button
                   type="button"
-                  className="flex min-w-0 flex-1 items-center gap-3 text-start"
+                  className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1 text-start md:flex-nowrap"
                   onClick={() => openEdit(area)}
-                  aria-label={t("admin.deliveryAreas.edit")}
+                  aria-label={`${t("admin.deliveryAreas.edit")}: ${resolveDeliveryAreaName(area, locale)}`}
                 >
                   <span className="w-6 shrink-0 text-xs text-muted">{area.sort_order}</span>
-                  <span className="min-w-0 flex-1">
+                  <span className="min-w-0 flex-1 basis-[calc(100%-3rem)] md:basis-0">
                     <span className="block truncate text-sm font-semibold text-foreground">
                       {resolveDeliveryAreaName(area, locale)}
                     </span>
-                    <span className="truncate text-xs text-muted" dir="ltr">
+                    <span className="block truncate text-xs text-muted" dir="ltr">
                       {area.slug}
-                      {area.boundary ? " · ▰" : area.center_lat != null ? " · ◯" : ""}
                     </span>
                   </span>
                   <span
                     className={cn(
                       "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
                       area.serviceable
-                        ? "bg-background text-foreground"
+                        ? "bg-accent/10 text-accent-dark"
                         : "bg-background text-muted",
                     )}
                   >
@@ -419,8 +425,10 @@ export default function AdminDeliveryAreasPage() {
               </li>
             ))}
           </ul>
+<ListPager list={list} />
+</>
         ) : (
-          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
+          <p className="admin-card px-4 py-10 text-center text-sm text-muted">
             {t("admin.deliveryAreas.empty")}
           </p>
         )}
@@ -461,7 +469,7 @@ export default function AdminDeliveryAreasPage() {
                     className={cn(
                       "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
                       nameTab === loc
-                        ? "bg-white text-foreground"
+                        ? "bg-card font-semibold text-accent-dark shadow-sm"
                         : "text-muted hover:text-foreground",
                     )}
                     onClick={() => setNameTab(loc)}
@@ -522,6 +530,11 @@ export default function AdminDeliveryAreasPage() {
                   placeholder={t("admin.deliveryAreas.osmLookupPlaceholder")}
                   className="min-w-0 flex-1 rounded-lg border border-border px-3 py-2 text-sm"
                   dir="ltr"
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter") return;
+                    e.preventDefault();
+                    if (osmQuery.trim() && !isActionPending) fetchBoundary();
+                  }}
                 />
                 <Button
                   type="button"

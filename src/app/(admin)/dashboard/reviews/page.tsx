@@ -1,14 +1,15 @@
 "use client";
 
+import { resolveLocalizedName } from "@/lib/i18n/product-name";
 import { KpiRow } from "@/app/(admin)/_components/KpiCards";
-import { OMAN_TIME_ZONE } from "@/config/oman-time";
+import { formatOmanDate } from "@/config/oman-time";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import {
   deleteReviewAction,
   getAdminReviewsAction,
 } from "@/app/_actions/review-actions";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { AppIcon } from "@/components/icons/AppIcon";
 import { RowIconActions } from "@/components/admin/RowIconActions";
@@ -22,13 +23,13 @@ type AdminReview = ProductReview & {
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <div className="flex items-center gap-0.5 text-amber-500">
+    <div role="img" aria-label={`${rating}/5`} className="flex items-center gap-0.5 text-amber-600">
       {Array.from({ length: 5 }).map((_, i) => (
         <AppIcon
           key={i}
           icon={Star}
           size="xs"
-          className={i < rating ? "fill-current" : "text-[#e4e4e7]"}
+          className={i < rating ? "fill-current" : "text-[var(--input)]"}
         />
       ))}
     </div>
@@ -58,6 +59,7 @@ export default function AdminReviewsPage() {
   return (
     <AdminShell title={t("admin.reviews.title")} subtitle={t("admin.reviews.subtitle")}>
       <KpiRow
+        hidden={Boolean(loadError) && !reviews}
         items={[{ label: t("adminUi.total"), value: reviews?.length, icon: "star", tone: "teal" },
 { label: t("adminUi.avgRating"), value: reviews ? (reviews.length ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0) : undefined, decimals: 1, icon: "star", tone: "amber" },
 { label: t("adminUi.fiveStar"), value: reviews?.filter((r) => r.rating === 5).length, icon: "check", tone: "sky" },
@@ -76,7 +78,8 @@ export default function AdminReviewsPage() {
             ))}
           </ul>
         ) : reviews?.length ? (
-          <ul className="space-y-2">
+          <>
+<ul className="space-y-2">
             {list.visible.map((review) => (
               <li
                 key={review.id}
@@ -85,7 +88,7 @@ export default function AdminReviewsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-foreground">
-                      {review.product?.name ?? review.product_id}
+                      {review.product ? resolveLocalizedName(review.product, locale) : review.product_id}
                     </p>
                     <div className="mt-1 flex items-center gap-2">
                       <Stars rating={review.rating} />
@@ -94,10 +97,10 @@ export default function AdminReviewsPage() {
                       </span>
                     </div>
                     {review.comment && (
-                      <p className="mt-2 text-sm text-foreground">{review.comment}</p>
+                      <p className="mt-2 text-sm text-foreground" dir="auto">{review.comment}</p>
                     )}
                     <p className="mt-2 text-xs text-muted">
-                      {new Date(review.created_at).toLocaleDateString(locale, { timeZone: OMAN_TIME_ZONE })}
+                      {formatOmanDate(review.created_at, locale)}
                     </p>
                   </div>
                   <RowIconActions
@@ -106,7 +109,7 @@ export default function AdminReviewsPage() {
                     onDelete={() =>
                       runAction(
                         () => deleteReviewAction(review.id, review.product?.slug),
-                        { onSuccess: refetch },
+                        { successMessage: t("adminUi.deleted"), onSuccess: refetch },
                       )
                     }
                   />
@@ -114,8 +117,10 @@ export default function AdminReviewsPage() {
               </li>
             ))}
           </ul>
+<ListPager list={list} />
+</>
         ) : (
-          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
+          <p className="admin-card px-4 py-10 text-center text-sm text-muted">
             {t("admin.reviews.empty")}
           </p>
         )}

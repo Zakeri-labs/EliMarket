@@ -1,8 +1,11 @@
 "use client";
 
+import { notifyFormError } from "@/app/utils/form-notify";
+import { Select } from "@/components/ui/Select";
+import { resolveLocalizedName } from "@/lib/i18n/product-name";
 import { KpiRow } from "@/app/(admin)/_components/KpiCards";
-import { OMAN_TIME_ZONE } from "@/config/oman-time";
-import { useState } from "react";
+import { formatOmanDate } from "@/config/oman-time";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   answerQuestionAction,
@@ -19,7 +22,7 @@ import {
 import { resolveFaqText, type FaqItem } from "@/lib/faq/types";
 import { Plus } from "lucide-react";
 import { AppIcon } from "@/components/icons/AppIcon";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -115,13 +118,16 @@ export default function AdminQuestionsPage() {
 
   const submitFaq = () => {
     if (!faqForm) return;
-    if (!faqForm.question_fa.trim() || !faqForm.answer_fa.trim()) return;
+    if (!faqForm.question_fa.trim() || !faqForm.answer_fa.trim()) {
+      notifyFormError(t("adminUi.formInvalidFa"));
+      return;
+    }
     runAction(
       () =>
         faqEditingId
           ? updateFaqItemAction(faqEditingId, faqForm)
           : createFaqItemAction(faqForm),
-      { onSuccess: () => { closeFaq(); refetchFaq(); } },
+      { successMessage: t("adminUi.saved"), onSuccess: () => { closeFaq(); refetchFaq(); } },
     );
   };
 
@@ -139,19 +145,28 @@ export default function AdminQuestionsPage() {
     if (!answering) return;
     runAction(
       () => answerQuestionAction(answering.id, answerText, answering.product?.slug),
-      { onSuccess: () => { closeAnswer(); refetch(); } },
+      { successMessage: t("adminUi.saved"), onSuccess: () => { closeAnswer(); refetch(); } },
     );
   };
 
   const faqList = useListControls(faqItems ?? []);
-  const list = useListControls(questions ?? []);
+  const [answerFilter, setAnswerFilter] = useState("");
+  const questionFilter = useMemo(
+    () =>
+      answerFilter
+        ? (question: { answer?: string | null }) => Boolean(question.answer) === (answerFilter === "done")
+        : undefined,
+    [answerFilter],
+  );
+  const list = useListControls(questions ?? [], { filter: questionFilter });
 
   return (
     <AdminShell title={t("admin.questions.title")} subtitle={t("admin.questions.subtitle")}>
       <KpiRow
+        hidden={Boolean(loadError) && !questions}
         items={[{ label: t("adminUi.unanswered"), value: questions?.filter((q) => !q.answer).length, icon: "question", tone: "amber" },
 { label: t("adminUi.answered"), value: questions?.filter((q) => q.answer).length, icon: "check", tone: "teal" },
-{ label: t("adminUi.faqs"), value: faqItems?.length, icon: "file", tone: "sky" },]}
+{ label: t("adminUi.faqs"), value: faqError && !faqItems ? "—" : faqItems?.length, icon: "file", tone: "sky" },]}
       />
       <div className="space-y-8">
         <section className="space-y-3">
@@ -166,11 +181,12 @@ export default function AdminQuestionsPage() {
             </Button>
           </div>
           {faqError ? <ListError error={faqError} onRetry={() => void refetchFaq()} /> : null}
-          <ListControls list={faqList} entity={t("admin.nav.questions")} />
+          <ListControls list={faqList} entity={t("admin.questions.faqTitle")} />
           {faqError && !faqItems ? null : isFaqPending ? (
             <div className="h-24 animate-pulse admin-card" />
           ) : faqItems?.length ? (
-            <ul className="space-y-2">
+            <>
+<ul className="space-y-2">
               {faqList.visible.map((item) => {
                 const text = resolveFaqText(item, locale);
                 return (
@@ -180,7 +196,7 @@ export default function AdminQuestionsPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <p dir="auto" className="text-sm font-semibold text-foreground">{text.question}</p>
                         {!item.is_active && (
-                          <span className="rounded-md bg-background px-1.5 py-0.5 text-xs font-medium text-zinc-600">
+                          <span className="rounded-md bg-background px-1.5 py-0.5 text-xs font-medium text-muted">
                             {t("admin.questions.faqInactiveBadge")}
                           </span>
                         )}
@@ -192,7 +208,7 @@ export default function AdminQuestionsPage() {
                       deleteLabel={t("admin.questions.faqDelete")}
                       onEdit={() => openFaq(item)}
                       onDelete={() =>
-                        runAction(() => deleteFaqItemAction(item.id), { onSuccess: refetchFaq })
+                        runAction(() => deleteFaqItemAction(item.id), { successMessage: t("adminUi.deleted"), onSuccess: refetchFaq })
                       }
                     />
                   </div>
@@ -200,8 +216,10 @@ export default function AdminQuestionsPage() {
                 );
               })}
             </ul>
+<ListPager list={faqList} />
+</>
           ) : (
-            <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-8 text-center text-sm text-muted">
+            <p className="admin-card px-4 py-8 text-center text-sm text-muted">
               {t("admin.questions.faqEmpty")}
             </p>
           )}
@@ -210,7 +228,27 @@ export default function AdminQuestionsPage() {
         <section className="space-y-3">
         <h2 className="text-base font-semibold text-foreground">{t("admin.questions.customerQuestionsTitle")}</h2>
         {loadError ? <ListError error={loadError} onRetry={() => void refetch()} /> : null}
-        <ListControls list={list} entity={t("admin.nav.questions")} />
+        <ListControls
+          list={list}
+          entity={t("admin.nav.questions")}
+          filters={
+            <div className="sm:w-52">
+              <Select
+                aria-label={t("admin.questions.customerQuestionsTitle")}
+                value={answerFilter}
+                onChange={(e) => {
+                  setAnswerFilter(e.target.value);
+                  list.setPage(0);
+                }}
+              >
+                <option value="">{t("table.all")}</option>
+                <option value="open">{t("adminUi.unanswered")}</option>
+                <option value="done">{t("adminUi.answered")}</option>
+              </Select>
+            </div>
+          }
+          onClearFilters={() => setAnswerFilter("")}
+        />
         {loadError && !questions ? null : isPending ? (
           <ul className="space-y-2">
             {["s1", "s2", "s3"].map((key) => (
@@ -221,7 +259,8 @@ export default function AdminQuestionsPage() {
             ))}
           </ul>
         ) : questions?.length ? (
-          <ul className="space-y-2">
+          <>
+<ul className="space-y-2">
             {list.visible.map((question) => (
               <li
                 key={question.id}
@@ -231,7 +270,7 @@ export default function AdminQuestionsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="truncate text-sm font-semibold text-foreground">
-                        {question.product?.name ?? question.product_id}
+                        {question.product ? resolveLocalizedName(question.product, locale) : question.product_id}
                       </p>
                       <span
                         className={cn(
@@ -249,9 +288,9 @@ export default function AdminQuestionsPage() {
                     <p className="mt-1 text-xs text-muted">
                       {t("admin.questions.askedByLabel", { name: question.asker_name })}
                       {" · "}
-                      {new Date(question.created_at).toLocaleDateString(locale, { timeZone: OMAN_TIME_ZONE })}
+                      {formatOmanDate(question.created_at, locale)}
                     </p>
-                    <p className="mt-2 text-sm text-foreground">{question.question}</p>
+                    <p className="mt-2 text-sm text-foreground" dir="auto">{question.question}</p>
                     {question.answer && (
                       <p className="mt-2 rounded-lg bg-background px-3 py-2 text-sm text-foreground">
                         {question.answer}
@@ -265,7 +304,7 @@ export default function AdminQuestionsPage() {
                     onDelete={() =>
                       runAction(
                         () => deleteQuestionAction(question.id, question.product?.slug),
-                        { onSuccess: refetch },
+                        { successMessage: t("adminUi.deleted"), onSuccess: refetch },
                       )
                     }
                   />
@@ -273,8 +312,10 @@ export default function AdminQuestionsPage() {
               </li>
             ))}
           </ul>
+<ListPager list={list} />
+</>
         ) : (
-          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
+          <p className="admin-card px-4 py-10 text-center text-sm text-muted">
             {t("admin.questions.empty")}
           </p>
         )}
@@ -299,7 +340,6 @@ export default function AdminQuestionsPage() {
                 onClick={submitFaq}
                 loading={isActionPending}
                 loadingLabel={t("common.saving")}
-                disabled={!faqForm?.question_fa.trim() || !faqForm?.answer_fa.trim()}
               >
                 {t("admin.questions.faqSave")}
               </Button>
@@ -358,6 +398,7 @@ export default function AdminQuestionsPage() {
               <Button
                 type="button"
                 onClick={submitAnswer}
+                disabled={!answerText.trim()}
                 loading={isActionPending}
                 loadingLabel={t("common.saving")}
               >

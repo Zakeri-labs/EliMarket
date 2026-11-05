@@ -1,7 +1,9 @@
 "use client";
 
+import { formatCount } from "@/i18n/config";
+import { resolveLocalizedName } from "@/lib/i18n/product-name";
 import { KpiRow } from "@/app/(admin)/_components/KpiCards";
-import { OMAN_TIME_ZONE, toOmanInput } from "@/config/oman-time";
+import { toOmanInput, formatOmanDateTime } from "@/config/oman-time";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Upload } from "lucide-react";
@@ -12,7 +14,7 @@ import {
   updateCampaignAction,
 } from "@/app/_actions/campaign-actions";
 import { DatePicker } from "@/components/ui/DatePicker";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { useAdminProducts } from "@/app/(admin)/dashboard/_hooks/use-admin-products";
 import { Button } from "@/components/ui/Button";
@@ -175,16 +177,15 @@ export default function AdminCampaignsPage() {
     return (products ?? []).filter((product) => {
       if (!product.is_active) return false;
       if (!q) return true;
-      return product.name.toLowerCase().includes(q) || product.slug.toLowerCase().includes(q);
+      return (
+        [product.name, product.name_fa, product.name_ar, product.name_en, product.slug]
+          .some((text) => text?.toLowerCase().includes(q))
+      );
     });
   }, [products, productQuery]);
 
   const dateLabel = (iso: string) =>
-    new Date(iso).toLocaleString(locale === "en" ? "en-GB" : locale === "ar" ? "ar-OM" : "fa-IR", {
- timeZone: OMAN_TIME_ZONE,
-      dateStyle: "short",
-      timeStyle: "short",
-    });
+    formatOmanDateTime(iso, locale);
 
   const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
 
@@ -205,6 +206,7 @@ export default function AdminCampaignsPage() {
         </>
       } title={t("admin.campaigns.title")} subtitle={t("admin.campaigns.subtitle")}>
       <KpiRow
+        hidden={Boolean(loadError) && !campaigns}
         items={[{ label: t("adminUi.total"), value: campaigns?.length, icon: "percent", tone: "teal" },
 { label: t("adminUi.live"), value: campaigns?.filter((c) => campaignStatus(c) === "live").length, icon: "check", tone: "sky" },
 { label: t("adminUi.scheduled"), value: campaigns?.filter((c) => campaignStatus(c) === "scheduled").length, icon: "calendar", tone: "amber" },
@@ -221,7 +223,8 @@ export default function AdminCampaignsPage() {
             ))}
           </div>
         ) : campaigns?.length ? (
-          <ul className="space-y-3">
+          <>
+<ul className="space-y-3">
             {list.visible.map((campaign) => {
               const status = campaignStatus(campaign);
               return (
@@ -229,7 +232,7 @@ export default function AdminCampaignsPage() {
                   key={campaign.id}
                   className="flex flex-wrap items-start justify-between gap-3 admin-card p-4"
                 >
-                  <div className="flex min-w-0 flex-1 items-start gap-3">
+                  <div className="flex min-w-0 flex-1 items-start gap-3 max-md:basis-full">
                     {campaign.banner_image_url ? (
                       <div className="h-14 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-background">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -246,7 +249,7 @@ export default function AdminCampaignsPage() {
                         <span
                           className={cn(
                             "rounded-full px-2 py-0.5 text-xs font-medium",
-                            status === "live" && "bg-emerald-100 text-emerald-800",
+                            status === "live" && "bg-teal-100 text-teal-800",
                             status === "scheduled" && "bg-amber-100 text-amber-800",
                             status === "ended" && "bg-background text-muted",
                             status === "inactive" && "bg-red-50 text-red-700",
@@ -288,8 +291,10 @@ export default function AdminCampaignsPage() {
               );
             })}
           </ul>
+<ListPager list={list} />
+</>
         ) : (
-          <p className="rounded-2xl border border-dashed border-border bg-white px-4 py-10 text-center text-sm text-muted">
+          <p className="admin-card px-4 py-10 text-center text-sm text-muted">
             {t("admin.campaigns.empty")}
           </p>
         )}
@@ -357,7 +362,7 @@ export default function AdminCampaignsPage() {
               ) : null}
               <div className="flex flex-wrap gap-2">
                 <label className="cursor-pointer">
-                  <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
+                  <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-input bg-card px-4 py-2 text-sm md:min-h-10">
                     <AppIcon icon={Upload} size="sm" />
                     {t("admin.campaigns.uploadImage")}
                   </span>
@@ -418,7 +423,7 @@ export default function AdminCampaignsPage() {
                 <input
                   className="mt-1"
                   type="number"
-                  min={0.001}
+                  min={form.type === "percent" ? 1 : 0.001}
                   step={form.type === "percent" ? 1 : 0.001}
                   max={form.type === "percent" ? 90 : undefined}
                   value={form.discount_value}
@@ -467,6 +472,9 @@ export default function AdminCampaignsPage() {
                 placeholder={t("admin.campaigns.productSearch")}
                 value={productQuery}
                 onChange={(e) => setProductQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.preventDefault();
+                }}
               />
               <div className="max-h-56 space-y-1 overflow-y-auto rounded-xl border border-border p-2">
                 {filteredProducts.map((product) => {
@@ -485,7 +493,7 @@ export default function AdminCampaignsPage() {
                           }))
                         }
                       />
-                      <span className="min-w-0 truncate">{product.name}</span>
+                      <span className="min-w-0 truncate">{resolveLocalizedName(product, locale)}</span>
                     </label>
                   );
                 })}
@@ -494,7 +502,7 @@ export default function AdminCampaignsPage() {
                 )}
               </div>
               <p className="mt-1 text-xs text-muted">
-                {t("admin.campaigns.selectedCount", { count: form.product_ids.length })}
+                {t("admin.campaigns.selectedCount", { count: formatCount(form.product_ids.length, locale) })}
               </p>
             </div>
           </form>

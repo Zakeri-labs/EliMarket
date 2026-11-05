@@ -1,5 +1,6 @@
 "use client";
 
+import { resolveCategoryName } from "@/lib/i18n/category-name";
 import { CompactItemCard } from "@/app/(admin)/_components/CompactItemCard";
 import { KpiRow } from "@/app/(admin)/_components/KpiCards";
 import { useMemo, useEffect, useState } from "react";
@@ -14,7 +15,7 @@ import {
   getAdminCategoriesAction,
   updateCategoryAction,
 } from "@/app/_actions/category-actions";
-import { ListControls, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
+import { ListControls, ListPager, ListError, useListControls } from "@/app/(admin)/_components/ListControls";
 import { AdminShell } from "@/app/(admin)/_components/AdminShell";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -58,13 +59,13 @@ const DEFAULT_FORM_VALUES: FormValues = {
 const SKELETON_KEYS = ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"] as const;
 
 export default function AdminCategoriesPage() {
-  const { t } = useTranslations();
+  const { t, locale } = useTranslations();
   const queryClient = useQueryClient();
   const { runAction, isPending: isActionPending } = useFormAction();
   const { uploadImage, isPending: isUploadPending } = useAdminImageUpload();
   const [editing, setEditing] = useState<Category | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-  const [nameTab, setNameTab] = useState<Locale>("fa");
+  const [nameTab, setNameTab] = useState<Locale>(locale);
 
   const schema = z.object({
     name: z.string().min(1, t("admin.categories.validationName")),
@@ -115,20 +116,20 @@ export default function AdminCategoriesPage() {
   const closeForm = () => {
     setFormOpen(false);
     setEditing(null);
-    setNameTab("fa");
+    setNameTab(locale);
     form.reset(DEFAULT_FORM_VALUES);
   };
 
   const openCreate = () => {
     setEditing(null);
-    setNameTab("fa");
+    setNameTab(locale);
     form.reset(DEFAULT_FORM_VALUES);
     setFormOpen(true);
   };
 
   const openEdit = (cat: Category) => {
     setEditing(cat);
-    setNameTab("fa");
+    setNameTab(locale);
     setFormOpen(true);
   };
 
@@ -161,6 +162,10 @@ export default function AdminCategoriesPage() {
         },
       });
     }
+  }, (errors) => {
+    const persian = Object.keys(errors).some((key) => key.endsWith("_fa"));
+    if (persian) setNameTab("fa");
+    notifyFormError(t(persian ? "adminUi.formInvalidFa" : "adminUi.formInvalid"));
   });
 
   const inputClass = "w-full rounded-xl border border-input px-3 py-2.5";
@@ -186,6 +191,7 @@ export default function AdminCategoriesPage() {
       subtitle={t("admin.categories.subtitle")}
     >
       <KpiRow
+        hidden={Boolean(loadError) && !categories}
         items={[{ label: t("adminUi.total"), value: categories?.length, icon: "folder", tone: "teal" },
 { label: t("adminUi.topLevel"), value: categories?.filter((c) => !c.parent_id).length, icon: "box", tone: "sky" },
 { label: t("adminUi.subLevel"), value: categories?.filter((c) => c.parent_id).length, icon: "tag", tone: "slate" },]}
@@ -201,14 +207,18 @@ export default function AdminCategoriesPage() {
             ))}
           </ul>
         ) : categories?.length ? (
-          <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
+          <>
+<ul className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
             {list.visible.map((cat) => (
               <li key={cat.id} style={{ paddingInlineStart: `${Math.min(categoryDepth(categories, cat), 4) * 8}px` }}>
                 <CompactItemCard
                   image={cat.image_url}
-                  title={cat.name}
+                  title={resolveCategoryName(cat, locale)}
                   subtitle={cat.parent_id
-                      ? [t("admin.categories.childBadge"), categories.find((item) => item.id === cat.parent_id)?.name]
+                      ? [t("admin.categories.childBadge"), (() => {
+                          const parent = categories.find((item) => item.id === cat.parent_id);
+                          return parent && resolveCategoryName(parent, locale);
+                        })()]
                           .filter(Boolean)
                           .join(" · ")
                       : <span dir="ltr">{cat.slug}</span>}
@@ -237,6 +247,8 @@ export default function AdminCategoriesPage() {
               </li>
             ))}
           </ul>
+<ListPager list={list} />
+</>
         ) : (
           <p className="admin-card px-4 py-10 text-center text-sm text-muted">
             {t("admin.categories.empty")}
@@ -288,7 +300,7 @@ export default function AdminCategoriesPage() {
                     className={cn(
                       "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors md:min-h-8",
                       nameTab === loc
-                        ? "bg-white text-foreground"
+                        ? "bg-card font-semibold text-accent-dark shadow-sm"
                         : "text-muted hover:text-foreground",
                     )}
                     onClick={() => setNameTab(loc)}
@@ -332,7 +344,7 @@ export default function AdminCategoriesPage() {
                 <option value="">{t("admin.categories.noParent")}</option>
                 {validCategoryParents(categories ?? [], editing?.id).map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {`${"— ".repeat(categoryDepth(categories ?? [], cat))}${cat.name}`}
+                      {`${"— ".repeat(categoryDepth(categories ?? [], cat))}${resolveCategoryName(cat, locale)}`}
                     </option>
                   ))}
               </Select>
@@ -358,7 +370,7 @@ export default function AdminCategoriesPage() {
 
             <div className="flex flex-wrap gap-2">
               <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-sm">
+                <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-input bg-card px-4 py-2 text-sm md:min-h-10">
                   <AppIcon icon={Upload} size="sm" />
                   {t("admin.categories.uploadImage")}
                 </span>
