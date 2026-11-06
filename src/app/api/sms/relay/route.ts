@@ -132,10 +132,12 @@ export async function POST(request: Request) {
       console.error(`[sms-relay] iSmart code ${error.code}: ${error.message}`);
       return Response.json(
         { ok: false, error: "provider_error", code: error.code },
-        { status: 502 },
+        // Not 502: Cloudflare replaces 502 bodies with its own page, which hid the code.
+        { status: 422 },
       );
     }
     console.error("[sms-relay] send failed", error);
-    return Response.json({ ok: false, error: "send_failed" }, { status: 502 });
+    const detail = error instanceof Error ? error.message : String(error);
+    return Response.json({ ok: false, error: "send_failed", detail }, { status: 500 });
   }
 }
