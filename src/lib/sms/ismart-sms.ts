@@ -51,22 +51,14 @@ export class SmsSendError extends Error {
  */
 export type SmsEncoding = "latin" | "unicode";
 
-/** A different iSmart account than this app's own (e.g. for the SMS relay). */
-export interface SmsAccount {
-  userId: string;
-  password: string;
-  header: string;
-}
-
 export async function sendSms(
   phone: string,
   message: string,
   encoding: SmsEncoding = "latin",
-  account?: SmsAccount,
 ) {
-  const userId = account?.userId ?? process.env.SMS_USERNAME;
-  const password = account?.password ?? process.env.SMS_PASSWORD;
-  const header = account?.header ?? process.env.SMS_HEADER;
+  const userId = process.env.SMS_USERNAME;
+  const password = process.env.SMS_PASSWORD;
+  const header = process.env.SMS_HEADER;
   if (!userId || !password || !header) {
     throw new Error(
       "SMS_USERNAME, SMS_PASSWORD and SMS_HEADER must be set to send SMS via iSmart SMS.",
